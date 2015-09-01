@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-const AudioPlayer = React.createClass({
+let AudioPlayer = React.createClass({
     audioEnded() {
         let audio = this.refs.audio.getDOMNode();
         this.timeout = setTimeout(function () { audio.play(); }, 4500);

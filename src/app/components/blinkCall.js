@@ -4,7 +4,7 @@ import React from 'react';
 import {Dropdown,MenuItem} from 'react-bootstrap';
 import classNames from 'classnames';
 
-var Idle = React.createClass({
+let Idle = React.createClass({
     getInitialState() {
         return {targetUri: '',
                 callState: null

@@ -6,7 +6,7 @@ import classNames from 'classnames';
 
 const domain='@sip2sip.info';
 
-var Register = React.createClass({
+let Register = React.createClass({
     getInitialState() {
         return {
             accountId: '',

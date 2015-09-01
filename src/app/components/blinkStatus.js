@@ -3,7 +3,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
-const Status = React.createClass({
+let Status = React.createClass({
 
         render() {
             let classes = classNames({

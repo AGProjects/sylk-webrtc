@@ -4,7 +4,7 @@ import React, { findDOMNode } from 'react';
 import sylkrtc from 'sylkrtc';
 import classNames from 'classnames';
 
-var VideoBox = React.createClass({
+let VideoBox = React.createClass({
     getInitialState() {
         return {
             audioOnly: false,

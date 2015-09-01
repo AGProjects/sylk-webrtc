@@ -3,7 +3,7 @@
 import React from 'react';
 import {Modal} from 'react-bootstrap';
 
-const ErrorPanel = React.createClass({
+let ErrorPanel = React.createClass({
     render() {
         let smClose = e => this.setState({smShow: false});
         return (

@@ -4,7 +4,7 @@ import React from 'react';
 import {Modal} from 'react-bootstrap';
 import AudioPlayer from './blinkAudioPlayer.js';
 
-const IncomingCallModal = React.createClass({
+let IncomingCallModal = React.createClass({
     render() {
         var direction, caller;
         if (this.props.call !== null) {

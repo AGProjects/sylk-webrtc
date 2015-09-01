@@ -10,7 +10,6 @@ let IncomingCallModal = React.createClass({
         if (this.props.call !== null) {
             direction = this.props.call.direction ;
             caller = this.props.call.remoteIdentity;
-            // console.log(this.props.call);
         }
         return (
             <Modal {...this.props} aria-labelledby='modal-title-sm'>

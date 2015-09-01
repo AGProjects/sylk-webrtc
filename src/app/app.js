@@ -12,6 +12,12 @@ import StatusBox from './components/blinkStatus.js';
 import IncomingCallModal from './components/blinkIncomingModal.js';
 import Notifications from './components/blinkNotifications.js';
 
+import debug from 'debug';
+
+// attach debugger to the window for console access
+window.blinkDebugger = debug;
+const DEBUG = debug('blinkrtc');
+
 var Blink = React.createClass({
     getInitialState() {
         return {
@@ -47,7 +53,7 @@ var Blink = React.createClass({
     },
 
     registrationStateChanged(oldState, newState) {
-        console.log('Registration state changed! ' + newState);
+        DEBUG('Registration state changed! ' + newState);
         this.setState({registrationState: newState});
         if (newState === 'failed') {
             this.setState({accountId:null, password:null});
@@ -64,10 +70,9 @@ var Blink = React.createClass({
         //     // we might get here when the component has been unmounted
         //     return;
         // }
-        console.log('Call state changed! ' + newState);
+        DEBUG('Call state changed! ' + newState);
         this.setState({callState: newState});
         if (newState === 'terminated') {
-            console.log(data);
             this.refs.notifications.postNotification('info','',data);
             //this.setState({status: {msg: data, lvl:'warning'} });
             this.setState({currentCall: null, callState: null, targetUri: '', smShow: false});
@@ -84,7 +89,7 @@ var Blink = React.createClass({
             connection.on('stateChanged', this.connectionStateChanged);
             this.setState({connection: connection});
         } else {
-            console.log('Connection Present, try to reregister');
+            DEBUG('Connection Present, try to reregister');
             this.handleRegistration(accountId, pass);
         }
     },
@@ -92,10 +97,10 @@ var Blink = React.createClass({
     handleRegistration(accountId,password) {
         var self = this;
         if (this.state.account !== null) {
-            console.log('We already have an account, removing it');
+            DEBUG('We already have an account, removing it');
             this.state.connection.removeAccount(this.state.account, function(error) {
                 if (error) {
-                    console.log(error);
+                    DEBUG(error);
                 }
                 self.setState({account: null, registrationState: null});
             });
@@ -109,7 +114,7 @@ var Blink = React.createClass({
                 self.setState({account: account});
                 self.toggleRegister();
             } else {
-                console.log(error);
+                DEBUG(error);
                 self.gotError(error);
             }
         });
@@ -137,7 +142,7 @@ var Blink = React.createClass({
     },
 
     incomingCall(call){
-        console.log('New ' + call.direction + ' call');
+        DEBUG('New ' + call.direction + ' call');
         if (this.state.currentCall !== null) {
             call.terminate();
         } else {

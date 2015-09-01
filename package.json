@@ -2,8 +2,9 @@
   "name": "Blink",
   "version": "0.1.0",
   "dependencies": {
-    "react": "^0.13.3",
     "classnames": "^2.1.3",
+    "debug": "*",
+    "react": "^0.13.3",
     "react-bootstrap": "^0.25.0",
     "react-notification-system": "^0.1.12",
     "sylkrtc": "git+https://github.com/AGProjects/sylkrtc.js.git"

@@ -3,6 +3,9 @@
 import React, { findDOMNode } from 'react';
 import sylkrtc from 'sylkrtc';
 import classNames from 'classnames';
+import debug from 'debug';
+
+const DEBUG = debug('blinkrtc:Video');
 
 let VideoBox = React.createClass({
     getInitialState() {
@@ -16,7 +19,7 @@ let VideoBox = React.createClass({
             let localVideoElement = React.findDOMNode(this.refs.localVideo);
             sylkrtc.attachMediaStream(localVideoElement, localStream);
         } else {
-            console.log('Sending audio only');
+            DEBUG('Sending audio only');
             this.setState({audioOnly:true});
         }
         this.props.call.on('stateChanged', this.callStateChanged);
@@ -29,7 +32,7 @@ let VideoBox = React.createClass({
                 let remoteVideoElement = React.findDOMNode(this.refs.remoteVideo);
                 sylkrtc.attachMediaStream(remoteVideoElement, remoteStream);
             } else {
-                console.log('Receiving audio only');
+                DEBUG('Receiving audio only');
                 this.setState({audioOnly:true});
             }
         }
@@ -45,7 +48,7 @@ let VideoBox = React.createClass({
     },
 
     showHangup() {
-        console.log('show');
+        //console.log('show');
     },
 
     render() {

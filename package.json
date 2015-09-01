@@ -1,6 +1,6 @@
 {
   "name": "Blink",
-  "version": "0.9.0",
+  "version": "0.1.0",
   "dependencies": {
     "react": "^0.13.3",
     "classnames": "^2.1.3",

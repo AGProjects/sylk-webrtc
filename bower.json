@@ -1,0 +1,12 @@
+{
+  "name": "Blink",
+  "version": "0.9.0",
+  "authors": [
+    "Tijmen de Mes <tijmen@ag-projects.com>"
+  ],
+  "dependencies": {
+    "bootstrap-css-only": "~3.2.0",
+    "font-awesome": "~4.3.0",
+    "animate.css": "~3.3.0"
+  }
+}

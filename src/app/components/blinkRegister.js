@@ -68,16 +68,8 @@ let Register = React.createClass({
             'btn-primary': this.state.password !== '' && this.state.accountId !== '' && !this.state.registering,
             'btn-info'   : this.state.registering,
             'btn-success': this.state.registrationState === 'registered',
-            // 'btn-danger' : this.state.registrationState === 'failed' && !this.state.retry
         });
 
-        let defaultText = 'Sign In';
-        // if (this.state.connectionState !== null && !this.state.retry){
-        //     defaultText = this.state.connectionState;
-        //     if (this.state.connectionState === 'ready' && this.state.registrationState !== null) {
-        //         defaultText = this.state.registrationState;
-        //     }
-        // }
         return (
             <div className="cover-container">
                 <div className="inner cover" >
@@ -92,7 +84,7 @@ let Register = React.createClass({
                         </div>
                         <label htmlFor="inputPassword" className="sr-only">Password</label>
                         <input type="password" id="inputPassword" ref="pass" className="form-control" placeholder="Password"  value={this.state.password} onChange={this.handlePasswordChange} required />
-                        <button type="submit" className={classes} disabled={this.state.registering}>{defaultText}</button>
+                        <button type="submit" className={classes} disabled={this.state.registering}>Sign In</button>
                     </form>
                 </div>
             </div>

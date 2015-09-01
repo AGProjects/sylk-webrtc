@@ -3,14 +3,13 @@
 import React from 'react';
 import NotificationSystem from 'react-notification-system';
 
-var notify = React.createClass({
+let Notifications = React.createClass({
 
     componentDidMount () {
         this._notificationSystem = this.refs.notificationSystem;
     },
 
     postNotification (level,title,message) {
-        console.log(this.refs.notificationSystem);
         this._notificationSystem.addNotification({
             message: message,
             title: title,
@@ -28,4 +27,4 @@ var notify = React.createClass({
     }
 });
 
-module.exports = notify;
+module.exports = Notifications;

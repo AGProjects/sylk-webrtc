@@ -53,7 +53,7 @@ var Blink = React.createClass({
             this.setState({accountId:null, password:null});
             this.setState({status: {msg: 'Sign In failed', lvl:'danger'} });
         } else if (newState === 'registered') {
-            this.refs.notifications._Notify('success','Registered','Account has been registered');
+            this.refs.notifications.postNotification('success','Registered','Account has been registered');
         } else {
             this.setState({status: null });
         }
@@ -68,7 +68,7 @@ var Blink = React.createClass({
         this.setState({callState: newState});
         if (newState === 'terminated') {
             console.log(data);
-            this.refs.notifications._Notify('info','',data);
+            this.refs.notifications.postNotification('info','',data);
             //this.setState({status: {msg: data, lvl:'warning'} });
             this.setState({currentCall: null, callState: null, targetUri: '', smShow: false});
         }

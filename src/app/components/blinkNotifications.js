@@ -3,18 +3,13 @@
 import React from 'react';
 import NotificationSystem from 'react-notification-system';
 
-var nn = class Notify extends React.Component {
-    constructor () {
-        super();
-        this._notificationSystem = null;
-        this._Notify = this._Notify.bind(this);
-    }
+var notify = React.createClass({
 
     componentDidMount () {
         this._notificationSystem = this.refs.notificationSystem;
-    }
+    },
 
-    _Notify (level,title,message) {
+    postNotification (level,title,message) {
         console.log(this.refs.notificationSystem);
         this._notificationSystem.addNotification({
             message: message,
@@ -22,7 +17,7 @@ var nn = class Notify extends React.Component {
             level: level,
             position: 'tc'
         });
-    }
+    },
 
     render () {
         return (
@@ -31,6 +26,6 @@ var nn = class Notify extends React.Component {
             </div>
         );
     }
-}
+});
 
-module.exports = nn;
+module.exports = notify;

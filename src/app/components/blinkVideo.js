@@ -60,12 +60,12 @@ let VideoBox = React.createClass({
         }
         let classes = classNames({
             fullScreen: fullScreen,
-            noFullScreen: fullScreen===false
+            noFullScreen: fullScreen === false
         });
         let remoteVideo,localVideo;
         if (!this.state.audioOnly) {
             remoteVideo = <video id='remoteVideo' ref='remoteVideo' autoPlay />;
-            localVideo = <video className={classes} id='localVideo' ref='localVideo' autoPlay />;
+            localVideo  = <video className={classes} id='localVideo' ref='localVideo' autoPlay />;
         }
         return (
             <div className='videoContainer' onMouseMove={this.showHangup}>

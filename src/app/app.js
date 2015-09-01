@@ -74,7 +74,6 @@ let Blink = React.createClass({
         this.setState({callState: newState});
         if (newState === 'terminated') {
             this.refs.notifications.postNotification('info','',data);
-            //this.setState({status: {msg: data, lvl:'warning'} });
             this.setState({currentCall: null, callState: null, targetUri: '', smShow: false});
         }
     },
@@ -98,12 +97,14 @@ let Blink = React.createClass({
         let self = this;
         if (this.state.account !== null) {
             DEBUG('We already have an account, removing it');
-            this.state.connection.removeAccount(this.state.account, function(error) {
-                if (error) {
-                    DEBUG(error);
+            this.state.connection.removeAccount(this.state.account,
+                function(error) {
+                    if (error) {
+                        DEBUG(error);
+                    }
+                    self.setState({account: null, registrationState: null});
                 }
-                self.setState({account: null, registrationState: null});
-            });
+            );
         }
 
         let options = {account: accountId, password: password};

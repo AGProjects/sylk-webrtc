@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "babelify": "~6.0.2",
+    "bower": "^1.5.2",
     "browser-sync": "^2.7.13",
     "browserify": "10.0.0",
     "gulp": "~3.9.0",

@@ -182,7 +182,6 @@ let Blink = React.createClass({
 
         if (this.state.registrationState !== 'registered') {
             register = <Register
-                connectionState    = {this.state.connectionState}
                 registrationState  = {this.state.registrationState}
                 handleRegistration = {this.handleConnect}
                 onError            = {this.gotError} />;

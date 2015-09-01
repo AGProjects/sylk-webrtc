@@ -11,17 +11,12 @@ let Register = React.createClass({
         return {
             accountId: '',
             password: '',
-            connectionState: null,
             registrationState: null,
             registering: false,
             retry: false,
         };
     },
     componentWillReceiveProps(nextProps) {
-        let connState = nextProps.connectionState;
-        if (connState !== null) {
-            this.setState({connectionState: connState});
-        }
         let registrationState = nextProps.registrationState;
         if (registrationState !== null) {
             this.setState({registrationState: registrationState});

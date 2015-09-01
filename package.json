@@ -6,7 +6,7 @@
     "classnames": "^2.1.3",
     "react-bootstrap": "^0.25.0",
     "react-notification-system": "^0.1.12",
-    "sylkrtc": "file:../sylkrtc.js"
+    "sylkrtc": "git+https://github.com/AGProjects/sylkrtc.js.git"
   },
   "devDependencies": {
     "babelify": "~6.0.2",

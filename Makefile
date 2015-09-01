@@ -1,9 +1,11 @@
 
 GULP = node_modules/.bin/gulp
 
-.PHONY: all clean distclean watch
+.PHONY: all clean dist distclean watch
 
-all:
+all: watch
+
+dist:
 	$(GULP) build
 
 clean:

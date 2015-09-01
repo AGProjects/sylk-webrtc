@@ -2,6 +2,7 @@
 
 import React from 'react';
 import sylkrtc from 'sylkrtc';
+import classNames from 'classnames';
 
 const domain='@sip2sip.info';
 
@@ -58,7 +59,6 @@ var Register = React.createClass({
     },
 
     render() {
-        var classNames = require('classnames');
         let classes = classNames({
             'capitalize' : true,
             'btn'        : true,

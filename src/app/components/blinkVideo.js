@@ -2,6 +2,7 @@
 
 import React, { findDOMNode } from 'react';
 import sylkrtc from 'sylkrtc';
+import classNames from 'classnames';
 
 var VideoBox = React.createClass({
     getInitialState() {
@@ -54,7 +55,6 @@ var VideoBox = React.createClass({
                 fullScreen = true;
             }
         }
-        var classNames = require('classnames');
         let classes = classNames({
             fullScreen: fullScreen,
             noFullScreen: fullScreen===false

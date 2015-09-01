@@ -2,6 +2,7 @@
 
 import React from 'react';
 import {Dropdown,MenuItem} from 'react-bootstrap';
+import classNames from 'classnames';
 
 var Idle = React.createClass({
     getInitialState() {
@@ -25,7 +26,6 @@ var Idle = React.createClass({
     },
 
     render() {
-        var classNames = require('classnames');
         let classes = classNames({
             'btn'         : true,
             'btn-lg'      : true,

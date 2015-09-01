@@ -1,11 +1,11 @@
 'use strict';
 
 import React from 'react';
+import classNames from 'classnames';
 
 const Status = React.createClass({
 
         render() {
-            var classNames = require('classnames');
             let classes = classNames({
                 'alert' : true,
                 'alert-warning' : this.props.level === 'warning',

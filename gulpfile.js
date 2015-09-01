@@ -6,3 +6,4 @@ requireDir('./gulp/tasks', { recurse: true });
 
 // Expose runnable and default tasks here
 gulp.task('build', ['browserify', 'less','images','sounds','fonts','vendorCSS']);
+gulp.task('default', ['build']);

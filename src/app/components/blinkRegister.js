@@ -18,11 +18,11 @@ let Register = React.createClass({
         };
     },
     componentWillReceiveProps(nextProps) {
-        var connState = nextProps.connectionState;
+        let connState = nextProps.connectionState;
         if (connState !== null) {
             this.setState({connectionState: connState});
         }
-        var registrationState = nextProps.registrationState;
+        let registrationState = nextProps.registrationState;
         if (registrationState !== null) {
             this.setState({registrationState: registrationState});
         }

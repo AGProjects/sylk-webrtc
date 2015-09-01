@@ -5,7 +5,6 @@ import {Modal} from 'react-bootstrap';
 
 let ErrorPanel = React.createClass({
     render() {
-        let smClose = e => this.setState({smShow: false});
         return (
             <Modal {...this.props} bsSize='medium' bsStyle='danger' aria-labelledby='modal-title-sm'>
                 <Modal.Header>

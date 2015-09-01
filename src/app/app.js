@@ -18,7 +18,7 @@ import debug from 'debug';
 window.blinkDebugger = debug;
 const DEBUG = debug('blinkrtc');
 
-var Blink = React.createClass({
+let Blink = React.createClass({
     getInitialState() {
         return {
             accountId: '',
@@ -85,7 +85,7 @@ var Blink = React.createClass({
         this.setState({password:pass});
 
         if (this.state.connection === null) {
-            var connection = sylkrtc.createConnection({server: this.state.server});
+            let connection = sylkrtc.createConnection({server: this.state.server});
             connection.on('stateChanged', this.connectionStateChanged);
             this.setState({connection: connection});
         } else {
@@ -95,7 +95,7 @@ var Blink = React.createClass({
     },
 
     handleRegistration(accountId,password) {
-        var self = this;
+        let self = this;
         if (this.state.account !== null) {
             DEBUG('We already have an account, removing it');
             this.state.connection.removeAccount(this.state.account, function(error) {
@@ -107,7 +107,7 @@ var Blink = React.createClass({
         }
 
         let options = {account: accountId, password: password};
-        var account = this.state.connection.addAccount(options, function(error,account) {
+        let account = this.state.connection.addAccount(options, function(error,account) {
             if (!error) {
                 account.on('registrationStateChanged', self.registrationStateChanged);
                 account.on('incomingCall', self.incomingCall);
@@ -130,7 +130,7 @@ var Blink = React.createClass({
 
     startCall(targetUri) {
         if (this.state.currentCall === null) {
-            var call = this.state.account.call(targetUri, this.state.callOtions);
+            let call = this.state.account.call(targetUri, this.state.callOtions);
             call.on('stateChanged', this.callStateChanged);
             this.setState({currentCall: call});
         }
@@ -162,11 +162,12 @@ var Blink = React.createClass({
     },
 
     render() {
-        var register,status;
-        var idle;
-        var video;
-        var audioPlayer;
-        let error;
+        let register,
+            status,
+            idle,
+            video,
+            audioPlayer,
+            error;
         let call = this.state.currentCall;
         let smClose = e => this.setState({smShow: false});
 

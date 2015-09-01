@@ -6,7 +6,7 @@ import AudioPlayer from './blinkAudioPlayer.js';
 
 let IncomingCallModal = React.createClass({
     render() {
-        var direction, caller;
+        let direction, caller;
         if (this.props.call !== null) {
             direction = this.props.call.direction ;
             caller = this.props.call.remoteIdentity;

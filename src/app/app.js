@@ -4,14 +4,14 @@ const React   = require('react');
 const sylkrtc = require('sylkrtc');
 const debug   = require('debug');
 
-const Register          = require('./components/blinkRegister');
-const Idle              = require('./components/blinkCall');
-const Video             = require('./components/blinkVideo');
-const AudioPlayer       = require('./components/blinkAudioPlayer');
-const ErrorPanel        = require('./components/blinkError');
-const StatusBox         = require('./components/blinkStatus');
-const IncomingCallModal = require('./components/blinkIncomingModal');
-const Notifications     = require('./components/blinkNotifications');
+const RegisterBox       = require('./components/RegisterBox');
+const CallBox           = require('./components/CallBox');
+const VideoBox          = require('./components/VideoBox');
+const AudioPlayer       = require('./components/AudioPlayer');
+const ErrorPanel        = require('./components/ErrorPanel');
+const StatusBox         = require('./components/StatusBox');
+const IncomingCallModal = require('./components/IncomingModal');
+const Notifications     = require('./components/Notifications');
 
 // attach debugger to the window for console access
 window.blinkDebugger = debug;
@@ -159,39 +159,36 @@ let Blink = React.createClass({
     },
 
     render: function() {
-        let register,
-            status,
-            idle,
-            video,
-            audioPlayer,
-            error;
+        let registerBox;
+        let statusBox;
+        let callBox;
+        let videoBox;
+        let audioPlayer;
+        let errorPanel;
         let call = this.state.currentCall;
         let smClose = e => this.setState({smShow: false});
 
         if (this.state.error !== null ) {
-            error = <ErrorPanel show={true} onHide={smClose} errorMsg={this.state.error} />
+            errorPanel = <ErrorPanel show={true} onHide={smClose} errorMsg={this.state.error} />
         }
 
         if (this.state.status !== null ) {
-            status = <StatusBox message={this.state.status.msg} level={this.state.status.lvl} />;
+            statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.lvl} />;
         }
 
         if (this.state.registrationState !== 'registered') {
-            register = <Register
+            registerBox = <RegisterBox
                 registrationState  = {this.state.registrationState}
                 handleRegistration = {this.handleConnect}
                 onError            = {this.gotError} />;
-            idle = '';
         } else {
             if (call !== null && (call.state === 'progress' ||  call.state === 'accepted' ||  call.state === 'established')) {
                 if (call.state === 'progress') {
                     audioPlayer = <AudioPlayer direction={call.direction} />
                 }
-                video = <Video call={this.state.currentCall} />;
-                idle = '';
+                videoBox = <VideoBox call={this.state.currentCall} />;
             } else {
-                audioPlayer = '';
-                idle = <Idle
+                callBox = <CallBox
                     account   = {this.state.account}
                     startCall = {this.startCall}
                     signOut = {this.toggleRegister}/>;
@@ -199,12 +196,12 @@ let Blink = React.createClass({
         }
         return (
             <div>
-                {error}
-                {register}
-                {idle}
-                {video}
+                {errorPanel}
+                {registerBox}
+                {callBox}
+                {videoBox}
                 {audioPlayer}
-                {status}
+                {statusBox}
                 <Notifications ref='notifications' />
                 <IncomingCallModal call={this.state.currentCall} show={this.state.smShow} onAnswer={this.answerCall} onHide={smClose} />
             </div>

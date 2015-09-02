@@ -7,7 +7,7 @@ const MenuItem       = ReactBootstrap.MenuItem;
 const classNames     = require('classnames');
 
 
-let Idle = React.createClass({
+let CallBox = React.createClass({
     getInitialState: function() {
         return {targetUri: '',
                 callState: null
@@ -80,4 +80,4 @@ let Idle = React.createClass({
     }
 });
 
-module.exports = Idle;
+module.exports = CallBox;

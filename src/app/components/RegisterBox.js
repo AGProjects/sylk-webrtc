@@ -7,7 +7,7 @@ const classNames = require('classnames');
 const defaultDomain = 'sip2sip.info';
 
 
-let Register = React.createClass({
+let RegisterBox = React.createClass({
     getInitialState: function() {
         return {
             accountId: '',
@@ -91,4 +91,4 @@ let Register = React.createClass({
     }
 });
 
-module.exports = Register;
+module.exports = RegisterBox;

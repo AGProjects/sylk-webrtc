@@ -3,7 +3,7 @@
 const React          = require('react');
 const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
-const AudioPlayer    = require('./blinkAudioPlayer');
+const AudioPlayer    = require('./AudioPlayer');
 
 
 let IncomingCallModal = React.createClass({

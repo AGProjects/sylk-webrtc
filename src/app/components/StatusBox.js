@@ -4,7 +4,7 @@ const React      = require('react');
 const classNames = require('classnames');
 
 
-let Status = React.createClass({
+let StatusBox = React.createClass({
         render: function() {
             let classes = classNames({
                 'alert' : true,
@@ -20,4 +20,4 @@ let Status = React.createClass({
         }
 });
 
-module.exports = Status;
+module.exports = StatusBox;

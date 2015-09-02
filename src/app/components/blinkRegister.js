@@ -4,7 +4,7 @@ const React      = require('react');
 const sylkrtc    = require('sylkrtc');
 const classNames = require('classnames');
 
-const domain='@sip2sip.info';
+const defaultDomain = 'sip2sip.info';
 
 let Register = React.createClass({
     getInitialState() {
@@ -40,7 +40,7 @@ let Register = React.createClass({
     handleSubmit(event) {
         event.preventDefault();
         this.setState({registering: true});
-        this.props.handleRegistration(this.state.accountId+domain, this.state.password);
+        this.props.handleRegistration(this.state.accountId + '@' + defaultDomain, this.state.password);
     },
 
     componentDidMount() {
@@ -75,7 +75,7 @@ let Register = React.createClass({
                         <label htmlFor="inputEmail" className="sr-only">Sip Account</label>
                         <div className="input-group">
                             <input id="inputUser" className="form-control" placeholder="Username" value={this.state.accountId} onChange={this.handleAccountIdChange} required autofocus/>
-                            <div className="input-group-addon domain">&#64;sip2sip.info</div>
+                            <div className="input-group-addon domain">&#64;{defaultDomain}</div>
                         </div>
                         <label htmlFor="inputPassword" className="sr-only">Password</label>
                         <input type="password" id="inputPassword" ref="pass" className="form-control" placeholder="Password"  value={this.state.password} onChange={this.handlePasswordChange} required />

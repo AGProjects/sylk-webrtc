@@ -12,6 +12,7 @@ let VideoBox = React.createClass({
     getInitialState() {
         return {
             audioOnly: false,
+            hangupButtonVisible: true,
         };
     },
     componentDidMount() {
@@ -24,6 +25,8 @@ let VideoBox = React.createClass({
             this.setState({audioOnly:true});
         }
         this.props.call.on('stateChanged', this.callStateChanged);
+        this.hangupButtonTimer = null;
+        this.armHangupTimer();
     },
 
     callStateChanged(oldState, newState, data) {
@@ -48,8 +51,16 @@ let VideoBox = React.createClass({
         this.props.call.terminate();
     },
 
+    armHangupTimer() {
+        clearTimeout(this.hangupButtonTimer);
+        this.hangupButtonTimer = setTimeout(() => {
+            this.setState({hangupButtonVisible: false});
+        }, 4000);
+    },
+
     showHangup() {
-        //console.log('show');
+        this.setState({hangupButtonVisible: true});
+        this.armHangupTimer();
     },
 
     render() {
@@ -68,6 +79,10 @@ let VideoBox = React.createClass({
             remoteVideo = <video id='remoteVideo' ref='remoteVideo' autoPlay />;
             localVideo  = <video className={classes} id='localVideo' ref='localVideo' autoPlay />;
         }
+        let hangupButton;
+        if (this.state.hangupButtonVisible) {
+            hangupButton = <button type='button' className="btn btn-lg btn-danger videoStarted" onClick={this.hangupCall}> <i className='fa fa-phone rotate-135'></i> </button>;
+        }
         return (
             <div className='videoContainer' onMouseMove={this.showHangup}>
                 {remoteVideo}
@@ -76,7 +91,7 @@ let VideoBox = React.createClass({
                     <i className="fa fa-volume-off move-icon fa-stack-2x"></i>
                     <i className="move-icon2 fa fa-volume-up fa-stack-2x animate-sound1"></i></span></div>
                 )}
-                <button type='button' className="btn btn-lg btn-danger videoStarted" onClick={this.hangupCall}> <i className='fa fa-phone rotate-135'></i> </button>
+                {hangupButton}
             </div>
         );
     },

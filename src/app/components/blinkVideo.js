@@ -9,13 +9,14 @@ const DEBUG = debug('blinkrtc:Video');
 
 
 let VideoBox = React.createClass({
-    getInitialState() {
+    getInitialState: function() {
         return {
             audioOnly: false,
             hangupButtonVisible: true,
         };
     },
-    componentDidMount() {
+
+    componentDidMount: function() {
         let localStream = this.props.call.getLocalStreams()[0];
         if (localStream.getVideoTracks().length > 0) {
             let localVideoElement = React.findDOMNode(this.refs.localVideo);
@@ -29,7 +30,7 @@ let VideoBox = React.createClass({
         this.armHangupTimer();
     },
 
-    callStateChanged(oldState, newState, data) {
+    callStateChanged: function(oldState, newState, data) {
         if (newState === 'established') {
             let remoteStream = this.props.call.getRemoteStreams()[0];
             if (remoteStream.getVideoTracks().length > 0) {
@@ -42,28 +43,28 @@ let VideoBox = React.createClass({
         }
     },
 
-    componentWillUnmount() {
+    componentWillUnmount: function() {
         this.props.call.removeListener('stateChanged', this.callStateChanged);
     },
 
-    hangupCall(event) {
+    hangupCall: function(event) {
         event.preventDefault();
         this.props.call.terminate();
     },
 
-    armHangupTimer() {
+    armHangupTimer: function() {
         clearTimeout(this.hangupButtonTimer);
         this.hangupButtonTimer = setTimeout(() => {
             this.setState({hangupButtonVisible: false});
         }, 4000);
     },
 
-    showHangup() {
+    showHangup: function() {
         this.setState({hangupButtonVisible: true});
         this.armHangupTimer();
     },
 
-    render() {
+    render: function() {
         let fullScreen = false;
         if (this.props.call !== null) {
             if (this.props.call.state === 'progress') {

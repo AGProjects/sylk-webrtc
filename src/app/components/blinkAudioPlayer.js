@@ -4,20 +4,23 @@ const React = require('react');
 
 
 let AudioPlayer = React.createClass({
-    audioEnded() {
+    audioEnded: function() {
         let audio = this.refs.audio.getDOMNode();
         this.timeout = setTimeout(function () { audio.play(); }, 4500);
     },
-    componentDidMount() {
+
+    componentDidMount: function() {
         this.timeout = null;
         this.refs.audio.getDOMNode().addEventListener('ended', this.audioEnded);
     },
-    componentWillUnmount() {
+
+    componentWillUnmount: function() {
         clearTimeout(this.timeout);
         this.timeout = null;
         this.refs.audio.getDOMNode().removeEventListener('ended', this.audioEnded);
     },
-    render() {
+
+    render: function() {
         let source;
         if (this.props.direction === 'incoming') {
             source = 'assets/sounds/inbound_ringtone.wav';

@@ -8,17 +8,17 @@ const classNames     = require('classnames');
 
 
 let Idle = React.createClass({
-    getInitialState() {
+    getInitialState: function() {
         return {targetUri: '',
                 callState: null
         };
     },
 
-    handleTargetChange(event) {
+    handleTargetChange: function(event) {
         this.setState({targetUri: event.target.value});
     },
 
-    handleSubmit(event) {
+    handleSubmit: function(event) {
         event.preventDefault();
         let targetUri = this.state.targetUri;
         if (targetUri.indexOf('@') === -1) {
@@ -29,11 +29,11 @@ let Idle = React.createClass({
         this.props.startCall(targetUri);
     },
 
-    handleMenu(event,data2) {
+    handleMenu: function(event,data2) {
         this.props.signOut();
     },
 
-    render() {
+    render: function() {
         let classes = classNames({
             'btn'         : true,
             'btn-lg'      : true,

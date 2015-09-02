@@ -7,7 +7,7 @@ const AudioPlayer    = require('./blinkAudioPlayer');
 
 
 let IncomingCallModal = React.createClass({
-    render() {
+    render: function() {
         let direction, caller;
         if (this.props.call !== null) {
             direction = this.props.call.direction ;

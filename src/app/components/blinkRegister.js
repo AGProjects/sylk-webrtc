@@ -6,8 +6,9 @@ const classNames = require('classnames');
 
 const defaultDomain = 'sip2sip.info';
 
+
 let Register = React.createClass({
-    getInitialState() {
+    getInitialState: function() {
         return {
             accountId: '',
             password: '',
@@ -16,34 +17,35 @@ let Register = React.createClass({
             retry: false,
         };
     },
-    componentWillReceiveProps(nextProps) {
+
+    componentWillReceiveProps: function(nextProps) {
         let registrationState = nextProps.registrationState;
         if (registrationState !== null) {
             this.setState({registrationState: registrationState});
         }
     },
 
-    handleAccountIdChange(event) {
+    handleAccountIdChange: function(event) {
         this.setState({accountId: event.target.value});
         if (this.state.registrationState === 'failed') {
             this.setState({registering: false, retry: true});
         }
     },
 
-    handlePasswordChange(event) {
+    handlePasswordChange: function(event) {
         this.setState({password: event.target.value});
         if (this.state.registrationState === 'failed') {
             this.setState({registering: false, retry: true});
         }
     },
 
-    handleSubmit(event) {
+    handleSubmit: function(event) {
         event.preventDefault();
         this.setState({registering: true});
         this.props.handleRegistration(this.state.accountId + '@' + defaultDomain, this.state.password);
     },
 
-    componentDidMount() {
+    componentDidMount: function() {
         if (sylkrtc.isWebRTCSupported()) {
             this.setState({ isValid: true });
         } else {
@@ -53,7 +55,7 @@ let Register = React.createClass({
         }
     },
 
-    render() {
+    render: function() {
         let classes = classNames({
             'capitalize' : true,
             'btn'        : true,

@@ -20,7 +20,7 @@ const DEBUG = debug('blinkrtc');
 
 
 let Blink = React.createClass({
-    getInitialState() {
+    getInitialState: function() {
         return {
             accountId: '',
             password: '',
@@ -38,7 +38,7 @@ let Blink = React.createClass({
         };
     },
 
-    connectionStateChanged(oldState, newState) {
+    connectionStateChanged: function(oldState, newState) {
         switch (newState) {
             case 'closed':
                 this.setState({connection: null, connectionState: newState});
@@ -53,7 +53,7 @@ let Blink = React.createClass({
         }
     },
 
-    registrationStateChanged(oldState, newState) {
+    registrationStateChanged: function(oldState, newState) {
         DEBUG('Registration state changed! ' + newState);
         this.setState({registrationState: newState});
         if (newState === 'failed') {
@@ -66,7 +66,7 @@ let Blink = React.createClass({
         }
     },
 
-    callStateChanged(oldState, newState, data) {
+    callStateChanged: function(oldState, newState, data) {
         // if (!this.isMounted()) {
         //     // we might get here when the component has been unmounted
         //     return;
@@ -79,7 +79,7 @@ let Blink = React.createClass({
         }
     },
 
-    handleConnect(accountId, pass) {
+    handleConnect: function(accountId, pass) {
         // Needed for ready event in connection
         this.setState({accountId:accountId});
         this.setState({password:pass});
@@ -94,7 +94,7 @@ let Blink = React.createClass({
         }
     },
 
-    handleRegistration(accountId,password) {
+    handleRegistration: function(accountId,password) {
         let self = this;
         if (this.state.account !== null) {
             DEBUG('We already have an account, removing it');
@@ -122,7 +122,7 @@ let Blink = React.createClass({
         });
     },
 
-    toggleRegister() {
+    toggleRegister: function() {
         if (this.state.registrationState !== null) {
             this.state.account.unregister();
         } else {
@@ -130,7 +130,7 @@ let Blink = React.createClass({
         }
     },
 
-    startCall(targetUri) {
+    startCall: function(targetUri) {
         if (this.state.currentCall === null) {
             let call = this.state.account.call(targetUri, this.state.callOtions);
             call.on('stateChanged', this.callStateChanged);
@@ -138,12 +138,12 @@ let Blink = React.createClass({
         }
     },
 
-    answerCall(){
+    answerCall: function(){
         this.setState({ smShow: false });
         this.state.currentCall.answer(this.state.callOptions);
     },
 
-    incomingCall(call){
+    incomingCall: function(call){
         DEBUG('New ' + call.direction + ' call');
         if (this.state.currentCall !== null) {
             call.terminate();
@@ -154,16 +154,11 @@ let Blink = React.createClass({
         }
     },
 
-    gotError(errorMsg) {
+    gotError: function(errorMsg) {
         this.setState({ error: errorMsg });
     },
 
-    componentDidMount() {
-        //if (sylkrtc.isWebRTCSupported())
-            //this.handleConnect();
-    },
-
-    render() {
+    render: function() {
         let register,
             status,
             idle,
@@ -217,5 +212,4 @@ let Blink = React.createClass({
     }
 });
 
-React.render((<Blink />
-), document.getElementById('app'));
+React.render((<Blink />), document.getElementById('app'));

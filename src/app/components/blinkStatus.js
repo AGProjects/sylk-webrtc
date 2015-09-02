@@ -5,8 +5,7 @@ const classNames = require('classnames');
 
 
 let Status = React.createClass({
-
-        render() {
+        render: function() {
             let classes = classNames({
                 'alert' : true,
                 'alert-warning' : this.props.level === 'warning',

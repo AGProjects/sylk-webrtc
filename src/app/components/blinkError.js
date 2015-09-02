@@ -6,7 +6,7 @@ const Modal          = ReactBootstrap.Modal;
 
 
 let ErrorPanel = React.createClass({
-    render() {
+    render: function() {
         return (
             <Modal {...this.props} bsSize='medium' bsStyle='danger' aria-labelledby='modal-title-sm'>
                 <Modal.Header>

@@ -5,12 +5,11 @@ const NotificationSystem = require('react-notification-system');
 
 
 let Notifications = React.createClass({
-
-    componentDidMount () {
+    componentDidMount: function() {
         this._notificationSystem = this.refs.notificationSystem;
     },
 
-    postNotification (level,title,message) {
+    postNotification: function(level,title,message) {
         this._notificationSystem.addNotification({
             message: message,
             title: title,
@@ -19,7 +18,7 @@ let Notifications = React.createClass({
         });
     },
 
-    render () {
+    render: function() {
         return (
             <div>
                 <NotificationSystem ref="notificationSystem" />

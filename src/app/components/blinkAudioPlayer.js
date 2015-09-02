@@ -20,9 +20,9 @@ let AudioPlayer = React.createClass({
     render() {
         let source;
         if (this.props.direction === 'incoming') {
-            source= 'assets/sounds/inbound_ringtone.wav';
+            source = 'assets/sounds/inbound_ringtone.wav';
         } else if (this.props.direction === 'outgoing') {
-            source= 'assets/sounds/outbound_ringtone.wav';
+            source = 'assets/sounds/outbound_ringtone.wav';
         }
         return (
             <div>

@@ -69,7 +69,7 @@ let Register = React.createClass({
             <div className="cover-container">
                 <div className="inner cover" >
                     <div className='blink_logo'></div>
-                    <h1 className="cover-heading">Blink</h1>
+                    <h1 className="cover-heading">Blink for Web</h1>
                     <p className='lead'>Sign in with your SIP account</p>
                     <form className="form-signin" onSubmit={this.handleSubmit}>
                         <label htmlFor="inputEmail" className="sr-only">Sip Account</label>
@@ -81,6 +81,8 @@ let Register = React.createClass({
                         <input type="password" id="inputPassword" ref="pass" className="form-control" placeholder="Password"  value={this.state.password} onChange={this.handlePasswordChange} required />
                         <button type="submit" className={classes} disabled={this.state.registering}>Sign In</button>
                     </form>
+                    <p>No SIP account? Create an account <a href='http://sip2sip.info' target='_new'>here</a></p>
+
                 </div>
             </div>
         );

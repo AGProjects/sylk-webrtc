@@ -2,13 +2,6 @@
  * Globals
  */
 
-/* Links */
-a,
-a:focus,
-a:hover {
-  color: #fff;
-}
-
 /* Custom default button */
 .btn-default,
 .btn-default:hover,

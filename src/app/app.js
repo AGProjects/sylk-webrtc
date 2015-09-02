@@ -74,7 +74,7 @@ let Blink = React.createClass({
         DEBUG('Call state changed! ' + newState);
         this.setState({callState: newState});
         if (newState === 'terminated') {
-            this.refs.notifications.postNotification('info','',data);
+            this.refs.notifications.postNotification('info', 'Call Terminated', data.reason);
             this.setState({currentCall: null, callState: null, targetUri: '', smShow: false});
         }
     },

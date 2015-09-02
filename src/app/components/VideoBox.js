@@ -78,7 +78,7 @@ let VideoBox = React.createClass({
         let remoteVideo,localVideo;
         if (!this.state.audioOnly) {
             remoteVideo = <video id='remoteVideo' ref='remoteVideo' autoPlay />;
-            localVideo  = <video className={classes} id='localVideo' ref='localVideo' autoPlay />;
+            localVideo  = <video className={classes} id='localVideo' ref='localVideo' autoPlay muted/>;
         }
         let hangupButton;
         if (this.state.hangupButtonVisible) {

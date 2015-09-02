@@ -20,8 +20,13 @@ let Idle = React.createClass({
 
     handleSubmit(event) {
         event.preventDefault();
-        // if (this.state.call === null) {
-        this.props.startCall(this.state.targetUri);
+        let targetUri = this.state.targetUri;
+        if (targetUri.indexOf('@') === -1) {
+            // take the domain part from the account
+            const domain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
+            targetUri += '@' + domain;
+        }
+        this.props.startCall(targetUri);
     },
 
     handleMenu(event,data2) {
@@ -47,7 +52,7 @@ let Idle = React.createClass({
                         <form className="form-dial" name='DialForm' onSubmit={this.handleSubmit}>
                             <p className='lead'>Enter the address you wish to call</p>
                             <div className="input-group input-group-lg">
-                                <input type='email' id="inputDestination" className="form-control"
+                                <input type='text' id="inputDestination" className="form-control"
                                     onChange={this.handleTargetChange}
                                     value={this.state.targetUri}
                                     required autofocus />

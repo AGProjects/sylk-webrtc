@@ -39,6 +39,8 @@ let VideoBox = React.createClass({
             } else {
                 DEBUG('Receiving audio only');
                 this.setState({audioOnly:true});
+                let remoteAudioElement = React.findDOMNode(this.refs.remoteAudio);
+                sylkrtc.attachMediaStream(remoteAudioElement, remoteStream);
             }
         }
     },
@@ -75,10 +77,14 @@ let VideoBox = React.createClass({
             fullScreen: fullScreen,
             noFullScreen: fullScreen === false
         });
-        let remoteVideo,localVideo;
+        let remoteAudio;
+        let remoteVideo;
+        let localVideo;
         if (!this.state.audioOnly) {
             remoteVideo = <video id='remoteVideo' ref='remoteVideo' autoPlay />;
             localVideo  = <video className={classes} id='localVideo' ref='localVideo' autoPlay muted/>;
+        } else {
+            remoteAudio = <audio id='remoteAudio' ref='remoteAudio' autoPlay />;
         }
         let hangupButton;
         if (this.state.hangupButtonVisible) {
@@ -86,6 +92,7 @@ let VideoBox = React.createClass({
         }
         return (
             <div className='videoContainer' onMouseMove={this.showHangup}>
+                {remoteAudio}
                 {remoteVideo}
                 {localVideo}
                 {this.state.audioOnly && (<div><span className="fa-stack fa-4">

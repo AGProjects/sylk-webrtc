@@ -1,11 +1,12 @@
 'use strict';
 
-import React, { findDOMNode } from 'react';
-import sylkrtc from 'sylkrtc';
-import classNames from 'classnames';
-import debug from 'debug';
+const React      = require('react');
+const sylkrtc    = require('sylkrtc');
+const classNames = require('classnames');
+const debug      = require('debug');
 
 const DEBUG = debug('blinkrtc:Video');
+
 
 let VideoBox = React.createClass({
     getInitialState() {

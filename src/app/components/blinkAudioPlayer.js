@@ -1,6 +1,7 @@
 'use strict';
 
-import React from 'react';
+const React = require('react');
+
 
 let AudioPlayer = React.createClass({
     audioEnded() {

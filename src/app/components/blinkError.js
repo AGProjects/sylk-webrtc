@@ -1,7 +1,9 @@
 'use strict';
 
-import React from 'react';
-import {Modal} from 'react-bootstrap';
+const React          = require('react');
+const ReactBootstrap = require('react-bootstrap');
+const Modal          = ReactBootstrap.Modal;
+
 
 let ErrorPanel = React.createClass({
     render() {

@@ -1,22 +1,23 @@
 'use strict';
 
-import React from 'react';
-import sylkrtc from 'sylkrtc';
+const React   = require('react');
+const sylkrtc = require('sylkrtc');
+const debug   = require('debug');
 
-import Register from './components/blinkRegister.js';
-import Idle from './components/blinkCall.js';
-import Video from './components/blinkVideo.js';
-import AudioPlayer from './components/blinkAudioPlayer.js';
-import ErrorPanel from './components/blinkError.js';
-import StatusBox from './components/blinkStatus.js';
-import IncomingCallModal from './components/blinkIncomingModal.js';
-import Notifications from './components/blinkNotifications.js';
-
-import debug from 'debug';
+const Register          = require('./components/blinkRegister');
+const Idle              = require('./components/blinkCall');
+const Video             = require('./components/blinkVideo');
+const AudioPlayer       = require('./components/blinkAudioPlayer');
+const ErrorPanel        = require('./components/blinkError');
+const StatusBox         = require('./components/blinkStatus');
+const IncomingCallModal = require('./components/blinkIncomingModal');
+const Notifications     = require('./components/blinkNotifications');
 
 // attach debugger to the window for console access
 window.blinkDebugger = debug;
+
 const DEBUG = debug('blinkrtc');
+
 
 let Blink = React.createClass({
     getInitialState() {

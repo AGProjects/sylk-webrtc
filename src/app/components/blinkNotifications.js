@@ -1,7 +1,8 @@
 'use strict';
 
-import React from 'react';
-import NotificationSystem from 'react-notification-system';
+const React              = require('react');
+const NotificationSystem = require('react-notification-system');
+
 
 let Notifications = React.createClass({
 

@@ -1,8 +1,11 @@
 'use strict';
 
-import React from 'react';
-import {Dropdown,MenuItem} from 'react-bootstrap';
-import classNames from 'classnames';
+const React          = require('react');
+const ReactBootstrap = require('react-bootstrap');
+const Dropdown       = ReactBootstrap.Dropdown;
+const MenuItem       = ReactBootstrap.MenuItem;
+const classNames     = require('classnames');
+
 
 let Idle = React.createClass({
     getInitialState() {

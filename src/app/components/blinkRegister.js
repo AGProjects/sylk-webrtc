@@ -1,8 +1,8 @@
 'use strict';
 
-import React from 'react';
-import sylkrtc from 'sylkrtc';
-import classNames from 'classnames';
+const React      = require('react');
+const sylkrtc    = require('sylkrtc');
+const classNames = require('classnames');
 
 const domain='@sip2sip.info';
 

@@ -1,8 +1,10 @@
 'use strict';
 
-import React from 'react';
-import {Modal} from 'react-bootstrap';
-import AudioPlayer from './blinkAudioPlayer.js';
+const React          = require('react');
+const ReactBootstrap = require('react-bootstrap');
+const Modal          = ReactBootstrap.Modal;
+const AudioPlayer    = require('./blinkAudioPlayer');
+
 
 let IncomingCallModal = React.createClass({
     render() {

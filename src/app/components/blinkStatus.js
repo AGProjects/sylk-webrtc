@@ -1,7 +1,8 @@
 'use strict';
 
-import React from 'react';
-import classNames from 'classnames';
+const React      = require('react');
+const classNames = require('classnames');
+
 
 let Status = React.createClass({
 

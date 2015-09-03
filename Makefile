@@ -7,6 +7,11 @@ all: dist
 
 dev: watch
 
+deploy:
+	echo date +"%Y-%m-%d_%H:%M:%S" > dist/.timestamp
+	rsync -av --exclude .htaccess --delete dist/ agp@node10.dns-hosting.info:/var/www/webrtc/
+	ssh agp@node10.dns-hosting.info 'sudo /root/sync-web-slaves.sh'
+
 dist:
 	$(GULP) build
 

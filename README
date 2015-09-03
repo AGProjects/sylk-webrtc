@@ -28,3 +28,7 @@ make clean
 
 # Clean all installed packages and generated files
 make distclean
+
+# Deploy the built website to the server
+make deploy
+

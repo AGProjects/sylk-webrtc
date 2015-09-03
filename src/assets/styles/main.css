@@ -72,6 +72,9 @@ html,body { overflow: hidden; }
     padding: 30px;
 }
 
+.inner-small {
+    padding: 10px;
+}
 .blink_logo {
     background-image:url(/assets/images/blink-grey.png);
     width:125px;
@@ -97,6 +100,17 @@ html,body { overflow: hidden; }
 .cover .btn-lg {
     padding: 10px 20px;
     font-weight: bold;
+}
+
+/*
+ * Footer
+ */
+
+.footer {
+    color: #999; /* IE8 proofing */
+    color: rgba(255,255,255,.5);
+    text-shadow: 0 1px 3px rgba(0,0,0,.5);
+    font-size: 11px;
 }
 
 /*
@@ -167,13 +181,20 @@ html,body { overflow: hidden; }
     .site-wrapper {
         margin-top: -30px;
     }
+
+    .footer {
+        position: fixed;
+        bottom: 0;
+    }
     /* Handle the widths */
+    .footer,
     .cover-container {
         width: 100%; /* Must be percentage or pixels for horizontal alignment */
     }
 }
 
 @media (min-width: 992px) {
+    .footer,
     .cover-container {
         width: 700px;
     }

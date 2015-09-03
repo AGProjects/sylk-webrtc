@@ -9,6 +9,7 @@ const CallBox           = require('./components/CallBox');
 const VideoBox          = require('./components/VideoBox');
 const AudioPlayer       = require('./components/AudioPlayer');
 const ErrorPanel        = require('./components/ErrorPanel');
+const FooterBox         = require('./components/FooterBox');
 const StatusBox         = require('./components/StatusBox');
 const IncomingCallModal = require('./components/IncomingModal');
 const Notifications     = require('./components/Notifications');
@@ -165,6 +166,7 @@ let Blink = React.createClass({
         let videoBox;
         let audioPlayer;
         let errorPanel;
+        let footerBox;
         let call = this.state.currentCall;
         let smClose = e => this.setState({smShow: false});
 
@@ -194,6 +196,11 @@ let Blink = React.createClass({
                     signOut = {this.toggleRegister}/>;
             }
         }
+
+        if(!videoBox) {
+            footerBox = <FooterBox />;
+        }
+
         return (
             <div>
                 {errorPanel}
@@ -202,6 +209,7 @@ let Blink = React.createClass({
                 {videoBox}
                 {audioPlayer}
                 {statusBox}
+                {footerBox}
                 <Notifications ref='notifications' />
                 <IncomingCallModal call={this.state.currentCall} show={this.state.smShow} onAnswer={this.answerCall} onHide={smClose} />
             </div>

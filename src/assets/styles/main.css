@@ -6,16 +6,16 @@
 .btn-default,
 .btn-default:hover,
 .btn-default:focus {
-  color: #333;
-  text-shadow: none; /* Prevent inheritence from `body` */
-  background-color: #fff;
-  border: 1px solid #fff;
+    color: #333;
+    text-shadow: none; /* Prevent inheritence from `body` */
+    background-color: #fff;
+    border: 1px solid #fff;
 }
 
 .modal-content a,
 .modal-content a:focus,
 .modal-content a:hover {
-  color: #337ab7;
+    color: #337ab7;
 }
 
  /*
@@ -24,13 +24,13 @@
 
 html,
 body {
-  height: 100%;
-  background-color: #333;
-  background-image: url(/assets/images/noise_dark2.png);
+    height: 100%;
+    background-color: #333;
+    background-image: url(/assets/images/noise_dark2.png);
 }
 body {
-  color: #fff;
-  text-align: center;
+    color: #fff;
+    text-align: center;
 }
 
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5 {
@@ -39,28 +39,37 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5 {
 
 html,body { overflow: hidden; }
 /* Extra markup and styles for table-esque vertical and horizontal centering */
+
+.site-wrapper-shadow {
+    display: table;
+    width: 100%;
+    height: 100%; /* For at least Firefox */
+    min-height: 100%;
+    -webkit-box-shadow: inset 0 0 100px rgba(0,0,0,.5);
+            box-shadow: inset 0 0 100px rgba(0,0,0,.5);
+}
+
+/* this will get the negative margin when >768px */
 .site-wrapper {
-  display: table;
-  width: 100%;
-  height: 100%; /* For at least Firefox */
-  min-height: 100%;
-  -webkit-box-shadow: inset 0 0 100px rgba(0,0,0,.5);
-          box-shadow: inset 0 0 100px rgba(0,0,0,.5);
+    display: table;
+    width: 100%;
+    height: 100%; /* For at least Firefox */
+    min-height: 100%;
 }
 
 .site-wrapper-inner {
-  display: table-cell;
-  vertical-align: top;
+    display: table-cell;
+    vertical-align: top;
 }
 
 .cover-container {
-  margin-right: auto;
-  margin-left: auto;
+    margin-right: auto;
+    margin-left: auto;
 }
 
 /* Padding for spacing */
 .inner {
-  padding: 30px;
+    padding: 30px;
 }
 
 .blink_logo {
@@ -83,11 +92,11 @@ html,body { overflow: hidden; }
  */
 
 .cover {
-  padding: 0 20px;
+    padding: 0 20px;
 }
 .cover .btn-lg {
-  padding: 10px 20px;
-  font-weight: bold;
+    padding: 10px 20px;
+    font-weight: bold;
 }
 
 /*
@@ -95,54 +104,54 @@ html,body { overflow: hidden; }
  */
 
 .form-signin, .form-dial {
-  max-width: 330px;
-  padding: 15px;
-  margin: 0 auto;
+    max-width: 330px;
+    padding: 15px;
+    margin: 0 auto;
 }
 
 .form-dial {
-  max-width: 360px;
+    max-width: 360px;
 }
 
 .form-signin .form-signin-heading,
 .form-signin .checkbox {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 .form-signin .checkbox {
-  font-weight: normal;
+    font-weight: normal;
 }
 .form-signin .form-control {
-  position: relative;
-  height: auto;
-  -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
-  padding: 10px;
-  font-size: 16px;
+    position: relative;
+    height: auto;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+    padding: 10px;
+    font-size: 16px;
 }
 .form-signin .form-control:focus {
-  z-index: 2;
+    z-index: 2;
 }
 .form-signin .input-group input {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .form-signin .domain {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-  font-size: 16px;
-  padding: 10px;
-  padding-top:11px;
-  border: 0;
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    font-size: 16px;
+    padding: 10px;
+    padding-top: 11px;
+    border: 0;
 }
 
 .form-signin input[type="password"] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+    margin-bottom: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 /*
@@ -154,6 +163,10 @@ html,body { overflow: hidden; }
     .site-wrapper-inner {
         vertical-align: middle;
     }
+
+    .site-wrapper {
+        margin-top: -30px;
+    }
     /* Handle the widths */
     .cover-container {
         width: 100%; /* Must be percentage or pixels for horizontal alignment */
@@ -161,9 +174,9 @@ html,body { overflow: hidden; }
 }
 
 @media (min-width: 992px) {
-  .cover-container {
-    width: 700px;
-  }
+    .cover-container {
+        width: 700px;
+    }
 }
 
 /*
@@ -428,25 +441,25 @@ html,body { overflow: hidden; }
 .faa-ring.animated,
 .faa-ring.animated-hover:hover,
 .faa-parent.animated-hover:hover > .faa-ring {
-  -webkit-animation: ring 2s ease infinite;
-  animation: ring 2s ease infinite;
-  transform-origin-x: 50%;
-  transform-origin-y: 0px;
-  transform-origin-z: initial;
+    -webkit-animation: ring 2s ease infinite;
+    animation: ring 2s ease infinite;
+    transform-origin-x: 50%;
+    transform-origin-y: 0px;
+    transform-origin-z: initial;
 }
 
 .faa-ring.animated.faa-fast,
 .faa-ring.animated-hover.faa-fast:hover,
 .faa-parent.animated-hover:hover > .faa-ring.faa-fast {
-  -webkit-animation: ring 1s ease infinite;
-  animation: ring 1s ease infinite;
+    -webkit-animation: ring 1s ease infinite;
+    animation: ring 1s ease infinite;
 }
 
 .faa-ring.animated.faa-slow,
 .faa-ring.animated-hover.faa-slow:hover,
 .faa-parent.animated-hover:hover > .faa-ring.faa-slow {
-  -webkit-animation: ring 3s ease infinite;
-  animation: ring 3s ease infinite;
+    -webkit-animation: ring 3s ease infinite;
+    animation: ring 3s ease infinite;
 }
 
 .settings {
@@ -497,39 +510,8 @@ html,body { overflow: hidden; }
     -webkit-animation: fadeOutUp linear 0.5s;
     animation: fadeOutUp linear 0.5s;
 }
+
 .panel-body{
     color: #333;
     text-align: left;
-}
-
-.asideMenu {
-    margin: -15px;
-    border-radius:0 !important;
-    text-align: left;
-}
-
-.asideMenu:first-child {
-    margin-top: -16px;
-}
-
-.ng-aside .modal-dialog {
-    opacity: 0.95 !important;
-}
-
-.ng-aside .modal-header {
-    padding: 10px;
-}
-
-.closeMenu {
-    float: left;
-}
-
-
-.example-enter {
-  opacity: 0.01;
-}
-
-.example-enter.example-enter-active {
-  opacity: 1;
-  transition: opacity .5s ease-in;
 }

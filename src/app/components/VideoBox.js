@@ -46,6 +46,7 @@ let VideoBox = React.createClass({
     },
 
     componentWillUnmount: function() {
+        clearTimeout(this.hangupButtonTimer);
         this.props.call.removeListener('stateChanged', this.callStateChanged);
     },
 

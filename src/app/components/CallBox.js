@@ -18,15 +18,23 @@ let CallBox = React.createClass({
         this.setState({targetUri: event.target.value});
     },
 
-    handleSubmit: function(event) {
+    handleAudioCall: function(event) {
         event.preventDefault();
-        let targetUri = this.state.targetUri;
+        this.startCall(this.state.targetUri, true);
+    },
+
+    handleVideoCall: function(event) {
+        event.preventDefault();
+        this.startCall(this.state.targetUri, false);
+    },
+
+    startCall: function(targetUri, audioOnly) {
         if (targetUri.indexOf('@') === -1) {
             // take the domain part from the account
             const domain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
             targetUri += '@' + domain;
         }
-        this.props.startCall(targetUri);
+        this.props.startCall(targetUri, audioOnly);
     },
 
     handleMenu: function(event,data2) {
@@ -49,7 +57,7 @@ let CallBox = React.createClass({
                 <div className="cover-container">
                     <div className="inner cover">
                         <div className='blink_logo'></div><br/>
-                        <form className="form-dial" name='DialForm' onSubmit={this.handleSubmit}>
+                        <form className="form-dial" name='DialForm'>
                             <p className='lead'>Enter the address you wish to call</p>
                             <div className="input-group input-group-lg">
                                 <input type='text' id="inputDestination" className="form-control"
@@ -57,7 +65,8 @@ let CallBox = React.createClass({
                                     value={this.state.targetUri}
                                     required autofocus />
                                 <span className="input-group-btn">
-                                    <button type="submit" className={classes} disabled={this.state.targetUri.length === 0}><i className='fa fa-phone'></i></button>
+                                    <button type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleAudioCall}><i className='fa fa-phone'></i></button>
+                                    <button type="submit" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleVideoCall}><i className='fa fa-video-camera'></i></button>
                                 </span>
                             </div>
                         </form>

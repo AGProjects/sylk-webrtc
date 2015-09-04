@@ -131,9 +131,15 @@ let Blink = React.createClass({
         }
     },
 
-    startCall: function(targetUri) {
+    startCall: function(targetUri, audioOnly=false) {
         if (this.state.currentCall === null) {
-            let call = this.state.account.call(targetUri, this.state.callOptions);
+            let options = Object.create(this.state.callOptions);
+            if (audioOnly) {
+                options.mediaConstraints = {audio: true, video: false};
+            } else {
+                options.mediaConstraints = {audio: true, video: true};
+            }
+            let call = this.state.account.call(targetUri, options);
             call.on('stateChanged', this.callStateChanged);
             this.setState({currentCall: call});
         }

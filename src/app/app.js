@@ -133,7 +133,7 @@ let Blink = React.createClass({
 
     startCall: function(targetUri) {
         if (this.state.currentCall === null) {
-            let call = this.state.account.call(targetUri, this.state.callOtions);
+            let call = this.state.account.call(targetUri, this.state.callOptions);
             call.on('stateChanged', this.callStateChanged);
             this.setState({currentCall: call});
         }

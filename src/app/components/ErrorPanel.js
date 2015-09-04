@@ -10,7 +10,7 @@ let ErrorPanel = React.createClass({
         return (
             <Modal {...this.props} bsSize='medium' bsStyle='danger' aria-labelledby='modal-title-sm'>
                 <Modal.Header>
-                    <Modal.Title><i className='fa fa-warning'></i> Error</Modal.Title>
+                    <Modal.Title><i className='fa fa-warning'></i> Warning</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {this.props.errorMsg}

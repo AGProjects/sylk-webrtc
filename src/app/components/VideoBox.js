@@ -4,11 +4,14 @@ const React      = require('react');
 const sylkrtc    = require('sylkrtc');
 const classNames = require('classnames');
 const debug      = require('debug');
+const FullscreenMixin = require('../mixins/FullScreen.js');
 
 const DEBUG = debug('blinkrtc:Video');
 
 
 let VideoBox = React.createClass({
+    mixins: [FullscreenMixin],
+
     getInitialState: function() {
         return {
             audioOnly: false,
@@ -48,6 +51,14 @@ let VideoBox = React.createClass({
     componentWillUnmount: function() {
         clearTimeout(this.hangupButtonTimer);
         this.props.call.removeListener('stateChanged', this.callStateChanged);
+        if (this.state.isFullscreen) {
+            this.exitFullscreen();
+        }
+    },
+
+    toggleFullscreen: function (event, ref) {
+        event.preventDefault();
+        this.state.isFullscreen ? this.exitFullscreen() : this.requestFullscreen(ref ? ref : this.refs.videoContainer);
     },
 
     hangupCall: function(event) {
@@ -88,11 +99,18 @@ let VideoBox = React.createClass({
             remoteAudio = <audio id='remoteAudio' ref='remoteAudio' autoPlay />;
         }
         let hangupButton;
+        let fullScreenButton;
+        let fullScreenButtonIcons = classNames({
+            'fa'            : true,
+            'fa-expand'     : !this.state.isFullscreen,
+            'fa-compress'   : this.state.isFullscreen
+        });
         if (this.state.hangupButtonVisible) {
-            hangupButton = <button type='button' className="btn btn-lg btn-danger videoStarted" onClick={this.hangupCall}> <i className='fa fa-phone rotate-135'></i> </button>;
+            hangupButton = <button type='button' className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className='fa fa-phone rotate-135'></i> </button>;
+            fullScreenButton = <button type='button' className="btn btn-round btn-default" onClick={this.toggleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
         }
         return (
-            <div className='videoContainer' onMouseMove={this.showHangup}>
+            <div className='videoContainer'  ref='videoContainer' onMouseMove={this.showHangup}>
                 {remoteAudio}
                 {remoteVideo}
                 {localVideo}
@@ -100,7 +118,10 @@ let VideoBox = React.createClass({
                     <i className="fa fa-volume-off move-icon fa-stack-2x"></i>
                     <i className="move-icon2 fa fa-volume-up fa-stack-2x animate-sound1"></i></span></div>
                 )}
-                {hangupButton}
+                <div className='videoStarted'>
+                    {hangupButton}
+                    {fullScreenButton}
+                </div>
             </div>
         );
     },

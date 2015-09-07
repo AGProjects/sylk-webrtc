@@ -18,6 +18,23 @@
     color: #337ab7;
 }
 
+.btn-round {
+    border-radius: 50%;
+    margin: 4px;
+    opacity: 0.9;
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+}
+
+.btn-round-big {
+    border-radius: 50%;
+    margin: 4px;
+    opacity: 0.9;
+    width: 55px;
+    height: 55px;
+    font-size: 22px;
+}
  /*
  * Base structure
  */
@@ -240,15 +257,18 @@ html,body { overflow: hidden; }
 }
 
 .videoStarted {
-    /* -webkit-transition:all linear 0.5s; */
-    /* transition:all linear 0.5s; */
+     /*-webkit-transition:all linear 0.5s;
+    transition:all linear 0.5s;*/
     position: absolute;
-    bottom: 40px !important;
+    bottom: 35px !important;
     z-index:1;
     overflow: hidden;
+    left: 0;
+    right: 0;
+    margin: auto;
 }
 
-.videoStarted.ng-hide-remove {
+/*.videoStarted.ng-hide-remove {
     -webkit-animation: fadeInUp linear 0.5s;
     animation: fadeInUp linear 0.5s;
 }
@@ -256,7 +276,7 @@ html,body { overflow: hidden; }
 .videoStarted.ng-hide-add {
     -webkit-animation: fadeOutDown linear 0.5s;
     animation: fadeOutDown linear 0.5s;
-}
+}*/
 
 /*
  * Modal colors, text should not be white

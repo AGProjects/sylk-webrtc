@@ -43,7 +43,7 @@ html,
 body {
     height: 100%;
     background-color: #333;
-    background-image: url(/assets/images/noise_dark2.png);
+    background-image: url(../images/noise_dark2.png);
 }
 body {
     color: #fff;
@@ -93,7 +93,7 @@ html,body { overflow: hidden; }
     padding: 10px;
 }
 .blink_logo {
-    background-image:url(/assets/images/blink-white.png);
+    background-image:url(../images/blink-white.png);
     width:125px;
     height:125px;
     background-size: 125px 125px;
@@ -104,7 +104,7 @@ html,body { overflow: hidden; }
     only screen and (-o-min-device-pixel-ratio: 3/2),
     only screen and (min--moz-device-pixel-ratio: 1.5),
     only screen and (min-device-pixel-ratio: 1.5) {
-    .blink_logo {background-image:url(/assets/images/blink-white@2x.png);}
+    .blink_logo {background-image:url(../images/blink-white@2x.png);}
 }
 
 /*

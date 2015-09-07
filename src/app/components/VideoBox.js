@@ -150,6 +150,14 @@ let VideoBox = React.createClass({
             'fa-expand'     : !this.state.isFullscreen,
             'fa-compress'   : this.state.isFullscreen
         });
+        let buttonBarClasses = classNames({
+            'videoStarted' : !this.state.audioOnly
+        });
+        let audioCallDisplayClasses = classNames({
+            'alert'         : true,
+            'alert-info'    : this.props.call.state !== 'established',
+            'alert-success' : this.props.call.state === 'established'
+        });
         if (this.state.hangupButtonVisible) {
             if (!this.state.audioOnly) {
                 muteVideoButton = <button type='button' className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
@@ -163,11 +171,22 @@ let VideoBox = React.createClass({
                 {remoteAudio}
                 {remoteVideo}
                 {localVideo}
-                {this.state.audioOnly && (<div><span className="fa-stack fa-4">
-                    <i className="fa fa-volume-off move-icon fa-stack-2x"></i>
-                    <i className="move-icon2 fa fa-volume-up fa-stack-2x animate-sound1"></i></span></div>
+                {this.state.audioOnly && (
+                    <div>
+                        <span className="fa-stack fa-4">
+                            <i className="fa fa-volume-off move-icon fa-stack-2x"></i>
+                            <i className="move-icon2 fa fa-volume-up fa-stack-2x animate-sound1"></i>
+                        </span>
+                        <div className="cover-container">
+                            <div className="inner cover halfWidth" >
+                                <div className={audioCallDisplayClasses} role="alert">
+                                    <strong>Calling to:</strong> {this.props.call.remoteIdentity}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 )}
-                <div className='videoStarted'>
+                <div className={buttonBarClasses}>
                     {muteVideoButton}
                     {muteButton}
                     {fullScreenButton}

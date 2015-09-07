@@ -205,7 +205,8 @@ html,body { overflow: hidden; }
     }
     /* Handle the widths */
     .footer,
-    .cover-container {
+    .cover-container,
+    .halfWidth {
         width: 100%; /* Must be percentage or pixels for horizontal alignment */
     }
 }
@@ -214,6 +215,10 @@ html,body { overflow: hidden; }
     .footer,
     .cover-container {
         width: 700px;
+    }
+    .halfWidth {
+        width: 500px;
+        margin: auto;
     }
 }
 

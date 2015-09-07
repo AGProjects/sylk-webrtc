@@ -6,7 +6,7 @@
   ],
   "dependencies": {
     "bootstrap-css-only": "~3.2.0",
-    "font-awesome": "~4.3.0",
-    "animate.css": "~3.3.0"
+    "animate.css": "~3.3.0",
+    "fontawesome-actions": "~0.8.1"
   }
 }

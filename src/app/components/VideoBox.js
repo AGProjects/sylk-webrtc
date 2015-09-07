@@ -16,6 +16,7 @@ let VideoBox = React.createClass({
         return {
             audioOnly: false,
             hangupButtonVisible: true,
+            audioMuted: false
         };
     },
 
@@ -61,6 +62,22 @@ let VideoBox = React.createClass({
         this.state.isFullscreen ? this.exitFullscreen() : this.requestFullscreen(ref ? ref : this.refs.videoContainer);
     },
 
+    muteAudio: function(event) {
+        event.preventDefault();
+        let localStream = this.props.call.getLocalStreams()[0];
+        if (localStream.getAudioTracks().length > 0) {
+            if(this.state.audioMuted) {
+                DEBUG('Unmute microphone');
+                localStream.getAudioTracks()[0].enabled = true;
+                this.setState({audioMuted: false});
+            } else {
+                DEBUG('Mute microphone');
+                localStream.getAudioTracks()[0].enabled = false;
+                this.setState({audioMuted: true});
+            }
+        }
+    },
+
     hangupCall: function(event) {
         event.preventDefault();
         this.props.call.terminate();
@@ -98,14 +115,22 @@ let VideoBox = React.createClass({
         } else {
             remoteAudio = <audio id='remoteAudio' ref='remoteAudio' autoPlay />;
         }
+
         let hangupButton;
         let fullScreenButton;
+        let muteButton;
+        let muteButtonIcons = classNames({
+            'fa'                    : true,
+            'fa-microphone'         : !this.state.audioMuted,
+            'fa-microphone-slash'   : this.state.audioMuted
+        });
         let fullScreenButtonIcons = classNames({
             'fa'            : true,
             'fa-expand'     : !this.state.isFullscreen,
             'fa-compress'   : this.state.isFullscreen
         });
         if (this.state.hangupButtonVisible) {
+            muteButton = <button type='button' className="btn btn-round btn-default" onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
             hangupButton = <button type='button' className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className='fa fa-phone rotate-135'></i> </button>;
             fullScreenButton = <button type='button' className="btn btn-round btn-default" onClick={this.toggleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
         }
@@ -119,6 +144,7 @@ let VideoBox = React.createClass({
                     <i className="move-icon2 fa fa-volume-up fa-stack-2x animate-sound1"></i></span></div>
                 )}
                 <div className='videoStarted'>
+                    {muteButton}
                     {hangupButton}
                     {fullScreenButton}
                 </div>

@@ -151,10 +151,12 @@ let VideoBox = React.createClass({
             'fa-compress'   : this.state.isFullscreen
         });
         if (this.state.hangupButtonVisible) {
-            muteVideoButton = <button type='button' className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
+            if (!this.state.audioOnly) {
+                muteVideoButton = <button type='button' className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
+                fullScreenButton = <button type='button' className="btn btn-round btn-default" onClick={this.toggleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
+            }
             muteButton = <button type='button' className="btn btn-round btn-default" onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
             hangupButton = <button type='button' className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className='fa fa-phone rotate-135'></i> </button>;
-            fullScreenButton = <button type='button' className="btn btn-round btn-default" onClick={this.toggleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
         }
         return (
             <div className='videoContainer'  ref='videoContainer' onMouseMove={this.showHangup}>

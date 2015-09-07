@@ -16,7 +16,8 @@ let VideoBox = React.createClass({
         return {
             audioOnly: false,
             hangupButtonVisible: true,
-            audioMuted: false
+            audioMuted: false,
+            videoMuted: false
         };
     },
 
@@ -78,6 +79,22 @@ let VideoBox = React.createClass({
         }
     },
 
+    muteVideo: function(event) {
+        event.preventDefault();
+        let localStream = this.props.call.getLocalStreams()[0];
+        if (localStream.getVideoTracks().length > 0) {
+            if(this.state.videoMuted) {
+                DEBUG('Unmute camera');
+                localStream.getVideoTracks()[0].enabled = true;
+                this.setState({videoMuted: false});
+            } else {
+                DEBUG('Mute camera');
+                localStream.getVideoTracks()[0].enabled = false;
+                this.setState({videoMuted: true});
+            }
+        }
+    },
+
     hangupCall: function(event) {
         event.preventDefault();
         this.props.call.terminate();
@@ -119,10 +136,16 @@ let VideoBox = React.createClass({
         let hangupButton;
         let fullScreenButton;
         let muteButton;
+        let muteVideoButton;
         let muteButtonIcons = classNames({
             'fa'                    : true,
             'fa-microphone'         : !this.state.audioMuted,
             'fa-microphone-slash'   : this.state.audioMuted
+        });
+        let muteVideoButtonIcons = classNames({
+            'fa'                    : true,
+            'fa-video-camera'         : !this.state.videoMuted,
+            'fa-video-camera-slash'   : this.state.videoMuted
         });
         let fullScreenButtonIcons = classNames({
             'fa'            : true,
@@ -130,6 +153,7 @@ let VideoBox = React.createClass({
             'fa-compress'   : this.state.isFullscreen
         });
         if (this.state.hangupButtonVisible) {
+            muteVideoButton = <button type='button' className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
             muteButton = <button type='button' className="btn btn-round btn-default" onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
             hangupButton = <button type='button' className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className='fa fa-phone rotate-135'></i> </button>;
             fullScreenButton = <button type='button' className="btn btn-round btn-default" onClick={this.toggleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
@@ -144,9 +168,11 @@ let VideoBox = React.createClass({
                     <i className="move-icon2 fa fa-volume-up fa-stack-2x animate-sound1"></i></span></div>
                 )}
                 <div className='videoStarted'>
+                    {muteVideoButton}
                     {muteButton}
-                    {hangupButton}
                     {fullScreenButton}
+                    <br />
+                    {hangupButton}
                 </div>
             </div>
         );

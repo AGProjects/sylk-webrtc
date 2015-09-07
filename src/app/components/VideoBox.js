@@ -26,13 +26,13 @@ let VideoBox = React.createClass({
         if (localStream.getVideoTracks().length > 0) {
             let localVideoElement = React.findDOMNode(this.refs.localVideo);
             sylkrtc.attachMediaStream(localVideoElement, localStream);
+            this.hangupButtonTimer = null;
+            this.armHangupTimer();
         } else {
             DEBUG('Sending audio only');
             this.setState({audioOnly:true});
         }
         this.props.call.on('stateChanged', this.callStateChanged);
-        this.hangupButtonTimer = null;
-        this.armHangupTimer();
     },
 
     callStateChanged: function(oldState, newState, data) {
@@ -101,10 +101,12 @@ let VideoBox = React.createClass({
     },
 
     armHangupTimer: function() {
-        clearTimeout(this.hangupButtonTimer);
-        this.hangupButtonTimer = setTimeout(() => {
-            this.setState({hangupButtonVisible: false});
-        }, 4000);
+        if (!this.state.audioOnly) {
+            clearTimeout(this.hangupButtonTimer);
+            this.hangupButtonTimer = setTimeout(() => {
+                this.setState({hangupButtonVisible: false});
+            }, 4000);
+        }
     },
 
     showHangup: function() {

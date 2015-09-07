@@ -260,6 +260,9 @@ html,body { overflow: hidden; }
     z-index:0;
     border: 2px solid #ffffff;
 }
+.offset {
+    top: 35px !important;
+}
 
 .videoStarted {
      /*-webkit-transition:all linear 0.5s;
@@ -273,6 +276,23 @@ html,body { overflow: hidden; }
     margin: auto;
 }
 
+.videoHeader {
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding-top:4px;
+    z-index: 2;
+    top: 0;
+    background: rgba(255,255,255,0.8);
+    color: #000000;
+}
+
+.videoHeader p {
+    margin-bottom: 4px !important;
+    line-height: 1.2 !important;
+    font-size:18px !important;
+
+}
 /*.videoStarted.ng-hide-remove {
     -webkit-animation: fadeInUp linear 0.5s;
     animation: fadeInUp linear 0.5s;

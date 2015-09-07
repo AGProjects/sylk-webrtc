@@ -119,6 +119,7 @@ let VideoBox = React.createClass({
         let classes = classNames({
             'fullScreen'    : this.props.call.state === 'progress',
             'noFullScreen'  : this.props.call.state !== 'progress',
+            'offset'        : this.state.hangupButtonVisible,
             'hidden'        : this.state.videoMuted
         });
         let remoteAudio;
@@ -135,6 +136,7 @@ let VideoBox = React.createClass({
         let fullScreenButton;
         let muteButton;
         let muteVideoButton;
+        let videoHeader;
         let muteButtonIcons = classNames({
             'fa'                    : true,
             'fa-microphone'         : !this.state.audioMuted,
@@ -158,16 +160,24 @@ let VideoBox = React.createClass({
             'alert-info'    : this.props.call.state !== 'established',
             'alert-success' : this.props.call.state === 'established'
         });
+        let videoHeaderTextClasses = classNames({
+            'lead'          : true,
+            'text-info'     : this.props.call.state !== 'established',
+            'text-success'  : this.props.call.state === 'established'
+        });
+
         if (this.state.hangupButtonVisible) {
             if (!this.state.audioOnly) {
                 muteVideoButton = <button type='button' className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
                 fullScreenButton = <button type='button' className="btn btn-round btn-default" onClick={this.toggleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
+                videoHeader =  <div className='videoHeader'><p className={videoHeaderTextClasses}><strong>Remote party:</strong> {this.props.call.remoteIdentity}</p></div>
             }
             muteButton = <button type='button' className="btn btn-round btn-default" onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
             hangupButton = <button type='button' className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className='fa fa-phone rotate-135'></i> </button>;
         }
         return (
             <div className='videoContainer'  ref='videoContainer' onMouseMove={this.showHangup}>
+                {videoHeader}
                 {remoteAudio}
                 {remoteVideo}
                 {localVideo}
@@ -180,7 +190,7 @@ let VideoBox = React.createClass({
                         <div className="cover-container">
                             <div className="inner cover halfWidth" >
                                 <div className={audioCallDisplayClasses} role="alert">
-                                    <strong>Calling to:</strong> {this.props.call.remoteIdentity}
+                                    <strong>Remote party:</strong> {this.props.call.remoteIdentity}
                                 </div>
                             </div>
                         </div>

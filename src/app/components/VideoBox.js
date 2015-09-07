@@ -115,15 +115,10 @@ let VideoBox = React.createClass({
     },
 
     render: function() {
-        let fullScreen = false;
-        if (this.props.call !== null) {
-            if (this.props.call.state === 'progress') {
-                fullScreen = true;
-            }
-        }
+
         let classes = classNames({
-            'fullScreen'    : fullScreen,
-            'noFullScreen'  : fullScreen === false,
+            'fullScreen'    : this.props.call.state === 'progress',
+            'noFullScreen'  : this.props.call.state !== 'progress',
             'hidden'        : this.state.videoMuted
         });
         let remoteAudio;

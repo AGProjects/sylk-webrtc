@@ -32,3 +32,5 @@ make distclean
 # Deploy the built website to the server
 make deploy
 
+# Deploy the built website to the staging server
+make deploy-test

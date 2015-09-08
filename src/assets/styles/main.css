@@ -55,6 +55,15 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5 {
 }
 
 html,body { overflow: hidden; }
+
+.padding-left {
+    padding-left: 10px;
+}
+
+.padding-right {
+    padding-right: 10px;
+}
+
 /* Extra markup and styles for table-esque vertical and horizontal centering */
 
 .site-wrapper-shadow {
@@ -257,11 +266,8 @@ html,body { overflow: hidden; }
     max-width: 200px;
     top: 10px;
     left:30px;
-    z-index:0;
+    z-index:3;
     border: 2px solid #ffffff;
-}
-.offset {
-    top: 35px !important;
 }
 
 .videoStarted {

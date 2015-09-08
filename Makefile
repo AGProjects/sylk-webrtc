@@ -20,10 +20,10 @@ dist:
 	$(GULP) build
 
 clean:
-	rm -rf dist
+	rm -rf dist src/js
 
 distclean: dist
-	rm -rf node_modules src/bower_components src/js
+	rm -rf node_modules src/bower_components
 
 watch:
 	$(GULP) watch

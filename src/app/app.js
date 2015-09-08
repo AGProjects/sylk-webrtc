@@ -61,7 +61,7 @@ let Blink = React.createClass({
             this.setState({accountId:null, password:null});
             this.setState({status: {msg: 'Sign In failed', lvl:'danger'} });
         } else if (newState === 'registered') {
-            this.refs.notifications.postNotification('success','Account signed in','Ready to received calls');
+            this.refs.notifications.postNotification('success','Account signed in','Ready to receive calls');
         } else {
             this.setState({status: null });
         }

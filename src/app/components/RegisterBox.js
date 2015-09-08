@@ -50,7 +50,7 @@ let RegisterBox = React.createClass({
             this.setState({ isValid: true });
         } else {
             if (this.props.onError) {
-                this.props.onError('This app works only with a WebRTC enabled browser like Chrome or Firefox.');
+                this.props.onError('This app works in a WebRTC browser (e.g. Chrome or Firefox) on Mac & Windows.');
             }
         }
     },

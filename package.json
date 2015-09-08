@@ -10,7 +10,7 @@
     "react-bootstrap": "^0.25.0",
     "react-notification-system": "^0.1.12",
     "screenfull": "^2.0.0",
-    "sylkrtc": "git+https://github.com/AGProjects/sylkrtc.js.git#release-0.1.1"
+    "sylkrtc": "git+https://github.com/AGProjects/sylkrtc.js.git#release-0.1.2"
   },
   "devDependencies": {
     "babelify": "~6.0.2",

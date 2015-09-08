@@ -170,7 +170,7 @@ let VideoBox = React.createClass({
             if (!this.state.audioOnly) {
                 muteVideoButton = <button type='button' className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
                 fullScreenButton = <button type='button' className="btn btn-round btn-default" onClick={this.toggleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
-                videoHeader =  <div className='videoHeader'><p className={videoHeaderTextClasses}><strong>Remote party:</strong> {this.props.call.remoteIdentity}</p></div>
+                videoHeader =  <div className='videoHeader'><p className={videoHeaderTextClasses}><strong>Call with</strong> {this.props.call.remoteIdentity}</p></div>
             }
             muteButton = <button type='button' className="btn btn-round btn-default" onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
             hangupButton = <button type='button' className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className='fa fa-phone rotate-135'></i> </button>;
@@ -190,7 +190,7 @@ let VideoBox = React.createClass({
                         <div className="cover-container">
                             <div className="inner cover halfWidth" >
                                 <div className={audioCallDisplayClasses} role="alert">
-                                    <strong>Remote party:</strong> {this.props.call.remoteIdentity}
+                                    <strong>Call with</strong> {this.props.call.remoteIdentity}
                                 </div>
                             </div>
                         </div>

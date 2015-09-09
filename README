@@ -34,3 +34,16 @@ make deploy
 
 # Deploy the built website to the staging server
 make deploy-test
+
+
+Debugging
+---------
+
+By default Blink for Web doesn't output a lot of information to the browser's JavaScript console.
+Console debug messages are namespaced by library, the two most important ones being 'sylkrtc' and 'blinkrtc'.
+In order to enable debugging for both open the browser's JavaScript console and type the following:
+
+window.blinkDebugger.enable('sylkrtc*,blinkrtc*');
+
+Then reload the page. Debug messages will be logged to the console now.
+

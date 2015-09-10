@@ -30,8 +30,6 @@ let VideoBox = React.createClass({
         if (localStream.getVideoTracks().length > 0) {
             let localVideoElement = React.findDOMNode(this.refs.localVideo);
             sylkrtc.attachMediaStream(localVideoElement, localStream);
-            this.hangupButtonTimer = null;
-            this.armHangupTimer();
         } else {
             DEBUG('Sending audio only');
             this.setState({audioOnly:true});
@@ -45,6 +43,8 @@ let VideoBox = React.createClass({
             if (remoteStream.getVideoTracks().length > 0) {
                 let remoteVideoElement = React.findDOMNode(this.refs.remoteVideo);
                 sylkrtc.attachMediaStream(remoteVideoElement, remoteStream);
+                this.hangupButtonTimer = null;
+                this.armHangupTimer();
             } else {
                 DEBUG('Receiving audio only');
                 this.setState({audioOnly:true});

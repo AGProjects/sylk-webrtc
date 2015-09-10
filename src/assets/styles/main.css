@@ -102,7 +102,7 @@ html,body { overflow: hidden; }
 
 .loading-inner {
     display: table-cell;
-    vertical-align: top;
+    vertical-align: middle;
 }
 
 .semi {
@@ -215,7 +215,7 @@ html,body { overflow: hidden; }
 
 @media (min-width: 768px) {
     /* Start the vertical centering */
-    .site-wrapper-inner, .loading-inner {
+    .site-wrapper-inner {
         vertical-align: middle;
     }
 

@@ -13,6 +13,7 @@ const FooterBox         = require('./components/FooterBox');
 const StatusBox         = require('./components/StatusBox');
 const IncomingCallModal = require('./components/IncomingModal');
 const Notifications     = require('./components/Notifications');
+const LoadingScreen     = require('./components/LoadingScreen');
 
 // attach debugger to the window for console access
 window.blinkDebugger = debug;
@@ -35,11 +36,13 @@ let Blink = React.createClass({
             connectionState: null,
             smShow: false,
             error: null,
-            status: null
+            status: null,
+            loading: false,
         };
     },
 
     connectionStateChanged: function(oldState, newState) {
+        DEBUG('Connection state changed! ' + newState);
         switch (newState) {
             case 'closed':
                 this.setState({connection: null, connectionState: newState});
@@ -48,8 +51,11 @@ let Blink = React.createClass({
                 this.setState({connectionState: newState});
                 this.handleRegistration(this.state.accountId, this.state.password);
                 break;
+            case 'disconnected':
+                this.setState({account:null, registrationState: null, loading: true});
+                break;
             default:
-                this.setState({connectionState: newState});
+                this.setState({connectionState: newState, loading: true});
                 break;
         }
     },
@@ -61,6 +67,7 @@ let Blink = React.createClass({
             this.setState({accountId:null, password:null});
             this.setState({status: {msg: 'Sign In failed', lvl:'danger'} });
         } else if (newState === 'registered') {
+            this.setState({loading: false});
             this.refs.notifications.postNotification('success','Account signed in','Ready to receive calls');
         } else {
             this.setState({status: null });
@@ -82,8 +89,7 @@ let Blink = React.createClass({
 
     handleConnect: function(accountId, pass) {
         // Needed for ready event in connection
-        this.setState({accountId:accountId});
-        this.setState({password:pass});
+        this.setState({accountId:accountId, password:pass, loading: true});
 
         if (this.state.connection === null) {
             let connection = sylkrtc.createConnection({server: this.state.server});
@@ -183,6 +189,10 @@ let Blink = React.createClass({
         if (this.state.status !== null ) {
             statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.lvl} />;
         }
+        let loadingScreen;
+        if (this.state.loading) {
+            loadingScreen = <LoadingScreen/>;
+        }
 
         if (this.state.registrationState !== 'registered') {
             registerBox = <RegisterBox
@@ -210,6 +220,7 @@ let Blink = React.createClass({
         return (
             <div>
                 {errorPanel}
+                {loadingScreen}
                 {registerBox}
                 {callBox}
                 {videoBox}

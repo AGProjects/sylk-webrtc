@@ -157,8 +157,8 @@ let VideoBox = React.createClass({
         });
         let muteVideoButtonIcons = classNames({
             'fa'                    : true,
-            'fa-video-camera'         : !this.state.videoMuted,
-            'fa-video-camera-slash'   : this.state.videoMuted
+            'fa-video-camera'       : !this.state.videoMuted,
+            'fa-video-camera-slash' : this.state.videoMuted
         });
         let fullScreenButtonIcons = classNames({
             'fa'            : true,
@@ -166,7 +166,7 @@ let VideoBox = React.createClass({
             'fa-compress'   : this.state.isFullscreen
         });
         let buttonBarClasses = classNames({
-            'videoStarted' : !this.state.audioOnly
+            'videoStarted'  : !this.state.audioOnly
         });
         let audioCallDisplayClasses = classNames({
             'alert'         : true,
@@ -178,7 +178,6 @@ let VideoBox = React.createClass({
             'text-info'     : this.props.call.state !== 'established',
             'text-success'  : this.props.call.state === 'established'
         });
-
 
         if (this.state.hangupButtonVisible) {
             if (!this.state.audioOnly) {

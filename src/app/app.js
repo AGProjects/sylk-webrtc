@@ -64,7 +64,7 @@ let Blink = React.createClass({
         DEBUG('Registration state changed! ' + newState);
         this.setState({registrationState: newState});
         if (newState === 'failed') {
-            this.setState({accountId:null, password:null});
+            this.setState({loading: false, accountId:null, password:null});
             this.setState({status: {msg: 'Sign In failed', lvl:'danger'} });
         } else if (newState === 'registered') {
             this.setState({loading: false});

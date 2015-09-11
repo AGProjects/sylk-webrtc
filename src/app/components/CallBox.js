@@ -69,6 +69,8 @@ let CallBox = React.createClass({
                                     <button type="submit" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleVideoCall}><i className='fa fa-video-camera'></i></button>
                                 </span>
                             </div>
+                            <br/>
+                            <p>You can receive calls at {this.props.account.id}</p>
                         </form>
                     </div>
                 </div>

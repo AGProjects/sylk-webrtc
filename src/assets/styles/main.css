@@ -524,6 +524,28 @@ html,body { overflow: hidden; }
     animation: ring 3s ease infinite;
 }
 
+/* Button Animation */
+.videobuttons-enter {
+    -webkit-animation: fadeInUp linear 0.3s;
+    animation: fadeInUp linear 0.3s;
+}
+
+.videobuttons-leave.videobuttons-leave-active {
+    -webkit-animation: fadeOutDown linear 0.3s;
+    animation: fadeOutDown linear 0.3s;
+}
+
+/* Video header animation */
+.videoheader-enter {
+    -webkit-animation: fadeInDown linear 0.3s;
+    animation: fadeInDown linear 0.3s;
+}
+
+.videoheader-leave.videoheader-leave-active {
+    -webkit-animation: fadeOutUp linear 0.3s;
+    animation: fadeOutUp linear 0.3s;
+}
+
 .settings {
     position: absolute;
     top: 10px;

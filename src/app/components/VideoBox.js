@@ -1,12 +1,15 @@
 'use strict';
 
-const React             = require('react');
-const sylkrtc           = require('sylkrtc');
-const classNames        = require('classnames');
-const debug             = require('debug');
-const moment            = require('moment');
-const momentFormat      = require('moment-duration-format');
-const FullscreenMixin   = require('../mixins/FullScreen.js');
+const React                     = require('react');
+const addons                    = require('react/addons');
+const ReactCSSTransitionGroup   = addons.addons.CSSTransitionGroup;
+const sylkrtc                   = require('sylkrtc');
+const classNames                = require('classnames');
+const debug                     = require('debug');
+const moment                    = require('moment');
+const momentFormat              = require('moment-duration-format');
+const FullscreenMixin           = require('../mixins/FullScreen.js');
+
 
 const DEBUG = debug('blinkrtc:Video');
 
@@ -181,17 +184,18 @@ let VideoBox = React.createClass({
 
         if (this.state.hangupButtonVisible) {
             if (!this.state.audioOnly) {
-                muteVideoButton = <button type='button' className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
-                fullScreenButton = <button type='button' className="btn btn-round btn-default" onClick={this.toggleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
-                videoHeader =  <div className='videoHeader'><p className={videoHeaderTextClasses}><strong>Call with</strong> {this.props.call.remoteIdentity}</p><p className={videoHeaderTextClasses}><i className='fa fa-clock-o'></i> {this.state.callDuration}</p></div>;
+                muteVideoButton = <button key='muteVideo' type='button' className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
+                fullScreenButton = <button key='fsButton' type='button' className="btn btn-round btn-default" onClick={this.toggleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
+                videoHeader =  <div key='header' className='videoHeader'><p className={videoHeaderTextClasses}><strong>Call with</strong> {this.props.call.remoteIdentity}</p><p className={videoHeaderTextClasses}><i className='fa fa-clock-o'></i> {this.state.callDuration}</p></div>;
             }
-            muteButton = <button type='button' className="btn btn-round btn-default" onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
-
-            hangupButton = <button type='button' className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className='fa fa-phone rotate-135'></i> </button>;
+            muteButton = <button key='muteAudio' type='button' className="btn btn-round btn-default" onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
+            hangupButton = <button key='hangupButton' type='button' className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className='fa fa-phone rotate-135'></i> </button>;
         }
         return (
-            <div className='videoContainer'  ref='videoContainer' onMouseMove={this.showHangup}>
-                {videoHeader}
+            <div className='videoContainer' ref='videoContainer' onMouseMove={this.showHangup}>
+                <ReactCSSTransitionGroup transitionName="videoheader">
+                    {videoHeader}
+                </ReactCSSTransitionGroup>
                 {remoteAudio}
                 {remoteVideo}
                 {localVideo}
@@ -213,11 +217,13 @@ let VideoBox = React.createClass({
                     </div>
                 )}
                 <div className={buttonBarClasses}>
-                    {muteVideoButton}
-                    {muteButton}
-                    {fullScreenButton}
-                    <br />
-                    {hangupButton}
+                    <ReactCSSTransitionGroup transitionName="videobuttons">
+                        {muteVideoButton}
+                        {muteButton}
+                        {fullScreenButton}
+                        <br />
+                        {hangupButton}
+                    </ReactCSSTransitionGroup>
                 </div>
             </div>
         );

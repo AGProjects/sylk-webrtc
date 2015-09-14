@@ -108,6 +108,7 @@ html,body { overflow: hidden; }
 .semi {
     opacity: 0.7;
 }
+
 /* Padding for spacing */
 .inner {
     padding: 30px;
@@ -286,10 +287,9 @@ html,body { overflow: hidden; }
 }
 
 .videoStarted {
-     /*-webkit-transition:all linear 0.5s;
-    transition:all linear 0.5s;*/
     position: absolute;
-    bottom: 35px !important;
+    bottom: 0px !important;
+    padding-bottom: 35px;
     z-index:1;
     overflow: hidden;
     left: 0;
@@ -314,15 +314,7 @@ html,body { overflow: hidden; }
     font-size:18px !important;
 
 }
-/*.videoStarted.ng-hide-remove {
-    -webkit-animation: fadeInUp linear 0.5s;
-    animation: fadeInUp linear 0.5s;
-}
 
-.videoStarted.ng-hide-add {
-    -webkit-animation: fadeOutDown linear 0.5s;
-    animation: fadeOutDown linear 0.5s;
-}*/
 
 /*
  * Modal colors, text should not be white
@@ -369,23 +361,6 @@ html,body { overflow: hidden; }
     animation: mymove 3s ease-in-out infinite;
 }
 
-
-.animate-hangup {
-    -webkit-animation: mymove1 1s linear; /* Chrome, Safari, Opera */
-    animation: mymove1 1s linear;
-}
-
-
-/* Chrome, Safari, Opera */
-@-webkit-keyframes mymove1 {
-    from {opacity: 0;}
-    to {opacity: 1;}
-    }
-
-    @keyframes mymove1 {
-        from {opacity: 0;}
-        to {opacity: 1;}
-    }
 
 /* Chrome, Safari, Opera */
 @-webkit-keyframes mymove {
@@ -572,6 +547,8 @@ html,body { overflow: hidden; }
     border-color: #ebccd1;
 }
 
+
+
 .modal-danger > .modal-content {
     border-color:#ebccd1;
 }
@@ -582,21 +559,10 @@ html,body { overflow: hidden; }
     opacity: 1;
 }
 .settingsVideo {
-    /* -webkit-transition:all linear 0.5s; */
-    /* transition:all linear 0.5s; */
     z-index:10;
     /* overflow: hidden; */
 }
 
-.settingsVideo.ng-hide-remove {
-    -webkit-animation: fadeInDown linear 0.5s;
-    animation: fadeInDown linear 0.5s;
-}
-
-.settingsVideo.ng-hide-add {
-    -webkit-animation: fadeOutUp linear 0.5s;
-    animation: fadeOutUp linear 0.5s;
-}
 
 .panel-body{
     color: #333;

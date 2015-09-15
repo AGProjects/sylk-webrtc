@@ -128,7 +128,7 @@ let Blink = React.createClass({
         }
     },
 
-    handleRegistration: function(accountId,password) {
+    handleRegistration: function(accountId, password) {
         let self = this;
         if (this.state.account !== null) {
             DEBUG('We already have an account, removing it');
@@ -244,7 +244,6 @@ let Blink = React.createClass({
         if(!videoBox) {
             footerBox = <FooterBox />;
         }
-
         return (
             <div>
                 {errorPanel}

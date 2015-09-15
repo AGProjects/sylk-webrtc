@@ -46,9 +46,7 @@ let RegisterBox = React.createClass({
     },
 
     componentDidMount: function() {
-        if (sylkrtc.isWebRTCSupported()) {
-            this.setState({ isValid: true });
-        } else {
+        if (!sylkrtc.isWebRTCSupported()) {
             if (this.props.onError) {
                 this.props.onError('This app works in a WebRTC browser (e.g. Chrome or Firefox) on Mac & Windows.');
             }

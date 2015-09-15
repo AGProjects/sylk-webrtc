@@ -92,6 +92,26 @@ let Blink = React.createClass({
             this.refs.notifications.postNotification('info', 'Call Terminated', data.reason);
             this.setState({currentCall: null, callState: null, targetUri: '', smShow: false});
         }
+
+        if (newState === 'progress') {
+            this.refs.audioPlayerOutbound.play(true);
+        }
+
+        if (oldState === 'established' && newState === 'terminated') {
+            this.refs.audioPlayerHangup.play();
+        }
+
+        if (newState === 'accepted') {
+            this.refs.audioPlayerOutbound.stop();
+            this.refs.audioPlayerInbound.stop();
+        }
+
+        if ((oldState === 'progress' || oldState === 'incoming') && newState === 'terminated') {
+            this.refs.audioPlayerOutbound.stop();
+            this.refs.audioPlayerInbound.stop();
+            this.refs.audioPlayerHangup.play();
+        }
+
     },
 
     handleConnect: function(accountId, pass) {
@@ -168,6 +188,7 @@ let Blink = React.createClass({
         if (this.state.currentCall !== null) {
             call.terminate();
         } else {
+            this.refs.audioPlayerInbound.play(true);
             this.setState({ smShow: true });
             call.on('stateChanged', this.callStateChanged);
             this.setState({currentCall: call});
@@ -183,9 +204,9 @@ let Blink = React.createClass({
         let statusBox;
         let callBox;
         let videoBox;
-        let audioPlayer;
         let errorPanel;
         let footerBox;
+        let audioPlayerHangup, audioPlayerInbound, audioPlayerOutbound;
         let call = this.state.currentCall;
         let smClose = e => this.setState({smShow: false});
 
@@ -207,10 +228,10 @@ let Blink = React.createClass({
                 handleRegistration = {this.handleConnect}
                 onError            = {this.gotError} />;
         } else {
+            audioPlayerInbound = <AudioPlayer ref='audioPlayerInbound' source_file='assets/sounds/inbound_ringtone.wav'/>;
+            audioPlayerOutbound = <AudioPlayer ref='audioPlayerOutbound' source_file='assets/sounds/outbound_ringtone.wav'/>;
+            audioPlayerHangup = <AudioPlayer ref='audioPlayerHangup' source_file='assets/sounds/hangup_tone.wav'/>;
             if (call !== null && (call.state === 'progress' ||  call.state === 'accepted' ||  call.state === 'established')) {
-                if (call.state === 'progress') {
-                    audioPlayer = <AudioPlayer direction={call.direction} />
-                }
                 videoBox = <VideoBox call={this.state.currentCall} />;
             } else {
                 callBox = <CallBox
@@ -231,7 +252,9 @@ let Blink = React.createClass({
                 {registerBox}
                 {callBox}
                 {videoBox}
-                {audioPlayer}
+                {audioPlayerHangup}
+                {audioPlayerOutbound}
+                {audioPlayerInbound}
                 {statusBox}
                 {footerBox}
                 <Notifications ref='notifications' />

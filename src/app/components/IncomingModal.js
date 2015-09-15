@@ -8,9 +8,8 @@ const AudioPlayer    = require('./AudioPlayer');
 
 let IncomingCallModal = React.createClass({
     render: function() {
-        let direction, caller;
+        let caller;
         if (this.props.call !== null) {
-            direction = this.props.call.direction ;
             caller = this.props.call.remoteIdentity;
         }
         return (
@@ -27,7 +26,6 @@ let IncomingCallModal = React.createClass({
                         <p className='lead'>From: {caller}</p>
                         </div>
                     </div>
-                    <AudioPlayer direction={direction}/>
                 </Modal.Body>
                 <Modal.Footer>
                     <div className="btn-group btn-group-justified" role="group">

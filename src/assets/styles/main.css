@@ -185,16 +185,18 @@ html,body { overflow: hidden; }
     padding: 10px;
     font-size: 16px;
 }
-.form-signin .form-control:focus {
-    z-index: 2;
+
+.form-signin .input-group:first-of-type input:focus {
+    z-index: 3;
 }
-.form-signin .input-group input {
+
+.form-signin .input-group:first-of-type input {
     margin-bottom: -1px;
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
 }
 
-.form-signin .domain {
+.form-signin .input-group:first-of-type .input-group-addon:first-child {
     margin-bottom: -1px;
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
@@ -204,8 +206,22 @@ html,body { overflow: hidden; }
     border: 0;
 }
 
-.form-signin input[type="password"] {
+.form-signin .input-group:last-of-type .input-group-addon:first-child  {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    font-size: 16px;
+    padding: 10px;
+    padding-bottom: 11px;
+    padding-top: 12px;
+    border: 0;
+    border-top: 1px solid #ccc;
+}
+
+.form-signin .input-group:last-of-type {
     margin-bottom: 10px;
+}
+
+.form-signin input[type="password"]{
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }

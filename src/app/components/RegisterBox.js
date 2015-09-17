@@ -41,7 +41,12 @@ let RegisterBox = React.createClass({
     handleSubmit: function(event) {
         event.preventDefault();
         this.setState({registering: true});
-        this.props.handleRegistration(this.state.accountId + '@' + defaultDomain, this.state.password);
+        let accountId = this.state.accountId;
+        if (this.state.accountId.indexOf('@') === -1) {
+             // take the domain part from the default
+            accountId = this.state.accountId +'@'+ defaultDomain;
+        }
+        this.props.handleRegistration(accountId, this.state.password);
     },
 
     componentDidMount: function() {
@@ -73,11 +78,14 @@ let RegisterBox = React.createClass({
                     <form className="form-signin" onSubmit={this.handleSubmit}>
                         <label htmlFor="inputEmail" className="sr-only">Sip Account</label>
                         <div className="input-group">
-                            <input id="inputUser" className="form-control" placeholder="Username" value={this.state.accountId} onChange={this.handleAccountIdChange} required autofocus/>
-                            <div className="input-group-addon domain">&#64;{defaultDomain}</div>
+                            <span className="input-group-addon first"><i className="fa fa-globe fa-fw"></i></span>
+                            <input id="inputUser" className="form-control" placeholder="SIP URI (username@domain)" value={this.state.accountId} onChange={this.handleAccountIdChange} required autofocus/>
                         </div>
                         <label htmlFor="inputPassword" className="sr-only">Password</label>
-                        <input type="password" id="inputPassword" ref="pass" className="form-control" placeholder="Password"  value={this.state.password} onChange={this.handlePasswordChange} required />
+                        <div className="input-group">
+                            <span className="input-group-addon second"><i className="fa fa-lock fa-fw"></i></span>
+                            <input type="password" id="inputPassword" ref="pass" className="form-control" placeholder="Password"  value={this.state.password} onChange={this.handlePasswordChange} required />
+                        </div>
                         <button type="submit" className={classes} disabled={this.state.registering}>Sign In</button>
                     </form>
                     <p>No SIP account? Create an account <a href='http://sip2sip.info' target='_new'>here</a></p>

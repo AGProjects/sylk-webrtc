@@ -151,7 +151,7 @@ let Blink = React.createClass({
                 self.toggleRegister();
             } else {
                 DEBUG(error);
-                self.gotError(error);
+                self.setState({loading: false, status: {msg: error.message, lvl:'danger'}});
             }
         });
     },
@@ -217,6 +217,7 @@ let Blink = React.createClass({
         if (this.state.status !== null ) {
             statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.lvl} />;
         }
+
         let loadingScreen;
         if (this.state.loading) {
             loadingScreen = <LoadingScreen/>;

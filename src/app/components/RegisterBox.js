@@ -24,18 +24,20 @@ let RegisterBox = React.createClass({
         }
     },
 
-    handleAccountIdChange: function(event) {
-        this.setState({accountId: event.target.value});
-        if (this.state.registrationState === 'failed') {
+    resetSignInButton: function() {
+        if (this.state.registrationState === 'failed' || this.state.registrationState === null) {
             this.setState({registering: false});
         }
     },
 
+    handleAccountIdChange: function(event) {
+        this.setState({accountId: event.target.value});
+        this.resetSignInButton();
+    },
+
     handlePasswordChange: function(event) {
         this.setState({password: event.target.value});
-        if (this.state.registrationState === 'failed') {
-            this.setState({registering: false});
-        }
+        this.resetSignInButton();
     },
 
     handleSubmit: function(event) {

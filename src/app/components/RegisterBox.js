@@ -13,8 +13,7 @@ let RegisterBox = React.createClass({
             accountId: '',
             password: '',
             registrationState: null,
-            registering: false,
-            retry: false,
+            registering: false
         };
     },
 
@@ -28,14 +27,14 @@ let RegisterBox = React.createClass({
     handleAccountIdChange: function(event) {
         this.setState({accountId: event.target.value});
         if (this.state.registrationState === 'failed') {
-            this.setState({registering: false, retry: true});
+            this.setState({registering: false});
         }
     },
 
     handlePasswordChange: function(event) {
         this.setState({password: event.target.value});
         if (this.state.registrationState === 'failed') {
-            this.setState({registering: false, retry: true});
+            this.setState({registering: false});
         }
     },
 

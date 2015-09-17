@@ -22,6 +22,10 @@ let FullscreenMixin = {
         }
     },
 
+    componentWillUnmount: function() {
+        document.removeEventListener(screenfull.raw.fullscreenchange, this.onChangeFullscreen);
+    },
+
     requestFullscreen: function (ref) {
         if (ref && ref.getDOMNode) {
             let elem = ref.getDOMNode();

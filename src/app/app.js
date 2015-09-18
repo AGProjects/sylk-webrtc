@@ -197,7 +197,10 @@ let Blink = React.createClass({
         let footerBox;
         let audioPlayerHangup, audioPlayerInbound, audioPlayerOutbound;
         let call = this.state.currentCall;
-        let smClose = e => {call.terminate(); this.setState({smShow: false});}
+        let smClose = (e) => {
+            call.terminate();
+            this.setState({smShow: false});
+        };
 
         if (this.state.error !== null ) {
             errorPanel = <ErrorPanel show={true} onHide={smClose} errorMsg={this.state.error} />

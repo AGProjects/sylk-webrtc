@@ -18,7 +18,7 @@ const LoadingScreen     = require('./components/LoadingScreen');
 // attach debugger to the window for console access
 window.blinkDebugger = debug;
 
-const DEBUG = debug('blinkrtc');
+const DEBUG = debug('blinkrtc:App');
 
 
 let Blink = React.createClass({

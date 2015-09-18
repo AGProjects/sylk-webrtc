@@ -139,7 +139,7 @@ let Blink = React.createClass({
                 self.setState({account: account});
                 self.toggleRegister();
             } else {
-                DEBUG(error);
+                DEBUG('Add account error: ' + error);
                 self.setState({loading: false, status: {msg: error.message, lvl:'danger'}});
             }
         });

@@ -82,12 +82,9 @@ let Blink = React.createClass({
     },
 
     callStateChanged: function(oldState, newState, data) {
-        // if (!this.isMounted()) {
-        //     // we might get here when the component has been unmounted
-        //     return;
-        // }
         DEBUG('Call state changed! ' + newState);
         this.setState({callState: newState});
+
         if (newState === 'terminated') {
             this.refs.notifications.postNotification('info', 'Call Terminated', data.reason);
             this.setState({currentCall: null, callState: null, targetUri: '', smShow: false});
@@ -95,18 +92,10 @@ let Blink = React.createClass({
 
         if (newState === 'progress') {
             this.refs.audioPlayerOutbound.play(true);
-        }
-
-        if (oldState === 'established' && newState === 'terminated') {
-            this.refs.audioPlayerHangup.play();
-        }
-
-        if (newState === 'accepted') {
+        } else if (newState === 'accepted') {
             this.refs.audioPlayerOutbound.stop();
             this.refs.audioPlayerInbound.stop();
-        }
-
-        if ((oldState === 'progress' || oldState === 'incoming') && newState === 'terminated') {
+        } else if ((oldState === 'progress' || oldState === 'incoming' || oldState === 'established') && newState === 'terminated') {
             this.refs.audioPlayerOutbound.stop();
             this.refs.audioPlayerInbound.stop();
             this.refs.audioPlayerHangup.play();

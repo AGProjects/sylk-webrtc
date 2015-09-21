@@ -52,7 +52,7 @@ let Blink = React.createClass({
                 this.handleRegistration(this.state.accountId, this.state.password);
                 break;
             case 'disconnected':
-                this.setState({account:null, registrationState: null, loading: true});
+                this.setState({account:null, registrationState: null, loading: true, currentCall: null});
                 break;
             default:
                 this.setState({connectionState: newState, loading: true});

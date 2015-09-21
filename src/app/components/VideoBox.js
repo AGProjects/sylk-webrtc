@@ -213,10 +213,13 @@ let VideoBox = React.createClass({
                         </span>
                         <div className="cover-container">
                             <div className="inner cover halfWidth">
-                                <div className={audioCallDisplayClasses} role="alert"><div className='row'>
-                                    <div className='pull-left padding-left'>
-                                    <strong>Call with</strong> {this.props.call.remoteIdentity}</div>
-                                        <div className='pull-right padding-right'>{callDuration}</div></div>
+                                <div className={audioCallDisplayClasses} role="alert">
+                                    <div className='row'>
+                                        <div className='pull-left padding-left'>
+                                            <strong>Call with</strong> {this.props.call.remoteIdentity}
+                                        </div>
+                                        <div className='pull-right padding-right'>{callDuration}</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

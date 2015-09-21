@@ -41,6 +41,13 @@ let Blink = React.createClass({
         };
     },
 
+    componentWillMount: function(){
+        if (!sylkrtc.isWebRTCSupported()) {
+            let errorMsg = 'This app works in a WebRTC browser (e.g. Chrome or Firefox) on Mac & Windows.';
+            this.setState({ error: errorMsg });
+        }
+    },
+
     connectionStateChanged: function(oldState, newState) {
         DEBUG('Connection state changed! ' + newState);
         switch (newState) {
@@ -184,10 +191,6 @@ let Blink = React.createClass({
         }
     },
 
-    gotError: function(errorMsg) {
-        this.setState({ error: errorMsg });
-    },
-
     render: function() {
         let registerBox;
         let statusBox;
@@ -218,8 +221,7 @@ let Blink = React.createClass({
         if (this.state.registrationState !== 'registered') {
             registerBox = <RegisterBox
                 registrationState  = {this.state.registrationState}
-                handleRegistration = {this.handleConnect}
-                onError            = {this.gotError} />;
+                handleRegistration = {this.handleConnect} />;
         } else {
             audioPlayerInbound = <AudioPlayer ref='audioPlayerInbound' source_file='assets/sounds/inbound_ringtone.wav'/>;
             audioPlayerOutbound = <AudioPlayer ref='audioPlayerOutbound' source_file='assets/sounds/outbound_ringtone.wav'/>;

@@ -37,8 +37,10 @@ let CallBox = React.createClass({
         this.props.startCall(targetUri, audioOnly);
     },
 
-    handleMenu: function(event,data2) {
-        this.props.signOut();
+    handleMenu: function(event, data) {
+        if (data === 'logOut') {
+            this.props.signOut();
+        }
     },
 
     render: function() {
@@ -75,16 +77,18 @@ let CallBox = React.createClass({
                     </div>
                 </div>
                 <div className='settings'>
-                     <span className={registrationClasses}></span>
-                      <Dropdown pullRight onSelect={this.handleMenu} id='dropdown-custom-1'>
+                    <span className={registrationClasses}></span>
+                    <Dropdown pullRight onSelect={this.handleMenu} id='dropdown-custom-1'>
                         <Dropdown.Toggle noCaret bsStyle={registrationClasses}>
-                          <i className='fa fa-cogs'></i>
+                            <i className='fa fa-cogs'></i>
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
-                          <MenuItem header><strong><i className='fa fa-user'></i> {this.props.account.id}</strong></MenuItem>
-                          <MenuItem eventKey='logOut'><i className="fa fa-sign-out"></i> Sign Out</MenuItem>
+                            <MenuItem header><strong><i className='fa fa-user'></i> {this.props.account.id}</strong></MenuItem>
+                            <MenuItem divider />
+                            <MenuItem eventKey='settings' target="_blank" href='https://mdns.sipthor.net/sip_settings.phtml'><i className="fa fa-wrench"></i> Settings</MenuItem>
+                            <MenuItem eventKey='logOut'><i className="fa fa-sign-out"></i> Sign Out</MenuItem>
                         </Dropdown.Menu>
-                      </Dropdown>
+                    </Dropdown>
                 </div>
             </div>
         );

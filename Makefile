@@ -22,7 +22,7 @@ dist:
 clean:
 	rm -rf dist src/js
 
-distclean: dist
+distclean: clean
 	rm -rf node_modules src/bower_components
 
 watch:

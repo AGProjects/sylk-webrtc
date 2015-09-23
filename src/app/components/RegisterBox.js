@@ -1,7 +1,6 @@
 'use strict';
 
 const React      = require('react');
-const sylkrtc    = require('sylkrtc');
 const classNames = require('classnames');
 
 const defaultDomain = 'sip2sip.info';

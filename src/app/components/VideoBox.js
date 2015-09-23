@@ -3,7 +3,7 @@
 const React                     = require('react');
 const addons                    = require('react/addons');
 const ReactCSSTransitionGroup   = addons.addons.CSSTransitionGroup;
-const sylkrtc                   = require('sylkrtc');
+const rtcninja                  = require('sylkrtc').rtcninja;
 const classNames                = require('classnames');
 const debug                     = require('debug');
 const moment                    = require('moment');
@@ -32,7 +32,7 @@ let VideoBox = React.createClass({
         let localStream = this.props.call.getLocalStreams()[0];
         if (localStream.getVideoTracks().length > 0) {
             let localVideoElement = React.findDOMNode(this.refs.localVideo);
-            sylkrtc.attachMediaStream(localVideoElement, localStream);
+            rtcninja.attachMediaStream(localVideoElement, localStream);
         } else {
             DEBUG('Sending audio only');
             this.setState({audioOnly:true});
@@ -45,14 +45,14 @@ let VideoBox = React.createClass({
             let remoteStream = this.props.call.getRemoteStreams()[0];
             if (remoteStream.getVideoTracks().length > 0) {
                 let remoteVideoElement = React.findDOMNode(this.refs.remoteVideo);
-                sylkrtc.attachMediaStream(remoteVideoElement, remoteStream);
+                rtcninja.attachMediaStream(remoteVideoElement, remoteStream);
                 this.hangupButtonTimer = null;
                 this.armHangupTimer();
             } else {
                 DEBUG('Receiving audio only');
                 this.setState({audioOnly:true});
                 let remoteAudioElement = React.findDOMNode(this.refs.remoteAudio);
-                sylkrtc.attachMediaStream(remoteAudioElement, remoteStream);
+                rtcninja.attachMediaStream(remoteAudioElement, remoteStream);
             }
             this.startCallTimer();
         }

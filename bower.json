@@ -5,7 +5,7 @@
     "Tijmen de Mes <tijmen@ag-projects.com>"
   ],
   "dependencies": {
-    "bootstrap-css-only": "~3.2.0",
+    "bootstrap-css-only": "~3.3.5",
     "animate.css": "~3.4.0",
     "fontawesome-actions": "~0.8.1"
   }

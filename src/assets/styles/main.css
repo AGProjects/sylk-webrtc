@@ -267,6 +267,10 @@ html,body { overflow: hidden; }
  * Videotag
  */
 
+.videoContainer video#localVideo {
+    transform: scaleX(-1);    /* mirror */
+}
+
 .videoContainer video#remoteVideo {
     width: 100%    !important;
     height: auto   !important;

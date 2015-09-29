@@ -143,6 +143,7 @@ let Blink = React.createClass({
             if (!error) {
                 account.on('registrationStateChanged', self.registrationStateChanged);
                 account.on('incomingCall', self.incomingCall);
+                account.on('missedCall', self.missedCall);
                 self.setState({account: account});
                 self.toggleRegister();
             } else {
@@ -189,6 +190,11 @@ let Blink = React.createClass({
             call.on('stateChanged', this.callStateChanged);
             this.setState({currentCall: call});
         }
+    },
+
+    missedCall: function(data) {
+        DEBUG('Missed call from ' + data.originator);
+        // TODO: notification
     },
 
     render: function() {

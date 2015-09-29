@@ -1,11 +1,9 @@
 
 GULP = node_modules/.bin/gulp
 
-.PHONY: all clean dev deploy deploy-test dist dist-dev distclean watch
+.PHONY: all clean deploy deploy-test dist dist-dev distclean watch
 
 all: dist
-
-dev: watch
 
 deploy: dist
 	echo `date +"%Y-%m-%d_%H:%M:%S"` > dist/.timestamp

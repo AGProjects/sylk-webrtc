@@ -21,7 +21,7 @@ Nodejs is needed for development. Versions >= 0.12 are recommended. A convenienc
 make
 
 # Development build, starts a test webserver which auto-reloads as the code changes
-make dev
+make watch
 
 # Clean the distribution
 make clean

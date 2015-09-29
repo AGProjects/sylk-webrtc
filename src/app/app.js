@@ -125,7 +125,7 @@ let Blink = React.createClass({
     },
 
     handleRegistration: function(accountId, password) {
-        let self = this;
+        const self = this;
         if (this.state.account !== null) {
             DEBUG('We already have an account, removing it');
             this.state.connection.removeAccount(this.state.account,

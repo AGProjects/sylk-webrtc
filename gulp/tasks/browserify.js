@@ -7,7 +7,6 @@
 */
 var browserify   = require('browserify');
 var browserSync  = require('browser-sync');
-var watchify     = require('watchify');
 var gulp         = require('gulp');
 var uglify       = require('gulp-uglify');
 var gutil        = require('gulp-util');
@@ -19,20 +18,17 @@ var babelify     = require('babelify');
 var notify       = require('gulp-notify');
 var sourcemaps   = require('gulp-sourcemaps');
 
-var production = process.env.NODE_ENV === 'production';
 
-var browserifyTask = function(callback, devMode) {
+var browserifyTask = function(callback) {
 
   var bundleQueue = config.bundleConfigs.length;
 
   var browserifyThis = function(bundleConfig) {
 
-    if(devMode) {
-      // Add watchify args and debug (sourcemaps) option
-      _.extend(bundleConfig, watchify.args, { debug: true });
-    }
+    // Always add sourcemaps, our deployment tool will remove them for production
+    _.extend(bundleConfig, { debug: true });
 
-    var bundler = devMode ? watchify(browserify(bundleConfig)) : browserify(bundleConfig);
+    var bundler = browserify(bundleConfig);
 
     // add in transforms, requires and externals from the config
     if (bundleConfig.entries !==  './src/scripts/libs.js') {
@@ -55,24 +51,14 @@ var browserifyTask = function(callback, devMode) {
         // desired output filename here.
         .pipe(source(bundleConfig.outputName))
         .pipe(buffer())
-          //.pipe(sourcemaps.init()) // loads map from browserify file
+          .pipe(sourcemaps.init()) // loads map from browserify file
           .pipe(uglify())
-         // .pipe(sourcemaps.write('./')) // writes .map file
+          .pipe(sourcemaps.write('./')) // writes .map file
         // Specify the output destination
         .pipe(gulp.dest(bundleConfig.dest))
         .on('end', reportFinished)
         .pipe(browserSync.reload({stream:true}));
     };
-
-
-
-    if(devMode) {
-      // Rebundle on update
-      bundler.on('update', bundle);
-      bundler.on('time', function(time) {
-        gutil.log("Rebundled " + bundleConfig.entries + " in " + time + "ms");
-      });
-    }
 
     var reportFinished = function() {
       if(bundleQueue) {
@@ -93,6 +79,3 @@ var browserifyTask = function(callback, devMode) {
 };
 
 gulp.task('browserify', browserifyTask);
-
-// Exporting the task so we can call it directly in our watch task, with the 'devMode' option
-module.exports = browserifyTask;

@@ -24,7 +24,7 @@ module.exports = {
 	      outputName: 'app.js',
 	      // list of externally available modules to exclude from the bundle
 		  //external: ['react','react-bootstrap','react-notification-system'],
-	      loadMaps: false
+	      loadMaps: true
 	    }]
   	},
 	scripts: {

@@ -9,6 +9,7 @@ dev: watch
 
 deploy: dist
 	echo `date +"%Y-%m-%d_%H:%M:%S"` > dist/.timestamp
+	rm -f dist/js/*.map
 	rsync -av --delete dist/ agp@node10.dns-hosting.info:/var/www/webrtc/
 	ssh agp@node10.dns-hosting.info 'sudo /root/sync-webrtc.sh'
 

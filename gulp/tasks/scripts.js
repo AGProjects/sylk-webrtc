@@ -18,20 +18,17 @@ var babelify    = require('babelify');
 var notify       = require('gulp-notify');
 var sourcemaps   = require('gulp-sourcemaps');
 
-var production = process.env.NODE_ENV === 'production';
 
-var scripts = function(callback, devMode) {
+var scripts = function(callback) {
 
   var bundleQueue = config.bundleConfigs.length;
 
   var browserifyThis = function(bundleConfig) {
 
-    if(devMode) {
-      // Add watchify args and debug (sourcemaps) option
-      _.extend(bundleConfig, watchify.args, { debug: true });
-    }
+    // Add watchify args and debug (sourcemaps) option
+    _.extend(bundleConfig, watchify.args, { debug: true });
 
-    var bundler = devMode ? watchify(browserify(bundleConfig)) : browserify(bundleConfig);
+    var bundler = watchify(browserify(bundleConfig));
 
     // add in transforms, requires and externals from the config
     bundler.transform(babelify);
@@ -60,15 +57,11 @@ var scripts = function(callback, devMode) {
         .pipe(browserSync.reload({stream:true}));
     };
 
-
-
-    if(devMode) {
-      // Rebundle on update
-      bundler.on('update', bundle);
-      bundler.on('time', function(time) {
-        gutil.log("Rebundled " + bundleConfig.entries + " in " + time + "ms");
-      });
-    }
+    // Rebundle on update
+    bundler.on('update', bundle);
+    bundler.on('time', function(time) {
+      gutil.log("Rebundled " + bundleConfig.entries + " in " + time + "ms");
+    });
 
     var reportFinished = function() {
       if(bundleQueue) {
@@ -88,7 +81,4 @@ var scripts = function(callback, devMode) {
   config.bundleConfigs.forEach(browserifyThis);
 };
 
-gulp.task('scriptsOD', scripts);
-
-// Exporting the task so we can call it directly in our watch task, with the 'devMode' option
-module.exports = scripts;
+gulp.task('scripts', scripts);

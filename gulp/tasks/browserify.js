@@ -51,8 +51,8 @@ var browserifyTask = function(callback) {
         // desired output filename here.
         .pipe(source(bundleConfig.outputName))
         .pipe(buffer())
-          .pipe(sourcemaps.init()) // loads map from browserify file
-          .pipe(uglify())
+          .pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
+          .pipe(gutil.env.type === 'dev' ? gutil.noop() : uglify())
           .pipe(sourcemaps.write('./')) // writes .map file
         // Specify the output destination
         .pipe(gulp.dest(bundleConfig.dest))

@@ -32,6 +32,10 @@ let VideoBox = React.createClass({
         let localStream = this.props.call.getLocalStreams()[0];
         if (localStream.getVideoTracks().length > 0) {
             let localVideoElement = React.findDOMNode(this.refs.localVideo);
+            localVideoElement.oncontextmenu = function(e) {
+                // disable right click for video elements
+                e.preventDefault();
+            };
             rtcninja.attachMediaStream(localVideoElement, localStream);
         } else {
             DEBUG('Sending audio only');
@@ -45,6 +49,10 @@ let VideoBox = React.createClass({
             let remoteStream = this.props.call.getRemoteStreams()[0];
             if (remoteStream.getVideoTracks().length > 0) {
                 let remoteVideoElement = React.findDOMNode(this.refs.remoteVideo);
+                remoteVideoElement.oncontextmenu = function(e) {
+                    // disable right click for video elements
+                    e.preventDefault();
+                };
                 rtcninja.attachMediaStream(remoteVideoElement, remoteStream);
                 this.hangupButtonTimer = null;
                 this.armHangupTimer();

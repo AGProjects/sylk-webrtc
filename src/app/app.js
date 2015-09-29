@@ -180,8 +180,8 @@ let Blink = React.createClass({
         this.state.currentCall.answer(this.state.callOptions);
     },
 
-    incomingCall: function(call){
-        DEBUG('New ' + call.direction + ' call');
+    incomingCall: function(call, mediaTypes) {
+        DEBUG('New incoming call from %s with %o', call.remoteIdentity, mediaTypes);
         if (this.state.currentCall !== null) {
             call.terminate();
         } else {

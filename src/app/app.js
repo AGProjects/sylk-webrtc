@@ -191,9 +191,8 @@ let Blink = React.createClass({
             call.terminate();
         } else {
             this.refs.audioPlayerInbound.play(true);
-            this.setState({ smShow: true });
             call.on('stateChanged', this.callStateChanged);
-            this.setState({currentCall: call});
+            this.setState({currentCall: call, smShow: true});
         }
     },
 

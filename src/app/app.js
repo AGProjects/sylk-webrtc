@@ -212,7 +212,7 @@ let Blink = React.createClass({
         };
 
         if (this.state.error !== null ) {
-            errorPanel = <ErrorPanel show={true} onHide={smClose} errorMsg={this.state.error} />
+            errorPanel = <ErrorPanel errorMsg={this.state.error} />
         }
 
         if (this.state.status !== null ) {

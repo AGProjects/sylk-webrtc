@@ -6,9 +6,13 @@ const Modal          = ReactBootstrap.Modal;
 
 
 let ErrorPanel = React.createClass({
+    onHide: function() {
+        // noop, we never get here
+    },
+
     render: function() {
         return (
-            <Modal {...this.props} bsSize='medium' bsStyle='danger' aria-labelledby='modal-title-sm'>
+            <Modal onHide={this.onHide} show={true} bsSize='medium' bsStyle='danger' aria-labelledby='modal-title-sm'>
                 <Modal.Header>
                     <Modal.Title><i className='fa fa-warning'></i> Warning</Modal.Title>
                 </Modal.Header>

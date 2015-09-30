@@ -180,6 +180,11 @@ let Blink = React.createClass({
         this.state.currentCall.answer(this.state.callOptions);
     },
 
+    rejectCall: function() {
+        this.state.currentCall.terminate();
+        this.setState({smShow: false});
+    },
+
     incomingCall: function(call, mediaTypes) {
         DEBUG('New incoming call from %s with %o', call.remoteIdentity, mediaTypes);
         if (this.state.currentCall !== null) {
@@ -206,10 +211,6 @@ let Blink = React.createClass({
         let footerBox;
         let audioPlayerHangup, audioPlayerInbound, audioPlayerOutbound;
         let call = this.state.currentCall;
-        let smClose = (e) => {
-            call.terminate();
-            this.setState({smShow: false});
-        };
 
         if (this.state.error !== null ) {
             errorPanel = <ErrorPanel errorMsg={this.state.error} />
@@ -258,7 +259,7 @@ let Blink = React.createClass({
                 {statusBox}
                 {footerBox}
                 <Notifications ref='notifications' />
-                <IncomingCallModal call={this.state.currentCall} show={this.state.smShow} onAnswer={this.answerCall} onHide={smClose} />
+                <IncomingCallModal call={this.state.currentCall} show={this.state.smShow} onAnswer={this.answerCall} onHide={this.rejectCall} />
             </div>
         );
     }

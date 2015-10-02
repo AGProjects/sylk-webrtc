@@ -30,13 +30,12 @@ let CallBox = React.createClass({
 
     handleAudioCall: function(event) {
         event.preventDefault();
-        this.startAudioCall(this.getTargetUri());
+        this.props.startAudioCall(this.getTargetUri());
     },
 
     handleVideoCall: function(event) {
         event.preventDefault();
-        this.startVideoCall(this.getTargetUri());
-        this.startCall(this.state.targetUri, false);
+        this.props.startVideoCall(this.getTargetUri());
     },
 
     handleMenu: function(event, data) {

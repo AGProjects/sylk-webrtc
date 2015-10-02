@@ -161,14 +161,18 @@ let Blink = React.createClass({
         }
     },
 
-    startCall: function(targetUri, audioOnly=false) {
+    startAudioCall: function(targetUri) {
+        this.startCall(targetUri, {audio: true, video: false});
+    },
+
+    startVideoCall: function(targetUri) {
+        this.startCall(targetUri, {audio: true, video: true});
+    },
+
+    startCall: function(targetUri, mediaConstraints) {
         if (this.state.currentCall === null) {
             let options = Object.create(callOptions);
-            if (audioOnly) {
-                options.mediaConstraints = {audio: true, video: false};
-            } else {
-                options.mediaConstraints = {audio: true, video: true};
-            }
+            options.mediaConstraints = mediaConstraints || {audio: true, video: true};
             let call = this.state.account.call(targetUri, options);
             call.on('stateChanged', this.callStateChanged);
             this.setState({currentCall: call});
@@ -237,7 +241,8 @@ let Blink = React.createClass({
             } else {
                 callBox = <CallBox
                     account   = {this.state.account}
-                    startCall = {this.startCall}
+                    startAudioCall = {this.startAudioCall}
+                    startVideoCall = {this.startVideoCall}
                     signOut = {this.toggleRegister}/>;
             }
         }

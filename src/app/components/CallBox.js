@@ -14,27 +14,29 @@ let CallBox = React.createClass({
         };
     },
 
+    getTargetUri: function() {
+        let targetUri = this.state.targetUri;
+        if (targetUri.indexOf('@') === -1) {
+            // take the domain part from the account
+            const domain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
+            targetUri += '@' + domain;
+        }
+        return targetUri;
+    },
+
     handleTargetChange: function(event) {
         this.setState({targetUri: event.target.value});
     },
 
     handleAudioCall: function(event) {
         event.preventDefault();
-        this.startCall(this.state.targetUri, true);
+        this.startAudioCall(this.getTargetUri());
     },
 
     handleVideoCall: function(event) {
         event.preventDefault();
+        this.startVideoCall(this.getTargetUri());
         this.startCall(this.state.targetUri, false);
-    },
-
-    startCall: function(targetUri, audioOnly) {
-        if (targetUri.indexOf('@') === -1) {
-            // take the domain part from the account
-            const domain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
-            targetUri += '@' + domain;
-        }
-        this.props.startCall(targetUri, audioOnly);
     },
 
     handleMenu: function(event, data) {

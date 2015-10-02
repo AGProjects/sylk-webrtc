@@ -19,6 +19,8 @@ const LoadingScreen     = require('./components/LoadingScreen');
 window.blinkDebugger = debug;
 
 const DEBUG = debug('blinkrtc:App');
+const wsServer = 'wss://webrtc-gateway.sipthor.net:8888/webrtcgateway/ws';
+const callOptions = {pcConfig: {iceServers: [{urls: 'stun:stun.l.google.com:19302'}]}};
 
 
 let Blink = React.createClass({
@@ -30,8 +32,6 @@ let Blink = React.createClass({
             registrationState: null,
             currentCall: null,
             callState: '',
-            server: 'wss://webrtc-gateway.sipthor.net:8888/webrtcgateway/ws',
-            callOptions: {pcConfig: {iceServers: [{urls: 'stun:stun.l.google.com:19302'}]}},
             connection: null,
             connectionState: null,
             smShow: false,
@@ -115,7 +115,7 @@ let Blink = React.createClass({
         this.setState({accountId:accountId, password:pass, loading: true});
 
         if (this.state.connection === null) {
-            let connection = sylkrtc.createConnection({server: this.state.server});
+            let connection = sylkrtc.createConnection({server: wsServer});
             connection.on('stateChanged', this.connectionStateChanged);
             this.setState({connection: connection});
         } else {
@@ -163,7 +163,7 @@ let Blink = React.createClass({
 
     startCall: function(targetUri, audioOnly=false) {
         if (this.state.currentCall === null) {
-            let options = Object.create(this.state.callOptions);
+            let options = Object.create(callOptions);
             if (audioOnly) {
                 options.mediaConstraints = {audio: true, video: false};
             } else {
@@ -177,7 +177,7 @@ let Blink = React.createClass({
 
     answerCall: function(){
         this.setState({ smShow: false });
-        this.state.currentCall.answer(this.state.callOptions);
+        this.state.currentCall.answer(callOptions);
     },
 
     rejectCall: function() {

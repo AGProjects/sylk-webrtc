@@ -34,6 +34,7 @@ let Blink = React.createClass({
             callState: '',
             connection: null,
             connectionState: null,
+            inboundCall: null,
             showIncomingModal: false,
             error: null,
             status: null,
@@ -94,7 +95,13 @@ let Blink = React.createClass({
 
         if (newState === 'terminated') {
             this.refs.notifications.postNotification('info', 'Call Terminated', data.reason);
-            this.setState({currentCall: null, callState: null, targetUri: '', showIncomingModal: false});
+            this.setState({
+                currentCall         : null,
+                callState           : null,
+                targetUri           : '',
+                showIncomingModal   : false,
+                inboundCall         : null
+            });
         }
 
         if (newState === 'progress') {
@@ -108,6 +115,13 @@ let Blink = React.createClass({
             this.refs.audioPlayerHangup.play();
         }
 
+    },
+
+    inboundCallStateChanged: function(oldState, newState, data) {
+        DEBUG('Inbound Call state changed! ' + newState);
+        if (newState === 'terminated') {
+            this.setState({ inboundCall: null, showIncomingModal: false });
+        }
     },
 
     handleConnect: function(accountId, pass) {
@@ -181,24 +195,38 @@ let Blink = React.createClass({
 
     answerCall: function(){
         this.setState({ showIncomingModal: false });
-        this.state.currentCall.answer(callOptions);
+        if (this.state.inboundCall !== this.state.currentCall) {
+            this.switchToIncomingCall(this.state.inboundCall);
+        } else {
+            this.state.currentCall.answer(callOptions);
+        }
     },
 
     rejectCall: function() {
         this.setState({showIncomingModal: false});
-        this.state.currentCall.terminate();
+        this.state.inboundCall.terminate();
     },
 
     incomingCall: function(call, mediaTypes) {
         DEBUG('New incoming call from %s with %o', call.remoteIdentity, mediaTypes);
         call.mediaTypes = mediaTypes;
         if (this.state.currentCall !== null) {
-            call.terminate();
+            this.setState({ showIncomingModal: true, inboundCall: call });
+            call.on('stateChanged', this.inboundCallStateChanged);
         } else {
             this.refs.audioPlayerInbound.play(true);
             call.on('stateChanged', this.callStateChanged);
-            this.setState({currentCall: call, showIncomingModal: true});
+            this.setState({currentCall: call, inboundCall: call, showIncomingModal: true});
         }
+    },
+
+    switchToIncomingCall: function(call){
+        this.state.inboundCall.removeListener('stateChanged', this.inboundCallStateChanged);
+        this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
+        this.state.currentCall.terminate();
+        this.setState({currentCall: call, callState: call.state, inboundCall: null});
+        call.on('stateChanged', this.callStateChanged);
+        call.answer(callOptions);
     },
 
     missedCall: function(data) {
@@ -265,7 +293,7 @@ let Blink = React.createClass({
                 {statusBox}
                 {footerBox}
                 <Notifications ref='notifications' />
-                <IncomingCallModal call={this.state.currentCall} show={this.state.showIncomingModal} onAnswer={this.answerCall} onHide={this.rejectCall} />
+                <IncomingCallModal call={this.state.inboundCall} show={this.state.showIncomingModal} onAnswer={this.answerCall} onHide={this.rejectCall} />
             </div>
         );
     }

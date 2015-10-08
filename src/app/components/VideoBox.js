@@ -211,7 +211,7 @@ let VideoBox = React.createClass({
                     {videoHeader}
                 </ReactCSSTransitionGroup>
                 {remoteAudio}
-                {remoteVideo}
+                {remoteVideo}
                 {localVideo}
                 {this.state.audioOnly && (
                     <div>

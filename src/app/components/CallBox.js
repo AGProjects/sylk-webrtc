@@ -9,9 +9,16 @@ const classNames     = require('classnames');
 
 let CallBox = React.createClass({
     getInitialState: function() {
-        return {targetUri: '',
-                callState: null
+        return {
+            targetUri: this.props.targetUri,
+            callState: null
         };
+    },
+
+    componentWillReceiveProps: function(nextProps) {
+        this.setState({
+            targetUri: nextProps.targetUri
+        });
     },
 
     getTargetUri: function() {

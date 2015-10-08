@@ -38,6 +38,7 @@ let Blink = React.createClass({
             showIncomingModal: false,
             error: null,
             status: null,
+            targetUri: '',
             loading: false,
         };
     },
@@ -189,7 +190,7 @@ let Blink = React.createClass({
             options.mediaConstraints = mediaConstraints || {audio: true, video: true};
             let call = this.state.account.call(targetUri, options);
             call.on('stateChanged', this.callStateChanged);
-            this.setState({currentCall: call});
+            this.setState({currentCall: call, targetUri:''});
         }
     },
 
@@ -220,6 +221,16 @@ let Blink = React.createClass({
         }
     },
 
+    switchToMissedCall: function(targetUri) {
+        if (this.state.currentCall !== null) {
+            this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
+            this.setState({currentCall: null, callState: null, targetUri: targetUri, showIncomingModal: false});
+            this.state.currentCall.terminate();
+        } else {
+            this.setState({ targetUri: targetUri});
+        }
+    },
+
     switchToIncomingCall: function(call){
         this.state.inboundCall.removeListener('stateChanged', this.inboundCallStateChanged);
         this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
@@ -231,7 +242,7 @@ let Blink = React.createClass({
 
     missedCall: function(data) {
         DEBUG('Missed call from ' + data.originator);
-        // TODO: notification
+        this.refs.notifications.postMissedCall(data.originator, this.switchToMissedCall);
     },
 
     render: function() {
@@ -272,7 +283,8 @@ let Blink = React.createClass({
                     account   = {this.state.account}
                     startAudioCall = {this.startAudioCall}
                     startVideoCall = {this.startVideoCall}
-                    signOut = {this.toggleRegister}/>;
+                    signOut = {this.toggleRegister}
+                    targetUri = {this.state.targetUri} />;
             }
         }
 

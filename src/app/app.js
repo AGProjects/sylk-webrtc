@@ -34,7 +34,7 @@ let Blink = React.createClass({
             callState: '',
             connection: null,
             connectionState: null,
-            smShow: false,
+            showIncomingModal: false,
             error: null,
             status: null,
             loading: false,
@@ -94,7 +94,7 @@ let Blink = React.createClass({
 
         if (newState === 'terminated') {
             this.refs.notifications.postNotification('info', 'Call Terminated', data.reason);
-            this.setState({currentCall: null, callState: null, targetUri: '', smShow: false});
+            this.setState({currentCall: null, callState: null, targetUri: '', showIncomingModal: false});
         }
 
         if (newState === 'progress') {
@@ -180,13 +180,13 @@ let Blink = React.createClass({
     },
 
     answerCall: function(){
-        this.setState({ smShow: false });
+        this.setState({ showIncomingModal: false });
         this.state.currentCall.answer(callOptions);
     },
 
     rejectCall: function() {
+        this.setState({showIncomingModal: false});
         this.state.currentCall.terminate();
-        this.setState({smShow: false});
     },
 
     incomingCall: function(call, mediaTypes) {
@@ -197,7 +197,7 @@ let Blink = React.createClass({
         } else {
             this.refs.audioPlayerInbound.play(true);
             call.on('stateChanged', this.callStateChanged);
-            this.setState({currentCall: call, smShow: true});
+            this.setState({currentCall: call, showIncomingModal: true});
         }
     },
 
@@ -264,7 +264,7 @@ let Blink = React.createClass({
                 {statusBox}
                 {footerBox}
                 <Notifications ref='notifications' />
-                <IncomingCallModal call={this.state.currentCall} show={this.state.smShow} onAnswer={this.answerCall} onHide={this.rejectCall} />
+                <IncomingCallModal call={this.state.currentCall} show={this.state.showIncomingModal} onAnswer={this.answerCall} onHide={this.rejectCall} />
             </div>
         );
     }

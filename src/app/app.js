@@ -191,6 +191,7 @@ let Blink = React.createClass({
 
     incomingCall: function(call, mediaTypes) {
         DEBUG('New incoming call from %s with %o', call.remoteIdentity, mediaTypes);
+        call.mediaTypes = mediaTypes;
         if (this.state.currentCall !== null) {
             call.terminate();
         } else {

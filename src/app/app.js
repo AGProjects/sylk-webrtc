@@ -1,8 +1,8 @@
 'use strict';
 
-const React   = require('react');
-const sylkrtc = require('sylkrtc');
-const debug   = require('debug');
+const React      = require('react');
+const sylkrtc    = require('sylkrtc');
+const debug      = require('debug');
 
 const RegisterBox       = require('./components/RegisterBox');
 const CallBox           = require('./components/CallBox');
@@ -248,9 +248,10 @@ let Blink = React.createClass({
             }
         }
 
-        if(!videoBox) {
+        if (!videoBox) {
             footerBox = <FooterBox />;
         }
+
         return (
             <div>
                 {errorPanel}

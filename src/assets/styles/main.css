@@ -589,11 +589,10 @@ html,body { overflow: hidden; }
     border-color: #ebccd1;
 }
 
-
-
 .modal-danger > .modal-content {
     border-color:#ebccd1;
 }
+
 .capitalize {
     text-transform:capitalize;
 }

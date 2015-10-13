@@ -20,6 +20,7 @@ let SettingsBox = React.createClass({
         return (
             <div className='settings'>
                 <span className={registrationClasses}></span>
+                {!this.props.guestMode &&
                 <Dropdown pullRight onSelect={this.handleMenu} id='dropdown-custom-1'>
                     <Dropdown.Toggle noCaret bsStyle={registrationClasses}>
                         <i className='fa fa-cogs'></i>
@@ -31,6 +32,20 @@ let SettingsBox = React.createClass({
                         <MenuItem eventKey='logOut'><i className="fa fa-sign-out"></i> Sign Out</MenuItem>
                     </Dropdown.Menu>
                 </Dropdown>
+                }
+
+                {this.props.guestMode &&
+                <Dropdown pullRight onSelect={this.handleMenu} id='dropdown-custom-1'>
+                    <Dropdown.Toggle noCaret bsStyle='info'>
+                        <i className='fa fa-cogs'></i>
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        <MenuItem header><strong><i className='fa fa-user'></i> {this.props.account.id}</strong></MenuItem>
+                        <MenuItem divider />
+                        <MenuItem eventKey='logOut'><i className="fa fa-sign-out"></i> Sign Out</MenuItem>
+                    </Dropdown.Menu>
+                </Dropdown>
+                }
             </div>
         );
     }

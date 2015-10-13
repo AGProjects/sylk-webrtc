@@ -69,11 +69,11 @@ let CallBox = React.createClass({
                                 </span>
                             </div>
                             <br/>
-                            <p>You can receive calls at {this.props.account.id}</p>
+                            {!this.props.guestMode && <p>You can receive calls at {this.props.account.id}</p>}
                         </form>
                     </div>
                 </div>
-                <SettingsBox account={this.props.account} signOut={this.props.signOut} />
+                <SettingsBox account={this.props.account} signOut={this.props.signOut} guestMode={this.props.guestMode}/>
             </div>
         );
     }

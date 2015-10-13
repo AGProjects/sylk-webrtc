@@ -40,6 +40,7 @@ let Blink = React.createClass({
             status: null,
             targetUri: '',
             loading: false,
+            guestMode: false,
         };
     },
 
@@ -58,7 +59,11 @@ let Blink = React.createClass({
                 break;
             case 'ready':
                 this.setState({connectionState: newState});
-                this.handleRegistration(this.state.accountId, this.state.password);
+                if (!this.state.guestMode) {
+                     this.handleRegistration(this.state.accountId, this.state.password);
+                } else {
+                    this.handleGuestRegistration(this.state.accountId);
+                }
                 break;
             case 'disconnected':
                 this.setState({account:null, registrationState: null, loading: true, currentCall: null});
@@ -75,8 +80,8 @@ let Blink = React.createClass({
         if (newState === 'failed') {
             this.setState({
                 loading     : false,
-                accountId   : null,
-                password    : null,
+                accountId   : '',
+                password    : '',
                 status      : {
                     msg: 'Sign In failed: ' + data.reason,
                     lvl:'danger'
@@ -134,8 +139,17 @@ let Blink = React.createClass({
             connection.on('stateChanged', this.connectionStateChanged);
             this.setState({connection: connection});
         } else {
-            DEBUG('Connection Present, try to reregister');
-            this.handleRegistration(accountId, pass);
+            DEBUG('Connection Present, try to register');
+            if (!this.state.guestMode) {
+                if (this.state.accountId === '') {
+                    this.handleRegistration(accountId, pass);
+                } else {
+                    DEBUG('Previous registration exists, reregister with these credentials');
+                    this.handleRegistration(this.state.accountId, this.state.password);
+                }
+            } else {
+                this.handleGuestRegistration(accountId);
+            }
         }
     },
 
@@ -168,12 +182,47 @@ let Blink = React.createClass({
         });
     },
 
+    handleGuestRegistration: function(accountId) {
+        const self = this;
+        if (this.state.account !== null) {
+            DEBUG('We already have an account, removing it');
+            this.state.connection.removeAccount(this.state.account,
+                function(error) {
+                    if (error) {
+                        DEBUG(error);
+                    }
+                    self.setState({account: null, registrationState: null});
+                }
+            );
+        }
+
+        let options = {account: accountId, password: ''};
+        let account = this.state.connection.addAccount(options, function(error,account) {
+            if (!error) {
+                self.setState({account: account, password: '', loading: false, registrationState: 'registered'});
+                self.refs.notifications.postNotification('success', accountId + ' signed in');
+            } else {
+                DEBUG('Add account error: ' + error);
+                self.setState({loading: false, status: {msg: error.message, lvl:'danger'}});
+            }
+        });
+    },
+
     toggleRegister: function() {
         if (this.state.registrationState !== null) {
-            this.state.account.unregister();
+            if (this.state.guestMode){
+                this.setState({accountId:'', registrationState:null });
+            } else {
+                this.state.account.unregister();
+                this.setState({accountId: '', password:''});
+            }
         } else {
             this.state.account.register();
         }
+    },
+
+    switchGuestMode: function(state) {
+        this.setState({guestMode: state, status: null});
     },
 
     startAudioCall: function(targetUri) {
@@ -270,8 +319,10 @@ let Blink = React.createClass({
 
         if (this.state.registrationState !== 'registered') {
             registerBox = <RegisterBox
-                registrationState  = {this.state.registrationState}
-                handleRegistration = {this.handleConnect} />;
+                    registrationState  = {this.state.registrationState}
+                    handleRegistration = {this.handleConnect}
+                    switchGuestMode = {this.switchGuestMode}
+                    guestMode = {this.state.guestMode} />;
         } else {
             audioPlayerInbound = <AudioPlayer ref='audioPlayerInbound' source_file='assets/sounds/inbound_ringtone.wav'/>;
             audioPlayerOutbound = <AudioPlayer ref='audioPlayerOutbound' source_file='assets/sounds/outbound_ringtone.wav'/>;
@@ -284,7 +335,8 @@ let Blink = React.createClass({
                     startAudioCall = {this.startAudioCall}
                     startVideoCall = {this.startVideoCall}
                     signOut = {this.toggleRegister}
-                    targetUri = {this.state.targetUri} />;
+                    targetUri = {this.state.targetUri}
+                    guestMode = {this.state.guestMode} />;
             }
         }
 

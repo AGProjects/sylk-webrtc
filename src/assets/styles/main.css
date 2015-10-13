@@ -591,6 +591,25 @@ html,body { overflow: hidden; }
     opacity: 0.5;
 }
 
+.settings a:hover {
+    opacity: 1;
+}
+
+.settings a.text-white {
+    color:#ffffff;
+}
+
+.settings a.text-white {
+    color:#ffffff;
+}
+
+.settings a.text-registered {
+    color:#5cb85c;
+}
+.settings a.text-registered:hover {
+    color:#449d44;
+}
+
 .modal-danger > .modal-content > .modal-header {
     color:#a94442 !important;
     background-color: #f2dede;
@@ -606,9 +625,7 @@ html,body { overflow: hidden; }
 .capitalize {
     text-transform:capitalize;
 }
-.settings a:hover {
-    opacity: 1;
-}
+
 .settingsVideo {
     z-index:10;
     /* overflow: hidden; */

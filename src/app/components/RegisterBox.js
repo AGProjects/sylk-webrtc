@@ -3,8 +3,8 @@
 const React  = require('react');
 const Toggle = require('react-toggle');
 
-const GuestForm         = require('./GuestForm.js');
-const RegisterForm      = require('./RegisterForm.js');
+const GuestForm         = require('./GuestForm');
+const RegisterForm      = require('./RegisterForm');
 
 
 let RegisterBox = React.createClass({

@@ -8,7 +8,7 @@ const classNames                = require('classnames');
 const debug                     = require('debug');
 const moment                    = require('moment');
 const momentFormat              = require('moment-duration-format');
-const FullscreenMixin           = require('../mixins/FullScreen.js');
+const FullscreenMixin           = require('../mixins/FullScreen');
 
 const DEBUG = debug('blinkrtc:Video');
 

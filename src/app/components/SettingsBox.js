@@ -6,6 +6,7 @@ const Dropdown       = ReactBootstrap.Dropdown;
 const MenuItem       = ReactBootstrap.MenuItem;
 const classNames     = require('classnames');
 
+
 let SettingsBox = React.createClass({
     handleMenu: function(event, data) {
         if (data === 'logOut') {

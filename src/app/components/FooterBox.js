@@ -2,6 +2,7 @@
 
 const React          = require('react');
 
+
 let FooterBox = React.createClass({
     render: function() {
         return (

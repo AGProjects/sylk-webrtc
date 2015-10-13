@@ -6,6 +6,7 @@ const Toggle = require('react-toggle');
 const GuestForm         = require('./GuestForm.js');
 const RegisterForm      = require('./RegisterForm.js');
 
+
 let RegisterBox = React.createClass({
 
     handleGuestModeChange: function(event) {

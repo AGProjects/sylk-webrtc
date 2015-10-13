@@ -10,7 +10,6 @@ const moment                    = require('moment');
 const momentFormat              = require('moment-duration-format');
 const FullscreenMixin           = require('../mixins/FullScreen.js');
 
-
 const DEBUG = debug('blinkrtc:Video');
 
 

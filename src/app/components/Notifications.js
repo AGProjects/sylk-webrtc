@@ -4,6 +4,7 @@ const React              = require('react');
 const NotificationSystem = require('react-notification-system');
 const moment             = require('moment');
 
+
 let Notifications = React.createClass({
     componentDidMount: function() {
         this._notificationSystem = this.refs.notificationSystem;

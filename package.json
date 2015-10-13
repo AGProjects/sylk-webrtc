@@ -11,6 +11,7 @@
     "react": "^0.13.3",
     "react-bootstrap": "^0.25.2",
     "react-notification-system": "^0.1.15",
+    "react-toggle": "^1.2.3",
     "screenfull": "^2.0.0",
     "sylkrtc": "git+https://github.com/AGProjects/sylkrtc.js.git#release-0.3.0"
   },

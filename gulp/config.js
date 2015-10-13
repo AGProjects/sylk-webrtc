@@ -12,8 +12,9 @@ module.exports = {
 	browserSync: {
     	server: {
       		// Serve up our build folder
-      		baseDir: './src'
-    	}
+      		baseDir: './src',
+    	},
+		browser: "google chrome"
   	},
 	browserify: {
 	    // A separate bundle will be generated for each

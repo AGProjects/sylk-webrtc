@@ -8,8 +8,7 @@ const SettingsBox = require('./SettingsBox');
 let CallBox = React.createClass({
     getInitialState: function() {
         return {
-            targetUri: this.props.targetUri,
-            callState: null
+            targetUri: this.props.targetUri
         };
     },
 

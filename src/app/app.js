@@ -141,12 +141,7 @@ let Blink = React.createClass({
         } else {
             DEBUG('Connection Present, try to register');
             if (!this.state.guestMode) {
-                if (this.state.accountId === '') {
                     this.handleRegistration(accountId, pass);
-                } else {
-                    DEBUG('Previous registration exists, reregister with these credentials');
-                    this.handleRegistration(this.state.accountId, this.state.password);
-                }
             } else {
                 this.handleGuestRegistration(accountId);
             }
@@ -211,10 +206,9 @@ let Blink = React.createClass({
     toggleRegister: function() {
         if (this.state.registrationState !== null) {
             if (this.state.guestMode){
-                this.setState({accountId:'', registrationState:null });
+                this.setState({registrationState:null });
             } else {
                 this.state.account.unregister();
-                this.setState({accountId: '', password:''});
             }
         } else {
             this.state.account.register();

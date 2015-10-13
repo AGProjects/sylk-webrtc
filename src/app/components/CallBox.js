@@ -47,24 +47,25 @@ let CallBox = React.createClass({
             'btn'         : true,
             'btn-lg'      : true,
             'btn-success' : this.state.targetUri.length !== 0,
-            'btn-warning' : this.state.targetUri.length === 0,
+            'btn-warning' : this.state.targetUri.length === 0
         });
 
         return (
             <div>
                 <div className="cover-container">
                     <div className="inner cover">
-                        <div className='blink_logo'></div><br/>
-                        <form className="form-dial" name='DialForm'>
-                            <p className='lead'>Enter the address you wish to call</p>
+                        <div className="blink_logo"></div><br/>
+                        <form className="form-dial" name="DialForm">
+                            <p className="lead">Enter the address you wish to call</p>
                             <div className="input-group input-group-lg">
-                                <input type='text' id="inputDestination" className="form-control"
+                                <input type="text" id="inputDestination" className="form-control"
                                     onChange={this.handleTargetChange}
                                     value={this.state.targetUri}
-                                    required autofocus />
+                                    required autoFocus
+                                />
                                 <span className="input-group-btn">
-                                    <button type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleAudioCall}><i className='fa fa-phone'></i></button>
-                                    <button type="submit" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleVideoCall}><i className='fa fa-video-camera'></i></button>
+                                    <button type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
+                                    <button type="submit" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
                                 </span>
                             </div>
                             <br/>

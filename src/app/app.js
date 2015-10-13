@@ -40,7 +40,7 @@ let Blink = React.createClass({
             status: null,
             targetUri: '',
             loading: false,
-            guestMode: false,
+            guestMode: false
         };
     },
 
@@ -312,25 +312,31 @@ let Blink = React.createClass({
         }
 
         if (this.state.registrationState !== 'registered') {
-            registerBox = <RegisterBox
+            registerBox = (
+                <RegisterBox
                     registrationState  = {this.state.registrationState}
                     handleRegistration = {this.handleConnect}
                     switchGuestMode = {this.switchGuestMode}
-                    guestMode = {this.state.guestMode} />;
+                    guestMode = {this.state.guestMode}
+                />
+            );
         } else {
-            audioPlayerInbound = <AudioPlayer ref='audioPlayerInbound' source_file='assets/sounds/inbound_ringtone.wav'/>;
-            audioPlayerOutbound = <AudioPlayer ref='audioPlayerOutbound' source_file='assets/sounds/outbound_ringtone.wav'/>;
-            audioPlayerHangup = <AudioPlayer ref='audioPlayerHangup' source_file='assets/sounds/hangup_tone.wav'/>;
+            audioPlayerInbound = <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav"/>;
+            audioPlayerOutbound = <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav"/>;
+            audioPlayerHangup = <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />;
             if (call !== null && (call.state === 'progress' ||  call.state === 'accepted' ||  call.state === 'established')) {
                 videoBox = <VideoBox call={this.state.currentCall} />;
             } else {
-                callBox = <CallBox
-                    account   = {this.state.account}
-                    startAudioCall = {this.startAudioCall}
-                    startVideoCall = {this.startVideoCall}
-                    signOut = {this.toggleRegister}
-                    targetUri = {this.state.targetUri}
-                    guestMode = {this.state.guestMode} />;
+                callBox = (
+                    <CallBox
+                        account   = {this.state.account}
+                        startAudioCall = {this.startAudioCall}
+                        startVideoCall = {this.startVideoCall}
+                        signOut = {this.toggleRegister}
+                        targetUri = {this.state.targetUri}
+                        guestMode = {this.state.guestMode}
+                    />
+                );
             }
         }
 
@@ -350,7 +356,7 @@ let Blink = React.createClass({
                 {audioPlayerInbound}
                 {statusBox}
                 {footerBox}
-                <Notifications ref='notifications' />
+                <Notifications ref="notifications" />
                 <IncomingCallModal call={this.state.inboundCall} show={this.state.showIncomingModal} onAnswer={this.answerCall} onHide={this.rejectCall} />
             </div>
         );

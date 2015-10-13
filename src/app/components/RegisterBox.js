@@ -28,13 +28,13 @@ let RegisterBox = React.createClass({
         return (
             <div className="cover-container">
                 <div className="inner cover" >
-                    <div className='blink_logo'></div>
+                    <div className="blink_logo"></div>
                     <h1 className="cover-heading">Blink for Web</h1>
                     {registerForm}
                     {guestForm}
-                    <div className='checkbox'>
+                    <div className="checkbox">
                         <form className="form-guest-switcher">
-                            <label className='react-toggle-label'>
+                            <label className="react-toggle-label">
                                 {buttonText}
                                 <Toggle  defaultChecked={this.props.guestMode} onChange={this.handleGuestModeChange} />
                             </label>

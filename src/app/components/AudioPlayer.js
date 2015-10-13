@@ -49,8 +49,8 @@ let AudioPlayer = React.createClass({
     render: function() {
         return (
             <div>
-                <audio ref='audio'>
-                    <source src={this.props.source_file} type="audio/wav" />
+                <audio ref="audio">
+                    <source src={this.props.sourceFile} type="audio/wav" />
                 </audio>
             </div>
         );

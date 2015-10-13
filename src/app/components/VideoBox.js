@@ -150,10 +150,10 @@ let VideoBox = React.createClass({
         let remoteVideo;
         let localVideo;
         if (!this.state.audioOnly) {
-            remoteVideo = <video id='remoteVideo' ref='remoteVideo' autoPlay />;
-            localVideo  = <video className={classes} id='localVideo' ref='localVideo' autoPlay muted/>;
+            remoteVideo = <video id="remoteVideo" ref="remoteVideo" autoPlay />;
+            localVideo  = <video className={classes} id="localVideo" ref="localVideo" autoPlay muted/>;
         } else {
-            remoteAudio = <audio id='remoteAudio' ref='remoteAudio' autoPlay />;
+            remoteAudio = <audio id="remoteAudio" ref="remoteAudio" autoPlay />;
         }
 
         let hangupButton;
@@ -192,21 +192,21 @@ let VideoBox = React.createClass({
 
         let callDuration;
         if (this.state.callDuration !== null) {
-            callDuration = <span><i className='fa fa-clock-o'></i> {this.state.callDuration}</span>;
+            callDuration = <span><i className="fa fa-clock-o"></i> {this.state.callDuration}</span>;
         }
 
         if (this.state.hangupButtonVisible) {
             if (!this.state.audioOnly) {
-                muteVideoButton = <button key='muteVideo' type='button' className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
-                fullScreenButton = <button key='fsButton' type='button' className="btn btn-round btn-default" onClick={this.toggleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
-                videoHeader =  <div key='header' className='videoHeader'><p className={videoHeaderTextClasses}><strong>Call with</strong> {this.props.call.remoteIdentity}</p><p className={videoHeaderTextClasses}>{callDuration}</p></div>;
+                muteVideoButton = <button key="muteVideo" type="button" className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
+                fullScreenButton = <button key="fsButton" type="button" className="btn btn-round btn-default" onClick={this.toggleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
+                videoHeader =  <div key="header" className="videoHeader"><p className={videoHeaderTextClasses}><strong>Call with</strong> {this.props.call.remoteIdentity}</p><p className={videoHeaderTextClasses}>{callDuration}</p></div>;
             }
-            muteButton = <button key='muteAudio' type='button' className="btn btn-round btn-default" onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
-            hangupButton = <button key='hangupButton' type='button' className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className='fa fa-phone rotate-135'></i> </button>;
+            muteButton = <button key="muteAudio" type="button" className="btn btn-round btn-default" onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
+            hangupButton = <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>;
         }
 
         return (
-            <div className='videoContainer' ref='videoContainer' onMouseMove={this.showHangup}>
+            <div className="videoContainer" ref="videoContainer" onMouseMove={this.showHangup}>
                 <ReactCSSTransitionGroup transitionName="videoheader">
                     {videoHeader}
                 </ReactCSSTransitionGroup>
@@ -222,11 +222,11 @@ let VideoBox = React.createClass({
                         <div className="cover-container">
                             <div className="inner cover halfWidth">
                                 <div className={audioCallDisplayClasses} role="alert">
-                                    <div className='row'>
-                                        <div className='pull-left padding-left'>
+                                    <div className="row">
+                                        <div className="pull-left padding-left">
                                             <strong>Call with</strong> {this.props.call.remoteIdentity}
                                         </div>
-                                        <div className='pull-right padding-right'>{callDuration}</div>
+                                        <div className="pull-right padding-right">{callDuration}</div>
                                     </div>
                                 </div>
                             </div>
@@ -244,7 +244,7 @@ let VideoBox = React.createClass({
                 </div>
             </div>
         );
-    },
+    }
 });
 
 module.exports = VideoBox;

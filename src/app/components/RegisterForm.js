@@ -60,17 +60,17 @@ let RegisterBox = React.createClass({
             'btn-default': !(this.state.password !== '' && this.state.accountId !== ''),
             'btn-primary': this.state.password !== '' && this.state.accountId !== '' && !this.state.registering,
             'btn-info'   : this.state.registering,
-            'btn-success': this.state.registrationState === 'registered',
+            'btn-success': this.state.registrationState === 'registered'
         });
 
         return (
             <div>
-                <p className='lead'>Sign in with your SIP account</p>
+                <p className="lead">Sign in with your SIP account</p>
                 <form className="form-signin" onSubmit={this.handleSubmit}>
                     <label htmlFor="inputEmail" className="sr-only">Sip Account</label>
                     <div className="input-group">
                         <span className="input-group-addon first"><i className="fa fa-globe fa-fw"></i></span>
-                        <input id="inputUser" className="form-control" placeholder="SIP address (username@domain)" value={this.state.accountId} onChange={this.handleAccountIdChange} required autofocus/>
+                        <input id="inputUser" className="form-control" placeholder="SIP address (username@domain)" value={this.state.accountId} onChange={this.handleAccountIdChange} required autoFocus/>
                     </div>
                     <label htmlFor="inputPassword" className="sr-only">Password</label>
                     <div className="input-group">
@@ -79,7 +79,7 @@ let RegisterBox = React.createClass({
                     </div>
                     <button type="submit" className={classes} disabled={this.state.registering}>Sign In</button>
                 </form>
-                <p>No SIP account? Create an account <a href='http://sip2sip.info' target='_new'>here</a></p>
+                <p>No SIP account? Create an account <a href="http://sip2sip.info" target="_new">here</a></p>
             </div>
         );
     }

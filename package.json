@@ -2,7 +2,7 @@
   "name": "Blink",
   "version": "0.1.0",
   "license": "UNLICENSED",
-  "private" : true,
+  "private": true,
   "dependencies": {
     "classnames": "^2.1.5",
     "debug": "*",
@@ -17,7 +17,7 @@
   "devDependencies": {
     "babelify": "~6.3.0",
     "bower": "^1.5.3",
-    "browser-sync": "^2.9.8",
+    "browser-sync": "^2.9.11",
     "browserify": "11.2.0",
     "gulp": "~3.9.0",
     "require-dir": "^0.3.0",

@@ -5,7 +5,7 @@ const Toggle = require('react-toggle');
 
 const GuestForm         = require('./GuestForm');
 const RegisterForm      = require('./RegisterForm');
-
+const Logo              = require('./Logo');
 
 let RegisterBox = React.createClass({
 
@@ -29,8 +29,7 @@ let RegisterBox = React.createClass({
         return (
             <div className="cover-container">
                 <div className="inner cover" >
-                    <div className="blink_logo"></div>
-                    <h1 className="cover-heading">Blink for Web</h1>
+                    <Logo />
                     {registerForm}
                     {guestForm}
                     <div className="checkbox">

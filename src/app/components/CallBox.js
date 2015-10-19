@@ -4,7 +4,7 @@ const React          = require('react');
 const classNames     = require('classnames');
 
 const SettingsBox = require('./SettingsBox');
-
+const Logo        = require('./Logo');
 
 let CallBox = React.createClass({
     getInitialState: function() {
@@ -55,7 +55,7 @@ let CallBox = React.createClass({
             <div>
                 <div className="cover-container">
                     <div className="inner cover">
-                        <div className="blink_logo"></div><br/>
+                        <Logo />
                         <form className="form-dial" name="DialForm">
                             <p className="lead">Enter the address you wish to call</p>
                             <div className="input-group input-group-lg">

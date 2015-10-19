@@ -32,7 +32,7 @@ let Notifications = React.createClass({
                 }
             },
             level: 'info',
-            position: 'tc'
+            position: 'tr'
         });
     },
 

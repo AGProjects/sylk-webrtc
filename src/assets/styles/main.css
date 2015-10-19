@@ -789,3 +789,8 @@ html,body { overflow: hidden; }
 .react-toggle-label {
     margin-right: 8px;
 }
+
+.notifications-tr {
+    right: 40px !important;
+    z-index: 999 !important;
+}

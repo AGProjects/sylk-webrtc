@@ -35,6 +35,10 @@
     height: 55px;
     font-size: 22px;
 }
+
+.modal-body .lead {
+    font-size: 16px;
+}
  /*
  * Base structure
  */

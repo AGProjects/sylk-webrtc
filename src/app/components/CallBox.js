@@ -5,11 +5,15 @@ const classNames     = require('classnames');
 
 const SettingsBox = require('./SettingsBox');
 const Logo        = require('./Logo');
+const ConferenceModal = require('./ConferenceModal')
+
 
 let CallBox = React.createClass({
     getInitialState: function() {
         return {
-            targetUri: this.props.targetUri
+            targetUri: this.props.targetUri,
+            conferenceTargetUri: '',
+            showConferenceModal: false
         };
     },
 
@@ -33,6 +37,10 @@ let CallBox = React.createClass({
         this.setState({targetUri: event.target.value});
     },
 
+    handleConferenceTargetChange: function(event) {
+        this.setState({conferenceTargetUri: event.target.value});
+    },
+
     handleAudioCall: function(event) {
         event.preventDefault();
         this.props.startAudioCall(this.getTargetUri());
@@ -43,6 +51,22 @@ let CallBox = React.createClass({
         this.props.startVideoCall(this.getTargetUri());
     },
 
+    handleConferenceCall: function(event) {
+        event.preventDefault();
+        this.setState({showConferenceModal: false});
+        let conferenceTargetUri = this.state.conferenceTargetUri.replace(/ /g,'_');
+        this.props.startAudioCall(conferenceTargetUri + '@conference.sip2sip.info');
+    },
+
+    showConferenceModal: function(event) {
+        event.preventDefault();
+        this.setState({showConferenceModal: true});
+    },
+
+    hideConferenceModal: function(event) {
+        this.setState({showConferenceModal: false, conferenceTargetUri: ''});
+    },
+
     render: function() {
         let classes = classNames({
             'btn'         : true,
@@ -50,6 +74,11 @@ let CallBox = React.createClass({
             'btn-success' : this.state.targetUri.length !== 0,
             'btn-warning' : this.state.targetUri.length === 0
         });
+
+        let conferenceModal;
+        if (this.state.showConferenceModal) {
+            conferenceModal = <ConferenceModal onHide={this.hideConferenceModal} onCall={this.handleConferenceCall} inputChanged={this.handleConferenceTargetChange}/>
+        }
 
         return (
             <div>
@@ -72,8 +101,11 @@ let CallBox = React.createClass({
                             <br/>
                             {!this.props.guestMode && <p>You can receive calls at {this.props.account.id}</p>}
                         </form>
+                        <p>or</p>
+                        <p><button className="btn btn-primary" onClick={this.showConferenceModal}>Join conference ...</button></p>
                     </div>
                 </div>
+                {conferenceModal}
                 <SettingsBox account={this.props.account} signOut={this.props.signOut} guestMode={this.props.guestMode}/>
             </div>
         );

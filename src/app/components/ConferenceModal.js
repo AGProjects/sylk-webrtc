@@ -32,11 +32,11 @@ let ConferenceModal = React.createClass({
                 </Modal.Header>
                 <Modal.Body>
                     <p className="lead">Enter the conference room you wish to join</p>
-                    <form>
+                    <form onSubmit={this.props.onCall}>
                         <label htmlFor="inputTarget" className="sr-only">Conference Room</label>
                         <div className="input-group">
                             <span className="input-group-addon"><i className="fa fa-users fa-fw"></i></span>
-                            <input id="inputTarget" className="form-control" placeholder="Conference Room" onChange={this.handleConferenceTargetChange} autoFocus/>
+                            <input id="inputTarget" className="form-control" placeholder="Conference Room" onChange={this.handleConferenceTargetChange} required autoFocus/>
                         </div>
                     </form>
                 </Modal.Body>

@@ -24,7 +24,7 @@ let CallBox = React.createClass({
     },
 
     getTargetUri: function() {
-        let targetUri = this.state.targetUri;
+        let targetUri = this.state.targetUri.replace(/ /g,'_');
         if (targetUri.indexOf('@') === -1) {
             // take the domain part from the account
             const domain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);

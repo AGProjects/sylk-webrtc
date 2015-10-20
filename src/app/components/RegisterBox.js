@@ -36,7 +36,7 @@ let RegisterBox = React.createClass({
                         <form className="form-guest-switcher">
                             <label className="react-toggle-label">
                                 {buttonText}
-                                <Toggle  defaultChecked={this.props.guestMode} onChange={this.handleGuestModeChange} />
+                                <Toggle defaultChecked={this.props.guestMode} onChange={this.handleGuestModeChange} />
                             </label>
                         </form>
                     </div>

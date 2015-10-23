@@ -79,7 +79,7 @@ let RegisterBox = React.createClass({
                     </div>
                     <button type="submit" className={classes} disabled={this.state.registering}>Sign In</button>
                 </form>
-                <p>No SIP account? Create an account <a href="http://sip2sip.info" target="_new">here</a></p>
+                <p>No SIP account? <a href="http://sip2sip.info" target="_new">Create an account</a></p>
             </div>
         );
     }

@@ -65,7 +65,7 @@ let RegisterBox = React.createClass({
 
         return (
             <div>
-                <p className="lead">Sign in with your SIP account</p>
+                <p className="lead">Sign in to continue</p>
                 <form className="form-signin" onSubmit={this.handleSubmit}>
                     <label htmlFor="inputEmail" className="sr-only">Sip Account</label>
                     <div className="input-group">

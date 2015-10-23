@@ -36,7 +36,7 @@ let GuestForm = React.createClass({
 
         return (
             <div>
-                <p className="lead">Sign in as Guest</p>
+                <p className="lead">Sign in to continue</p>
                 <p>In guest mode you can only call local users.</p>
                 <form className="form-guest" onSubmit={this.handleSubmit}>
                     <label className="sr-only">Name</label>

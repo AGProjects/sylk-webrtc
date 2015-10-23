@@ -70,7 +70,7 @@ let RegisterBox = React.createClass({
                     <label htmlFor="inputEmail" className="sr-only">Sip Account</label>
                     <div className="input-group">
                         <span className="input-group-addon first"><i className="fa fa-globe fa-fw"></i></span>
-                        <input id="inputUser" className="form-control" placeholder="SIP address (username@domain)" value={this.state.accountId} onChange={this.handleAccountIdChange} required autoFocus/>
+                        <input id="inputUser" className="form-control" placeholder="Enter your SIP address" value={this.state.accountId} onChange={this.handleAccountIdChange} required autoFocus/>
                     </div>
                     <label htmlFor="inputPassword" className="sr-only">Password</label>
                     <div className="input-group">

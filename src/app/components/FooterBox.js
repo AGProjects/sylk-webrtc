@@ -9,7 +9,7 @@ let FooterBox = React.createClass({
             <div className="cover-container">
                 <div className="footer">
                     <div className="inner-small">
-                        <p>Copyright &copy; 2015 <a href="http://ag-projects.com">AG Projects</a></p>
+                        <p>Copyright &copy; 2015 <a href="http://ag-projects.com">AG Projects</a>. Powered by <a href="http://sylkserver.com">SylkServer</a></p>
                     </div>
                 </div>
             </div>

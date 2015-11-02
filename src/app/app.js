@@ -46,7 +46,7 @@ let Blink = React.createClass({
 
     componentWillMount: function(){
         if (!sylkrtc.rtcninja.hasWebRTC()) {
-            let errorMsg = 'This app works in a WebRTC browser (e.g. Chrome or Firefox) on Mac & Windows.';
+            let errorMsg = 'This app works only in a WebRTC browser (e.g. Chrome or Firefox)';
             this.setState({ error: errorMsg });
         }
     },

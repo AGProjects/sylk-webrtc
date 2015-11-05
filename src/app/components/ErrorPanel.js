@@ -6,6 +6,10 @@ const Modal          = ReactBootstrap.Modal;
 
 
 let ErrorPanel = React.createClass({
+    propTypes: {
+        errorMsg: React.PropTypes.string.isRequired
+    },
+
     onHide: function() {
         // noop, we never get here
     },

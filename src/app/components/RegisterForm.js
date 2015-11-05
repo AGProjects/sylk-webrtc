@@ -8,6 +8,10 @@ const defaultDomain = 'sip2sip.info';
 
 
 let RegisterBox = React.createClass({
+    propTypes: {
+        handleRegistration: React.PropTypes.func.isRequired
+    },
+
     getInitialState: function() {
         return {
             accountId: '',

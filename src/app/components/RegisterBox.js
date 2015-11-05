@@ -8,6 +8,10 @@ const RegisterForm      = require('./RegisterForm');
 const Logo              = require('./Logo');
 
 let RegisterBox = React.createClass({
+    propTypes: {
+        switchGuestMode : React.PropTypes.func.isRequired,
+        guestMode       : React.PropTypes.bool
+    },
 
     handleGuestModeChange: function(event) {
         this.props.switchGuestMode(event.target.checked);

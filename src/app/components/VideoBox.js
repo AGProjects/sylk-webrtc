@@ -14,6 +14,10 @@ const DEBUG = debug('blinkrtc:Video');
 
 
 let VideoBox = React.createClass({
+    propTypes: {
+        call: React.PropTypes.object.isRequired
+    },
+
     mixins: [FullscreenMixin],
 
     getInitialState: function() {

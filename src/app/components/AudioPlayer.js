@@ -4,6 +4,10 @@ const React = require('react');
 
 
 let AudioPlayer = React.createClass({
+    propTypes: {
+        sourceFile: React.PropTypes.string.isRequired
+    },
+
     audioEnded: function() {
         let audio = this.getAudioElement();
         this.timeout = setTimeout(function () { audio.play(); }, 3000);

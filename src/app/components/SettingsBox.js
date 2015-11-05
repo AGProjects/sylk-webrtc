@@ -8,6 +8,12 @@ const classNames     = require('classnames');
 
 
 let SettingsBox = React.createClass({
+    propTypes: {
+        signOut   : React.PropTypes.func.isRequired,
+        account   : React.PropTypes.object.isRequired,
+        guestMode : React.PropTypes.bool
+    },
+
     handleMenu: function(event, data) {
         if (data === 'logOut') {
             this.props.signOut();

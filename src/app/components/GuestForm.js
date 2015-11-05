@@ -7,6 +7,10 @@ const defaultDomain = 'guest.sip2sip.info';
 
 
 let GuestForm = React.createClass({
+    propTypes: {
+        handleRegistration: React.PropTypes.func.isRequired
+    },
+
     getInitialState: function() {
         return {
             accountId: ''

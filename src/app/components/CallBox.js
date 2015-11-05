@@ -10,9 +10,9 @@ const ConferenceModal = require('./ConferenceModal')
 
 let CallBox = React.createClass({
     propTypes: {
-        account        : React.PropTypes.string.isRequired,
+        account        : React.PropTypes.object.isRequired,
         guestMode      : React.PropTypes.bool,
-        signOut        : React.PropTypes.string.isRequired,
+        signOut        : React.PropTypes.func.isRequired,
         startAudioCall : React.PropTypes.func.isRequired,
         startVideoCall : React.PropTypes.func.isRequired,
         targetUri      : React.PropTypes.string

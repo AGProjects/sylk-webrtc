@@ -19,6 +19,7 @@ let SettingsBox = React.createClass({
             this.props.signOut();
         }
     },
+
     render: function() {
         let registrationClasses = classNames({
             'text-registered' : this.props.account.registrationState === 'registered',

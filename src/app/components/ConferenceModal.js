@@ -5,6 +5,7 @@ const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
 const classNames     = require('classnames');
 
+
 let ConferenceModal = React.createClass({
     propTypes: {
         inputChanged : React.PropTypes.func.isRequired,
@@ -17,7 +18,6 @@ let ConferenceModal = React.createClass({
             conferenceTargetUri: ''
         };
     },
-
 
     handleConferenceTargetChange: function(event) {
         this.setState({conferenceTargetUri: event.target.value});

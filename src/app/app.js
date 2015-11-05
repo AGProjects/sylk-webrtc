@@ -83,8 +83,8 @@ let Blink = React.createClass({
                 accountId   : '',
                 password    : '',
                 status      : {
-                    msg: 'Sign In failed: ' + data.reason,
-                    lvl:'danger'
+                    msg : 'Sign In failed: ' + data.reason,
+                    lvl : 'danger'
                 }
             });
         } else if (newState === 'registered') {
@@ -120,7 +120,6 @@ let Blink = React.createClass({
             this.refs.audioPlayerInbound.stop();
             this.refs.audioPlayerHangup.play();
         }
-
     },
 
     inboundCallStateChanged: function(oldState, newState, data) {

@@ -8,7 +8,7 @@ let FullscreenMixin = {
         };
     },
 
-    componentDidMount: function () {
+    componentDidMount: function() {
         let enabled = screenfull.enabled;
 
         if (enabled) {
@@ -26,7 +26,7 @@ let FullscreenMixin = {
         document.removeEventListener(screenfull.raw.fullscreenchange, this.onChangeFullscreen);
     },
 
-    requestFullscreen: function (ref) {
+    requestFullscreen: function(ref) {
         if (ref && ref.getDOMNode) {
             let elem = ref.getDOMNode();
             screenfull.request(elem);
@@ -35,11 +35,11 @@ let FullscreenMixin = {
         }
     },
 
-    exitFullscreen: function () {
+    exitFullscreen: function() {
         screenfull.exit();
     },
 
-    onChangeFullscreen: function (e) {
+    onChangeFullscreen: function(e) {
         let isFullscreen = screenfull.isFullscreen;
         this.setState({
             isFullscreen: isFullscreen,

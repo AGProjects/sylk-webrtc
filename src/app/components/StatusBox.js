@@ -21,9 +21,10 @@ let StatusBox = React.createClass({
             <div className="form-signin">
                 <div className={classes} role="alert">
                     <strong>{this.props.message}</strong>
-                </div></div>
-            );
-        }
+                </div>
+            </div>
+        );
+    }
 });
 
 module.exports = StatusBox;

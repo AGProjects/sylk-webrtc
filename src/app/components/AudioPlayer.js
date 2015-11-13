@@ -9,7 +9,7 @@ let AudioPlayer = React.createClass({
     },
 
     audioEnded: function() {
-        let audio = this.getAudioElement();
+        let audio = this.refs.audio;
         this.timeout = setTimeout(function () { audio.play(); }, 3000);
     },
 
@@ -20,17 +20,11 @@ let AudioPlayer = React.createClass({
     componentWillUnmount: function() {
         clearTimeout(this.timeout);
         this.timeout = null;
-        this.getAudioElement().removeEventListener('ended', this.audioEnded);
-    },
-
-    getAudioElement: function() {
-        let audio;
-        audio = this.refs.audio.getDOMNode();
-        return audio;
+        this.refs.audio.removeEventListener('ended', this.audioEnded);
     },
 
     play: function(repeat){
-        let audio = this.getAudioElement();
+        let audio = this.refs.audio;
         if (repeat) {
             this.timeout = null;
             audio.addEventListener('ended', this.audioEnded);
@@ -41,7 +35,7 @@ let AudioPlayer = React.createClass({
     },
 
     stop: function() {
-        let audio = this.getAudioElement();
+        let audio = this.refs.audio;
         clearTimeout(this.timeout);
         audio.pause();
         audio.currentTime = 0;

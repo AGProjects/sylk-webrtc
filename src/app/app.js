@@ -1,8 +1,9 @@
 'use strict';
 
-const React      = require('react');
-const sylkrtc    = require('sylkrtc');
-const debug      = require('debug');
+const React    = require('react');
+const ReactDOM = require('react-dom');
+const sylkrtc  = require('sylkrtc');
+const debug    = require('debug');
 
 const RegisterBox       = require('./components/RegisterBox');
 const CallBox           = require('./components/CallBox');
@@ -362,4 +363,4 @@ let Blink = React.createClass({
     }
 });
 
-React.render((<Blink />), document.getElementById('app'));
+ReactDOM.render((<Blink />), document.getElementById('app'));

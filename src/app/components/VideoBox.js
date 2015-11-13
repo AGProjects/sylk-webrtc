@@ -1,8 +1,8 @@
 'use strict';
 
 const React                     = require('react');
-const addons                    = require('react/addons');
-const ReactCSSTransitionGroup   = addons.addons.CSSTransitionGroup;
+const ReactDOM                  = require('react-dom');
+const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
 const rtcninja                  = require('sylkrtc').rtcninja;
 const classNames                = require('classnames');
 const debug                     = require('debug');
@@ -34,7 +34,7 @@ let VideoBox = React.createClass({
         this.callTimer = null;
         let localStream = this.props.call.getLocalStreams()[0];
         if (localStream.getVideoTracks().length > 0) {
-            let localVideoElement = React.findDOMNode(this.refs.localVideo);
+            let localVideoElement = ReactDOM.findDOMNode(this.refs.localVideo);
             localVideoElement.oncontextmenu = function(e) {
                 // disable right click for video elements
                 e.preventDefault();
@@ -51,7 +51,7 @@ let VideoBox = React.createClass({
         if (newState === 'established') {
             let remoteStream = this.props.call.getRemoteStreams()[0];
             if (remoteStream.getVideoTracks().length > 0) {
-                let remoteVideoElement = React.findDOMNode(this.refs.remoteVideo);
+                let remoteVideoElement = ReactDOM.findDOMNode(this.refs.remoteVideo);
                 remoteVideoElement.oncontextmenu = function(e) {
                     // disable right click for video elements
                     e.preventDefault();
@@ -62,7 +62,7 @@ let VideoBox = React.createClass({
             } else {
                 DEBUG('Receiving audio only');
                 this.setState({audioOnly:true});
-                let remoteAudioElement = React.findDOMNode(this.refs.remoteAudio);
+                let remoteAudioElement = ReactDOM.findDOMNode(this.refs.remoteAudio);
                 rtcninja.attachMediaStream(remoteAudioElement, remoteStream);
             }
             this.startCallTimer();
@@ -80,7 +80,11 @@ let VideoBox = React.createClass({
 
     toggleFullscreen: function (event, ref) {
         event.preventDefault();
-        this.state.isFullscreen ? this.exitFullscreen() : this.requestFullscreen(ref ? ref : this.refs.videoContainer);
+        if (this.state.isFullscreen) {
+            this.exitFullscreen();
+        } else {
+            this.requestFullscreen(this.refs.videoContainer);
+        }
     },
 
     muteAudio: function(event) {

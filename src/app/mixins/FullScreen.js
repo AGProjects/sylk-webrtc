@@ -26,13 +26,8 @@ let FullscreenMixin = {
         document.removeEventListener(screenfull.raw.fullscreenchange, this.onChangeFullscreen);
     },
 
-    requestFullscreen: function(ref) {
-        if (ref && ref.getDOMNode) {
-            let elem = ref.getDOMNode();
-            screenfull.request(elem);
-        } else {
-            screenfull.request();
-        }
+    requestFullscreen: function(elem) {
+        screenfull.request(elem);
     },
 
     exitFullscreen: function() {

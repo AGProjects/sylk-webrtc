@@ -214,7 +214,7 @@ let VideoBox = React.createClass({
 
         return (
             <div className="videoContainer" ref="videoContainer" onMouseMove={this.showHangup}>
-                <ReactCSSTransitionGroup transitionName="videoheader">
+                <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {videoHeader}
                 </ReactCSSTransitionGroup>
                 {remoteAudio}
@@ -241,7 +241,7 @@ let VideoBox = React.createClass({
                     </div>
                 )}
                 <div className={buttonBarClasses}>
-                    <ReactCSSTransitionGroup transitionName="videobuttons">
+                    <ReactCSSTransitionGroup transitionName="videobuttons" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                         {muteVideoButton}
                         {muteButton}
                         {fullScreenButton}

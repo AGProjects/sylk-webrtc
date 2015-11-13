@@ -7,7 +7,7 @@ const Modal          = ReactBootstrap.Modal;
 
 let IncomingCallModal = React.createClass({
     propTypes: {
-        call     : React.PropTypes.object.isRequired,
+        call     : React.PropTypes.object,
         onAnswer : React.PropTypes.func.isRequired,
         onHide   : React.PropTypes.func.isRequired
     },

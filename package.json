@@ -12,6 +12,7 @@
     "react-addons-css-transition-group": "^0.14.2",
     "react-bootstrap": "^0.27.3",
     "react-dom": "^0.14.2",
+    "react-notification-system": "^0.2.5",
     "react-toggle": "^2.0.1",
     "screenfull": "^2.0.0",
     "sylkrtc": "git+https://github.com/AGProjects/sylkrtc.js.git#release-0.3.0"

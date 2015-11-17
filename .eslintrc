@@ -1,0 +1,47 @@
+{
+    //"parser": "babel-eslint",
+    "ecmaFeatures": {
+        "arrowFunctions": true,
+        "blockBindings": true,
+        "forOf": true,
+        "modules": true,
+        "jsx": true
+    },
+    "plugins": [
+        "react"
+    ],
+    "env": {
+        "amd": true,
+        "node": true
+    },
+    "rules": {
+         "react/display-name": [2, { "acceptTranspilerName": true }],
+         "react/jsx-no-duplicate-props": 2,
+         "react/jsx-no-undef": 2,
+         "react/jsx-quotes": 0,
+         "react/jsx-closing-bracket-location": [1, "tag-aligned"],
+         "react/jsx-uses-react": 2,
+         "react/jsx-uses-vars": 2,
+         "react/no-did-mount-set-state": 2,
+         "react/no-did-update-set-state": 2,
+         "react/no-multi-comp": 2,
+         "react/no-unknown-property": 2,
+         "react/prop-types": 1,
+         "react/react-in-jsx-scope": 2,
+         "react/require-extension": 2,
+         "react/self-closing-comp": 2,
+         "react/wrap-multilines": 2,
+         "react/sort-comp": 0,
+
+         "quotes": [1, "single", "avoid-escape"],
+         "jsx-quotes": 1,
+         "comma-dangle": [1, "never"],
+         "no-underscore-dangle": 0,
+         "func-names": 0,
+         "no-else-return": 2,
+         "no-console": 0,
+         "no-throw-literal": 0,
+         "id-length": 0,
+         "camelcase": [2, {"properties": "always"}]
+    }
+}

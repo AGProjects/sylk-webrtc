@@ -14,7 +14,8 @@ let StatusBox = React.createClass({
         let classes = classNames({
             'alert' : true,
             'alert-warning' : this.props.level === 'warning',
-            'alert-danger'  : this.props.level === 'danger'
+            'alert-danger'  : this.props.level === 'danger',
+            'alert-info'    : this.props.level === 'info'
         });
 
         return (

@@ -11,6 +11,7 @@ const ConferenceModal = require('./ConferenceModal')
 let CallBox = React.createClass({
     propTypes: {
         account        : React.PropTypes.object.isRequired,
+        callState      : React.PropTypes.string,
         guestMode      : React.PropTypes.bool,
         signOut        : React.PropTypes.func.isRequired,
         startAudioCall : React.PropTypes.func.isRequired,
@@ -27,9 +28,11 @@ let CallBox = React.createClass({
     },
 
     componentWillReceiveProps: function(nextProps) {
-        this.setState({
-            targetUri: nextProps.targetUri
-        });
+        if (nextProps.callState !== 'init') {
+            this.setState({
+                targetUri: nextProps.targetUri
+            });
+        }
     },
 
     getTargetUri: function() {
@@ -100,16 +103,17 @@ let CallBox = React.createClass({
                                 <input type="text" id="inputDestination" className="form-control"
                                     onChange={this.handleTargetChange}
                                     value={this.state.targetUri}
+                                    disabled={this.props.callState === 'init'}
                                     required autoFocus
                                 />
                                 <span className="input-group-btn">
-                                    <button type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
-                                    <button type="submit" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
+                                    <button type="button" className={classes} disabled={this.state.targetUri.length === 0 || this.props.callState === 'init'} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
+                                    <button type="submit" className={classes} disabled={this.state.targetUri.length === 0 || this.props.callState === 'init'} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
                                 </span>
                             </div>
                         </form>
                         <p>or</p>
-                        <p><button className="btn btn-primary" onClick={this.showConferenceModal}>Join conference ...</button></p>
+                        <p><button className="btn btn-primary" disabled={this.props.callState === 'init'} onClick={this.showConferenceModal}>Join conference ...</button></p>
                     </div>
                 </div>
                 {conferenceModal}

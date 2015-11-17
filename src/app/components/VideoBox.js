@@ -15,10 +15,17 @@ const DEBUG = debug('blinkrtc:Video');
 
 let VideoBox = React.createClass({
     propTypes: {
-        call: React.PropTypes.object.isRequired
+        call: React.PropTypes.object,
+        localMedia: React.PropTypes.object
     },
 
     mixins: [FullscreenMixin],
+
+    getDefaultProps: function() {
+        return {
+          call: ''
+        };
+    },
 
     getInitialState: function() {
         return {
@@ -30,21 +37,33 @@ let VideoBox = React.createClass({
         };
     },
 
+    componentWillMount: function() {
+        this.callAvail = false;
+        let localStream = this.props.localMedia;
+        if (localStream.getVideoTracks().length === 0) {
+            DEBUG('Sending audio only');
+            this.setState({audioOnly:true});
+        }
+    },
+
     componentDidMount: function() {
         this.callTimer = null;
-        let localStream = this.props.call.getLocalStreams()[0];
-        if (localStream.getVideoTracks().length > 0) {
+        let localStream = this.props.localMedia;
+        if (!this.state.audioOnly) {
             let localVideoElement = ReactDOM.findDOMNode(this.refs.localVideo);
             localVideoElement.oncontextmenu = function(e) {
                 // disable right click for video elements
                 e.preventDefault();
             };
             rtcninja.attachMediaStream(localVideoElement, localStream);
-        } else {
-            DEBUG('Sending audio only');
-            this.setState({audioOnly:true});
         }
-        this.props.call.on('stateChanged', this.callStateChanged);
+    },
+
+    componentWillReceiveProps: function(nextProps) {
+        if (nextProps.call !== null && !this.callAvail) {
+            this.callAvail = true;
+            nextProps.call.on('stateChanged', this.callStateChanged);
+        }
     },
 
     callStateChanged: function(oldState, newState, data) {
@@ -61,7 +80,10 @@ let VideoBox = React.createClass({
                 this.armHangupTimer();
             } else {
                 DEBUG('Receiving audio only');
-                this.setState({audioOnly:true});
+                this.setState({
+                    audioOnly:true,
+                    hangupButtonVisible: true
+                });
                 let remoteAudioElement = ReactDOM.findDOMNode(this.refs.remoteAudio);
                 rtcninja.attachMediaStream(remoteAudioElement, remoteStream);
             }
@@ -149,8 +171,8 @@ let VideoBox = React.createClass({
     render: function() {
 
         let classes = classNames({
-            'fullScreen'    : this.props.call.state === 'progress',
-            'noFullScreen'  : this.props.call.state !== 'progress',
+            'fullScreen'    : this.state.callDuration === null,
+            'noFullScreen'  : this.state.callDuration !== null,
             'hidden'        : this.state.videoMuted
         });
         let remoteAudio;
@@ -188,13 +210,13 @@ let VideoBox = React.createClass({
         });
         let audioCallDisplayClasses = classNames({
             'alert'         : true,
-            'alert-info'    : this.props.call.state !== 'established',
-            'alert-success' : this.props.call.state === 'established'
+            'alert-info'    : this.state.callDuration === null,
+            'alert-success' : this.state.callDuration !== null
         });
         let videoHeaderTextClasses = classNames({
             'lead'          : true,
-            'text-info'     : this.props.call.state !== 'established',
-            'text-success'  : this.props.call.state === 'established'
+            'text-info'     : this.state.callDuration === null,
+            'text-success'  : this.state.callDuration !== null
         });
 
         let callDuration;
@@ -202,11 +224,16 @@ let VideoBox = React.createClass({
             callDuration = <span><i className="fa fa-clock-o"></i> {this.state.callDuration}</span>;
         }
 
+        let remoteIdentity = '';
+        if (this.props.call !== null) {
+            remoteIdentity = this.props.call.remoteIdentity;
+        }
+
         if (this.state.hangupButtonVisible) {
             if (!this.state.audioOnly) {
                 muteVideoButton = <button key="muteVideo" type="button" className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
                 fullScreenButton = <button key="fsButton" type="button" className="btn btn-round btn-default" onClick={this.toggleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
-                videoHeader =  <div key="header" className="videoHeader"><p className={videoHeaderTextClasses}><strong>Call with</strong> {this.props.call.remoteIdentity}</p><p className={videoHeaderTextClasses}>{callDuration}</p></div>;
+                videoHeader =  <div key="header" className="videoHeader"><p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p><p className={videoHeaderTextClasses}>{callDuration}</p></div>;
             }
             muteButton = <button key="muteAudio" type="button" className="btn btn-round btn-default" onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
             hangupButton = <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>;
@@ -231,7 +258,7 @@ let VideoBox = React.createClass({
                                 <div className={audioCallDisplayClasses} role="alert">
                                     <div className="row">
                                         <div className="pull-left padding-left">
-                                            <strong>Call with</strong> {this.props.call.remoteIdentity}
+                                            <strong>Call with</strong> {remoteIdentity}
                                         </div>
                                         <div className="pull-right padding-right">{callDuration}</div>
                                     </div>

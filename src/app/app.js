@@ -1,9 +1,11 @@
 'use strict';
 
-const React    = require('react');
-const ReactDOM = require('react-dom');
-const sylkrtc  = require('sylkrtc');
-const debug    = require('debug');
+const React     = require('react');
+const ReactDOM  = require('react-dom');
+const sylkrtc   = require('sylkrtc');
+const rtcninja  = require('sylkrtc').rtcninja;
+const assert    = require('assert');
+const debug     = require('debug');
 
 const RegisterBox       = require('./components/RegisterBox');
 const CallBox           = require('./components/CallBox');
@@ -41,7 +43,8 @@ let Blink = React.createClass({
             status: null,
             targetUri: '',
             loading: false,
-            guestMode: false
+            guestMode: false,
+            localMedia: null
         };
     },
 
@@ -107,7 +110,8 @@ let Blink = React.createClass({
                 callState           : null,
                 targetUri           : '',
                 showIncomingModal   : false,
-                inboundCall         : null
+                inboundCall         : null,
+                localMedia          : null
             });
         }
 
@@ -219,22 +223,59 @@ let Blink = React.createClass({
         this.setState({guestMode: state, status: null});
     },
 
+    armMediaTimer: function() {
+        clearTimeout(this.statusTimer);
+        this.mediaTimer = setTimeout(() => {
+            this.setState({status : { msg: 'Please allow access to your media devices', lvl: 'info'}});
+        }, 5000);
+    },
+
+    getLocalMedia: function(targetUri, mediaConstraints) {
+        let self = this;
+        this.mediaTimer = null;
+        mediaConstraints = mediaConstraints || {audio:true, video:true };
+        rtcninja.getUserMedia(mediaConstraints, function(localStream) {
+            clearTimeout(self.mediaTimer);
+            self.setState({status: null, localMedia: localStream});
+            // Assumes when state.currentCall is present, we need to answer
+            if (self.state.currentCall !== null) {
+                let options = Object.create(callOptions);
+                options.localStream = localStream;
+                self.state.currentCall.answer(options);
+            } else {
+                self.startCall(targetUri, localStream);
+            }
+        }, this.userMediaFailed);
+        this.armMediaTimer();
+    },
+
+    userMediaFailed: function() {
+        clearTimeout(this.mediaTimer);
+        this.refs.notifications.postNotification('error', 'Access to media failed', '', 10);
+        this.setState({
+            status    : null,
+            callState : null,
+            targetUri : ''
+        });
+    },
+
     startAudioCall: function(targetUri) {
-        this.startCall(targetUri, {audio: true, video: false});
+        this.setState({callState: 'init'});
+        this.getLocalMedia(targetUri,{audio: true, video: false});
     },
 
     startVideoCall: function(targetUri) {
-        this.startCall(targetUri, {audio: true, video: true});
+        this.setState({callState: 'init'});
+        this.getLocalMedia(targetUri, {audio: true, video: true});
     },
 
-    startCall: function(targetUri, mediaConstraints) {
-        if (this.state.currentCall === null) {
-            let options = Object.create(callOptions);
-            options.mediaConstraints = mediaConstraints || {audio: true, video: true};
-            let call = this.state.account.call(targetUri, options);
-            call.on('stateChanged', this.callStateChanged);
-            this.setState({currentCall: call, targetUri:''});
-        }
+    startCall: function(targetUri, localStream) {
+        assert(this.state.currentCall == null, 'currentCall is not null');
+        let options = Object.create(callOptions);
+        options.localStream = localStream;
+        let call = this.state.account.call(targetUri, options);
+        call.on('stateChanged', this.callStateChanged);
+        this.setState({currentCall: call, targetUri:''});
     },
 
     answerCall: function(){
@@ -242,7 +283,7 @@ let Blink = React.createClass({
         if (this.state.inboundCall !== this.state.currentCall) {
             this.switchToIncomingCall(this.state.inboundCall);
         } else {
-            this.state.currentCall.answer(callOptions);
+            this.getLocalMedia('',this.state.currentCall.mediaTypes);
         }
     },
 
@@ -267,7 +308,7 @@ let Blink = React.createClass({
     switchToMissedCall: function(targetUri) {
         if (this.state.currentCall !== null) {
             this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
-            this.setState({currentCall: null, callState: null, targetUri: targetUri, showIncomingModal: false});
+            this.setState({currentCall: null, callState: null, targetUri: targetUri, showIncomingModal: false, localMedia: null});
             this.state.currentCall.terminate();
         } else {
             this.setState({ targetUri: targetUri});
@@ -278,9 +319,9 @@ let Blink = React.createClass({
         this.state.inboundCall.removeListener('stateChanged', this.inboundCallStateChanged);
         this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
         this.state.currentCall.terminate();
-        this.setState({currentCall: call, callState: call.state, inboundCall: null});
+        this.setState({currentCall: call, callState: call.state, inboundCall: null, localMedia: null});
         call.on('stateChanged', this.callStateChanged);
-        call.answer(callOptions);
+        this.getLocalMedia('',call.mediaTypes);
     },
 
     missedCall: function(data) {
@@ -324,19 +365,22 @@ let Blink = React.createClass({
             audioPlayerInbound = <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav"/>;
             audioPlayerOutbound = <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav"/>;
             audioPlayerHangup = <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />;
-            if (call !== null && (call.state === 'progress' ||  call.state === 'accepted' ||  call.state === 'established')) {
-                videoBox = <VideoBox call={this.state.currentCall} />;
+            if (this.state.localMedia !== null ) {
+                videoBox = <VideoBox call={this.state.currentCall} localMedia={this.state.localMedia}/>;
             } else {
-                callBox = (
-                    <CallBox
-                        account   = {this.state.account}
-                        startAudioCall = {this.startAudioCall}
-                        startVideoCall = {this.startVideoCall}
-                        signOut = {this.toggleRegister}
-                        targetUri = {this.state.targetUri}
-                        guestMode = {this.state.guestMode}
-                    />
-                );
+                if (this.state.status === null) {
+                    callBox = (
+                        <CallBox
+                            account   = {this.state.account}
+                            startAudioCall = {this.startAudioCall}
+                            startVideoCall = {this.startVideoCall}
+                            signOut = {this.toggleRegister}
+                            targetUri = {this.state.targetUri}
+                            guestMode = {this.state.guestMode}
+                            callState = {this.state.callState}
+                        />
+                    );
+                }
             }
         }
 

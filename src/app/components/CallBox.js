@@ -81,10 +81,10 @@ let CallBox = React.createClass({
 
     render: function() {
         let classes = classNames({
-            'btn'         : true,
-            'btn-lg'      : true,
-            'btn-success' : this.state.targetUri.length !== 0,
-            'btn-warning' : this.state.targetUri.length === 0
+            'btn'           : true,
+            'btn-round-big' : true,
+            'btn-success'   : this.state.targetUri.length !== 0,
+            'btn-default'   : this.state.targetUri.length === 0
         });
 
         let conferenceModal;
@@ -99,21 +99,20 @@ let CallBox = React.createClass({
                         <Logo />
                         <form className="form-dial" name="DialForm">
                             <p className="lead">Enter the address you wish to call</p>
-                            <div className="input-group input-group-lg">
-                                <input type="text" id="inputDestination" className="form-control"
+                            <div className="form-group">
+                                <input type="text" id="inputDestination" className="form-control input-lg"
                                     onChange={this.handleTargetChange}
                                     value={this.state.targetUri}
                                     disabled={this.props.callState === 'init'}
                                     required autoFocus
                                 />
-                                <span className="input-group-btn">
-                                    <button type="button" className={classes} disabled={this.state.targetUri.length === 0 || this.props.callState === 'init'} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
-                                    <button type="submit" className={classes} disabled={this.state.targetUri.length === 0 || this.props.callState === 'init'} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
-                                </span>
+                            </div>
+                            <div className="form-group">
+                                <button type="button" className={classes} disabled={this.state.targetUri.length === 0 || this.props.callState === 'init'} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
+                                <button type="submit" className={classes} disabled={this.state.targetUri.length === 0 || this.props.callState === 'init'} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
+                                <button type="button" className="btn btn-primary btn-round-big" disabled={this.props.callState === 'init'} onClick={this.showConferenceModal}><i className="fa fa-users"></i></button>
                             </div>
                         </form>
-                        <p>or</p>
-                        <p><button className="btn btn-primary" disabled={this.props.callState === 'init'} onClick={this.showConferenceModal}>Join conference ...</button></p>
                     </div>
                 </div>
                 {conferenceModal}

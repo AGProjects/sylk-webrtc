@@ -72,7 +72,7 @@ let CallBox = React.createClass({
 
     showConferenceModal: function(event) {
         event.preventDefault();
-        this.setState({showConferenceModal: true});
+        this.setState({showConferenceModal: true, conferenceTargetUri: this.state.targetUri});
     },
 
     hideConferenceModal: function(event) {
@@ -89,7 +89,14 @@ let CallBox = React.createClass({
 
         let conferenceModal;
         if (this.state.showConferenceModal) {
-            conferenceModal = <ConferenceModal onHide={this.hideConferenceModal} onCall={this.handleConferenceCall} inputChanged={this.handleConferenceTargetChange}/>
+            conferenceModal = (
+                <ConferenceModal
+                    onHide={this.hideConferenceModal}
+                    onCall={this.handleConferenceCall}
+                    inputChanged={this.handleConferenceTargetChange}
+                    targetUri={this.state.targetUri}
+                />
+            );
         }
 
         return (

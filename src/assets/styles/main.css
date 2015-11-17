@@ -353,13 +353,19 @@ html,body { overflow: hidden; }
 /*
  * Modal colors, text should not be white
  */
+
 .modal-header, .modal-body {
+    color: #333 !important;
+}
+
+.modal-footer p {
     color: #333 !important;
 }
 
 /*
  * Rotate 135 degrees
  */
+
 .rotate-135 {
     filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1.5);
     -webkit-transform: rotate(135deg);

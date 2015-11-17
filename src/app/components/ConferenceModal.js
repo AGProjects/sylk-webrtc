@@ -56,6 +56,7 @@ let ConferenceModal = React.createClass({
                     </form>
                 </Modal.Body>
                 <Modal.Footer>
+                        <p className="pull-left">Supported media: audio</p>
                         <button className={classes} disabled={this.state.conferenceTargetUri.length === 0} onClick={this.props.onCall}><i className="fa fa-phone"></i> Join</button>
                 </Modal.Footer>
             </Modal>

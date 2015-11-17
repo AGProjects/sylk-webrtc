@@ -84,7 +84,7 @@ let CallBox = React.createClass({
             'btn'           : true,
             'btn-round-big' : true,
             'btn-success'   : this.state.targetUri.length !== 0,
-            'btn-default'   : this.state.targetUri.length === 0
+            'btn-warning'   : this.state.targetUri.length === 0
         });
 
         let conferenceModal;

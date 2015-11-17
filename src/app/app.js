@@ -145,7 +145,7 @@ let Blink = React.createClass({
         } else {
             DEBUG('Connection Present, try to register');
             if (!this.state.guestMode) {
-                    this.handleRegistration(accountId, pass);
+                this.handleRegistration(accountId, pass);
             } else {
                 this.handleGuestRegistration(accountId);
             }

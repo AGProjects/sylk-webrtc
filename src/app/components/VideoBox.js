@@ -100,13 +100,9 @@ let VideoBox = React.createClass({
         }
     },
 
-    toggleFullscreen: function (event, ref) {
+    handleFullscreen: function (event) {
         event.preventDefault();
-        if (this.state.isFullscreen) {
-            this.exitFullscreen();
-        } else {
-            this.requestFullscreen(this.refs.videoContainer);
-        }
+        this.toggleFullscreen(this.refs.videoContainer);
     },
 
     muteAudio: function(event) {
@@ -232,7 +228,7 @@ let VideoBox = React.createClass({
         if (this.state.hangupButtonVisible) {
             if (!this.state.audioOnly) {
                 muteVideoButton = <button key="muteVideo" type="button" className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
-                fullScreenButton = <button key="fsButton" type="button" className="btn btn-round btn-default" onClick={this.toggleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
+                fullScreenButton = <button key="fsButton" type="button" className="btn btn-round btn-default" onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
                 videoHeader =  <div key="header" className="videoHeader"><p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p><p className={videoHeaderTextClasses}>{callDuration}</p></div>;
             }
             muteButton = <button key="muteAudio" type="button" className="btn btn-round btn-default" onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;

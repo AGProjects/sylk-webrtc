@@ -1,50 +1,21 @@
 const screenfull = require('screenfull');
 
-let FullscreenMixin = {
-
-    getInitialState: function() {
-        return {
-            hasFullscreen: false
-        };
-    },
-
-    componentDidMount: function() {
-        let enabled = screenfull.enabled;
-
-        if (enabled) {
-            document.addEventListener(screenfull.raw.fullscreenchange, this.onChangeFullscreen);
-
-            this.setState({
-                hasFullscreen: enabled,
-                isFullscreen: screenfull.isFullscreen,
-                fullScreenElement: screenfull.element
-            });
+const FullscreenMixin = {
+    requestFullscreen: function(elem) {
+        if (screenfull.enabled) {
+            screenfull.request(elem);
         }
     },
 
-    componentWillUnmount: function() {
-        document.removeEventListener(screenfull.raw.fullscreenchange, this.onChangeFullscreen);
-    },
-
-    requestFullscreen: function(elem) {
-        screenfull.request(elem);
-    },
-
     exitFullscreen: function() {
-        screenfull.exit();
+        if (screenfull.enabled) {
+            screenfull.exit();
+        }
     },
 
-    onChangeFullscreen: function(e) {
-        let isFullscreen = screenfull.isFullscreen;
-        this.setState({
-            isFullscreen: isFullscreen,
-            fullScreenElement: screenfull.element
-        });
-
-        if (isFullscreen) {
-            typeof this.onEnterFullscreen === 'function' && this.onEnterFullscreen(e);
-        } else {
-            typeof this.onExitFullscreen === 'function' && this.onExitFullscreen(e);
+    toggleFullscreen: function(elem) {
+        if (screenfull.enabled) {
+            screenfull.toggle(elem);
         }
     }
 };

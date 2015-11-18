@@ -1,7 +1,6 @@
 'use strict';
 
 const React                     = require('react');
-const ReactDOM                  = require('react-dom');
 const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
 const rtcninja                  = require('sylkrtc').rtcninja;
 const classNames                = require('classnames');
@@ -39,8 +38,7 @@ let VideoBox = React.createClass({
 
     componentWillMount: function() {
         this.callAvail = false;
-        let localStream = this.props.localMedia;
-        if (localStream.getVideoTracks().length === 0) {
+        if (this.props.localMedia.getVideoTracks().length === 0) {
             DEBUG('Sending audio only');
             this.setState({audioOnly:true});
         }
@@ -48,14 +46,12 @@ let VideoBox = React.createClass({
 
     componentDidMount: function() {
         this.callTimer = null;
-        let localStream = this.props.localMedia;
         if (!this.state.audioOnly) {
-            let localVideoElement = ReactDOM.findDOMNode(this.refs.localVideo);
-            localVideoElement.oncontextmenu = function(e) {
+            this.refs.localVideo.oncontextmenu = function(e) {
                 // disable right click for video elements
                 e.preventDefault();
             };
-            rtcninja.attachMediaStream(localVideoElement, localStream);
+            rtcninja.attachMediaStream(this.refs.localVideo, this.props.localMedia);
         }
     },
 
@@ -70,12 +66,11 @@ let VideoBox = React.createClass({
         if (newState === 'established') {
             let remoteStream = this.props.call.getRemoteStreams()[0];
             if (remoteStream.getVideoTracks().length > 0) {
-                let remoteVideoElement = ReactDOM.findDOMNode(this.refs.remoteVideo);
-                remoteVideoElement.oncontextmenu = function(e) {
+                this.refs.remoteVideo.oncontextmenu = function(e) {
                     // disable right click for video elements
                     e.preventDefault();
                 };
-                rtcninja.attachMediaStream(remoteVideoElement, remoteStream);
+                rtcninja.attachMediaStream(this.refs.remoteVideo, remoteStream);
                 this.hangupButtonTimer = null;
                 this.armHangupTimer();
             } else {
@@ -84,8 +79,7 @@ let VideoBox = React.createClass({
                     audioOnly:true,
                     hangupButtonVisible: true
                 });
-                let remoteAudioElement = ReactDOM.findDOMNode(this.refs.remoteAudio);
-                rtcninja.attachMediaStream(remoteAudioElement, remoteStream);
+                rtcninja.attachMediaStream(this.refs.remoteAudio, remoteStream);
             }
             this.startCallTimer();
         }

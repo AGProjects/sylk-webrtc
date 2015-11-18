@@ -1,7 +1,8 @@
 
 GULP = node_modules/.bin/gulp
+ESLINT = node_modules/.bin/eslint
 
-.PHONY: all clean deploy deploy-test dist dist-dev distclean watch
+.PHONY: all clean deploy deploy-test dist dist-dev distclean watch lint
 
 all: dist
 
@@ -29,3 +30,6 @@ distclean: clean
 
 watch:
 	$(GULP) watch
+
+lint:
+	$(ESLINT) src/app

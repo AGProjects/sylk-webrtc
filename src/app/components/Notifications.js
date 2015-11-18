@@ -23,7 +23,7 @@ let Notifications = React.createClass({
     postMissedCall: function(originator, call) {
         let currentDate = moment().format('MMMM Do YYYY [at] HH:mm:ss');
         this._notificationSystem.addNotification({
-            message: 'From '+ originator + '<br />On ' + currentDate,
+            message: 'From ' + originator + '<br />On ' + currentDate,
             title: 'Missed Call',
             autoDismiss: 0,
             action: {

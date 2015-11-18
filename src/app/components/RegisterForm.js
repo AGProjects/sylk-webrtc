@@ -50,7 +50,7 @@ let RegisterBox = React.createClass({
         let accountId = this.state.accountId;
         if (this.state.accountId.indexOf('@') === -1) {
              // take the domain part from the default
-            accountId = this.state.accountId +'@'+ defaultDomain;
+            accountId = this.state.accountId + '@' + defaultDomain;
         }
         this.props.handleRegistration(accountId, this.state.password);
     },

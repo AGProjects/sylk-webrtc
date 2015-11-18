@@ -24,7 +24,7 @@ let GuestForm = React.createClass({
     handleSubmit: function(event) {
         event.preventDefault();
         let accountId = this.state.accountId.replace(/ /g,'_');
-        accountId = accountId +'@'+ defaultDomain;
+        accountId = accountId + '@' + defaultDomain;
         this.props.handleRegistration(accountId);
     },
 

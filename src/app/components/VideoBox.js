@@ -228,7 +228,9 @@ let VideoBox = React.createClass({
         if (this.state.hangupButtonVisible) {
             if (!this.state.audioOnly) {
                 muteVideoButton = <button key="muteVideo" type="button" className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
-                fullScreenButton = <button key="fsButton" type="button" className="btn btn-round btn-default" onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
+                if (this.isFullscreenSupported()) {
+                    fullScreenButton = <button key="fsButton" type="button" className="btn btn-round btn-default" onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
+                }
                 videoHeader =  <div key="header" className="videoHeader"><p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p><p className={videoHeaderTextClasses}>{callDuration}</p></div>;
             }
             muteButton = <button key="muteAudio" type="button" className="btn btn-round btn-default" onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;

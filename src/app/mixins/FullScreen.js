@@ -1,6 +1,10 @@
 const screenfull = require('screenfull');
 
 const FullscreenMixin = {
+    isFullscreenSupported: function() {
+        return screenfull.enabled;
+    },
+
     requestFullscreen: function(elem) {
         if (screenfull.enabled) {
             screenfull.request(elem);

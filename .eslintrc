@@ -41,6 +41,9 @@
          "no-else-return": 2,
          "no-console": 0,
          "no-throw-literal": 0,
+         "no-mixed-spaces-and-tabs": 2,
+         "space-in-parens": [2, "never"],
+         "space-infix-ops": 2,
          "id-length": 0,
          "camelcase": [2, {"properties": "always"}]
     }

@@ -3,7 +3,6 @@
 const React     = require('react');
 const ReactDOM  = require('react-dom');
 const sylkrtc   = require('sylkrtc');
-const rtcninja  = require('sylkrtc').rtcninja;
 const assert    = require('assert');
 const debug     = require('debug');
 
@@ -234,7 +233,7 @@ let Blink = React.createClass({
         let self = this;
         this.mediaTimer = null;
         mediaConstraints = mediaConstraints || {audio:true, video:true };
-        rtcninja.getUserMedia(mediaConstraints, function(localStream) {
+        sylkrtc.rtcninja.getUserMedia(mediaConstraints, function(localStream) {
             clearTimeout(self.mediaTimer);
             self.setState({status: null, localMedia: localStream});
             // Assumes when state.currentCall is present, we need to answer

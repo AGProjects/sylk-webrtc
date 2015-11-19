@@ -212,9 +212,13 @@ let Blink = React.createClass({
                 this.setState({registrationState:null });
             } else {
                 this.state.account.unregister();
+                window.localStorage.setItem('blinkAccount',
+                                            JSON.stringify({accountId: this.state.accountId, password: ''}));
             }
         } else {
             this.state.account.register();
+            window.localStorage.setItem('blinkAccount',
+                                        JSON.stringify({accountId: this.state.accountId, password: this.state.password}));
         }
     },
 

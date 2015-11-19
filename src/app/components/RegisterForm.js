@@ -21,6 +21,14 @@ let RegisterBox = React.createClass({
         };
     },
 
+    componentWillMount: function() {
+        let data = window.localStorage.getItem('blinkAccount');
+        if (data) {
+            let accountData = JSON.parse(data);
+            this.setState(accountData);
+        }
+    },
+
     componentWillReceiveProps: function(nextProps) {
         let registrationState = nextProps.registrationState;
         if (registrationState !== null) {

@@ -5,15 +5,10 @@ uglify = require('gulp-uglify'),
 minifyCss = require('gulp-minify-css');
 
 gulp.task('vendorCSS', function(){
-    //concatenate vendor CSS files
-    var assets = useref.assets();
-
     return gulp.src('./src/*.html')
-        .pipe(assets)
-	    .pipe(gulpif('*.js', uglify({mangle: false})))
-        .pipe(gulpif('*.css', minifyCss()))
-        .pipe(assets.restore())
         .pipe(useref())
+	.pipe(gulpif('*.js', uglify({mangle: false})))
+        .pipe(gulpif('*.css', minifyCss()))
         .pipe(gulp.dest('dist'));
 // });
     // gulp.src(['!./src/bower_components/**/*.min.css',

@@ -9,6 +9,7 @@ all: dist
 deploy: dist
 	echo `date +"%Y-%m-%d_%H:%M:%S"` > dist/.timestamp
 	rm -f dist/js/*.map
+	rm -f dist/assets/styles/*.map
 	rsync -av --delete dist/ agp@node10.dns-hosting.info:/var/www/webrtc/
 	ssh agp@node10.dns-hosting.info 'sudo /root/sync-webrtc.sh'
 
@@ -23,13 +24,13 @@ dist-dev:
 	$(GULP) build --type dev
 
 clean:
-	rm -rf dist src/js
+	rm -rf dist
 
 distclean: clean
 	rm -rf node_modules src/bower_components
 
 watch:
-	$(GULP) watch
+	$(GULP) watch --type dev
 
 lint:
 	$(ESLINT) src/app

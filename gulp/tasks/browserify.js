@@ -1,12 +1,13 @@
 /* browserify task
-   ---------------
-   Bundle javascripty things with browserify!
-   This task is set up to generate multiple separate bundles, from
-   different sources, and to use Watchify when run from the default task.
-   See browserify.bundleConfigs in gulp/config.js
+---------------
+Bundle javascripty things with browserify!
+This task is set up to generate multiple separate bundles, from
+different sources, and to use Watchify when run from the watch task.
+See browserify.bundleConfigs in gulp/config.js
 */
 var browserify   = require('browserify');
 var browserSync  = require('browser-sync');
+var watchify     = require('watchify');
 var gulp         = require('gulp');
 var uglify       = require('gulp-uglify');
 var gutil        = require('gulp-util');
@@ -21,61 +22,83 @@ var sourcemaps   = require('gulp-sourcemaps');
 
 var browserifyTask = function(callback) {
 
-  var bundleQueue = config.bundleConfigs.length;
+    var bundleQueue = config.bundleConfigs.length;
 
-  var browserifyThis = function(bundleConfig) {
+    var browserifyThis = function(bundleConfig) {
 
-    // Always add sourcemaps, our deployment tool will remove them for production
-    _.extend(bundleConfig, { debug: true });
+        // When lauched from watch task, we start Watchify
+        var watchMode = gutil.env._.indexOf('watch') !== -1 ? true : false;
 
-    var bundler = browserify(bundleConfig);
+        var bundler = '';
 
-    // add in transforms, requires and externals from the config
-    if (bundleConfig.entries !==  './src/scripts/libs.js') {
-        bundler.transform(babelify);
-    }
-    if(bundleConfig.require) bundler.require(bundleConfig.require);
-    if(bundleConfig.external) bundler.external(bundleConfig.external);
-
-    var bundle = function() {
-
-      return bundler
-        .bundle()
-        // Report compile errors
-        .on('error', notify.onError({
-          title: "JS Compile Error",
-          message: "<%= error.message %>"
-        }))
-        // Use vinyl-source-stream to make the
-        // stream gulp compatible. Specify the
-        // desired output filename here.
-        .pipe(source(bundleConfig.outputName))
-        .pipe(buffer())
-          .pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
-          .pipe(gutil.env.type === 'dev' ? gutil.noop() : uglify())
-          .pipe(sourcemaps.write('./')) // writes .map file
-        // Specify the output destination
-        .pipe(gulp.dest(bundleConfig.dest))
-        .on('end', reportFinished)
-        .pipe(browserSync.reload({stream:true}));
-    };
-
-    var reportFinished = function() {
-      if(bundleQueue) {
-        bundleQueue--;
-        if(bundleQueue === 0) {
-          // If queue is empty, tell gulp the task is complete.
-          // https://github.com/gulpjs/gulp/blob/master/docs/API.md#accept-a-callback
-          callback();
+        if(watchMode) {
+            // Add watchify and Always add sourcemaps, our deployment tool will remove them for production
+            _.extend(bundleConfig, watchify.args, { debug: true });
+            bundler = watchify(browserify(bundleConfig));
+        } else {
+            // Always add sourcemaps, our deployment tool will remove them for production
+            _.extend(bundleConfig, { debug: true });
+            bundler = browserify(bundleConfig);
         }
-      }
+
+        // Add in transforms
+        bundler.transform(babelify);
+
+        if(bundleConfig.require) bundler.require(bundleConfig.require);
+        if(bundleConfig.external) bundler.external(bundleConfig.external);
+
+        var bundle = function() {
+
+            return bundler
+            .bundle()
+            // Report compile errors
+            .on('error', notify.onError({
+                title: 'JS Compile Error',
+                message: '<%= error.message %>'
+            }))
+
+            // Use vinyl-source-stream to make the
+            // stream gulp compatible. Specify the
+            // desired output filename here.
+            .pipe(source(bundleConfig.outputName))
+            .pipe(buffer())
+            .pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
+            // Only uglify in dev mode
+            .pipe(gutil.env.type === 'dev' ? gutil.noop() : uglify())
+            // writes .map file only if dev mode is enabled
+            .pipe(gutil.env.type === 'dev' ? sourcemaps.write('./') : gutil.noop())
+            // Specify the output destination
+            .pipe(gulp.dest(bundleConfig.dest))
+            .on('end', reportFinished)
+            .pipe(browserSync.reload({stream:true}));
+        };
+
+        if(watchMode) {
+            // Rebundle on update
+            bundler.on('update', bundle);
+            bundler.on('time', function(time) {
+                gutil.log('Rebundled ' + bundleConfig.entries + ' in ' + time + 'ms');
+            });
+        }
+
+
+
+        var reportFinished = function() {
+            if(bundleQueue) {
+                bundleQueue--;
+                if(bundleQueue === 0) {
+                    // If queue is empty, tell gulp the task is complete.
+                    // https://github.com/gulpjs/gulp/blob/master/docs/API.md#accept-a-callback
+                    callback();
+                }
+            }
+        };
+
+        return bundle();
     };
 
-    return bundle();
-  };
-
-  // Start bundling with Browserify for each bundleConfig specified
-  config.bundleConfigs.forEach(browserifyThis);
+    // Start bundling with Browserify for each bundleConfig specified
+    config.bundleConfigs.forEach(browserifyThis);
 };
 
 gulp.task('browserify', browserifyTask);

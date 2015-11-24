@@ -44,6 +44,7 @@
          "no-mixed-spaces-and-tabs": 2,
          "space-in-parens": [2, "never"],
          "space-infix-ops": 2,
+         "space-before-blocks": 2,
          "id-length": 0,
          "camelcase": [2, {"properties": "always"}]
     }

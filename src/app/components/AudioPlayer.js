@@ -23,7 +23,7 @@ let AudioPlayer = React.createClass({
         this.refs.audio.removeEventListener('ended', this.audioEnded);
     },
 
-    play: function(repeat){
+    play: function(repeat) {
         let audio = this.refs.audio;
         if (repeat) {
             this.timeout = null;

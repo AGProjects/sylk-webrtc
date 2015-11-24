@@ -47,7 +47,7 @@ let Blink = React.createClass({
         };
     },
 
-    componentWillMount: function(){
+    componentWillMount: function() {
         if (!sylkrtc.rtcninja.hasWebRTC()) {
             let errorMsg = 'This app works only in a WebRTC browser (e.g. Chrome or Firefox)';
             this.setState({ error: errorMsg });
@@ -208,7 +208,7 @@ let Blink = React.createClass({
 
     toggleRegister: function() {
         if (this.state.registrationState !== null) {
-            if (this.state.guestMode){
+            if (this.state.guestMode) {
                 this.setState({registrationState:null });
             } else {
                 this.state.account.unregister();
@@ -281,7 +281,7 @@ let Blink = React.createClass({
         this.setState({currentCall: call, targetUri:''});
     },
 
-    answerCall: function(){
+    answerCall: function() {
         this.setState({ showIncomingModal: false });
         if (this.state.inboundCall !== this.state.currentCall) {
             this.switchToIncomingCall(this.state.inboundCall);
@@ -318,7 +318,7 @@ let Blink = React.createClass({
         }
     },
 
-    switchToIncomingCall: function(call){
+    switchToIncomingCall: function(call) {
         this.state.inboundCall.removeListener('stateChanged', this.inboundCallStateChanged);
         this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
         this.state.currentCall.terminate();

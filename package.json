@@ -31,7 +31,6 @@
     "gulp-bower": "0.0.11",
     "gulp-concat": "*",
     "gulp-if": "*",
-    "gulp-less": "3.0.5",
     "gulp-minify-css": "*",
     "gulp-notify": "^2.2.0",
     "gulp-sourcemaps": "1.6.0",

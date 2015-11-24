@@ -2,13 +2,10 @@ var src 	= "./src";
 var dest 	= "./dist";
 
 module.exports = {
-	less: {
-	    src: src + "/assets/styles/main.less",
-	    dest: dest + '/assets/styles',
-	    settings: {
-	    	paths: []
-	    }
-  	},
+    css: {
+        src: src + '/assets/styles/*css',
+        dest: dest + '/assets/styles'
+    },
 	browserSync: {
     	server: {
       		// Serve up our build folder

@@ -3,14 +3,14 @@ var src 	= './src';
 
 module.exports = {
     css: {
-        src: src + '/assets/styles/*css',
+        src: src + '/assets/styles/*.css',
         dest: dest + '/assets/styles'
     },
 
     browserSync: {
         server: {
             // Serve up our build folder
-            baseDir: './dist'
+            baseDir: dest
         },
         browser: 'google chrome'
     },

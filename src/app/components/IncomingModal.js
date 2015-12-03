@@ -13,19 +13,19 @@ let IncomingCallModal = React.createClass({
     },
 
     render: function() {
-        let caller;
-        let type = 'Audio';
-        if (this.props.call !== null) {
-            caller = this.props.call.remoteIdentity;
-            if (this.props.call.mediaTypes.video) {
-                type = 'Video';
-            }
+        if (!this.props.call) {
+            return <div></div>;
+        }
+
+        let callType = 'Audio';
+        if (this.props.call.mediaTypes.video) {
+            callType = 'Video';
         }
 
         return (
             <Modal {...this.props} aria-labelledby="modal-title-sm">
                 <Modal.Header closeButton>
-                    <Modal.Title id="modal-title-sm">Incoming {type} call</Modal.Title>
+                    <Modal.Title id="modal-title-sm">Incoming {callType} call</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="row">
@@ -33,7 +33,7 @@ let IncomingCallModal = React.createClass({
                             <i className="fa-3x fa fa-bell faa-ring animated"></i>
                         </div>
                         <div className="col-md-9 text-left">
-                            <p className="lead">From: {caller}</p>
+                            <p className="lead">From: {this.props.call.remoteIdentity.toString()}</p>
                         </div>
                     </div>
                 </Modal.Body>

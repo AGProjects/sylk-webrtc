@@ -216,7 +216,7 @@ let VideoBox = React.createClass({
 
         let remoteIdentity = '';
         if (this.props.call !== null) {
-            remoteIdentity = this.props.call.remoteIdentity;
+            remoteIdentity = this.props.call.remoteIdentity.toString();
         }
 
         if (this.state.hangupButtonVisible) {

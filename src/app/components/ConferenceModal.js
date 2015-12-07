@@ -21,10 +21,8 @@ let ConferenceModal = React.createClass({
     },
 
     componentWillMount: function() {
-        this.target = '';
         if (this.props.targetUri !== '' && this.props.targetUri.indexOf('@') === -1) {
-            this.target = this.props.targetUri;
-            this.setState({conferenceTargetUri: this.target});
+            this.setState({conferenceTargetUri: this.props.targetUri});
         }
     },
 
@@ -51,7 +49,7 @@ let ConferenceModal = React.createClass({
                         <label htmlFor="inputTarget" className="sr-only">Conference Room</label>
                         <div className="input-group">
                             <span className="input-group-addon"><i className="fa fa-users fa-fw"></i></span>
-                            <input id="inputTarget" className="form-control" placeholder="Conference Room" onChange={this.handleConferenceTargetChange} required autoFocus value={this.target} />
+                            <input id="inputTarget" className="form-control" placeholder="Conference Room" onChange={this.handleConferenceTargetChange} required autoFocus value={this.state.conferenceTargetUri} />
                         </div>
                     </form>
                 </Modal.Body>

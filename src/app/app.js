@@ -209,11 +209,9 @@ let Blink = React.createClass({
     toggleRegister: function() {
         if (this.state.registrationState !== null) {
             if (this.state.guestMode) {
-                this.setState({registrationState:null });
+                this.setState({registrationState: null});
             } else {
                 this.state.account.unregister();
-                window.localStorage.setItem('blinkAccount',
-                                            JSON.stringify({accountId: this.state.accountId, password: ''}));
             }
         } else {
             this.state.account.register();

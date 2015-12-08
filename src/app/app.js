@@ -339,7 +339,7 @@ let Blink = React.createClass({
         let videoBox;
         let errorPanel;
         let footerBox;
-        let audioPlayerHangup, audioPlayerInbound, audioPlayerOutbound;
+        let audioPlayers;
         let call = this.state.currentCall;
 
         if (this.state.error !== null) {
@@ -365,9 +365,11 @@ let Blink = React.createClass({
                 />
             );
         } else {
-            audioPlayerInbound = <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav"/>;
-            audioPlayerOutbound = <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav"/>;
-            audioPlayerHangup = <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />;
+            audioPlayers = (<div>
+                                <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav"/>
+                                <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav"/>
+                                <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
+                            </div>);
             if (this.state.localMedia !== null) {
                 videoBox = <VideoBox call={this.state.currentCall} localMedia={this.state.localMedia}/>;
             } else {
@@ -398,9 +400,7 @@ let Blink = React.createClass({
                 {registerBox}
                 {callBox}
                 {videoBox}
-                {audioPlayerHangup}
-                {audioPlayerOutbound}
-                {audioPlayerInbound}
+                {audioPlayers}
                 {statusBox}
                 {footerBox}
                 <Notifications ref="notifications" />

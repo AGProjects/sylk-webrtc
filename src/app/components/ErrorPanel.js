@@ -16,7 +16,7 @@ let ErrorPanel = React.createClass({
 
     render: function() {
         return (
-            <Modal onHide={this.onHide} show={true} backdrop="static" bsSize="medium" bsStyle="danger" aria-labelledby="modal-title-sm">
+            <Modal onHide={this.onHide} show={true} backdrop="static" bsStyle="danger" aria-labelledby="modal-title-sm">
                 <Modal.Header>
                     <Modal.Title><i className="fa fa-warning"></i> Warning</Modal.Title>
                 </Modal.Header>

@@ -22,6 +22,7 @@ let SettingsBox = React.createClass({
 
     render: function() {
         let registrationClasses = classNames({
+            'btn-link': true,
             'text-registered' : this.props.account.registrationState === 'registered',
             'text-danger'     : this.props.account.registrationState !== 'registered'
         });
@@ -32,9 +33,9 @@ let SettingsBox = React.createClass({
                 <span className={registrationClasses}></span>
                 {!this.props.guestMode &&
                 <Dropdown pullRight onSelect={this.handleMenu} id="dropdown-custom-1">
-                    <a href="#" bsRole="toggle" onClick={preventDefault} className={registrationClasses}>
+                    <button bsRole="toggle" onClick={preventDefault} className={registrationClasses}>
                         <i className="fa fa-cogs fa-2x"></i>
-                    </a>
+                    </button>
                     <Dropdown.Menu>
                         <MenuItem header><strong><i className="fa fa-user"></i> {this.props.account.id}</strong></MenuItem>
                         <MenuItem divider />
@@ -46,9 +47,9 @@ let SettingsBox = React.createClass({
 
                 {this.props.guestMode &&
                 <Dropdown pullRight onSelect={this.handleMenu} id="dropdown-custom-1">
-                    <a className="text-white" href="#" bsRole="toggle" onClick={preventDefault}>
+                    <button className="btn-link text-white" bsRole="toggle" onClick={preventDefault}>
                         <i className="fa fa-cogs fa-2x"></i>
-                    </a>
+                    </button>
                     <Dropdown.Menu>
                         <MenuItem header><strong><i className="fa fa-user"></i> {this.props.account.id}</strong></MenuItem>
                         <MenuItem divider />

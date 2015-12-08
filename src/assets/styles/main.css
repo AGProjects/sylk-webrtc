@@ -586,40 +586,6 @@ html,body { overflow: hidden; }
     animation: fadeOutUp linear 0.3s;
 }
 
-.settings {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-.settings > .label {
-    font-size: 14px !important;
-    opacity: 0.9;
-}
-
-.settings a {
-    opacity: 0.5;
-}
-
-.settings a:hover {
-    opacity: 1;
-}
-
-.settings a.text-white {
-    color:#ffffff;
-}
-
-.settings a.text-white {
-    color:#ffffff;
-}
-
-.settings a.text-registered {
-    color:#5cb85c;
-}
-.settings a.text-registered:hover {
-    color:#449d44;
-}
-
 .modal-danger > .modal-content > .modal-header {
     color:#a94442 !important;
     background-color: #f2dede;
@@ -635,12 +601,6 @@ html,body { overflow: hidden; }
 .capitalize {
     text-transform:capitalize;
 }
-
-.settingsVideo {
-    z-index:10;
-    /* overflow: hidden; */
-}
-
 
 .panel-body{
     color: #333;

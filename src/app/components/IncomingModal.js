@@ -14,7 +14,7 @@ let IncomingCallModal = React.createClass({
 
     render: function() {
         if (!this.props.call) {
-            return <div></div>;
+            return false;
         }
 
         let callType = 'Audio';

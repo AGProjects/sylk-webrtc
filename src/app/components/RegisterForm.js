@@ -9,14 +9,14 @@ const defaultDomain = 'sip2sip.info';
 
 let RegisterForm = React.createClass({
     propTypes: {
-        handleRegistration: React.PropTypes.func.isRequired
+        handleRegistration: React.PropTypes.func.isRequired,
+        registrationState: React.PropTypes.string
     },
 
     getInitialState: function() {
         return {
             accountId: '',
             password: '',
-            registrationState: null,
             registering: false
         };
     },
@@ -31,25 +31,17 @@ let RegisterForm = React.createClass({
 
     componentWillReceiveProps: function(nextProps) {
         let registrationState = nextProps.registrationState;
-        if (registrationState !== null) {
-            this.setState({registrationState: registrationState});
-        }
-    },
-
-    resetSignInButton: function() {
-        if (this.state.registrationState === 'failed' || this.state.registrationState === null) {
+        if (registrationState === 'failed' || registrationState === null) {
             this.setState({registering: false});
         }
     },
 
     handleAccountIdChange: function(event) {
         this.setState({accountId: event.target.value});
-        this.resetSignInButton();
     },
 
     handlePasswordChange: function(event) {
         this.setState({password: event.target.value});
-        this.resetSignInButton();
     },
 
     handleSubmit: function(event) {

@@ -3,11 +3,10 @@
 const React          = require('react');
 const classNames     = require('classnames');
 
-const SettingsBox = require('./SettingsBox');
-const Logo        = require('./Logo');
+const SettingsBox     = require('./SettingsBox');
+const Logo            = require('./Logo');
 const ConferenceModal = require('./ConferenceModal')
-
-const defaultConferenceDomain = 'conference.sip2sip.info';
+const config          = require('../config');
 
 
 let CallBox = React.createClass({
@@ -69,7 +68,7 @@ let CallBox = React.createClass({
         event.preventDefault();
         this.setState({showConferenceModal: false});
         let conferenceTargetUri = this.state.conferenceTargetUri.replace(/ /g,'_');
-        this.props.startAudioCall(conferenceTargetUri + '@' + defaultConferenceDomain);
+        this.props.startAudioCall(conferenceTargetUri + '@' + config.defaultConferenceDomain);
     },
 
     showConferenceModal: function(event) {

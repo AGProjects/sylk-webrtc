@@ -16,13 +16,12 @@ const StatusBox         = require('./components/StatusBox');
 const IncomingCallModal = require('./components/IncomingModal');
 const Notifications     = require('./components/Notifications');
 const LoadingScreen     = require('./components/LoadingScreen');
+const config            = require('./config');
 
 // attach debugger to the window for console access
 window.blinkDebugger = debug;
 
 const DEBUG = debug('blinkrtc:App');
-const wsServer = 'wss://webrtc-gateway.sipthor.net:8888/webrtcgateway/ws';
-const callOptions = {pcConfig: {iceServers: [{urls: 'stun:stun.l.google.com:19302'}]}};
 
 
 let Blink = React.createClass({
@@ -136,7 +135,7 @@ let Blink = React.createClass({
         this.setState({accountId:accountId, password:pass, loading: true});
 
         if (this.state.connection === null) {
-            let connection = sylkrtc.createConnection({server: wsServer});
+            let connection = sylkrtc.createConnection({server: config.wsServer});
             connection.on('stateChanged', this.connectionStateChanged);
             this.setState({connection: connection});
         } else {
@@ -238,7 +237,7 @@ let Blink = React.createClass({
             self.setState({status: null, localMedia: localStream});
             // Assumes when state.currentCall is present, we need to answer
             if (self.state.currentCall !== null) {
-                let options = Object.create(callOptions);
+                let options = {pcConfig: {iceServers: config.iceServers}};
                 options.localStream = localStream;
                 self.state.currentCall.answer(options);
             } else {
@@ -270,7 +269,7 @@ let Blink = React.createClass({
 
     startCall: function(targetUri, localStream) {
         assert(this.state.currentCall == null, 'currentCall is not null');
-        let options = Object.create(callOptions);
+        let options = {pcConfig: {iceServers: config.iceServers}};
         options.localStream = localStream;
         let call = this.state.account.call(targetUri, options);
         call.on('stateChanged', this.callStateChanged);

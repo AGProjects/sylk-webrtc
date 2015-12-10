@@ -336,6 +336,7 @@ let Blink = React.createClass({
         let errorPanel;
         let footerBox;
         let audioPlayers;
+        let loadingScreen;
         let call = this.state.currentCall;
 
         if (this.state.error !== null) {
@@ -346,7 +347,6 @@ let Blink = React.createClass({
             statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.level} />;
         }
 
-        let loadingScreen;
         if (this.state.loading) {
             loadingScreen = <LoadingScreen/>;
         }

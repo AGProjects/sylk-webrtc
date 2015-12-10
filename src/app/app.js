@@ -83,8 +83,6 @@ let Blink = React.createClass({
         if (newState === 'failed') {
             this.setState({
                 loading     : false,
-                accountId   : '',
-                password    : '',
                 status      : {
                     msg   : 'Sign In failed: ' + data.reason,
                     level : 'danger'

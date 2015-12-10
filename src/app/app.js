@@ -86,8 +86,8 @@ let Blink = React.createClass({
                 accountId   : '',
                 password    : '',
                 status      : {
-                    msg : 'Sign In failed: ' + data.reason,
-                    lvl : 'danger'
+                    msg   : 'Sign In failed: ' + data.reason,
+                    level : 'danger'
                 }
             });
         } else if (newState === 'registered') {
@@ -175,7 +175,7 @@ let Blink = React.createClass({
                 self.toggleRegister();
             } else {
                 DEBUG('Add account error: ' + error);
-                self.setState({loading: false, status: {msg: error.message, lvl:'danger'}});
+                self.setState({loading: false, status: {msg: error.message, level:'danger'}});
             }
         });
     },
@@ -201,7 +201,7 @@ let Blink = React.createClass({
                 self.refs.notifications.postNotification('success', accountId + ' signed in');
             } else {
                 DEBUG('Add account error: ' + error);
-                self.setState({loading: false, status: {msg: error.message, lvl:'danger'}});
+                self.setState({loading: false, status: {msg: error.message, level:'danger'}});
             }
         });
     },
@@ -227,7 +227,7 @@ let Blink = React.createClass({
     armMediaTimer: function() {
         clearTimeout(this.statusTimer);
         this.mediaTimer = setTimeout(() => {
-            this.setState({status : { msg: 'Please allow access to your media devices', lvl: 'info'}});
+            this.setState({status : { msg: 'Please allow access to your media devices', level: 'info'}});
         }, 5000);
     },
 
@@ -345,7 +345,7 @@ let Blink = React.createClass({
         }
 
         if (this.state.status !== null) {
-            statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.lvl} />;
+            statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.level} />;
         }
 
         let loadingScreen;

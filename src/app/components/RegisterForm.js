@@ -7,7 +7,7 @@ const classNames = require('classnames');
 const defaultDomain = 'sip2sip.info';
 
 
-let RegisterBox = React.createClass({
+let RegisterForm = React.createClass({
     propTypes: {
         handleRegistration: React.PropTypes.func.isRequired
     },
@@ -97,4 +97,4 @@ let RegisterBox = React.createClass({
     }
 });
 
-module.exports = RegisterBox;
+module.exports = RegisterForm;

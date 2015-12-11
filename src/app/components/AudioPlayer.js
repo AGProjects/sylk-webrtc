@@ -9,8 +9,9 @@ let AudioPlayer = React.createClass({
     },
 
     audioEnded: function() {
-        let audio = this.refs.audio;
-        this.timeout = setTimeout(function () { audio.play(); }, 3000);
+        this.timeout = setTimeout(() => {
+            this.refs.audio.play();
+        }, 3000);
     },
 
     componentDidMount: function() {
@@ -24,14 +25,13 @@ let AudioPlayer = React.createClass({
     },
 
     play: function(repeat) {
-        let audio = this.refs.audio;
         if (repeat) {
             this.timeout = null;
             audio.addEventListener('ended', this.audioEnded);
         } else {
             audio.addEventListener('ended', this.stop);
         }
-        audio.play();
+        this.refs.audio.play();
     },
 
     stop: function() {

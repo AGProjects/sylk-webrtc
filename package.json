@@ -15,7 +15,7 @@
     "react-notification-system": "^0.2.5",
     "react-toggle": "^2.0.1",
     "screenfull": "^2.0.0",
-    "sylkrtc": "git+https://github.com/AGProjects/sylkrtc.js.git#release-0.4.0"
+    "sylkrtc": "git+https://github.com/AGProjects/sylkrtc.js.git#release-0.4.1"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.1.18",

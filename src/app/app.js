@@ -212,13 +212,8 @@ let Blink = React.createClass({
             }
         } else {
             this.state.account.register();
-            let accountId = this.state.accountId;
-            if (accountId.endsWith('@' + config.defaultDomain)) {
-                // just store the user part
-                accountId = accountId.split('@')[0];
-            }
             window.localStorage.setItem('blinkAccount',
-                                        JSON.stringify({accountId: accountId, password: this.state.password}));
+                                        JSON.stringify({accountId: this.state.accountId, password: this.state.password}));
         }
     },
 

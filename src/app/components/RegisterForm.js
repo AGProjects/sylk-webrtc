@@ -4,8 +4,6 @@ const React      = require('react');
 const sylkrtc    = require('sylkrtc');
 const classNames = require('classnames');
 
-const config     = require('../config');
-
 
 let RegisterForm = React.createClass({
     propTypes: {
@@ -47,12 +45,7 @@ let RegisterForm = React.createClass({
     handleSubmit: function(event) {
         event.preventDefault();
         this.setState({registering: true});
-        let accountId = this.state.accountId;
-        if (this.state.accountId.indexOf('@') === -1) {
-             // take the domain part from the default
-            accountId = this.state.accountId + '@' + config.defaultDomain;
-        }
-        this.props.handleRegistration(accountId, this.state.password);
+        this.props.handleRegistration(this.state.accountId, this.state.password);
     },
 
     render: function() {
@@ -74,7 +67,7 @@ let RegisterForm = React.createClass({
                     <label htmlFor="inputEmail" className="sr-only">Sip Account</label>
                     <div className="input-group">
                         <span className="input-group-addon first"><i className="fa fa-globe fa-fw"></i></span>
-                        <input id="inputUser" className="form-control" placeholder="Enter your SIP address" value={this.state.accountId} onChange={this.handleAccountIdChange} required autoFocus/>
+                        <input type="email" id="inputUser" className="form-control" placeholder="Enter your SIP address" value={this.state.accountId} onChange={this.handleAccountIdChange} required autoFocus/>
                     </div>
                     <label htmlFor="inputPassword" className="sr-only">Password</label>
                     <div className="input-group">

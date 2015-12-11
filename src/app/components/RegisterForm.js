@@ -49,13 +49,14 @@ let RegisterForm = React.createClass({
     },
 
     render: function() {
+        let validInput = this.state.accountId.indexOf('@') !== -1 && this.state.password !== 0;
         let classes = classNames({
             'capitalize' : true,
             'btn'        : true,
             'btn-lg'     : true,
             'btn-block'  : true,
-            'btn-default': !(this.state.password !== '' && this.state.accountId !== ''),
-            'btn-primary': this.state.password !== '' && this.state.accountId !== '' && !this.state.registering,
+            'btn-default': !validInput,
+            'btn-primary': validInput && !this.state.registering,
             'btn-info'   : this.state.registering,
             'btn-success': this.state.registrationState === 'registered'
         });

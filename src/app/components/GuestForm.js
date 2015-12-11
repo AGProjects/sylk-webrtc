@@ -3,7 +3,7 @@
 const React      = require('react');
 const classNames = require('classnames');
 
-const defaultDomain = 'guest.sip2sip.info';
+const config     = require('../config');
 
 
 let GuestForm = React.createClass({
@@ -24,7 +24,7 @@ let GuestForm = React.createClass({
     handleSubmit: function(event) {
         event.preventDefault();
         let accountId = this.state.accountId.replace(/ /g,'_');
-        accountId = accountId + '@' + defaultDomain;
+        accountId = accountId + '@' + config.defaultGuestDomain;
         this.props.handleRegistration(accountId);
     },
 

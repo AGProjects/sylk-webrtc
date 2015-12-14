@@ -92,7 +92,7 @@ let RegisterForm = React.createClass({
                     </div>
                     <button type="submit" className={classes} disabled={this.state.registering}>Sign In</button>
                 </form>
-                <p>No SIP account? <a href="#" onClick={this.createAccount}>Create an account</a></p>
+                <p>No SIP account? <button className="btn-link" onClick={this.createAccount}>Create an account</button></p>
                 <EnrollmentModal show={this.state.showEnrollmentModal} handleEnrollment={this.handleEnrollment} />
             </div>
         );

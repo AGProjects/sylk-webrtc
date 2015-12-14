@@ -4,6 +4,8 @@ const React      = require('react');
 const sylkrtc    = require('sylkrtc');
 const classNames = require('classnames');
 
+const EnrollmentModal = require('./EnrollmentModal');
+
 
 let RegisterForm = React.createClass({
     propTypes: {
@@ -15,7 +17,8 @@ let RegisterForm = React.createClass({
         return {
             accountId: '',
             password: '',
-            registering: false
+            registering: false,
+            showEnrollmentModal: false
         };
     },
 
@@ -48,6 +51,18 @@ let RegisterForm = React.createClass({
         this.props.handleRegistration(this.state.accountId, this.state.password);
     },
 
+    handleEnrollment: function(account) {
+        this.setState({showEnrollmentModal: false});
+        if (account !== null) {
+            this.setState({accountId: account.accountId, password: account.password, registering: true});
+            this.props.handleRegistration(account.accountId, account.password);
+        }
+    },
+
+    createAccount: function() {
+        this.setState({showEnrollmentModal: true});
+    },
+
     render: function() {
         let validInput = this.state.accountId.indexOf('@') !== -1 && this.state.password !== 0;
         let classes = classNames({
@@ -77,7 +92,8 @@ let RegisterForm = React.createClass({
                     </div>
                     <button type="submit" className={classes} disabled={this.state.registering}>Sign In</button>
                 </form>
-                <p>No SIP account? <a href="http://sip2sip.info" target="_new">Create an account</a></p>
+                <p>No SIP account? <a href="#" onClick={this.createAccount}>Create an account</a></p>
+                <EnrollmentModal show={this.state.showEnrollmentModal} handleEnrollment={this.handleEnrollment} />
             </div>
         );
     }

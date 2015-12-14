@@ -27,9 +27,9 @@ let AudioPlayer = React.createClass({
     play: function(repeat) {
         if (repeat) {
             this.timeout = null;
-            audio.addEventListener('ended', this.audioEnded);
+            this.refs.audio.addEventListener('ended', this.audioEnded);
         } else {
-            audio.addEventListener('ended', this.stop);
+            this.refs.audio.addEventListener('ended', this.stop);
         }
         this.refs.audio.play();
     },

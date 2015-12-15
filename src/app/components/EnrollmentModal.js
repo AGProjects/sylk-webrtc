@@ -43,7 +43,10 @@ let EnrollmentModal = React.createClass({
         }
         this.setState({enrolling: true, error:''});
         superagent.post(config.enrollmentUrl)
-                  .send(superagent.serialize['application/x-www-form-urlencoded']({username: this.state.username, password: this.state.password, email: this.state.email, display_name: this.state.yourName}))
+                  .send(superagent.serialize['application/x-www-form-urlencoded']({username: this.state.username,
+                                                                                   password: this.state.password,
+                                                                                   email: this.state.email,
+                                                                                   display_name: this.state.yourName}))   //eslint-disable-line camelcase
                   .end((error, res) => {
                       this.setState({enrolling: false});
                       if (error) {

@@ -85,10 +85,6 @@ let EnrollmentModal = React.createClass({
     },
 
     render: function() {
-        if (!this.props.show) {
-            return false;
-        }
-
         let passwordClasses = classNames({
             'form-group' : true,
             'has-error'  : this.state.password !== this.state.password2
@@ -105,7 +101,7 @@ let EnrollmentModal = React.createClass({
         }
 
         return (
-            <Modal show={true} onHide={this.hide} aria-labelledby="emodal-title-sm">
+            <Modal show={this.props.show} onHide={this.hide} aria-labelledby="emodal-title-sm">
                 <Modal.Header closeButton>
                     <Modal.Title id="emodal-title-sm">Create account</Modal.Title>
                 </Modal.Header>

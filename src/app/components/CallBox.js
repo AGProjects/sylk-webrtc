@@ -6,7 +6,6 @@ const classNames     = require('classnames');
 const SettingsBox     = require('./SettingsBox');
 const Logo            = require('./Logo');
 const ConferenceModal = require('./ConferenceModal')
-const config          = require('../config');
 
 
 let CallBox = React.createClass({
@@ -23,7 +22,6 @@ let CallBox = React.createClass({
     getInitialState: function() {
         return {
             targetUri: this.props.targetUri,
-            conferenceTargetUri: '',
             showConferenceModal: false
         };
     },
@@ -50,10 +48,6 @@ let CallBox = React.createClass({
         this.setState({targetUri: event.target.value});
     },
 
-    handleConferenceTargetChange: function(event) {
-        this.setState({conferenceTargetUri: event.target.value});
-    },
-
     handleAudioCall: function(event) {
         event.preventDefault();
         this.props.startAudioCall(this.getTargetUri());
@@ -64,20 +58,16 @@ let CallBox = React.createClass({
         this.props.startVideoCall(this.getTargetUri());
     },
 
-    handleConferenceCall: function(event) {
-        event.preventDefault();
-        this.setState({showConferenceModal: false});
-        let conferenceTargetUri = this.state.conferenceTargetUri.replace(/ /g,'_');
-        this.props.startAudioCall(conferenceTargetUri + '@' + config.defaultConferenceDomain);
-    },
-
     showConferenceModal: function(event) {
         event.preventDefault();
-        this.setState({showConferenceModal: true, conferenceTargetUri: this.state.targetUri});
+        this.setState({showConferenceModal: true});
     },
 
-    hideConferenceModal: function(event) {
-        this.setState({showConferenceModal: false, conferenceTargetUri: ''});
+    handleConferenceCall: function(targetUri) {
+        this.setState({showConferenceModal: false, targetUri: targetUri || ''});
+        if (targetUri) {
+            this.props.startAudioCall(targetUri);
+        }
     },
 
     render: function() {
@@ -88,17 +78,7 @@ let CallBox = React.createClass({
             'btn-warning'   : this.state.targetUri.length === 0
         });
 
-        let conferenceModal;
-        if (this.state.showConferenceModal) {
-            conferenceModal = (
-                <ConferenceModal
-                    onHide={this.hideConferenceModal}
-                    onCall={this.handleConferenceCall}
-                    inputChanged={this.handleConferenceTargetChange}
-                    targetUri={this.state.targetUri}
-                />
-            );
-        }
+
 
         return (
             <div>
@@ -123,8 +103,16 @@ let CallBox = React.createClass({
                         </form>
                     </div>
                 </div>
-                {conferenceModal}
-                <SettingsBox account={this.props.account} signOut={this.props.signOut} guestMode={this.props.guestMode}/>
+                <ConferenceModal
+                    show={this.state.showConferenceModal}
+                    handleConferenceCall={this.handleConferenceCall}
+                    targetUri={this.state.targetUri}
+                />
+                <SettingsBox
+                    account={this.props.account}
+                    signOut={this.props.signOut}
+                    guestMode={this.props.guestMode}
+                />
             </div>
         );
     }

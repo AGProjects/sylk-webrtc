@@ -5,13 +5,14 @@ const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
 const classNames     = require('classnames');
 
+const config          = require('../config');
+
 
 let ConferenceModal = React.createClass({
     propTypes: {
-        inputChanged : React.PropTypes.func.isRequired,
-        onCall       : React.PropTypes.func.isRequired,
-        onHide       : React.PropTypes.func.isRequired,
-        targetUri    : React.PropTypes.string
+        targetUri: React.PropTypes.string,
+        show: React.PropTypes.bool.isRequired,
+        handleConferenceCall: React.PropTypes.func.isRequired
     },
 
     getInitialState: function() {
@@ -21,31 +22,46 @@ let ConferenceModal = React.createClass({
     },
 
     componentWillMount: function() {
-        if (this.props.targetUri !== '' && this.props.targetUri.indexOf('@') === -1) {
-            this.setState({conferenceTargetUri: this.props.targetUri});
-        }
+        let targetUri = this.props.targetUri || '';
+        this.setState({conferenceTargetUri: targetUri});
+    },
+
+    componentWillReceiveProps: function(nextProps) {
+        let targetUri = nextProps.targetUri || '';
+        this.setState({conferenceTargetUri: targetUri});
     },
 
     handleConferenceTargetChange: function(event) {
+        event.preventDefault();
         this.setState({conferenceTargetUri: event.target.value});
-        this.props.inputChanged(event);
+    },
+
+    join: function(event) {
+        event.preventDefault();
+        let uri = `${this.state.conferenceTargetUri.replace(/ /g,'_')}@${config.defaultConferenceDomain}`;
+        this.props.handleConferenceCall(uri);
+    },
+
+    hide: function() {
+        this.props.handleConferenceCall(null);
     },
 
     render: function() {
+        let validUri = this.state.conferenceTargetUri.length > 0 && this.state.conferenceTargetUri.indexOf('@') === -1;
         let classes = classNames({
             'btn'         : true,
-            'btn-success' : this.state.conferenceTargetUri.length !== 0,
-            'btn-warning' : this.state.conferenceTargetUri.length === 0
+            'btn-success' : validUri,
+            'btn-warning' : !validUri
         });
 
         return (
-            <Modal show={true} onHide={this.props.onHide} aria-labelledby="cmodal-title-sm">
+            <Modal show={this.props.show} onHide={this.hide} aria-labelledby="cmodal-title-sm">
                 <Modal.Header closeButton>
                     <Modal.Title id="cmodal-title-sm">Join Conference</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p className="lead">Enter the conference room you wish to join</p>
-                    <form onSubmit={this.props.onCall}>
+                    <form onSubmit={this.join}>
                         <label htmlFor="inputTarget" className="sr-only">Conference Room</label>
                         <div className="input-group">
                             <span className="input-group-addon"><i className="fa fa-users fa-fw"></i></span>
@@ -54,8 +70,8 @@ let ConferenceModal = React.createClass({
                     </form>
                 </Modal.Body>
                 <Modal.Footer>
-                        <p className="pull-left">Supported media: audio</p>
-                        <button className={classes} disabled={this.state.conferenceTargetUri.length === 0} onClick={this.props.onCall}><i className="fa fa-phone"></i> Join</button>
+                    <p className="pull-left">Supported media: audio</p>
+                    <button className={classes} disabled={!validUri} onClick={this.join}><i className="fa fa-phone"></i> Join</button>
                 </Modal.Footer>
             </Modal>
         );

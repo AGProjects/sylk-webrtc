@@ -107,7 +107,7 @@ let EnrollmentModal = React.createClass({
         return (
             <Modal show={true} onHide={this.hide} aria-labelledby="emodal-title-sm">
                 <Modal.Header closeButton>
-                    <Modal.Title id="cmodal-title-sm">Create account</Modal.Title>
+                    <Modal.Title id="emodal-title-sm">Create account</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <form id="enrollmentForm" onSubmit={this.enrollmentFormSubmitted} className="form-horizontal" role="form">

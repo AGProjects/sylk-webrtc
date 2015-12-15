@@ -101,7 +101,7 @@ let EnrollmentModal = React.createClass({
 
         let errorBox;
         if (this.state.error) {
-            errorBox = <p className="pull-left"><i className="fa fa-exclamation-triangle"></i> {this.state.error}</p>;
+            errorBox = <p className="text-danger pull-left"><i className="fa fa-exclamation-triangle"></i> {this.state.error}</p>;
         }
 
         return (

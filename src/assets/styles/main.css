@@ -354,12 +354,8 @@ html,body { overflow: hidden; }
  * Modal colors, text should not be white
  */
 
-.modal-header, .modal-body {
-    color: #333 !important;
-}
-
-.modal-footer p {
-    color: #333 !important;
+.modal-header, .modal-body, .modal-footer {
+    color: #333;
 }
 
 /*

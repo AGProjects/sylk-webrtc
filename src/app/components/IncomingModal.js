@@ -7,23 +7,25 @@ const Modal          = ReactBootstrap.Modal;
 
 let IncomingCallModal = React.createClass({
     propTypes: {
+        show     : React.PropTypes.bool.isRequired,
         call     : React.PropTypes.object,
         onAnswer : React.PropTypes.func.isRequired,
         onHide   : React.PropTypes.func.isRequired
     },
 
     render: function() {
-        if (!this.props.call) {
-            return false;
-        }
-
         let callType = 'Audio';
-        if (this.props.call.mediaTypes.video) {
+        if (this.props.call !== null && this.props.call.mediaTypes.video) {
             callType = 'Video';
         }
 
+        let remoteIdentity = '';
+        if (this.props.call !== null) {
+            remoteIdentity = this.props.call.remoteIdentity.toString();
+        }
+
         return (
-            <Modal {...this.props} aria-labelledby="modal-title-sm">
+            <Modal show={this.props.show} aria-labelledby="modal-title-sm">
                 <Modal.Header closeButton>
                     <Modal.Title id="modal-title-sm">Incoming {callType} call</Modal.Title>
                 </Modal.Header>
@@ -33,7 +35,7 @@ let IncomingCallModal = React.createClass({
                             <i className="fa-3x fa fa-bell faa-ring animated"></i>
                         </div>
                         <div className="col-md-9 text-left">
-                            <p className="lead">From: {this.props.call.remoteIdentity.toString()}</p>
+                            <p className="lead">From: {remoteIdentity}</p>
                         </div>
                     </div>
                 </Modal.Body>

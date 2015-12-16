@@ -399,7 +399,12 @@ let Blink = React.createClass({
                 {statusBox}
                 {footerBox}
                 <Notifications ref="notifications" />
-                <IncomingCallModal call={this.state.inboundCall} show={this.state.showIncomingModal} onAnswer={this.answerCall} onHide={this.rejectCall} />
+                <IncomingCallModal
+                    show={this.state.showIncomingModal}
+                    call={this.state.inboundCall}
+                    onAnswer={this.answerCall}
+                    onHide={this.rejectCall}
+                />
             </div>
         );
     }

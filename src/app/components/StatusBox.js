@@ -7,7 +7,9 @@ const classNames = require('classnames');
 let StatusBox = React.createClass({
     propTypes: {
         level: React.PropTypes.string,
-        message: React.PropTypes.string.isRequired
+        message: React.PropTypes.string.isRequired,
+        title: React.PropTypes.string,
+        width: React.PropTypes.oneOf(['small', 'medium','large'])
     },
 
     render: function() {
@@ -18,10 +20,22 @@ let StatusBox = React.createClass({
             'alert-info'    : this.props.level === 'info'
         });
 
+        let widthClasses = classNames({
+            'form-signin' : this.props.width === 'small' || !this.props.width,
+            'form-dial'   : this.props.width === 'medium',
+            'halfWidth'   : this.props.width === 'large'
+        });
+
+        let message = (<div><strong>{this.props.message}</strong></div>);
+
+        if (this.props.title) {
+            message = (<div><strong>{this.props.title}</strong><br/>{this.props.message}</div>);
+        }
+
         return (
-            <div className="form-signin">
+            <div className={widthClasses}>
                 <div className={classes} role="alert">
-                    <strong>{this.props.message}</strong>
+                    {message}
                 </div>
             </div>
         );

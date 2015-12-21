@@ -2,6 +2,7 @@
 
 const React     = require('react');
 const ReactDOM  = require('react-dom');
+const Router    = require('react-mini-router');
 const sylkrtc   = require('sylkrtc');
 const assert    = require('assert');
 const debug     = require('debug');
@@ -25,6 +26,13 @@ const DEBUG = debug('blinkrtc:App');
 
 
 let Blink = React.createClass({
+    mixins: [Router.RouterMixin],
+
+    routes: {
+        '/' : 'main',
+        '/not-supported' : 'notSupported'
+    },
+
     getInitialState: function() {
         return {
             accountId: '',
@@ -47,10 +55,10 @@ let Blink = React.createClass({
     },
 
     componentWillMount: function() {
-        if (!sylkrtc.rtcninja.hasWebRTC()) {
-            let errorMsg = 'This app works only in a WebRTC browser (e.g. Chrome or Firefox)';
-            this.setState({ error: errorMsg });
-        }
+            this.registrationState = null;
+            if (!sylkrtc.rtcninja.hasWebRTC()) {
+                window.location.hash = '#!/not-supported';
+            }
     },
 
     connectionStateChanged: function(oldState, newState) {
@@ -328,6 +336,32 @@ let Blink = React.createClass({
     },
 
     render: function() {
+        return (<div>{this.renderCurrentRoute()}</div>);
+    },
+
+    notSupported: function() {
+        let errorMsg = 'This app works only in a WebRTC browser (e.g. Chrome or Firefox)'
+        let errorPanel = <ErrorPanel errorMsg={errorMsg} />;
+
+        return (
+            <div>
+                {errorPanel}
+                <RegisterBox />
+            </div>
+        );
+    },
+
+    notFound: function(path) {
+        let status = {
+            title : '404',
+            message : 'Oops, the page your looking for can\'t found: ' + path,
+            level : 'danger',
+            width: 'large'
+        }
+        return <div><StatusBox {...status} /></div>;
+    },
+
+    main: function() {
         let registerBox;
         let statusBox;
         let callBox;

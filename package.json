@@ -12,6 +12,7 @@
     "react-addons-css-transition-group": "^0.14.3",
     "react-bootstrap": "^0.28.1",
     "react-dom": "^0.14.3",
+    "react-mini-router": "^2.0.0",
     "react-notification-system": "^0.2.6",
     "react-toggle": "^2.0.1",
     "screenfull": "^3.0.0",

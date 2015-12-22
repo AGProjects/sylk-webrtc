@@ -243,6 +243,13 @@ let VideoBox = React.createClass({
             'text-success'  : this.state.callDuration !== null
         });
 
+        let commonButtonClasses = classNames({
+            'btn'           : true,
+            'btn-round'     : true,
+            'btn-default'   : true,
+            'disabled'      : this.state.callDuration === null
+        });
+
         let callDuration;
         if (this.state.callDuration !== null) {
             callDuration = <span><i className="fa fa-clock-o"></i> {this.state.callDuration}</span>;
@@ -255,13 +262,18 @@ let VideoBox = React.createClass({
 
         if (this.state.hangupButtonVisible) {
             if (!this.state.audioOnly) {
-                muteVideoButton = <button key="muteVideo" type="button" className="btn btn-round btn-default" onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
+                muteVideoButton = <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
                 if (this.isFullscreenSupported()) {
                     fullScreenButton = <button key="fsButton" type="button" className="btn btn-round btn-default" onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
                 }
-                videoHeader =  <div key="header" className="videoHeader"><p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p><p className={videoHeaderTextClasses}>{callDuration}</p></div>;
+                videoHeader = (
+                    <div key="header" className="videoHeader">
+                        <p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p>
+                        <p className={videoHeaderTextClasses}>{callDuration}</p>
+                    </div>
+                );
             }
-            muteButton = <button key="muteAudio" type="button" className="btn btn-round btn-default" onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
+            muteButton = <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
             hangupButton = <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>;
         }
 

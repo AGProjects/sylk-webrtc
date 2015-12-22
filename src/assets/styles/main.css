@@ -36,6 +36,13 @@
     font-size: 22px;
 }
 
+button.btn-round-big:focus,
+button.btn-round:focus,
+button.btn-round-big:active:focus,
+button.btn-round:active:focus {
+    outline: 0;
+}
+
 .modal-body .lead {
     font-size: 16px;
 }

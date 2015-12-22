@@ -32,7 +32,9 @@ let VideoBox = React.createClass({
             hangupButtonVisible: true,
             audioMuted: false,
             videoMuted: false,
-            callDuration: null
+            callDuration: null,
+            localVideoShow: false,
+            remoteVideoShow: false
         };
     },
 
@@ -47,6 +49,7 @@ let VideoBox = React.createClass({
     componentDidMount: function() {
         this.callTimer = null;
         if (!this.state.audioOnly) {
+            this.refs.localVideo.addEventListener('loadeddata', this.showLocalVideoElement);
             this.refs.localVideo.oncontextmenu = function(e) {
                 // disable right click for video elements
                 e.preventDefault();
@@ -62,10 +65,27 @@ let VideoBox = React.createClass({
         }
     },
 
+    componentWillUnmount: function() {
+        clearTimeout(this.hangupButtonTimer);
+        clearTimeout(this.callTimer);
+
+        this.props.call.removeListener('stateChanged', this.callStateChanged);
+
+        if (!this.state.audioOnly) {
+            this.refs.remoteVideo.removeEventListener('loadeddata', this.showRemoteVideoElement);
+            this.refs.localVideo.removeEventListener('loadeddata', this.showLocalVideoElement);
+        }
+
+        if (this.state.isFullscreen) {
+            this.exitFullscreen();
+        }
+    },
+
     callStateChanged: function(oldState, newState, data) {
         if (newState === 'established') {
             let remoteStream = this.props.call.getRemoteStreams()[0];
             if (remoteStream.getVideoTracks().length > 0) {
+                this.refs.remoteVideo.addEventListener('loadeddata', this.showRemoteVideoElement);
                 this.refs.remoteVideo.oncontextmenu = function(e) {
                     // disable right click for video elements
                     e.preventDefault();
@@ -85,18 +105,17 @@ let VideoBox = React.createClass({
         }
     },
 
-    componentWillUnmount: function() {
-        clearTimeout(this.hangupButtonTimer);
-        clearTimeout(this.callTimer);
-        this.props.call.removeListener('stateChanged', this.callStateChanged);
-        if (this.state.isFullscreen) {
-            this.exitFullscreen();
-        }
-    },
-
     handleFullscreen: function (event) {
         event.preventDefault();
         this.toggleFullscreen(this.refs.videoContainer);
+    },
+
+    showLocalVideoElement: function() {
+        this.setState({localVideoShow: true});
+    },
+
+    showRemoteVideoElement: function() {
+        this.setState({remoteVideoShow: true});
     },
 
     muteAudio: function(event) {
@@ -160,17 +179,27 @@ let VideoBox = React.createClass({
 
     render: function() {
 
-        let classes = classNames({
+        let localVideoClasses = classNames({
             'fullScreen'    : this.state.callDuration === null,
             'noFullScreen'  : this.state.callDuration !== null,
-            'hidden'        : this.state.videoMuted
+            'hidden'        : !this.state.localVideoShow,
+            'animated'      : true,
+            'fadeIn'        : this.state.localVideoShow || this.state.videoMuted,
+            'fadeOut'       : this.state.videoMuted
         });
+
+        let remoteVideoClasses = classNames({
+            'hidden'        : !this.state.remoteVideoShow,
+            'animated'      : true,
+            'fadeIn'        : this.state.remoteVideoShow
+        });
+
         let remoteAudio;
         let remoteVideo;
         let localVideo;
         if (!this.state.audioOnly) {
-            remoteVideo = <video id="remoteVideo" ref="remoteVideo" autoPlay />;
-            localVideo  = <video className={classes} id="localVideo" ref="localVideo" autoPlay muted/>;
+            remoteVideo = <video id="remoteVideo" className={remoteVideoClasses} ref="remoteVideo" autoPlay />;
+            localVideo  = <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted/>;
         } else {
             remoteAudio = <audio id="remoteAudio" ref="remoteAudio" autoPlay />;
         }
@@ -180,6 +209,7 @@ let VideoBox = React.createClass({
         let muteButton;
         let muteVideoButton;
         let videoHeader;
+
         let muteButtonIcons = classNames({
             'fa'                    : true,
             'fa-microphone'         : !this.state.audioMuted,
@@ -195,9 +225,11 @@ let VideoBox = React.createClass({
             'fa-expand'     : !this.state.isFullscreen,
             'fa-compress'   : this.state.isFullscreen
         });
+
         let buttonBarClasses = classNames({
             'videoStarted'  : !this.state.audioOnly
         });
+
         let audioCallDisplayClasses = classNames({
             'alert'         : true,
             'alert-info'    : this.state.callDuration === null,

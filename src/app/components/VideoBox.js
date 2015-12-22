@@ -173,8 +173,10 @@ let VideoBox = React.createClass({
     },
 
     showHangup: function() {
-        this.setState({hangupButtonVisible: true});
-        this.armHangupTimer();
+        if (this.state.remoteVideoShow) {
+            this.setState({hangupButtonVisible: true});
+            this.armHangupTimer();
+        }
     },
 
     render: function() {

@@ -25,7 +25,7 @@ let IncomingCallModal = React.createClass({
         }
 
         return (
-            <Modal show={this.props.show} aria-labelledby="modal-title-sm">
+            <Modal show={this.props.show} onHide={this.props.onHide} aria-labelledby="modal-title-sm">
                 <Modal.Header closeButton>
                     <Modal.Title id="modal-title-sm">Incoming {callType} call</Modal.Title>
                 </Modal.Header>

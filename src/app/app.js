@@ -340,11 +340,9 @@ let Blink = React.createClass({
 
     notSupported: function() {
         let errorMsg = 'This app works only in a WebRTC browser (e.g. Chrome or Firefox)'
-        let errorPanel = <ErrorPanel errorMsg={errorMsg} />;
-
         return (
             <div>
-                {errorPanel}
+                <ErrorPanel errorMsg={errorMsg} />;
                 <RegisterBox />
             </div>
         );

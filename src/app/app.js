@@ -335,7 +335,11 @@ let Blink = React.createClass({
     },
 
     render: function() {
-        return (<div>{this.renderCurrentRoute()}</div>);
+        return (
+            <div>
+                {this.renderCurrentRoute()}
+            </div>
+        );
     },
 
     notSupported: function() {

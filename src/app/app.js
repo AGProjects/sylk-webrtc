@@ -55,10 +55,9 @@ let Blink = React.createClass({
     },
 
     componentWillMount: function() {
-            this.registrationState = null;
-            if (!sylkrtc.rtcninja.hasWebRTC()) {
-                window.location.hash = '#!/not-supported';
-            }
+        if (!sylkrtc.rtcninja.hasWebRTC()) {
+            window.location.hash = '#!/not-supported';
+        }
     },
 
     connectionStateChanged: function(oldState, newState) {

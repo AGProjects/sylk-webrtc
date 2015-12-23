@@ -45,7 +45,6 @@ let Blink = React.createClass({
             connectionState: null,
             inboundCall: null,
             showIncomingModal: false,
-            error: null,
             status: null,
             targetUri: '',
             loading: false,
@@ -367,15 +366,10 @@ let Blink = React.createClass({
         let statusBox;
         let callBox;
         let videoBox;
-        let errorPanel;
         let footerBox;
         let audioPlayers;
         let loadingScreen;
         let call = this.state.currentCall;
-
-        if (this.state.error !== null) {
-            errorPanel = <ErrorPanel errorMsg={this.state.error} />;
-        }
 
         if (this.state.status !== null) {
             statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.level} />;
@@ -425,7 +419,6 @@ let Blink = React.createClass({
 
         return (
             <div>
-                {errorPanel}
                 {loadingScreen}
                 {registerBox}
                 {callBox}

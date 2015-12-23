@@ -26,10 +26,11 @@ let StatusBox = React.createClass({
             'halfWidth'   : this.props.width === 'large'
         });
 
-        let message = (<div><strong>{this.props.message}</strong></div>);
-
+        let message;
         if (this.props.title) {
             message = (<div><strong>{this.props.title}</strong><br/>{this.props.message}</div>);
+        } else {
+            message = (<div><strong>{this.props.message}</strong></div>);
         }
 
         return (

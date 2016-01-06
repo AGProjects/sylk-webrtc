@@ -1,0 +1,11 @@
+.loading {
+    display: table;
+    width: 100%;
+    height: 100%; /* For at least Firefox */
+    min-height: 100%;
+}
+
+.loading-inner {
+    display: table-cell;
+    vertical-align: middle;
+}

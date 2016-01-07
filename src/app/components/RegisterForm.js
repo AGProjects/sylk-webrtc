@@ -9,8 +9,8 @@ const EnrollmentModal = require('./EnrollmentModal');
 
 let RegisterForm = React.createClass({
     propTypes: {
-        handleRegistration: React.PropTypes.func.isRequired,
-        registrationState: React.PropTypes.string
+        handleRegistration     : React.PropTypes.func.isRequired,
+        registrationInProgress : React.PropTypes.bool.isRequired
     },
 
     getInitialState: function() {
@@ -30,13 +30,6 @@ let RegisterForm = React.createClass({
         }
     },
 
-    componentWillReceiveProps: function(nextProps) {
-        let registrationState = nextProps.registrationState;
-        if (registrationState === 'failed' || registrationState === null) {
-            this.setState({registering: false});
-        }
-    },
-
     handleAccountIdChange: function(event) {
         this.setState({accountId: event.target.value});
     },
@@ -47,7 +40,6 @@ let RegisterForm = React.createClass({
 
     handleSubmit: function(event) {
         event.preventDefault();
-        this.setState({registering: true});
         this.props.handleRegistration(this.state.accountId, this.state.password);
     },
 
@@ -72,8 +64,7 @@ let RegisterForm = React.createClass({
             'btn-block'  : true,
             'btn-default': !validInput,
             'btn-primary': validInput && !this.state.registering,
-            'btn-info'   : this.state.registering,
-            'btn-success': this.state.registrationState === 'registered'
+            'btn-info'   : this.state.registering
         });
 
         return (
@@ -90,7 +81,7 @@ let RegisterForm = React.createClass({
                         <span className="input-group-addon second"><i className="fa fa-lock fa-fw"></i></span>
                         <input type="password" id="inputPassword" ref="pass" className="form-control" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} required />
                     </div>
-                    <button type="submit" className={classes} disabled={this.state.registering}>Sign In</button>
+                    <button type="submit" className={classes} disabled={this.props.registrationInProgress}>Sign In</button>
                 </form>
                 <p>No SIP account? <button className="btn-link" onClick={this.createAccount}>Create an account</button></p>
                 <EnrollmentModal show={this.state.showEnrollmentModal} handleEnrollment={this.handleEnrollment} />

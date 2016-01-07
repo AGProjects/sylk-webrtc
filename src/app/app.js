@@ -346,7 +346,11 @@ let Blink = React.createClass({
         return (
             <div>
                 <ErrorPanel errorMsg={errorMsg} />;
-                <RegisterBox />
+                <RegisterBox
+                    guestMode={false}
+                    registrationInProgress={false}
+                    handleRegistration={() => {}}
+                />
             </div>
         );
     },
@@ -380,9 +384,10 @@ let Blink = React.createClass({
         }
 
         if (this.state.registrationState !== 'registered') {
+            let registrationInProgress = this.state.registrationState !== null && this.state.registrationState !== 'failed';
             registerBox = (
                 <RegisterBox
-                    registrationState  = {this.state.registrationState}
+                    registrationInProgress = {registrationInProgress}
                     handleRegistration = {this.handleConnect}
                     switchGuestMode = {this.switchGuestMode}
                     guestMode = {this.state.guestMode}

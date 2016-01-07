@@ -67,11 +67,7 @@ let Blink = React.createClass({
                 break;
             case 'ready':
                 this.setState({connectionState: newState});
-                if (!this.state.guestMode) {
-                     this.handleRegistration(this.state.accountId, this.state.password);
-                } else {
-                    this.handleGuestRegistration(this.state.accountId);
-                }
+                this.processRegistration(this.state.accountId, this.state.password, this.state.guestMode);
                 break;
             case 'disconnected':
                 this.setState({account:null, registrationState: null, loading: true, currentCall: null});
@@ -136,9 +132,14 @@ let Blink = React.createClass({
         }
     },
 
-    handleConnect: function(accountId, pass) {
+    handleRegistration: function(accountId, password='', guestMode=false) {
         // Needed for ready event in connection
-        this.setState({accountId:accountId, password:pass, loading: true});
+        this.setState({
+            accountId:accountId,
+            password:password,
+            guestMode: guestMode,
+            loading: true
+        });
 
         if (this.state.connection === null) {
             let connection = sylkrtc.createConnection({server: config.wsServer});
@@ -146,65 +147,39 @@ let Blink = React.createClass({
             this.setState({connection: connection});
         } else {
             DEBUG('Connection Present, try to register');
-            if (!this.state.guestMode) {
-                this.handleRegistration(accountId, pass);
-            } else {
-                this.handleGuestRegistration(accountId);
-            }
+            this.processRegistration(accountId, password, guestMode);
         }
     },
 
-    handleRegistration: function(accountId, password) {
-        const self = this;
+    processRegistration: function(accountId, password, guestMode) {
         if (this.state.account !== null) {
             DEBUG('We already have an account, removing it');
             this.state.connection.removeAccount(this.state.account,
-                function(error) {
+                (error) => {
                     if (error) {
                         DEBUG(error);
                     }
-                    self.setState({account: null, registrationState: null});
+                    this.setState({account: null, registrationState: null});
                 }
             );
         }
 
         let options = {account: accountId, password: password};
-        let account = this.state.connection.addAccount(options, function(error,account) {
+        let account = this.state.connection.addAccount(options, (error, account) => {
             if (!error) {
-                account.on('registrationStateChanged', self.registrationStateChanged);
-                account.on('incomingCall', self.incomingCall);
-                account.on('missedCall', self.missedCall);
-                self.setState({account: account});
-                self.toggleRegister();
-            } else {
-                DEBUG('Add account error: ' + error);
-                self.setState({loading: false, status: {msg: error.message, level:'danger'}});
-            }
-        });
-    },
-
-    handleGuestRegistration: function(accountId) {
-        const self = this;
-        if (this.state.account !== null) {
-            DEBUG('We already have an account, removing it');
-            this.state.connection.removeAccount(this.state.account,
-                function(error) {
-                    if (error) {
-                        DEBUG(error);
-                    }
-                    self.setState({account: null, registrationState: null});
+                if (!this.state.guestMode) {
+                    account.on('registrationStateChanged', this.registrationStateChanged);
+                    account.on('incomingCall', this.incomingCall);
+                    account.on('missedCall', this.missedCall);
+                    this.setState({account: account});
+                    this.toggleRegister();
+                } else {
+                    this.setState({account: account, loading: false, registrationState: 'registered'});
+                    this.refs.notifications.postNotification('success', accountId + ' signed in');
                 }
-            );
-        }
-
-        let options = {account: accountId, password: ''};
-        let account = this.state.connection.addAccount(options, function(error,account) {
-            if (!error) {
-                self.setState({account: account, password: '', loading: false, registrationState: 'registered'});
-                self.refs.notifications.postNotification('success', accountId + ' signed in');
             } else {
                 DEBUG('Add account error: ' + error);
-                self.setState({loading: false, status: {msg: error.message, level:'danger'}});
+                this.setState({loading: false, status: {msg: error.message, level:'danger'}});
             }
         });
     },
@@ -221,10 +196,6 @@ let Blink = React.createClass({
             window.localStorage.setItem('blinkAccount',
                                         JSON.stringify({accountId: this.state.accountId, password: this.state.password}));
         }
-    },
-
-    switchGuestMode: function(state) {
-        this.setState({guestMode: state, status: null});
     },
 
     armMediaTimer: function() {
@@ -347,7 +318,6 @@ let Blink = React.createClass({
             <div>
                 <ErrorPanel errorMsg={errorMsg} />;
                 <RegisterBox
-                    guestMode={false}
                     registrationInProgress={false}
                     handleRegistration={() => {}}
                 />
@@ -388,9 +358,7 @@ let Blink = React.createClass({
             registerBox = (
                 <RegisterBox
                     registrationInProgress = {registrationInProgress}
-                    handleRegistration = {this.handleConnect}
-                    switchGuestMode = {this.switchGuestMode}
-                    guestMode = {this.state.guestMode}
+                    handleRegistration = {this.handleRegistration}
                 />
             );
         } else {

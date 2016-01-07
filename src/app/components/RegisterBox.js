@@ -10,22 +10,25 @@ const Logo              = require('./Logo');
 
 let RegisterBox = React.createClass({
     propTypes: {
-        guestMode              : React.PropTypes.bool.isRequired,
-        switchGuestMode        : React.PropTypes.func,
-        handleRegistration     : React.PropTypes.func,
+        handleRegistration     : React.PropTypes.func.isRequired,
         registrationInProgress : React.PropTypes.bool
     },
 
+    getInitialState: function() {
+        return {
+            guestMode: false
+        };
+    },
+
     handleGuestModeChange: function(event) {
-        this.props.switchGuestMode(event.target.checked);
+        this.setState({guestMode: event.target.checked});
     },
 
     render: function() {
         let loginForm;
+        let buttonText;
 
-        let buttonText = 'or sign in as guest';
-
-        if (this.props.guestMode) {
+        if (this.state.guestMode) {
             loginForm = (
                 <GuestForm
                     handleRegistration={this.props.handleRegistration}
@@ -39,6 +42,7 @@ let RegisterBox = React.createClass({
                     handleRegistration={this.props.handleRegistration}
                 />
             );
+            buttonText = 'or sign in as guest';
         }
 
         return (
@@ -50,7 +54,7 @@ let RegisterBox = React.createClass({
                         <form className="form-guest-switcher">
                             <label className="react-toggle-label">
                                 {buttonText}
-                                <Toggle defaultChecked={this.props.guestMode} onChange={this.handleGuestModeChange} />
+                                <Toggle defaultChecked={this.state.guestMode} onChange={this.handleGuestModeChange} />
                             </label>
                         </form>
                     </div>

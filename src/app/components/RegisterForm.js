@@ -40,14 +40,14 @@ let RegisterForm = React.createClass({
 
     handleSubmit: function(event) {
         event.preventDefault();
-        this.props.handleRegistration(this.state.accountId, this.state.password);
+        this.props.handleRegistration(this.state.accountId, this.state.password, false);
     },
 
     handleEnrollment: function(account) {
         this.setState({showEnrollmentModal: false});
         if (account !== null) {
             this.setState({accountId: account.accountId, password: account.password, registering: true});
-            this.props.handleRegistration(account.accountId, account.password);
+            this.props.handleRegistration(account.accountId, account.password, false);
         }
     },
 

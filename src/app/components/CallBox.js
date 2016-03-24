@@ -13,7 +13,6 @@ let CallBox = React.createClass({
         account        : React.PropTypes.object.isRequired,
         callState      : React.PropTypes.string,
         guestMode      : React.PropTypes.bool,
-        signOut        : React.PropTypes.func.isRequired,
         startAudioCall : React.PropTypes.func.isRequired,
         startVideoCall : React.PropTypes.func.isRequired,
         targetUri      : React.PropTypes.string
@@ -110,7 +109,6 @@ let CallBox = React.createClass({
                 />
                 <SettingsBox
                     account={this.props.account}
-                    signOut={this.props.signOut}
                     guestMode={this.props.guestMode}
                 />
             </div>

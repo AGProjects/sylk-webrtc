@@ -3,6 +3,7 @@
 const React     = require('react');
 const ReactDOM  = require('react-dom');
 const Router    = require('react-mini-router');
+const navigate  = Router.navigate;
 const sylkrtc   = require('sylkrtc');
 const assert    = require('assert');
 const debug     = require('debug');
@@ -29,8 +30,11 @@ let Blink = React.createClass({
     mixins: [Router.RouterMixin],
 
     routes: {
-        '/' : 'main',
-        '/not-supported' : 'notSupported'
+        '/': 'main',
+        '/login': 'login',
+        '/logout': 'logout',
+        '/call': 'call',
+        '/not-supported': 'notSupported'
     },
 
     getInitialState: function() {
@@ -56,6 +60,33 @@ let Blink = React.createClass({
     componentWillMount: function() {
         if (!sylkrtc.rtcninja.hasWebRTC()) {
             window.location.hash = '#!/not-supported';
+        }
+        if(this.state.path === '/') {
+            window.location.hash = '#!/login';
+        }
+    },
+
+    componentWillUpdate: function(nextProps, nextState) {
+        // This id used to catch location bar modifications, we only switch on nextProps
+        if (this.state.path !== nextState.path) {
+            if (!sylkrtc.rtcninja.hasWebRTC()) {
+                navigate('/not-supported');
+                return;
+            }
+
+            if ((nextState.path === '/login' || nextState.path === '/' ) && this.state.registrationState === 'registered') {
+
+                // Terminate the call if you modify the url you can only be in a call if you are registered
+                if (this.state.currentCall !== null) {
+                    this.state.currentCall.terminate();
+                }
+
+                navigate('/call');
+                return;
+            } else if (nextState.path === '/' && this.state.registrationState !== 'registered') {
+                navigate('/login');
+                return;
+            }
         }
     },
 
@@ -92,6 +123,8 @@ let Blink = React.createClass({
         } else if (newState === 'registered') {
             this.setState({loading: false});
             this.refs.notifications.postNotification('success',this.state.accountId + ' signed in','Ready to receive calls');
+            navigate('/call');
+            return;
         } else {
             this.setState({status: null });
         }
@@ -176,6 +209,8 @@ let Blink = React.createClass({
                 } else {
                     this.setState({account: account, loading: false, registrationState: 'registered'});
                     this.refs.notifications.postNotification('success', accountId + ' signed in');
+                    navigate('/call');
+                    return;
                 }
             } else {
                 DEBUG('Add account error: ' + error);
@@ -305,9 +340,33 @@ let Blink = React.createClass({
     },
 
     render: function() {
+        let loadingScreen;
+        let footerBox = <FooterBox />;
+
+        if (this.state.loading) {
+            loadingScreen = <LoadingScreen/>;
+        }
+
+        if (this.state.localMedia) {
+            if (this.state.localMedia.getVideoTracks().length === 1) {
+                footerBox = '';
+            }
+        }
+
+        // Prevent call screen when not registered
+
+        if (this.state.path === '/call' && this.state.registrationState !== 'registered') {
+            navigate('/login');
+            return (<div></div>);
+        }
+
         return (
             <div>
-                {this.renderCurrentRoute()}
+            {this.renderCurrentRoute()}
+            {loadingScreen}
+            {footerBox}
+            <Notifications ref="notifications" />
+            <IncomingCallModal call={this.state.inboundCall} show={this.state.showIncomingModal} onAnswer={this.answerCall} onHide={this.rejectCall} />
             </div>
         );
     },
@@ -335,22 +394,54 @@ let Blink = React.createClass({
         return <div><StatusBox {...status} /></div>;
     },
 
-    main: function() {
-        let registerBox;
+    call: function() {
         let statusBox;
         let callBox;
         let videoBox;
-        let footerBox;
         let audioPlayers;
-        let loadingScreen;
         let call = this.state.currentCall;
-
         if (this.state.status !== null) {
             statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.level} />;
         }
 
-        if (this.state.loading) {
-            loadingScreen = <LoadingScreen/>;
+        audioPlayers = (<div>
+                            <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav"/>
+                            <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav"/>
+                            <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
+                        </div>);
+        if (this.state.localMedia !== null) {
+            videoBox = <VideoBox call={this.state.currentCall} localMedia={this.state.localMedia}/>;
+        } else {
+            if (this.state.status === null) {
+                callBox = (
+                    <CallBox
+                        account   = {this.state.account}
+                        startAudioCall = {this.startAudioCall}
+                        startVideoCall = {this.startVideoCall}
+                        targetUri = {this.state.targetUri}
+                        guestMode = {this.state.guestMode}
+                        callState = {this.state.callState}
+                    />
+                );
+            }
+        }
+
+        return (
+            <div>
+                {callBox}
+                {videoBox}
+                {audioPlayers}
+                {statusBox}
+            </div>
+        );
+    },
+
+    login: function() {
+        let registerBox;
+        let statusBox;
+
+        if (this.state.status !== null) {
+            statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.level} />;
         }
 
         if (this.state.registrationState !== 'registered') {
@@ -361,52 +452,25 @@ let Blink = React.createClass({
                     handleRegistration = {this.handleRegistration}
                 />
             );
-        } else {
-            audioPlayers = (<div>
-                                <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav"/>
-                                <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav"/>
-                                <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
-                            </div>);
-            if (this.state.localMedia !== null) {
-                videoBox = <VideoBox call={this.state.currentCall} localMedia={this.state.localMedia}/>;
-            } else {
-                if (this.state.status === null) {
-                    callBox = (
-                        <CallBox
-                            account   = {this.state.account}
-                            startAudioCall = {this.startAudioCall}
-                            startVideoCall = {this.startVideoCall}
-                            signOut = {this.toggleRegister}
-                            targetUri = {this.state.targetUri}
-                            guestMode = {this.state.guestMode}
-                            callState = {this.state.callState}
-                        />
-                    );
-                }
-            }
-        }
-
-        if (!videoBox) {
-            footerBox = <FooterBox />;
         }
 
         return (
             <div>
-                {loadingScreen}
                 {registerBox}
-                {callBox}
-                {videoBox}
-                {audioPlayers}
                 {statusBox}
-                {footerBox}
-                <Notifications ref="notifications" />
-                <IncomingCallModal
-                    show={this.state.showIncomingModal}
-                    call={this.state.inboundCall}
-                    onAnswer={this.answerCall}
-                    onHide={this.rejectCall}
-                />
             </div>
+        );
+    },
+
+    logout: function() {
+        this.toggleRegister();
+        navigate('/login');
+        return <div></div>;
+    },
+
+    main: function() {
+        return (
+            <div></div>
         );
     }
 });

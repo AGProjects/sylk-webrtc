@@ -9,15 +9,14 @@ const classNames     = require('classnames');
 
 let SettingsBox = React.createClass({
     propTypes: {
-        signOut   : React.PropTypes.func.isRequired,
         account   : React.PropTypes.object.isRequired,
         guestMode : React.PropTypes.bool
     },
 
     handleMenu: function(event, data) {
-        if (data === 'logOut') {
-            this.props.signOut();
-        }
+        // if (data === 'logOut') {
+        //     window.location.hash = '#!/logout';
+        // }
     },
 
     render: function() {
@@ -40,7 +39,7 @@ let SettingsBox = React.createClass({
                         <MenuItem header><strong><i className="fa fa-user"></i> {this.props.account.id}</strong></MenuItem>
                         <MenuItem divider />
                         <MenuItem eventKey="settings" target="_blank" href="https://mdns.sipthor.net/sip_settings.phtml"><i className="fa fa-wrench"></i> Settings</MenuItem>
-                        <MenuItem eventKey="logOut"><i className="fa fa-sign-out"></i> Sign Out</MenuItem>
+                        <MenuItem href="/logout" eventKey="logOut"><i className="fa fa-sign-out"></i> Sign Out</MenuItem>
                     </Dropdown.Menu>
                 </Dropdown>
                 }
@@ -53,7 +52,7 @@ let SettingsBox = React.createClass({
                     <Dropdown.Menu>
                         <MenuItem header><strong><i className="fa fa-user"></i> {this.props.account.id}</strong></MenuItem>
                         <MenuItem divider />
-                        <MenuItem eventKey="logOut"><i className="fa fa-sign-out"></i> Sign Out</MenuItem>
+                        <MenuItem href="/logout" eventKey="logOut"><i className="fa fa-sign-out"></i> Sign Out</MenuItem>
                     </Dropdown.Menu>
                 </Dropdown>
                 }

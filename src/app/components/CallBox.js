@@ -15,7 +15,8 @@ let CallBox = React.createClass({
         guestMode      : React.PropTypes.bool,
         startAudioCall : React.PropTypes.func.isRequired,
         startVideoCall : React.PropTypes.func.isRequired,
-        targetUri      : React.PropTypes.string
+        targetUri      : React.PropTypes.string,
+        history        : React.PropTypes.array
     },
 
     getInitialState: function() {
@@ -69,6 +70,21 @@ let CallBox = React.createClass({
         }
     },
 
+    handleDropdownChange: function(event) {
+        let elem = document.getElementById('inputDestination');
+        elem.focus();
+        this.setState({targetUri: event.target.value});
+    },
+
+    loadDestinations: function() {
+        let options = [];
+        options.push(<option></option>);
+        for (let s of this.props.history) {
+            options.push(<option>{s}</option>);
+        }
+        return options;
+    },
+
     render: function() {
         let classes = classNames({
             'btn'           : true,
@@ -76,8 +92,6 @@ let CallBox = React.createClass({
             'btn-success'   : this.state.targetUri.length !== 0,
             'btn-warning'   : this.state.targetUri.length === 0
         });
-
-
 
         return (
             <div>
@@ -87,12 +101,17 @@ let CallBox = React.createClass({
                         <form className="form-dial" name="DialForm">
                             <p className="lead">Enter the address you wish to call</p>
                             <div className="form-group">
-                                <input type="text" id="inputDestination" className="form-control input-lg"
-                                    onChange={this.handleTargetChange}
-                                    value={this.state.targetUri}
-                                    disabled={this.props.callState === 'init'}
-                                    required autoFocus
-                                />
+                                <div id="callDropdown">
+                                    <input type="text" id="inputDestination" className="form-control input-lg"
+                                        onChange={this.handleTargetChange}
+                                        value={this.state.targetUri}
+                                        disabled={this.props.callState === 'init'}
+                                        required autoFocus
+                                    />
+                                    <select className="form-control input-lg" onChange={this.handleDropdownChange}>
+                                        {this.loadDestinations()}
+                                    </select>
+                                </div>
                             </div>
                             <div className="form-group">
                                 <button type="button" className={classes} disabled={this.state.targetUri.length === 0 || this.props.callState === 'init'} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>

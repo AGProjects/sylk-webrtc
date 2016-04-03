@@ -53,7 +53,8 @@ let Blink = React.createClass({
             targetUri: '',
             loading: false,
             guestMode: false,
-            localMedia: null
+            localMedia: null,
+            history: []
         };
     },
 
@@ -64,6 +65,8 @@ let Blink = React.createClass({
         if(this.state.path === '/') {
             window.location.hash = '#!/login';
         }
+        // load call history
+        this.loadCallHistory();
     },
 
     componentWillUpdate: function(nextProps, nextState) {
@@ -271,16 +274,19 @@ let Blink = React.createClass({
 
     startAudioCall: function(targetUri) {
         this.setState({callState: 'init'});
+        this.addCallHistoryEntry(targetUri);
         this.getLocalMedia(targetUri,{audio: true, video: false});
     },
 
     startVideoCall: function(targetUri) {
         this.setState({callState: 'init'});
+        this.addCallHistoryEntry(targetUri);
         this.getLocalMedia(targetUri, {audio: true, video: true});
     },
 
     startCall: function(targetUri, localStream) {
         assert(this.state.currentCall == null, 'currentCall is not null');
+        this.addCallHistoryEntry(targetUri);
         let options = {pcConfig: {iceServers: config.iceServers}};
         options.localStream = localStream;
         let call = this.state.account.call(targetUri, options);
@@ -337,6 +343,27 @@ let Blink = React.createClass({
     missedCall: function(data) {
         DEBUG('Missed call from ' + data.originator);
         this.refs.notifications.postMissedCall(data.originator, this.switchToMissedCall);
+    },
+
+    addCallHistoryEntry: function(uri) {
+        let history = this.state.history;
+        let idx = history.indexOf(uri);
+        if (idx !== -1) {
+            history.splice(idx, 1);
+        }
+        history.unshift(uri);
+        // keep just the last 10
+        history = history.slice(0, 10);
+        window.localStorage.setItem('blinkHistory', JSON.stringify(history));
+        this.setState({history: history});
+    },
+
+    loadCallHistory: function() {
+        let data = window.localStorage.getItem('blinkHistory');
+        if (data) {
+            let history = JSON.parse(data);
+            this.setState({history: history});
+        }
     },
 
     render: function() {
@@ -421,6 +448,7 @@ let Blink = React.createClass({
                         targetUri = {this.state.targetUri}
                         guestMode = {this.state.guestMode}
                         callState = {this.state.callState}
+                        history = {this.state.history}
                     />
                 );
             }

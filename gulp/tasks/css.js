@@ -4,7 +4,7 @@ var useref       = require('gulp-useref');
 var browserSync  = require('browser-sync');
 var sourcemaps   = require('gulp-sourcemaps');
 var lazypipe     = require('lazypipe');
-var minifyCss    = require('gulp-minify-css');
+var cleanCSS     = require('gulp-clean-css');
 var gulpif       = require('gulp-if');
 var gutil        = require('gulp-util');
 var config       = require('../config');
@@ -15,7 +15,7 @@ gulp.task('appCSS', function() {
 
     return gulp.src(config.css.src, {base: 'src'})
         .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(minifyCss())
+        .pipe(cleanCSS())
         .pipe(concat('app.css'))
         .pipe(gutil.env.type === 'dev' ? sourcemaps.write('./') : gutil.noop())
         .pipe(gulp.dest(config.css.dest))
@@ -32,7 +32,7 @@ gulp.task('vendorCSS', function() {
                 lazypipe().pipe(sourcemaps.init,{loadMaps: true})
             )
         )
-        .pipe(gulpif('*.css', minifyCss()))
+        .pipe(gulpif('*.css', cleanCSS()))
         .pipe(gutil.env.type === 'dev' ? sourcemaps.write('./') : gutil.noop())
         .pipe(gulp.dest('dist'))
         .pipe(browserSync.reload({stream:true}));

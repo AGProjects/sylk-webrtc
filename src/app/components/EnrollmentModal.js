@@ -110,14 +110,14 @@ let EnrollmentModal = React.createClass({
                         <div className="form-group">
                             <label htmlFor="yourName" className="control-label col-sm-3">Your name</label>
                             <div className="col-sm-9">
-                                <input type="text" id="yourName" className="form-control" placeholder="John Doe" onChange={this.handleFormFieldChange} autoFocus required value={this.state.yourName} disabled={this.state.enrolling} />
+                                <input type="text" id="yourName" className="form-control" placeholder="Alice" onChange={this.handleFormFieldChange} autoFocus required value={this.state.yourName} disabled={this.state.enrolling} />
                             </div>
                         </div>
                         <div className="form-group">
                             <label htmlFor="username" className="control-label col-sm-3">Username</label>
                             <div className="col-sm-9 ">
                                 <div className="input-group">
-                                    <input type="text" id="username" className="form-control" placeholder="john_doe" onChange={this.handleFormFieldChange} required value={this.state.username} disabled={this.state.enrolling} />
+                                    <input type="text" id="username" className="form-control" placeholder="alice" onChange={this.handleFormFieldChange} required value={this.state.username} disabled={this.state.enrolling} />
                                     <span className="input-group-addon">@{config.enrollmentDomain}</span>
                                 </div>
                             </div>
@@ -137,7 +137,7 @@ let EnrollmentModal = React.createClass({
                         <div className="form-group">
                             <label htmlFor="email" className="control-label col-sm-3">E-Mail</label>
                             <div className="col-sm-9">
-                                <input type="email" id="email" className="form-control" placeholder="john@doe.com" onChange={this.handleFormFieldChange} required value={this.state.email} disabled={this.state.enrolling} />
+                                <input type="email" id="email" className="form-control" placeholder="alice@atlanta.example.com" onChange={this.handleFormFieldChange} required value={this.state.email} disabled={this.state.enrolling} />
                             </div>
                         </div>
                         <button type="submit" id="enrollmentFormSubmit" style={{display: 'none'}}></button>

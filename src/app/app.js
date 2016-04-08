@@ -138,6 +138,29 @@ let Blink = React.createClass({
         this.setState({callState: newState});
 
         if (newState === 'terminated') {
+            let reason = data.reason;
+            if (reason.match(/200/)) {
+                reason = 'Hangup';
+            } else if (reason.match(/404/)) {
+                reason = 'User not found';
+            } else if (reason.match(/408/)) {
+                reason = 'Timeout';
+            } else if (reason.match(/480/)) {
+                reason = 'User not online';
+            } else if (reason.match(/486/) || reason.match(/60[036]/)) {
+                reason = 'Busy';
+            } else if (reason.match(/487/)) {
+                reason = 'Cancelled';
+            } else if (reason.match(/488/)) {
+                reason = 'Unacceptable media';
+            } else if (reason.match(/5\d\d/)) {
+                reason = 'Server failure';
+            } else if (reason.match(/904/)) {
+                // Sofia SIP: WAT
+                reason = 'Bad account or password';
+            } else {
+                reason = 'Connection failed';
+            }
             this.refs.notifications.postNotification('info', 'Call Terminated', data.reason);
             this.setState({
                 currentCall         : null,

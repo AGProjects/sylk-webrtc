@@ -103,12 +103,12 @@ let EnrollmentModal = React.createClass({
         return (
             <Modal show={this.props.show} onHide={this.hide} aria-labelledby="emodal-title-sm">
                 <Modal.Header closeButton>
-                    <Modal.Title id="emodal-title-sm">Create account</Modal.Title>
+                    <Modal.Title id="emodal-title-sm">Create SIP account</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <form id="enrollmentForm" onSubmit={this.enrollmentFormSubmitted} className="form-horizontal" role="form">
                         <div className="form-group">
-                            <label htmlFor="yourName" className="control-label col-sm-3">Your name</label>
+                            <label htmlFor="yourName" className="control-label col-sm-3">Display name</label>
                             <div className="col-sm-9">
                                 <input type="text" id="yourName" className="form-control" placeholder="Alice" onChange={this.handleFormFieldChange} autoFocus required value={this.state.yourName} disabled={this.state.enrolling} />
                             </div>

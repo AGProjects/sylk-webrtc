@@ -35,13 +35,19 @@ let CallBox = React.createClass({
     },
 
     getTargetUri: function() {
-        let targetUri = this.state.targetUri.replace(/ /g,'_');
-        if (targetUri.indexOf('@') === -1) {
-            // take the domain part from the account
-            const domain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
-            targetUri += '@' + domain;
+        let targetUri = this.state.targetUri;
+        let idx = targetUri.indexOf('@');
+        let username;
+        let domain;
+        if (idx !== -1) {
+            username = targetUri.substring(0, idx);
+            domain = targetUri.substring(idx + 1);
+        } else {
+            username = targetUri;
+            domain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
         }
-        return targetUri;
+        username = username.replace(/[\s()-]/g, '');
+        return `${username}@${domain}`;
     },
 
     handleTargetChange: function(event) {

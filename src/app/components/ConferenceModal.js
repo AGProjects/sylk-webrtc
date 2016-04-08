@@ -38,7 +38,7 @@ let ConferenceModal = React.createClass({
 
     join: function(event) {
         event.preventDefault();
-        let uri = `${this.state.conferenceTargetUri.replace(/ /g,'_')}@${config.defaultConferenceDomain}`;
+        let uri = `${this.state.conferenceTargetUri.replace(/[\s()-]/g, '')}@${config.defaultConferenceDomain}`;
         this.props.handleConferenceCall(uri);
     },
 

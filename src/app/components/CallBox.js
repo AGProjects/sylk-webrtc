@@ -82,15 +82,6 @@ let CallBox = React.createClass({
         this.setState({targetUri: event.target.value});
     },
 
-    loadDestinations: function() {
-        let options = [];
-        options.push(<option></option>);
-        for (let s of this.props.history) {
-            options.push(<option>{s}</option>);
-        }
-        return options;
-    },
-
     render: function() {
         let classes = classNames({
             'btn'           : true,
@@ -107,17 +98,22 @@ let CallBox = React.createClass({
                         <form className="form-dial" name="DialForm">
                             <p className="lead">Enter the address you wish to call</p>
                             <div className="form-group">
-                                <div id="callDropdown">
-                                    <input type="text" id="inputDestination" className="form-control input-lg"
-                                        onChange={this.handleTargetChange}
-                                        value={this.state.targetUri}
-                                        disabled={this.props.callState === 'init'}
-                                        required autoFocus
-                                    />
-                                    <select className="form-control input-lg" onChange={this.handleDropdownChange}>
-                                        {this.loadDestinations()}
-                                    </select>
-                                </div>
+                                <input type="text" list="historyList" id="inputDestination" className="form-control input-lg"
+                                    onChange={this.handleTargetChange}
+                                    value={this.state.targetUri}
+                                    disabled={this.props.callState === 'init'}
+                                    autoCapitalize="off"
+                                    autoCorrect="off"
+                                    required
+                                    autoFocus
+                                />
+                                <datalist id="historyList">
+                                {
+                                    this.props.history.map((item, idx) => {
+                                        return <option id={idx} value={item}>{item}</option>;
+                                    })
+                                }
+                                </datalist>
                             </div>
                             <div className="form-group">
                                 <button type="button" className={classes} disabled={this.state.targetUri.length === 0 || this.props.callState === 'init'} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>

@@ -352,8 +352,8 @@ let Blink = React.createClass({
             history.splice(idx, 1);
         }
         history.unshift(uri);
-        // keep just the last 10
-        history = history.slice(0, 10);
+        // keep just the last 50
+        history = history.slice(0, 50);
         window.localStorage.setItem('blinkHistory', JSON.stringify(history));
         this.setState({history: history});
     },

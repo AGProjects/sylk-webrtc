@@ -239,7 +239,7 @@ html,body { overflow: hidden; }
  * Affix and center
  */
 
-@media (min-width: 768px) {
+@media (min-width: 200px) {
     /* Start the vertical centering */
     .site-wrapper-inner {
         vertical-align: middle;

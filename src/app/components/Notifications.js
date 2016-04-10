@@ -10,12 +10,12 @@ let Notifications = React.createClass({
         this._notificationSystem = this.refs.notificationSystem;
     },
 
-    postNotification: function(level, title, message, dismiss) {
+    postNotification: function(level, title, message, dismiss=5) {
         this._notificationSystem.addNotification({
             message: message,
             title: title,
             level: level,
-            autoDismiss: dismiss || 5,
+            autoDismiss: dismiss,
             position: 'tc'
         });
     },

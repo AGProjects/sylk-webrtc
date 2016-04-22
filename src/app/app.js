@@ -161,7 +161,7 @@ let Blink = React.createClass({
             } else {
                 reason = 'Connection failed';
             }
-            this.refs.notifications.postNotification('info', 'Call Terminated', data.reason);
+            this.refs.notifications.postNotification('info', 'Call Terminated', reason);
             this.setState({
                 currentCall         : null,
                 callState           : null,

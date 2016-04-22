@@ -110,7 +110,7 @@ let CallBox = React.createClass({
                                 <datalist id="historyList">
                                 {
                                     this.props.history.map((item, idx) => {
-                                        return <option id={idx} value={item}>{item}</option>;
+                                        return <option key={idx} value={item}>{item}</option>;
                                     })
                                 }
                                 </datalist>

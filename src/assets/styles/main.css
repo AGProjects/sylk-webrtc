@@ -12,12 +12,6 @@
     border: 1px solid #fff;
 }
 
-.modal-content a,
-.modal-content a:focus,
-.modal-content a:hover {
-    color: #337ab7;
-}
-
 .btn-round {
     border-radius: 50%;
     margin: 4px;
@@ -43,9 +37,6 @@ button.btn-round:active:focus {
     outline: 0;
 }
 
-.modal-body .lead {
-    font-size: 16px;
-}
  /*
  * Base structure
  */
@@ -346,14 +337,6 @@ html,body { overflow: hidden; }
 
 
 /*
- * Modal colors, text should not be white
- */
-
-.modal-header, .modal-body, .modal-footer {
-    color: #333;
-}
-
-/*
  * Rotate 135 degrees
  */
 
@@ -575,18 +558,6 @@ html,body { overflow: hidden; }
 .videoheader-leave.videoheader-leave-active {
     -webkit-animation: fadeOutUp linear 0.3s;
     animation: fadeOutUp linear 0.3s;
-}
-
-.modal-danger > .modal-content > .modal-header {
-    color:#a94442 !important;
-    background-color: #f2dede;
-    border-radius: 6px 6px 0 0;
-    padding: 10px;
-    border-color: #ebccd1;
-}
-
-.modal-danger > .modal-content {
-    border-color:#ebccd1;
 }
 
 .capitalize {

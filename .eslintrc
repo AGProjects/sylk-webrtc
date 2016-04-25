@@ -1,21 +1,18 @@
 {
-    //"parser": "babel-eslint",
-    "ecmaFeatures": {
-        "arrowFunctions": true,
-        "blockBindings": true,
-        "forOf": true,
-        "modules": true,
-        "jsx": true
+    "parserOptions": {
+        "ecmaVersion": 6,
+            "ecmaFeatures": {
+                "jsx": true
+            },
     },
     "plugins": [
         "react"
     ],
     "env": {
-        "amd": true,
         "node": true
     },
     "rules": {
-         "react/display-name": [2, { "acceptTranspilerName": true }],
+         "react/display-name": [2, { "ignoreTranspilerName": false }],
          "react/jsx-no-duplicate-props": 2,
          "react/jsx-no-undef": 2,
          "react/jsx-quotes": 0,

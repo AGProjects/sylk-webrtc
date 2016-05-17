@@ -5,6 +5,9 @@ const ReactBootstrap = require('react-bootstrap');
 const Dropdown       = ReactBootstrap.Dropdown;
 const MenuItem       = ReactBootstrap.MenuItem;
 const classNames     = require('classnames');
+const Router         = require('react-mini-router');
+const navigate       = Router.navigate;
+const timers         = require('timers');
 
 
 let SettingsBox = React.createClass({
@@ -14,9 +17,11 @@ let SettingsBox = React.createClass({
     },
 
     handleMenu: function(event, data) {
-        // if (data === 'logOut') {
-        //     window.location.hash = '#!/logout';
-        // }
+        if (event === 'logOut') {
+            timers.setImmediate(() => {
+                navigate('/logout');
+            });
+        }
     },
 
     render: function() {
@@ -39,7 +44,7 @@ let SettingsBox = React.createClass({
                         <MenuItem header><strong><i className="fa fa-user"></i> {this.props.account.id}</strong></MenuItem>
                         <MenuItem divider />
                         <MenuItem eventKey="settings" target="_blank" href="https://mdns.sipthor.net/sip_settings.phtml"><i className="fa fa-wrench"></i> Settings</MenuItem>
-                        <MenuItem href="/logout" eventKey="logOut"><i className="fa fa-sign-out"></i> Sign Out</MenuItem>
+                        <MenuItem eventKey="logOut"><i className="fa fa-sign-out"></i> Sign Out</MenuItem>
                     </Dropdown.Menu>
                 </Dropdown>
                 }
@@ -52,7 +57,7 @@ let SettingsBox = React.createClass({
                     <Dropdown.Menu>
                         <MenuItem header><strong><i className="fa fa-user"></i> {this.props.account.id}</strong></MenuItem>
                         <MenuItem divider />
-                        <MenuItem href="/logout" eventKey="logOut"><i className="fa fa-sign-out"></i> Sign Out</MenuItem>
+                        <MenuItem eventKey="logOut"><i className="fa fa-sign-out"></i> Sign Out</MenuItem>
                     </Dropdown.Menu>
                 </Dropdown>
                 }

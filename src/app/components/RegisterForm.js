@@ -81,7 +81,7 @@ let RegisterForm = React.createClass({
                         <span className="input-group-addon second"><i className="fa fa-lock fa-fw"></i></span>
                         <input type="password" id="inputPassword" ref="pass" className="form-control" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} required />
                     </div>
-                    <button type="submit" className={classes} disabled={this.props.registrationInProgress}>Sign In</button>
+                    <button type="submit" className={classes} disabled={this.props.registrationInProgress || !validInput}>Sign In</button>
                 </form>
                 <p>No SIP account? <button className="btn-link" onClick={this.createAccount}>Create an account</button></p>
                 <EnrollmentModal show={this.state.showEnrollmentModal} handleEnrollment={this.handleEnrollment} />

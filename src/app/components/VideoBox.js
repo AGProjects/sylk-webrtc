@@ -294,10 +294,9 @@ let VideoBox = React.createClass({
                             <div className="inner cover halfWidth">
                                 <div className={audioCallDisplayClasses} role="alert">
                                     <div className="row">
-                                        <div className="pull-left padding-left">
-                                            <strong>Call with</strong> {remoteIdentity}
-                                        </div>
-                                        <div className="pull-right padding-right">{callDuration}</div>
+                                        <strong>Call with</strong> {remoteIdentity}
+                                        <br/>
+                                        {callDuration}
                                     </div>
                                 </div>
                             </div>

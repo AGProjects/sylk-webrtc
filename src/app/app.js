@@ -77,7 +77,7 @@ let Blink = React.createClass({
                 return;
             }
 
-            if ((nextState.path === '/login' || nextState.path === '/' ) && this.state.registrationState === 'registered') {
+            if ((nextState.path === '/login' || nextState.path === '/') && this.state.registrationState === 'registered') {
 
                 // Terminate the call if you modify the url you can only be in a call if you are registered
                 if (this.state.currentCall !== null) {

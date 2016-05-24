@@ -458,7 +458,7 @@ let Blink = React.createClass({
         let callBox;
         let videoBox;
         let audioPlayers;
-        let call = this.state.currentCall;
+
         if (this.state.status !== null) {
             statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.level} />;
         }

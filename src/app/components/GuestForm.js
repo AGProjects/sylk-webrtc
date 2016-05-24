@@ -29,6 +29,8 @@ let GuestForm = React.createClass({
     },
 
     render: function() {
+        let validInput = this.state.accountId !== '';
+
         let classes = classNames({
             'capitalize' : true,
             'btn'        : true,
@@ -48,7 +50,7 @@ let GuestForm = React.createClass({
                         <span className="input-group-addon"><i className="fa fa-globe fa-fw"></i></span>
                         <input id="inputName" className="form-control" placeholder="Nickname" value={this.state.accountId} onChange={this.handleAccountIdChange} required autoFocus/>
                     </div>
-                    <button type="submit" className={classes}>Sign In</button>
+                    <button type="submit" className={classes} disabled={!validInput}>Sign In</button>
                 </form>
             </div>
         );

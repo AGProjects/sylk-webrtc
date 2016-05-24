@@ -45,7 +45,8 @@ html,
 body {
     height: 100%;
     background-color: #333;
-    background-image: url(../images/noise_dark2.png);
+    background-image: url(../images/dark_linen.png);
+    background-size: 512px 512px;
 }
 body {
     color: #fff;
@@ -120,6 +121,7 @@ html,body { overflow: hidden; }
     only screen and (min--moz-device-pixel-ratio: 1.5),
     only screen and (min-device-pixel-ratio: 1.5) {
     .blink_logo {background-image:url(../images/blink-white@2x.png);}
+    body {background-image: url(../images/dark_linen@2x.png);}
 }
 
 /*

@@ -337,6 +337,13 @@ let Blink = React.createClass({
         DEBUG('New incoming call from %s with %o', call.remoteIdentity, mediaTypes);
         call.mediaTypes = mediaTypes;
         if (this.state.currentCall !== null) {
+            // detect if we called ourselves
+            if (this.state.currentCall.localIdentity.uri === this.state.currentCall.localIdentity.uri &&
+                this.state.currentCall.localIdentity.uri === call.remoteIdentity.uri) {
+                DEBUG('Aborting call to myself');
+                call.terminate();
+                return;
+            }
             this.setState({ showIncomingModal: true, inboundCall: call });
             call.on('stateChanged', this.inboundCallStateChanged);
         } else {

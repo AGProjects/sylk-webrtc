@@ -6,7 +6,7 @@ const classNames     = require('classnames');
 const SettingsBox     = require('./SettingsBox');
 const Logo            = require('./Logo');
 const ConferenceModal = require('./ConferenceModal')
-
+const utils           = require('../utils');
 
 let CallBox = React.createClass({
     propTypes: {
@@ -35,19 +35,8 @@ let CallBox = React.createClass({
     },
 
     getTargetUri: function() {
-        let targetUri = this.state.targetUri;
-        let idx = targetUri.indexOf('@');
-        let username;
-        let domain;
-        if (idx !== -1) {
-            username = targetUri.substring(0, idx);
-            domain = targetUri.substring(idx + 1);
-        } else {
-            username = targetUri;
-            domain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
-        }
-        username = username.replace(/[\s()-]/g, '');
-        return `${username}@${domain}`;
+        let domain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
+        return utils.normalizeUri(this.state.targetUri, domain);
     },
 
     handleTargetChange: function(event) {

@@ -452,7 +452,7 @@ let Blink = React.createClass({
 
         // Prevent call screen when not registered
 
-        if (this.state.path === '/call' && this.state.registrationState !== 'registered') {
+        if ((this.state.path === '/call' || this.state.path === '/call/') && this.state.registrationState !== 'registered') {
             navigate('/login');
             return (<div></div>);
         }

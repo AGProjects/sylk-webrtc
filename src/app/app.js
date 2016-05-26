@@ -10,6 +10,7 @@ const debug     = require('debug');
 
 const RegisterBox       = require('./components/RegisterBox');
 const CallBox           = require('./components/CallBox');
+const CallByUriBox      = require('./components/CallByUriBox');
 const VideoBox          = require('./components/VideoBox');
 const AudioPlayer       = require('./components/AudioPlayer');
 const ErrorPanel        = require('./components/ErrorPanel');
@@ -18,6 +19,7 @@ const StatusBox         = require('./components/StatusBox');
 const IncomingCallModal = require('./components/IncomingModal');
 const Notifications     = require('./components/Notifications');
 const LoadingScreen     = require('./components/LoadingScreen');
+const utils             = require('./utils');
 const config            = require('./config');
 
 // attach debugger to the window for console access
@@ -34,6 +36,7 @@ let Blink = React.createClass({
         '/login': 'login',
         '/logout': 'logout',
         '/call': 'call',
+        '/call/:targetUri' : 'callByUri',
         '/not-supported': 'notSupported'
     },
 
@@ -53,6 +56,7 @@ let Blink = React.createClass({
             targetUri: '',
             loading: false,
             guestMode: false,
+            callByUri: null,
             localMedia: null,
             history: []
         };
@@ -139,8 +143,10 @@ let Blink = React.createClass({
 
         if (newState === 'terminated') {
             let reason = data.reason;
+            let callSuccesfull = false;
             if (reason.match(/200/)) {
                 reason = 'Hangup';
+                callSuccesfull = true;
             } else if (reason.match(/404/)) {
                 reason = 'User not found';
             } else if (reason.match(/408/)) {
@@ -170,6 +176,14 @@ let Blink = React.createClass({
                 inboundCall         : null,
                 localMedia          : null
             });
+
+            if (callSuccesfull && this.state.callByUri !== null) {
+                this.state.connection.removeListener('stateChanged', this.connectionStateChanged);
+                this.state.connection.close();
+                let newState = this.getInitialState();
+                newState.callByUri = 'finished';
+                this.setState(newState);
+            }
         }
 
         if (newState === 'progress') {
@@ -188,6 +202,26 @@ let Blink = React.createClass({
         DEBUG('Inbound Call state changed! ' + newState);
         if (newState === 'terminated') {
             this.setState({ inboundCall: null, showIncomingModal: false });
+        }
+    },
+
+    handleCallByUri: function(accountId, targetUri) {
+        this.setState({
+            accountId : accountId,
+            password  : '',
+            guestMode : true,
+            targetUri : utils.normalizeUri(targetUri, ''),
+            callByUri : 'init',
+            loading   : true
+        });
+
+        if (this.state.connection === null) {
+            let connection = sylkrtc.createConnection({server: config.wsServer});
+            connection.on('stateChanged', this.connectionStateChanged);
+            this.setState({connection: connection});
+        } else {
+            DEBUG('Connection Present, try to register');
+            this.processRegistration(accountId, '', true);
         }
     },
 
@@ -235,7 +269,11 @@ let Blink = React.createClass({
                 } else {
                     this.setState({account: account, loading: false, registrationState: 'registered'});
                     this.refs.notifications.postNotification('success', accountId + ' signed in');
-                    navigate('/call');
+                    if (this.state.callByUri === null) {
+                        navigate('/call');
+                        return;
+                    }
+                    this.startVideoCall(this.state.targetUri);
                     return;
                 }
             } else {
@@ -489,6 +527,47 @@ let Blink = React.createClass({
         return (
             <div>
                 {callBox}
+                {videoBox}
+                {audioPlayers}
+                {statusBox}
+            </div>
+        );
+    },
+
+    callByUri: function(targetUri) {
+        let statusBox;
+        let callByUriBox;
+        let audioPlayers;
+        let videoBox;
+
+        if (this.state.status !== null) {
+            statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.level} />;
+        }
+
+        audioPlayers = (<div>
+                            <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav"/>
+                            <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav"/>
+                            <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
+                        </div>);
+
+        if (this.state.localMedia !== null) {
+            videoBox = <VideoBox call={this.state.currentCall} localMedia={this.state.localMedia}/>;
+        } else {
+            if (this.state.status === null) {
+                callByUriBox = (
+                    <CallByUriBox
+                        handleCallByUri = {this.handleCallByUri}
+                        targetUri = {targetUri}
+                        callState = {this.state.callState}
+                        callByUri = {this.state.callByUri}
+                    />
+                );
+            }
+        }
+
+        return (
+            <div>
+                {callByUriBox}
                 {videoBox}
                 {audioPlayers}
                 {statusBox}

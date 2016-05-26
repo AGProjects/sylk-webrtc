@@ -76,9 +76,7 @@ let VideoBox = React.createClass({
             this.refs.localVideo.removeEventListener('loadeddata', this.showLocalVideoElement);
         }
 
-        if (this.state.isFullscreen) {
-            this.exitFullscreen();
-        }
+        this.exitFullscreen();
     },
 
     callStateChanged: function(oldState, newState, data) {
@@ -225,8 +223,8 @@ let VideoBox = React.createClass({
         });
         let fullScreenButtonIcons = classNames({
             'fa'            : true,
-            'fa-expand'     : !this.state.isFullscreen,
-            'fa-compress'   : this.state.isFullscreen
+            'fa-expand'     : !this.isFullScreen(),
+            'fa-compress'   : this.isFullScreen()
         });
 
         let buttonBarClasses = classNames({

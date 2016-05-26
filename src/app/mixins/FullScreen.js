@@ -1,4 +1,7 @@
+'use strict';
+
 const screenfull = require('screenfull');
+
 
 const FullscreenMixin = {
     isFullScreen: function() {

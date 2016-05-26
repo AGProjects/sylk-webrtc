@@ -194,10 +194,10 @@ let Blink = React.createClass({
     handleRegistration: function(accountId, password='', guestMode=false) {
         // Needed for ready event in connection
         this.setState({
-            accountId:accountId,
-            password:password,
-            guestMode: guestMode,
-            loading: true
+            accountId : accountId,
+            password  : password,
+            guestMode : guestMode,
+            loading   : true
         });
 
         if (this.state.connection === null) {
@@ -445,10 +445,10 @@ let Blink = React.createClass({
 
     notFound: function(path) {
         let status = {
-            title : '404',
+            title   : '404',
             message : 'Oops, the page your looking for can\'t found: ' + path,
-            level : 'danger',
-            width: 'large'
+            level   : 'danger',
+            width   : 'large'
         }
         return <div><StatusBox {...status} /></div>;
     },

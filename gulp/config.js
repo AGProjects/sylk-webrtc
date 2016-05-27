@@ -12,7 +12,6 @@ module.exports = {
             // Serve up our build folder
             baseDir: dest
         },
-        browser: 'google chrome'
     },
 
     browserify: {

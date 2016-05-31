@@ -15,7 +15,7 @@ let AudioCallBox = React.createClass({
     },
 
     render: function() {
-        let audioCallDisplayClasses = classNames({
+        const audioCallDisplayClasses = classNames({
             'alert'         : true,
             'alert-success' : this.props.boxBsClass === 'success',
             'alert-info'    : this.props.boxBsClass === 'info'

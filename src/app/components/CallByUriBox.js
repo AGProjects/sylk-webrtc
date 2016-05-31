@@ -53,7 +53,7 @@ class CallByUriBox extends React.Component {
                             <span className="input-group-addon"><i className="fa fa-globe fa-fw"></i></span>
                             <input id="inputName"
                                 className="form-control"
-                                placeholder="Name"
+                                placeholder="Enter your name"
                                 disabled={this.props.callState === 'init'}
                                 value={this.state.accountId}
                                 onChange={this.handleAccountIdChange}

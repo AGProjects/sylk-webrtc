@@ -165,18 +165,20 @@ let VideoBox = React.createClass({
     render: function() {
         let callEstablished = this.state.callDuration !== null;
 
-        let localVideoClasses = classNames({
-            'noFullScreen'  : true,
-            'hidden'        : !this.state.localVideoShow,
-            'animated'      : true,
-            'fadeIn'        : this.state.localVideoShow || this.state.videoMuted,
-            'fadeOut'       : this.state.videoMuted
+        const localVideoClasses = classNames({
+            'video-thumbnail' : true,
+            'mirror'          : true,
+            'hidden'          : !this.state.localVideoShow,
+            'animated'        : true,
+            'fadeIn'          : this.state.localVideoShow || this.state.videoMuted,
+            'fadeOut'         : this.state.videoMuted
         });
 
         let remoteVideoClasses = classNames({
             'hidden'        : !this.state.remoteVideoShow,
             'animated'      : true,
-            'fadeIn'        : this.state.remoteVideoShow
+            'fadeIn'        : this.state.remoteVideoShow,
+            'large'         : true
         });
 
         let remoteAudio;
@@ -214,7 +216,6 @@ let VideoBox = React.createClass({
         let buttonBarClasses = classNames({
             'videoStarted'  : !this.state.audioOnly
         });
-
 
         let videoHeaderTextClasses = classNames({
             'lead'          : true,

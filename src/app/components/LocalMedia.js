@@ -54,10 +54,11 @@ let LocalMedia = React.createClass({
 
     render: function() {
 
-        let localVideoClasses = classNames({
-            'fullScreen'    : true,
-            'animated'      : true,
-            'fadeIn'        : true
+        const localVideoClasses = classNames({
+            'large'    : true,
+            'animated' : true,
+            'fadeIn'   : true,
+            'mirror'   : true
         });
 
         let localVideo;

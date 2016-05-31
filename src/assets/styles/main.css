@@ -48,6 +48,7 @@ body {
     background-image: url(../images/dark_linen.png);
     background-size: 512px 512px;
 }
+
 body {
     color: #fff;
     text-align: center;
@@ -269,11 +270,11 @@ html,body { overflow: hidden; }
  * Videotag
  */
 
-.videoContainer video#localVideo {
+.videoContainer video.mirror {
     transform: scaleX(-1);    /* mirror */
 }
 
-.videoContainer video#remoteVideo {
+.videoContainer video.large {
     width: 100%    !important;
     height: auto   !important;
     position: absolute;
@@ -284,19 +285,7 @@ html,body { overflow: hidden; }
     z-index:0;
 }
 
-.fullScreen {
-    width: 100%    !important;
-    height: auto   !important;
-    position: absolute;
-    min-height: 100%;
-    max-height: 100%;
-    top: 0;
-    left:0;
-    z-index:0;
-}
-
-
-.noFullScreen {
+.videoContainer video.video-thumbnail {
     width: auto    !important;
     height: auto   !important;
     border-radius: 10px;

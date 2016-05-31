@@ -6,29 +6,27 @@ const classNames = require('classnames');
 const config     = require('../config');
 
 
-let GuestForm = React.createClass({
-    propTypes: {
-        handleRegistration: React.PropTypes.func.isRequired
-    },
+class GuestForm extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {accountId: ''};
+        // ES6 classes no longer autobind
+        this.handleAccountIdChange = this.handleAccountIdChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
 
-    getInitialState: function() {
-        return {
-            accountId: ''
-        };
-    },
-
-    handleAccountIdChange: function(event) {
+    handleAccountIdChange(event) {
         this.setState({accountId: event.target.value});
-    },
+    }
 
-    handleSubmit: function(event) {
+    handleSubmit(event) {
         event.preventDefault();
         let accountId = this.state.accountId.replace(/ /g,'_');
         accountId = accountId + '@' + config.defaultGuestDomain;
         this.props.handleRegistration(accountId,'',true);
-    },
+    }
 
-    render: function() {
+    render() {
         let validInput = this.state.accountId !== '';
 
         let classes = classNames({
@@ -55,6 +53,11 @@ let GuestForm = React.createClass({
             </div>
         );
     }
-});
+}
+
+GuestForm.propTypes = {
+    handleRegistration: React.PropTypes.func.isRequired
+};
+
 
 module.exports = GuestForm;

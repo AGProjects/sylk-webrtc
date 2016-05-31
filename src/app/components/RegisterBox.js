@@ -8,23 +8,19 @@ const RegisterForm      = require('./RegisterForm');
 const Logo              = require('./Logo');
 
 
-let RegisterBox = React.createClass({
-    propTypes: {
-        handleRegistration     : React.PropTypes.func.isRequired,
-        registrationInProgress : React.PropTypes.bool
-    },
+class RegisterBox extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {guestMode: false};
+        // ES6 classes no longer autobind
+        this.handleGuestModeChange = this.handleGuestModeChange.bind(this);
+    }
 
-    getInitialState: function() {
-        return {
-            guestMode: false
-        };
-    },
-
-    handleGuestModeChange: function(event) {
+    handleGuestModeChange(event) {
         this.setState({guestMode: event.target.checked});
-    },
+    }
 
-    render: function() {
+    render() {
         let loginForm;
         let buttonText;
 
@@ -62,6 +58,12 @@ let RegisterBox = React.createClass({
             </div>
         );
     }
-});
+}
+
+RegisterBox.propTypes = {
+    handleRegistration     : React.PropTypes.func.isRequired,
+    registrationInProgress : React.PropTypes.bool
+};
+
 
 module.exports = RegisterBox;

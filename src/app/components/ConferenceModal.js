@@ -8,45 +8,43 @@ const classNames     = require('classnames');
 const config          = require('../config');
 
 
-let ConferenceModal = React.createClass({
-    propTypes: {
-        targetUri: React.PropTypes.string,
-        show: React.PropTypes.bool.isRequired,
-        handleConferenceCall: React.PropTypes.func.isRequired
-    },
-
-    getInitialState: function() {
-        return {
+class ConferenceModal extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
             conferenceTargetUri: ''
         };
-    },
+        this.handleConferenceTargetChange = this.handleConferenceTargetChange.bind(this);
+        this.onHide = this.onHide.bind(this);
+        this.join = this.join.bind(this);
+    }
 
-    componentWillMount: function() {
+    componentWillMount() {
         let targetUri = this.props.targetUri || '';
         this.setState({conferenceTargetUri: targetUri});
-    },
+    }
 
-    componentWillReceiveProps: function(nextProps) {
+    componentWillReceiveProps(nextProps) {
         let targetUri = nextProps.targetUri || '';
         this.setState({conferenceTargetUri: targetUri});
-    },
+    }
 
-    handleConferenceTargetChange: function(event) {
+    handleConferenceTargetChange(event) {
         event.preventDefault();
         this.setState({conferenceTargetUri: event.target.value});
-    },
+    }
 
-    join: function(event) {
+    join(event) {
         event.preventDefault();
         let uri = `${this.state.conferenceTargetUri.replace(/[\s()-]/g, '')}@${config.defaultConferenceDomain}`;
         this.props.handleConferenceCall(uri);
-    },
+    }
 
-    hide: function() {
+    onHide() {
         this.props.handleConferenceCall(null);
-    },
+    }
 
-    render: function() {
+    render() {
         let validUri = this.state.conferenceTargetUri.length > 0 && this.state.conferenceTargetUri.indexOf('@') === -1;
         let classes = classNames({
             'btn'         : true,
@@ -55,7 +53,7 @@ let ConferenceModal = React.createClass({
         });
 
         return (
-            <Modal show={this.props.show} onHide={this.hide} aria-labelledby="cmodal-title-sm">
+            <Modal show={this.props.show} onHide={this.onHide} aria-labelledby="cmodal-title-sm">
                 <Modal.Header closeButton>
                     <Modal.Title id="cmodal-title-sm">Join Conference</Modal.Title>
                 </Modal.Header>
@@ -76,6 +74,13 @@ let ConferenceModal = React.createClass({
             </Modal>
         );
     }
-});
+}
+
+ConferenceModal.propTypes = {
+    targetUri: React.PropTypes.string,
+    show: React.PropTypes.bool.isRequired,
+    handleConferenceCall: React.PropTypes.func.isRequired
+};
+
 
 module.exports = ConferenceModal;

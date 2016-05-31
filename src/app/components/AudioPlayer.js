@@ -3,28 +3,31 @@
 const React = require('react');
 
 
-let AudioPlayer = React.createClass({
-    propTypes: {
-        sourceFile: React.PropTypes.string.isRequired
-    },
+class AudioPlayer extends React.Component {
+    constructor(props) {
+        super(props);
+        // ES6 classes no longer autobind
+        this.audioEnded = this.audioEnded.bind(this);
+        this.stop = this.stop.bind(this);
+    }
 
-    audioEnded: function() {
+    audioEnded() {
         this.timeout = setTimeout(() => {
             this.refs.audio.play();
         }, 3000);
-    },
+    }
 
-    componentDidMount: function() {
+    componentDidMount() {
         this.timeout = null;
-    },
+    }
 
-    componentWillUnmount: function() {
+    componentWillUnmount() {
         clearTimeout(this.timeout);
         this.timeout = null;
         this.refs.audio.removeEventListener('ended', this.audioEnded);
-    },
+    }
 
-    play: function(repeat) {
+    play(repeat) {
         if (repeat) {
             this.timeout = null;
             this.refs.audio.addEventListener('ended', this.audioEnded);
@@ -32,9 +35,9 @@ let AudioPlayer = React.createClass({
             this.refs.audio.addEventListener('ended', this.stop);
         }
         this.refs.audio.play();
-    },
+    }
 
-    stop: function() {
+    stop() {
         let audio = this.refs.audio;
         clearTimeout(this.timeout);
         audio.pause();
@@ -42,9 +45,9 @@ let AudioPlayer = React.createClass({
         this.timeout = null;
         this.file = null ;
         audio.removeEventListener('ended', this.audioEnded);
-    },
+    }
 
-    render: function() {
+    render() {
         return (
             <div>
                 <audio ref="audio">
@@ -53,6 +56,11 @@ let AudioPlayer = React.createClass({
             </div>
         );
     }
-});
+}
+
+AudioPlayer.propTypes = {
+    sourceFile: React.PropTypes.string.isRequired
+};
+
 
 module.exports = AudioPlayer;

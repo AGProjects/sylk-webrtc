@@ -5,24 +5,20 @@ const NotificationSystem = require('react-notification-system');
 const moment             = require('moment');
 
 
-let Notifications = React.createClass({
-    componentDidMount: function() {
-        this._notificationSystem = this.refs.notificationSystem;
-    },
-
-    postNotification: function(level, title, message, dismiss=5) {
-        this._notificationSystem.addNotification({
+class Notifications extends React.Component {
+    postNotification(level, title, message, dismiss=5) {
+        this.refs.notificationSystem.addNotification({
             message: message,
             title: title,
             level: level,
             autoDismiss: dismiss,
             position: 'tc'
         });
-    },
+    }
 
-    postMissedCall: function(originator, call) {
+    postMissedCall(originator, call) {
         let currentDate = moment().format('MMMM Do YYYY [at] HH:mm:ss');
-        this._notificationSystem.addNotification({
+        this.refs.notificationSystem.addNotification({
             message: 'From ' + (originator.displayName || originator.uri) + '<br />On ' + currentDate,
             title: 'Missed Call',
             autoDismiss: 0,
@@ -35,15 +31,16 @@ let Notifications = React.createClass({
             level: 'info',
             position: 'tr'
         });
-    },
+    }
 
-    render: function() {
+    render() {
         return (
             <div>
                 <NotificationSystem ref="notificationSystem" allowHTML={true} />
             </div>
         );
     }
-});
+}
+
 
 module.exports = Notifications;

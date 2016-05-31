@@ -7,55 +7,55 @@ const classNames = require('classnames');
 const EnrollmentModal = require('./EnrollmentModal');
 
 
-let RegisterForm = React.createClass({
-    propTypes: {
-        handleRegistration     : React.PropTypes.func.isRequired,
-        registrationInProgress : React.PropTypes.bool.isRequired
-    },
-
-    getInitialState: function() {
-        return {
+class RegisterForm extends React.Component {
+    constructor(props) {
+        super(props);
+        let state = {
             accountId: '',
             password: '',
             registering: false,
             showEnrollmentModal: false
         };
-    },
-
-    componentWillMount: function() {
         let data = window.localStorage.getItem('blinkAccount');
         if (data) {
             let accountData = JSON.parse(data);
-            this.setState(accountData);
+            Object.assign(state, accountData);
         }
-    },
+        this.state = state;
+        // ES6 classes no longer autobind
+        this.handleAccountIdChange = this.handleAccountIdChange.bind(this);
+        this.handlePasswordChange = this.handlePasswordChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleEnrollment = this.handleEnrollment.bind(this);
+        this.createAccount = this.createAccount.bind(this);
+    }
 
-    handleAccountIdChange: function(event) {
+    handleAccountIdChange(event) {
         this.setState({accountId: event.target.value});
-    },
+    }
 
-    handlePasswordChange: function(event) {
+    handlePasswordChange(event) {
         this.setState({password: event.target.value});
-    },
+    }
 
-    handleSubmit: function(event) {
+    handleSubmit(event) {
         event.preventDefault();
         this.props.handleRegistration(this.state.accountId, this.state.password, false);
-    },
+    }
 
-    handleEnrollment: function(account) {
+    handleEnrollment(account) {
         this.setState({showEnrollmentModal: false});
         if (account !== null) {
             this.setState({accountId: account.accountId, password: account.password, registering: true});
             this.props.handleRegistration(account.accountId, account.password, false);
         }
-    },
+    }
 
-    createAccount: function() {
+    createAccount() {
         this.setState({showEnrollmentModal: true});
-    },
+    }
 
-    render: function() {
+    render() {
         let validInput = this.state.accountId.indexOf('@') !== -1 && this.state.password !== 0;
         let classes = classNames({
             'capitalize' : true,
@@ -88,6 +88,12 @@ let RegisterForm = React.createClass({
             </div>
         );
     }
-});
+}
+
+RegisterForm.propTypes = {
+    handleRegistration     : React.PropTypes.func.isRequired,
+    registrationInProgress : React.PropTypes.bool.isRequired
+};
+
 
 module.exports = RegisterForm;

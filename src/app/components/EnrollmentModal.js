@@ -9,14 +9,11 @@ const superagent     = require('superagent');
 const config         = require('../config');
 
 
-let EnrollmentModal = React.createClass({
-    propTypes: {
-        handleEnrollment: React.PropTypes.func.isRequired,
-        show: React.PropTypes.bool.isRequired
-    },
-
-    getInitialState: function() {
-        return {
+class EnrollmentModal extends React.Component {
+    constructor(props) {
+        super(props);
+        // save the initial state so we can restore it later
+        this.initialState = {
             yourName: '',
             username: '',
             password: '',
@@ -25,16 +22,22 @@ let EnrollmentModal = React.createClass({
             enrolling: false,
             error: ''
         };
-    },
+        this.state = Object.assign({}, this.initialState);
+        // ES6 classes no longer autobind
+        this.onHide = this.onHide.bind(this);
+        this.handleFormFieldChange = this.handleFormFieldChange.bind(this);
+        this.enrollmentFormSubmitted = this.enrollmentFormSubmitted.bind(this);
+        this.enroll = this.enroll.bind(this);
+    }
 
-    handleFormFieldChange: function(event) {
+    handleFormFieldChange(event) {
         event.preventDefault();
         let state = {};
         state[event.target.id] = event.target.value;
         this.setState(state);
-    },
+    }
 
-    enrollmentFormSubmitted: function(event) {
+    enrollmentFormSubmitted(event) {
         event.preventDefault();
         // validate the password fields
         if (this.state.password !== this.state.password2) {
@@ -63,28 +66,28 @@ let EnrollmentModal = React.createClass({
                       if (data.success) {
                           this.props.handleEnrollment({accountId: data.sip_address,
                                                        password: this.state.password});
-                          this.setState(this.getInitialState());
+                          this.setState(this.initialState);
                       } else if (data.error === 'user_exists') {
                           this.setState({error: 'User already exists'});
                       } else {
                           this.setState({error: data.error_message});
                       }
                   });
-    },
+    }
 
-    enroll: function(event) {
+    enroll(event) {
         event.preventDefault();
         // what a horrible hack, YOLO.
         // this will trigger the form submission, and enrollmentFormSubmitted will be called
         document.getElementById('enrollmentFormSubmit').click();
-    },
+    }
 
-    hide: function() {
+    onHide() {
         this.props.handleEnrollment(null);
         this.setState(this.getInitialState());
-    },
+    }
 
-    render: function() {
+    render() {
         let passwordClasses = classNames({
             'form-group' : true,
             'has-error'  : this.state.password !== this.state.password2
@@ -101,7 +104,7 @@ let EnrollmentModal = React.createClass({
         }
 
         return (
-            <Modal show={this.props.show} onHide={this.hide} aria-labelledby="emodal-title-sm">
+            <Modal show={this.props.show} onHide={this.onHide} aria-labelledby="emodal-title-sm">
                 <Modal.Header closeButton>
                     <Modal.Title id="emodal-title-sm">Create SIP account</Modal.Title>
                 </Modal.Header>
@@ -150,6 +153,12 @@ let EnrollmentModal = React.createClass({
             </Modal>
         );
     }
-});
+}
+
+EnrollmentModal.propTypes = {
+    handleEnrollment: React.PropTypes.func.isRequired,
+    show: React.PropTypes.bool.isRequired
+};
+
 
 module.exports = EnrollmentModal;

@@ -11,6 +11,7 @@ const debug     = require('debug');
 const RegisterBox       = require('./components/RegisterBox');
 const CallBox           = require('./components/CallBox');
 const CallByUriBox      = require('./components/CallByUriBox');
+const LocalMedia        = require('./components/LocalMedia');
 const VideoBox          = require('./components/VideoBox');
 const AudioPlayer       = require('./components/AudioPlayer');
 const ErrorPanel        = require('./components/ErrorPanel');
@@ -495,6 +496,7 @@ let Blink = React.createClass({
         let statusBox;
         let callBox;
         let videoBox;
+        let localMedia;
         let audioPlayers;
 
         if (this.state.status !== null) {
@@ -507,7 +509,11 @@ let Blink = React.createClass({
                             <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
                         </div>);
         if (this.state.localMedia !== null) {
-            videoBox = <VideoBox call={this.state.currentCall} localMedia={this.state.localMedia}/>;
+            if (this.state.callState === 'established') {
+                videoBox = <VideoBox call={this.state.currentCall} localMedia={this.state.localMedia}/>;
+            } else {
+                localMedia = <LocalMedia call={this.state.currentCall} localMedia={this.state.localMedia}/>;
+            }
         } else {
             if (this.state.status === null) {
                 callBox = (
@@ -528,6 +534,7 @@ let Blink = React.createClass({
             <div>
                 {callBox}
                 {videoBox}
+                {localMedia}
                 {audioPlayers}
                 {statusBox}
             </div>
@@ -539,6 +546,7 @@ let Blink = React.createClass({
         let callByUriBox;
         let audioPlayers;
         let videoBox;
+        let localMedia;
 
         if (this.state.status !== null) {
             statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.level} />;
@@ -551,7 +559,11 @@ let Blink = React.createClass({
                         </div>);
 
         if (this.state.localMedia !== null) {
-            videoBox = <VideoBox call={this.state.currentCall} localMedia={this.state.localMedia}/>;
+            if (this.state.callState === 'established') {
+                videoBox = <VideoBox call={this.state.currentCall} localMedia={this.state.localMedia}/>;
+            } else {
+                localMedia = <LocalMedia call={this.state.currentCall} localMedia={this.state.localMedia}/>;
+            }
         } else {
             if (this.state.status === null) {
                 callByUriBox = (
@@ -569,6 +581,7 @@ let Blink = React.createClass({
             <div>
                 {callByUriBox}
                 {videoBox}
+                {localMedia}
                 {audioPlayers}
                 {statusBox}
             </div>

@@ -9,6 +9,8 @@ const moment                    = require('moment');
 const momentFormat              = require('moment-duration-format');
 const FullscreenMixin           = require('../mixins/FullScreen');
 
+const AudioCallBox = require('./AudioCallBox');
+
 const DEBUG = debug('blinkrtc:Video');
 
 
@@ -40,14 +42,18 @@ let VideoBox = React.createClass({
 
     componentWillMount: function() {
         this.callAvail = false;
-        if (this.props.localMedia.getVideoTracks().length === 0) {
-            DEBUG('Sending audio only');
-            this.setState({audioOnly:true});
+        if (this.props.localMedia.getVideoTracks().length === 0 ||
+            this.props.call.getRemoteStreams()[0].getVideoTracks().length === 0) {
+            DEBUG('Sending or receiving audio only');
+            this.setState({
+                audioOnly:true,
+                hangupButtonVisible: true});
         }
     },
 
     componentDidMount: function() {
         this.callTimer = null;
+        let remoteStream = this.props.call.getRemoteStreams()[0];
         if (!this.state.audioOnly) {
             this.refs.localVideo.addEventListener('loadeddata', this.showLocalVideoElement);
             this.refs.localVideo.oncontextmenu = function(e) {
@@ -55,21 +61,24 @@ let VideoBox = React.createClass({
                 e.preventDefault();
             };
             rtcninja.attachMediaStream(this.refs.localVideo, this.props.localMedia);
+            this.refs.remoteVideo.addEventListener('loadeddata', this.showRemoteVideoElement);
+            this.refs.remoteVideo.oncontextmenu = function(e) {
+                // disable right click for video elements
+                e.preventDefault();
+            };
+            rtcninja.attachMediaStream(this.refs.remoteVideo, remoteStream);
+            this.hangupButtonTimer = null;
+            this.armHangupTimer();
+        } else {
+            DEBUG('Audio only');
+            rtcninja.attachMediaStream(this.refs.remoteAudio, remoteStream);
         }
-    },
-
-    componentWillReceiveProps: function(nextProps) {
-        if (nextProps.call !== null && !this.callAvail) {
-            this.callAvail = true;
-            nextProps.call.on('stateChanged', this.callStateChanged);
-        }
+        this.startCallTimer();
     },
 
     componentWillUnmount: function() {
         clearTimeout(this.hangupButtonTimer);
         clearTimeout(this.callTimer);
-
-        this.props.call.removeListener('stateChanged', this.callStateChanged);
 
         if (!this.state.audioOnly) {
             this.refs.remoteVideo.removeEventListener('loadeddata', this.showRemoteVideoElement);
@@ -77,30 +86,6 @@ let VideoBox = React.createClass({
         }
 
         this.exitFullscreen();
-    },
-
-    callStateChanged: function(oldState, newState, data) {
-        if (newState === 'established') {
-            let remoteStream = this.props.call.getRemoteStreams()[0];
-            if (remoteStream.getVideoTracks().length > 0) {
-                this.refs.remoteVideo.addEventListener('loadeddata', this.showRemoteVideoElement);
-                this.refs.remoteVideo.oncontextmenu = function(e) {
-                    // disable right click for video elements
-                    e.preventDefault();
-                };
-                rtcninja.attachMediaStream(this.refs.remoteVideo, remoteStream);
-                this.hangupButtonTimer = null;
-                this.armHangupTimer();
-            } else {
-                DEBUG('Receiving audio only');
-                this.setState({
-                    audioOnly:true,
-                    hangupButtonVisible: true
-                });
-                rtcninja.attachMediaStream(this.refs.remoteAudio, remoteStream);
-            }
-            this.startCallTimer();
-        }
     },
 
     handleFullscreen: function (event) {
@@ -181,8 +166,7 @@ let VideoBox = React.createClass({
         let callEstablished = this.state.callDuration !== null;
 
         let localVideoClasses = classNames({
-            'fullScreen'    : !callEstablished,
-            'noFullScreen'  : callEstablished,
+            'noFullScreen'  : true,
             'hidden'        : !this.state.localVideoShow,
             'animated'      : true,
             'fadeIn'        : this.state.localVideoShow || this.state.videoMuted,
@@ -231,15 +215,10 @@ let VideoBox = React.createClass({
             'videoStarted'  : !this.state.audioOnly
         });
 
-        let audioCallDisplayClasses = classNames({
-            'alert'         : true,
-            'alert-info'    : !callEstablished,
-            'alert-success' : callEstablished
-        });
+
         let videoHeaderTextClasses = classNames({
             'lead'          : true,
-            'text-info'     : !callEstablished,
-            'text-success'  : callEstablished
+            'text-success'  : true
         });
 
         let commonButtonClasses = classNames({
@@ -260,11 +239,9 @@ let VideoBox = React.createClass({
 
         if (this.state.hangupButtonVisible) {
             if (!this.state.audioOnly) {
-                if (callEstablished) {
-                    muteVideoButton = <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
-                    if (this.isFullscreenSupported()) {
-                        fullScreenButton = <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
-                    }
+                muteVideoButton = <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
+                if (this.isFullscreenSupported()) {
+                    fullScreenButton = <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
                 }
                 videoHeader = (
                     <div key="header" className="videoHeader">
@@ -273,9 +250,7 @@ let VideoBox = React.createClass({
                     </div>
                 );
             }
-            if (callEstablished) {
-                muteButton = <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
-            }
+            muteButton = <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
             hangupButton = <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>;
         }
 
@@ -288,23 +263,7 @@ let VideoBox = React.createClass({
                 {remoteVideo}
                 {localVideo}
                 {this.state.audioOnly && (
-                    <div>
-                        <span className="fa-stack fa-4">
-                            <i className="fa fa-volume-off move-icon fa-stack-2x"></i>
-                            <i className="move-icon2 fa fa-volume-up fa-stack-2x animate-sound1"></i>
-                        </span>
-                        <div className="cover-container">
-                            <div className="inner cover halfWidth">
-                                <div className={audioCallDisplayClasses} role="alert">
-                                    <div className="row">
-                                        <strong>Call with</strong> {remoteIdentity}
-                                        <br/>
-                                        {callDuration}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <AudioCallBox callDuration={callDuration} remoteIdentity={remoteIdentity} boxBsClass="success"/>
                 )}
                 <div className={buttonBarClasses}>
                     <ReactCSSTransitionGroup transitionName="videobuttons" transitionEnterTimeout={300} transitionLeaveTimeout={300}>

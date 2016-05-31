@@ -6,32 +6,30 @@ const classNames = require('classnames');
 const Logo       = require('./Logo');
 const config     = require('../config');
 
-let CallByUriBox = React.createClass({
-    propTypes: {
-        handleCallByUri : React.PropTypes.func.isRequired,
-        targetUri       : React.PropTypes.string,
-        callState       : React.PropTypes.string,
-        callByUri       : React.PropTypes.string
-    },
 
-    getInitialState: function() {
-        return {
+class CallByUriBox extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
             accountId: ''
         };
-    },
+        // ES6 classes no longer autobind
+        this.handleAccountIdChange = this.handleAccountIdChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
 
-    handleAccountIdChange: function(event) {
+    handleAccountIdChange(event) {
         this.setState({accountId: event.target.value});
-    },
+    }
 
-    handleSubmit: function(event) {
+    handleSubmit(event) {
         event.preventDefault();
         let accountId = this.state.accountId.replace(/ /g,'_');
         accountId = accountId + '@' + config.defaultGuestDomain;
         this.props.handleCallByUri(accountId, this.props.targetUri);
-    },
+    }
 
-    render: function() {
+    render() {
         let validInput = this.state.accountId !== '';
         let defaultContent;
         let thanksContent;
@@ -85,6 +83,14 @@ let CallByUriBox = React.createClass({
             </div>
         );
     }
-});
+}
+
+CallByUriBox.propTypes = {
+    handleCallByUri : React.PropTypes.func.isRequired,
+    targetUri       : React.PropTypes.string,
+    callState       : React.PropTypes.string,
+    callByUri       : React.PropTypes.string
+};
+
 
 module.exports = CallByUriBox;

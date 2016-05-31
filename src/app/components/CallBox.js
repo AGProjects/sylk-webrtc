@@ -8,70 +8,69 @@ const Logo            = require('./Logo');
 const ConferenceModal = require('./ConferenceModal')
 const utils           = require('../utils');
 
-let CallBox = React.createClass({
-    propTypes: {
-        account        : React.PropTypes.object.isRequired,
-        callState      : React.PropTypes.string,
-        guestMode      : React.PropTypes.bool,
-        startAudioCall : React.PropTypes.func.isRequired,
-        startVideoCall : React.PropTypes.func.isRequired,
-        targetUri      : React.PropTypes.string,
-        history        : React.PropTypes.array
-    },
 
-    getInitialState: function() {
-        return {
+class CallBox extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
             targetUri: this.props.targetUri,
             showConferenceModal: false
         };
-    },
+        // ES6 classes no longer autobind
+        this.handleTargetChange = this.handleTargetChange.bind(this);
+        this.handleAudioCall = this.handleAudioCall.bind(this);
+        this.handleVideoCall = this.handleVideoCall.bind(this);
+        this.showConferenceModal = this.showConferenceModal.bind(this);
+        this.handleConferenceCall = this.handleConferenceCall.bind(this);
+        this.handleDropdownChange = this.handleDropdownChange.bind(this);
+    }
 
-    componentWillReceiveProps: function(nextProps) {
+    componentWillReceiveProps(nextProps) {
         if (nextProps.callState !== 'init') {
             this.setState({
                 targetUri: nextProps.targetUri
             });
         }
-    },
+    }
 
-    getTargetUri: function() {
+    getTargetUri() {
         let domain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
         return utils.normalizeUri(this.state.targetUri, domain);
-    },
+    }
 
-    handleTargetChange: function(event) {
+    handleTargetChange(event) {
         this.setState({targetUri: event.target.value});
-    },
+    }
 
-    handleAudioCall: function(event) {
+    handleAudioCall(event) {
         event.preventDefault();
         this.props.startAudioCall(this.getTargetUri());
-    },
+    }
 
-    handleVideoCall: function(event) {
+    handleVideoCall(event) {
         event.preventDefault();
         this.props.startVideoCall(this.getTargetUri());
-    },
+    }
 
-    showConferenceModal: function(event) {
+    showConferenceModal(event) {
         event.preventDefault();
         this.setState({showConferenceModal: true});
-    },
+    }
 
-    handleConferenceCall: function(targetUri) {
+    handleConferenceCall(targetUri) {
         this.setState({showConferenceModal: false, targetUri: targetUri || ''});
         if (targetUri) {
             this.props.startAudioCall(targetUri);
         }
-    },
+    }
 
-    handleDropdownChange: function(event) {
+    handleDropdownChange(event) {
         let elem = document.getElementById('inputDestination');
         elem.focus();
         this.setState({targetUri: event.target.value});
-    },
+    }
 
-    render: function() {
+    render() {
         let classes = classNames({
             'btn'           : true,
             'btn-round-big' : true,
@@ -124,6 +123,17 @@ let CallBox = React.createClass({
             </div>
         );
     }
-});
+}
+
+CallBox.propTypes = {
+    account        : React.PropTypes.object.isRequired,
+    callState      : React.PropTypes.string,
+    guestMode      : React.PropTypes.bool,
+    startAudioCall : React.PropTypes.func.isRequired,
+    startVideoCall : React.PropTypes.func.isRequired,
+    targetUri      : React.PropTypes.string,
+    history        : React.PropTypes.array
+};
+
 
 module.exports = CallBox;

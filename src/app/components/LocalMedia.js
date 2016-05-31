@@ -11,26 +11,20 @@ const AudioCallBox = require('./AudioCallBox');
 const DEBUG = debug('blinkrtc:LocalMedia');
 
 
-let LocalMedia = React.createClass({
-    propTypes: {
-        call: React.PropTypes.object,
-        localMedia: React.PropTypes.object
-    },
-
-    getInitialState: function() {
-        return {
-            audioOnly: false
-        };
-    },
-
-    componentWillMount: function() {
+class LocalMedia extends React.Component {
+    constructor(props) {
+        super(props);
         if (this.props.localMedia.getVideoTracks().length === 0) {
             DEBUG('Sending audio only');
-            this.setState({audioOnly:true});
+            this.state = {audioOnly: true};
+        } else {
+            this.state = {audioOnly: false};
         }
-    },
+        // ES6 classes no longer autobind
+        this.hangupCall = this.hangupCall.bind(this);
+    }
 
-    componentDidMount: function() {
+    componentDidMount() {
         if (!this.state.audioOnly) {
             this.refs.localVideo.addEventListener('loadeddata', this.showLocalVideoElement);
             this.refs.localVideo.oncontextmenu = function(e) {
@@ -39,21 +33,20 @@ let LocalMedia = React.createClass({
             };
             rtcninja.attachMediaStream(this.refs.localVideo, this.props.localMedia);
         }
-    },
+    }
 
-    componentWillUnmount: function() {
+    componentWillUnmount() {
         if (!this.state.audioOnly) {
             this.refs.localVideo.removeEventListener('loadeddata', this.showLocalVideoElement);
         }
-    },
+    }
 
-    hangupCall: function(event) {
+    hangupCall(event) {
         event.preventDefault();
         this.props.call.terminate();
-    },
+    }
 
-    render: function() {
-
+    render() {
         const localVideoClasses = classNames({
             'large'    : true,
             'animated' : true,
@@ -107,6 +100,12 @@ let LocalMedia = React.createClass({
             </div>
         );
     }
-});
+}
+
+LocalMedia.propTypes = {
+    call: React.PropTypes.object,
+    localMedia: React.PropTypes.object
+};
+
 
 module.exports = LocalMedia;

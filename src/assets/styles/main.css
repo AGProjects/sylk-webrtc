@@ -270,11 +270,11 @@ html,body { overflow: hidden; }
  * Videotag
  */
 
-.videoContainer video.mirror {
+.video-container video.mirror {
     transform: scaleX(-1);    /* mirror */
 }
 
-.videoContainer video.large {
+.video-container video.large {
     width: 100%    !important;
     height: auto   !important;
     position: absolute;
@@ -285,7 +285,7 @@ html,body { overflow: hidden; }
     z-index:0;
 }
 
-.videoContainer video.video-thumbnail {
+.video-container video.video-thumbnail {
     width: auto    !important;
     height: auto   !important;
     border-radius: 10px;
@@ -297,7 +297,7 @@ html,body { overflow: hidden; }
     border: 2px solid #ffffff;
 }
 
-.videoStarted {
+.video-started {
     position: absolute;
     bottom: 0px !important;
     padding-bottom: 35px;
@@ -308,7 +308,7 @@ html,body { overflow: hidden; }
     margin: auto;
 }
 
-.videoHeader {
+.video-header {
     position: absolute;
     left: 0;
     right: 0;
@@ -319,7 +319,7 @@ html,body { overflow: hidden; }
     color: #000000;
 }
 
-.videoHeader p {
+.video-header p {
     margin-bottom: 4px !important;
     line-height: 1.2 !important;
     font-size:18px !important;

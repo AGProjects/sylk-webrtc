@@ -214,7 +214,7 @@ let VideoBox = React.createClass({
         });
 
         let buttonBarClasses = classNames({
-            'videoStarted'  : !this.state.audioOnly
+            'video-started' : !this.state.audioOnly
         });
 
         let videoHeaderTextClasses = classNames({
@@ -245,7 +245,7 @@ let VideoBox = React.createClass({
                     fullScreenButton = <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
                 }
                 videoHeader = (
-                    <div key="header" className="videoHeader">
+                    <div key="header" className="video-header">
                         <p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p>
                         <p className={videoHeaderTextClasses}>{callDuration}</p>
                     </div>
@@ -256,7 +256,7 @@ let VideoBox = React.createClass({
         }
 
         return (
-            <div className="videoContainer" ref="videoContainer" onMouseMove={this.showHangup}>
+            <div className="video-container" ref="videoContainer" onMouseMove={this.showHangup}>
                 <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {videoHeader}
                 </ReactCSSTransitionGroup>

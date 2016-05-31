@@ -74,17 +74,17 @@ let LocalMedia = React.createClass({
         let videoHeader;
 
         let buttonBarClasses = classNames({
-            'videoStarted'  : !this.state.audioOnly
+            'video-started' : !this.state.audioOnly
         });
 
         let videoHeaderTextClasses = classNames({
-            'lead'          : true,
-            'text-info'     : true
+            'lead'      : true,
+            'text-info' : true
         });
 
         if (!this.state.audioOnly) {
             videoHeader = (
-                <div key="header" className="videoHeader">
+                <div key="header" className="video-header">
                     <p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p>
                 </div>
             );
@@ -93,7 +93,7 @@ let LocalMedia = React.createClass({
         let hangupButton = <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>;
 
         return (
-            <div className="videoContainer" ref="videoContainer">
+            <div className="video-container" ref="videoContainer">
                 <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {videoHeader}
                 </ReactCSSTransitionGroup>

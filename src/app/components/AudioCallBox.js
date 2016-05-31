@@ -1,8 +1,8 @@
 'use strict';
 
-const React                     = require('react');
-const classNames                = require('classnames');
-const debug                     = require('debug');
+const React      = require('react');
+const classNames = require('classnames');
+const debug      = require('debug');
 
 const DEBUG = debug('blinkrtc:AudioCallBox');
 

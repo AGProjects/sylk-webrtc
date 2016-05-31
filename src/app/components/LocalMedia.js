@@ -52,7 +52,6 @@ let LocalMedia = React.createClass({
         this.props.call.terminate();
     },
 
-
     render: function() {
 
         let localVideoClasses = classNames({

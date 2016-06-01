@@ -59,7 +59,8 @@ let Blink = React.createClass({
             guestMode: false,
             callByUri: null,
             localMedia: null,
-            history: []
+            history: [],
+            historyLoaded: false,
         };
     },
 
@@ -70,8 +71,6 @@ let Blink = React.createClass({
         if(this.state.path === '/') {
             window.location.hash = '#!/login';
         }
-        // load call history
-        this.loadCallHistory();
     },
 
     componentWillUpdate: function(nextProps, nextState) {
@@ -261,6 +260,7 @@ let Blink = React.createClass({
         let options = {account: accountId, password: password};
         let account = this.state.connection.addAccount(options, (error, account) => {
             if (!error) {
+                this.loadCallHistory();
                 if (!this.state.guestMode) {
                     account.on('registrationStateChanged', this.registrationStateChanged);
                     account.on('incomingCall', this.incomingCall);
@@ -417,23 +417,32 @@ let Blink = React.createClass({
     },
 
     addCallHistoryEntry: function(uri) {
-        let history = this.state.history;
-        let idx = history.indexOf(uri);
-        if (idx !== -1) {
-            history.splice(idx, 1);
+        if (!this.state.guestMode) {
+            let history = this.state.history;
+            let idx = history.indexOf(uri);
+            if (idx !== -1) {
+                history.splice(idx, 1);
+            }
+            history.unshift(uri);
+            // keep just the last 50
+            history = history.slice(0, 50);
+            window.localStorage.setItem('blinkHistory', JSON.stringify(history));
+            this.setState({history: history});
         }
-        history.unshift(uri);
-        // keep just the last 50
-        history = history.slice(0, 50);
-        window.localStorage.setItem('blinkHistory', JSON.stringify(history));
-        this.setState({history: history});
     },
 
     loadCallHistory: function() {
-        let data = window.localStorage.getItem('blinkHistory');
-        if (data) {
-            let history = JSON.parse(data);
-            this.setState({history: history});
+        if (this.state.historyLoaded) {
+            return this.state.history;
+        } else {
+            let history = [];
+            if (!this.state.guestMode) {
+                let data = window.localStorage.getItem('blinkHistory');
+                if (data) {
+                    history = JSON.parse(data);
+                }
+            }
+            this.setState({history: history, historyLoaded: true});
         }
     },
 

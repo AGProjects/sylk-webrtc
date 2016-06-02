@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "classnames": "^2.2.3",
+    "clipboard": "^1.5.10",
     "debug": "*",
     "moment": "^2.13.0",
     "moment-duration-format": "^1.3.0",

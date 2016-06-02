@@ -3,8 +3,6 @@
 const React          = require('react');
 const classNames     = require('classnames');
 
-const SettingsBox     = require('./SettingsBox');
-const Logo            = require('./Logo');
 const ConferenceModal = require('./ConferenceModal')
 const utils           = require('../utils');
 
@@ -82,7 +80,6 @@ class CallBox extends React.Component {
             <div>
                 <div className="cover-container">
                     <div className="inner cover">
-                        <Logo />
                         <form className="form-dial" name="DialForm">
                             <p className="lead">Enter the address you wish to call</p>
                             <div className="form-group">
@@ -115,10 +112,6 @@ class CallBox extends React.Component {
                     show={this.state.showConferenceModal}
                     handleConferenceCall={this.handleConferenceCall}
                     targetUri={this.state.targetUri}
-                />
-                <SettingsBox
-                    account={this.props.account}
-                    guestMode={this.props.guestMode}
                 />
             </div>
         );

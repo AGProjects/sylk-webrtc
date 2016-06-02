@@ -20,6 +20,7 @@ const StatusBox         = require('./components/StatusBox');
 const IncomingCallModal = require('./components/IncomingModal');
 const Notifications     = require('./components/Notifications');
 const LoadingScreen     = require('./components/LoadingScreen');
+const NavigationBar     = require('./components/NavigationBar');
 const utils             = require('./utils');
 const config            = require('./config');
 
@@ -507,6 +508,7 @@ let Blink = React.createClass({
         let videoBox;
         let localMedia;
         let audioPlayers;
+        let navBar;
 
         if (this.state.status !== null) {
             statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.level} />;
@@ -536,11 +538,19 @@ let Blink = React.createClass({
                         history = {this.state.history}
                     />
                 );
+                navBar = (
+                    <NavigationBar
+                        account={this.state.account}
+                        guestMode={this.state.guestMode}
+                        notifications={this.refs.notifications}
+                    />
+                );
             }
         }
 
         return (
             <div>
+                {navBar}
                 {callBox}
                 {videoBox}
                 {localMedia}

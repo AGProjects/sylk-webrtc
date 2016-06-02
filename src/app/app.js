@@ -121,10 +121,17 @@ let Blink = React.createClass({
         DEBUG('Registration state changed! ' + newState);
         this.setState({registrationState: newState});
         if (newState === 'failed') {
+            let reason = data.reason;
+            if (reason.match(/904/)) {
+                // Sofia SIP: WAT
+                reason = 'Bad account or password';
+            } else {
+                reason = 'Connection failed';
+            }
             this.setState({
                 loading     : false,
                 status      : {
-                    msg   : 'Sign In failed: ' + data.reason,
+                    msg   : 'Sign In failed: ' + reason,
                     level : 'danger'
                 }
             });

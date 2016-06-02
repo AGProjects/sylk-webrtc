@@ -9,6 +9,10 @@
     font-size: 16px;
 }
 
+.modal {
+    z-index: 9999 !important;
+}
+
 /*
  * Modal colors, text should not be white
  */

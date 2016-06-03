@@ -1,3 +1,6 @@
+'use strict';
+
+
 function normalizeUri(uri, defaultDomain) {
     let targetUri = uri;
     let idx = targetUri.indexOf('@');
@@ -13,5 +16,6 @@ function normalizeUri(uri, defaultDomain) {
     username = username.replace(/[\s()-]/g, '');
     return `${username}@${domain}`;
 }
+
 
 exports.normalizeUri = normalizeUri;

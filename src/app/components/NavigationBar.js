@@ -41,6 +41,8 @@ const NavigationBar = (props) => {
             timers.setImmediate(() => {
                 navigate('/logout');
             });
+        } else if (event === 'about') {
+            props.showAbout();
         }
     };
 
@@ -98,6 +100,7 @@ const NavigationBar = (props) => {
                     <MenuItem divider />
                     {settingsItem}
                     <MenuItem eventKey="logOut"><i className="fa fa-sign-out"></i> Sign Out</MenuItem>
+                    <MenuItem eventKey="about"><i className="fa fa-info-circle"></i> About</MenuItem>
                 </DropdownButton>
             </ButtonToolbar>
         </Navbar>
@@ -106,7 +109,9 @@ const NavigationBar = (props) => {
 
 NavigationBar.propTypes = {
     account: React.PropTypes.object.isRequired,
-    guestMode : React.PropTypes.bool.isRequired
+    guestMode : React.PropTypes.bool.isRequired,
+    notifications: React.PropTypes.object.isRequired,
+    showAbout : React.PropTypes.func.isRequired
 };
 
 

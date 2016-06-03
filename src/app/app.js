@@ -17,6 +17,7 @@ const AudioPlayer       = require('./components/AudioPlayer');
 const ErrorPanel        = require('./components/ErrorPanel');
 const FooterBox         = require('./components/FooterBox');
 const StatusBox         = require('./components/StatusBox');
+const AboutModal        = require('./components/AboutModal');
 const IncomingCallModal = require('./components/IncomingModal');
 const Notifications     = require('./components/Notifications');
 const LoadingScreen     = require('./components/LoadingScreen');
@@ -53,6 +54,7 @@ let Blink = React.createClass({
             connection: null,
             connectionState: null,
             inboundCall: null,
+            showAboutModal: false,
             showIncomingModal: false,
             status: null,
             targetUri: '',
@@ -454,6 +456,14 @@ let Blink = React.createClass({
         }
     },
 
+    showAboutModal: function() {
+        this.setState({showAboutModal: true});
+    },
+
+    closeAboutModal: function() {
+        this.setState({showAboutModal: false});
+    },
+
     render: function() {
         let loadingScreen;
         let footerBox = <FooterBox />;
@@ -482,6 +492,7 @@ let Blink = React.createClass({
             {footerBox}
             <Notifications ref="notifications" />
             <IncomingCallModal call={this.state.inboundCall} show={this.state.showIncomingModal} onAnswer={this.answerCall} onHide={this.rejectCall} />
+            <AboutModal show={this.state.showAboutModal} close={this.closeAboutModal} />
             </div>
         );
     },
@@ -549,6 +560,7 @@ let Blink = React.createClass({
                     <NavigationBar
                         account={this.state.account}
                         guestMode={this.state.guestMode}
+                        showAbout={this.showAboutModal}
                         notifications={this.refs.notifications}
                     />
                 );

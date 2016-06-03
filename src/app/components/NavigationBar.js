@@ -16,6 +16,8 @@ const navigate       = Router.navigate;
 const timers         = require('timers');
 const Clipboard      = require('clipboard');
 
+const config = require('../config');
+
 
 const NavigationBar = (props) => {
     let settingsItem;
@@ -49,7 +51,12 @@ const NavigationBar = (props) => {
     let shareButton;
     if (!props.guestMode) {
         const clipboard = new Clipboard('.btn');
-        const callUrl = `${window.location.origin}/#!/call/${props.account.id}`;
+        let callUrl;
+        if (window.location.origin.startsWith('file://')) {
+            callUrl = `${config.publicUrl}/#!/call/${props.account.id}`;
+        } else {
+            callUrl = `${window.location.origin}/#!/call/${props.account.id}`;
+        }
         const shareOverlay = (
             <Popover id="shareOverlay" title="Call me, maybe?">
                 Share <strong><a href={callUrl}>this link</a></strong> with others so they can easily call ypu.

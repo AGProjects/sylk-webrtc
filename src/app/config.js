@@ -5,6 +5,7 @@ const defaultDomain = 'sip2sip.info';
 const configOptions = {
     defaultDomain           : defaultDomain,
     enrollmentDomain        : defaultDomain,
+    publicUrl               : 'https://webrtc.sipthor.net',
     enrollmentUrl           : 'https://blink.sipthor.net/enrollment-webrtc.phtml',
     defaultConferenceDomain : `conference.${defaultDomain}`,
     defaultGuestDomain      : `guest.${defaultDomain}`,

@@ -61,7 +61,7 @@ const NavigationBar = (props) => {
         }
         const shareOverlay = (
             <Popover id="shareOverlay" title="Call me, maybe?">
-                Share <strong><a href={callUrl}>this link</a></strong> with others so they can easily call ypu.
+                Share <strong><a href={callUrl}>this link</a></strong> with others so they can easily call you.
                 <div className="text-center">
                     <button className="btn btn-link" onClick={handleClipboardButton} data-clipboard-text={callUrl}>
                         <strong>Copy to clipboard</strong>

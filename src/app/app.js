@@ -218,7 +218,7 @@ let Blink = React.createClass({
             accountId : accountId,
             password  : '',
             guestMode : true,
-            targetUri : utils.normalizeUri(targetUri, ''),
+            targetUri : utils.normalizeUri(targetUri, config.defaultDomain),
             callByUri : 'init',
             loading   : true
         });

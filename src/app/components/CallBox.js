@@ -4,6 +4,7 @@ const React          = require('react');
 const classNames     = require('classnames');
 
 const ConferenceModal = require('./ConferenceModal')
+const config          = require('../config');
 const utils           = require('../utils');
 
 
@@ -32,8 +33,13 @@ class CallBox extends React.Component {
     }
 
     getTargetUri() {
-        let domain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
-        return utils.normalizeUri(this.state.targetUri, domain);
+        let defaultDomain;
+        if (this.props.guestMode) {
+            defaultDomain = config.defaultDomain;
+        } else {
+            defaultDomain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
+        }
+        return utils.normalizeUri(this.state.targetUri, defaultDomain);
     }
 
     handleTargetChange(event) {

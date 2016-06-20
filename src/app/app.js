@@ -196,15 +196,21 @@ let Blink = React.createClass({
             }
         }
 
-        if (newState === 'progress') {
-            this.refs.audioPlayerOutbound.play(true);
-        } else if (newState === 'accepted') {
-            this.refs.audioPlayerOutbound.stop();
-            this.refs.audioPlayerInbound.stop();
-        } else if ((oldState === 'progress' || oldState === 'incoming' || oldState === 'established') && newState === 'terminated') {
-            this.refs.audioPlayerOutbound.stop();
-            this.refs.audioPlayerInbound.stop();
-            this.refs.audioPlayerHangup.play();
+        switch (newState) {
+            case 'progress':
+                this.refs.audioPlayerOutbound.play(true);
+                break;
+            case 'accepted':
+                this.refs.audioPlayerOutbound.stop();
+                this.refs.audioPlayerInbound.stop();
+                break;
+            case 'terminated':
+                this.refs.audioPlayerOutbound.stop();
+                this.refs.audioPlayerInbound.stop();
+                this.refs.audioPlayerHangup.play();
+                break;
+            default:
+                break;
         }
     },
 

@@ -299,7 +299,7 @@ html,body { overflow: hidden; }
     border: 2px solid #ffffff;
 }
 
-.video-started {
+.call-buttons {
     position: absolute;
     bottom: 0px !important;
     padding-bottom: 35px;

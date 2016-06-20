@@ -8,7 +8,7 @@ const config          = require('../config');
 const utils           = require('../utils');
 
 
-class CallBox extends React.Component {
+class ReadyBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -25,11 +25,9 @@ class CallBox extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.callState !== 'init') {
-            this.setState({
-                targetUri: nextProps.targetUri
-            });
-        }
+        this.setState({
+            targetUri: nextProps.targetUri
+        });
     }
 
     getTargetUri() {
@@ -75,7 +73,7 @@ class CallBox extends React.Component {
     }
 
     render() {
-        let classes = classNames({
+        const classes = classNames({
             'btn'           : true,
             'btn-round-big' : true,
             'btn-success'   : this.state.targetUri.length !== 0,
@@ -92,7 +90,6 @@ class CallBox extends React.Component {
                                 <input type="text" list="historyList" id="inputDestination" className="form-control input-lg"
                                     onChange={this.handleTargetChange}
                                     value={this.state.targetUri}
-                                    disabled={this.props.callState === 'init'}
                                     autoCapitalize="off"
                                     autoCorrect="off"
                                     required
@@ -107,9 +104,9 @@ class CallBox extends React.Component {
                                 </datalist>
                             </div>
                             <div className="form-group">
-                                <button type="button" className={classes} disabled={this.state.targetUri.length === 0 || this.props.callState === 'init'} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
-                                <button type="submit" className={classes} disabled={this.state.targetUri.length === 0 || this.props.callState === 'init'} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
-                                <button type="button" className="btn btn-primary btn-round-big" disabled={this.props.callState === 'init'} onClick={this.showConferenceModal}><i className="fa fa-users"></i></button>
+                                <button type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
+                                <button type="submit" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
+                                <button type="button" className="btn btn-primary btn-round-big" onClick={this.showConferenceModal}><i className="fa fa-users"></i></button>
                             </div>
                         </form>
                     </div>
@@ -124,9 +121,8 @@ class CallBox extends React.Component {
     }
 }
 
-CallBox.propTypes = {
+ReadyBox.propTypes = {
     account        : React.PropTypes.object.isRequired,
-    callState      : React.PropTypes.string,
     guestMode      : React.PropTypes.bool,
     startAudioCall : React.PropTypes.func.isRequired,
     startVideoCall : React.PropTypes.func.isRequired,
@@ -135,4 +131,4 @@ CallBox.propTypes = {
 };
 
 
-module.exports = CallBox;
+module.exports = ReadyBox;

@@ -1,9 +1,10 @@
 'use strict';
 
-const React  = require('react');
+const React      = require('react');
 const classNames = require('classnames');
 
 const Logo       = require('./Logo');
+const Call       = require('./Call');
 const config     = require('../config');
 
 
@@ -33,6 +34,7 @@ class CallByUriBox extends React.Component {
         let validInput = this.state.accountId !== '';
         let defaultContent;
         let thanksContent;
+        let call;
 
         let classes = classNames({
             'capitalize' : true,
@@ -43,7 +45,16 @@ class CallByUriBox extends React.Component {
             'btn-primary': this.state.accountId !== ''
         });
 
-        if (this.props.callByUri !== 'finished') {
+        if (this.props.localMedia !== null) {
+            call = (
+                <Call
+                    localMedia = {this.props.localMedia}
+                    account = {this.props.account}
+                    currentCall = {this.props.currentCall}
+                    targetUri = {this.props.targetUri}
+                />
+            );
+        } else if (this.props.callByUriState !== 'finished') {
             defaultContent = (
                 <div>
                     <h2>You've been invited to call<br/><strong>{this.props.targetUri}</strong></h2>
@@ -54,14 +65,13 @@ class CallByUriBox extends React.Component {
                             <input id="inputName"
                                 className="form-control"
                                 placeholder="Enter your name"
-                                disabled={this.props.callState === 'init'}
                                 value={this.state.accountId}
                                 onChange={this.handleAccountIdChange}
                                 required
                                 autoFocus
                             />
                         </div>
-                        <button type="submit" className={classes} disabled={this.props.callState === 'init' || !validInput}><i className="fa fa-video-camera"></i> Call</button>
+                        <button type="submit" className={classes} disabled={!validInput}><i className="fa fa-video-camera"></i> Call</button>
                     </form>
                 </div>
             );
@@ -77,6 +87,7 @@ class CallByUriBox extends React.Component {
         return (
             <div className="cover-container">
                 <div className="inner cover" >
+                    {call}
                     {defaultContent}
                     {thanksContent}
                 </div>
@@ -88,8 +99,10 @@ class CallByUriBox extends React.Component {
 CallByUriBox.propTypes = {
     handleCallByUri : React.PropTypes.func.isRequired,
     targetUri       : React.PropTypes.string,
-    callState       : React.PropTypes.string,
-    callByUri       : React.PropTypes.string
+    callByUriState  : React.PropTypes.string,
+    localMedia      : React.PropTypes.object,
+    account         : React.PropTypes.object,
+    currentCall     : React.PropTypes.object
 };
 
 

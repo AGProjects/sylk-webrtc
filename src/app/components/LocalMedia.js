@@ -1,49 +1,43 @@
 'use strict';
 
-const React                     = require('react');
-const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
-const rtcninja                  = require('sylkrtc').rtcninja;
-const classNames                = require('classnames');
-const debug                     = require('debug');
-
-const AudioCallBox = require('./AudioCallBox');
-
-const DEBUG = debug('blinkrtc:LocalMedia');
+const React                   = require('react');
+const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
+const rtcninja                = require('sylkrtc').rtcninja;
+const classNames              = require('classnames');
 
 
 class LocalMedia extends React.Component {
     constructor(props) {
         super(props);
-        if (this.props.localMedia.getVideoTracks().length === 0) {
-            DEBUG('Sending audio only');
-            this.state = {audioOnly: true};
-        } else {
-            this.state = {audioOnly: false};
-        }
+
         // ES6 classes no longer autobind
         this.hangupCall = this.hangupCall.bind(this);
+        this.localVideoElementPlaying = this.localVideoElementPlaying.bind(this);
+
     }
 
     componentDidMount() {
-        if (!this.state.audioOnly) {
-            this.refs.localVideo.addEventListener('loadeddata', this.showLocalVideoElement);
-            this.refs.localVideo.oncontextmenu = function(e) {
-                // disable right click for video elements
-                e.preventDefault();
-            };
-            rtcninja.attachMediaStream(this.refs.localVideo, this.props.localMedia);
-        }
+        this.refs.localVideo.addEventListener('playing', this.localVideoElementPlaying);
+        this.refs.localVideo.oncontextmenu = function(e) {
+            // disable right click for video elements
+            e.preventDefault();
+        };
+        rtcninja.attachMediaStream(this.refs.localVideo, this.props.localMedia);
+
     }
 
     componentWillUnmount() {
-        if (!this.state.audioOnly) {
-            this.refs.localVideo.removeEventListener('loadeddata', this.showLocalVideoElement);
-        }
+        this.refs.localVideo.removeEventListener('playing', this.localVideoElementPlaying);
+    }
+
+    localVideoElementPlaying() {
+        this.refs.localVideo.removeEventListener('playing', this.localVideoElementPlaying);
+        this.props.mediaPlaying();
     }
 
     hangupCall(event) {
         event.preventDefault();
-        this.props.call.terminate();
+        this.props.hangupCall();
     }
 
     render() {
@@ -54,34 +48,21 @@ class LocalMedia extends React.Component {
             'mirror'   : true
         });
 
-        let localVideo;
-        if (!this.state.audioOnly) {
-            localVideo  = <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted/>;
-        }
-
-        let remoteIdentity = '';
-        if (this.props.call !== null) {
-            remoteIdentity = this.props.call.remoteIdentity.toString();
-        }
+        const localVideo  = <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted/>;
+        const remoteIdentity = this.props.remoteIdentity;
 
         let videoHeader;
-
-        let buttonBarClasses = classNames({
-            'video-started' : !this.state.audioOnly
-        });
 
         let videoHeaderTextClasses = classNames({
             'lead'      : true,
             'text-info' : true
         });
 
-        if (!this.state.audioOnly) {
-            videoHeader = (
-                <div key="header" className="video-header">
-                    <p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p>
-                </div>
-            );
-        }
+        videoHeader = (
+            <div key="header" className="video-header">
+                <p className={videoHeaderTextClasses}><strong>Connecting to</strong> {remoteIdentity}</p>
+            </div>
+        );
 
         let hangupButton = <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>;
 
@@ -91,10 +72,7 @@ class LocalMedia extends React.Component {
                     {videoHeader}
                 </ReactCSSTransitionGroup>
                 {localVideo}
-                {this.state.audioOnly && (
-                    <AudioCallBox remoteIdentity={remoteIdentity} boxBsClass="info"/>
-                )}
-                <div className={buttonBarClasses}>
+                <div className="call-buttons">
                     {hangupButton}
                 </div>
             </div>
@@ -103,8 +81,10 @@ class LocalMedia extends React.Component {
 }
 
 LocalMedia.propTypes = {
-    call: React.PropTypes.object,
-    localMedia: React.PropTypes.object
+    hangupCall: React.PropTypes.func,
+    localMedia: React.PropTypes.object.isRequired,
+    mediaPlaying: React.PropTypes.func.isRequired,
+    remoteIdentity: React.PropTypes.string
 };
 
 

@@ -5,14 +5,12 @@ const ReactDOM  = require('react-dom');
 const Router    = require('react-mini-router');
 const navigate  = Router.navigate;
 const sylkrtc   = require('sylkrtc');
-const assert    = require('assert');
 const debug     = require('debug');
 
 const RegisterBox       = require('./components/RegisterBox');
-const CallBox           = require('./components/CallBox');
+const ReadyBox          = require('./components/ReadyBox');
+const Call              = require('./components/Call');
 const CallByUriBox      = require('./components/CallByUriBox');
-const LocalMedia        = require('./components/LocalMedia');
-const VideoBox          = require('./components/VideoBox');
 const AudioPlayer       = require('./components/AudioPlayer');
 const ErrorPanel        = require('./components/ErrorPanel');
 const FooterBox         = require('./components/FooterBox');
@@ -38,6 +36,7 @@ let Blink = React.createClass({
         '/': 'main',
         '/login': 'login',
         '/logout': 'logout',
+        '/ready': 'ready',
         '/call': 'call',
         '/call/:targetUri' : 'callByUri',
         '/not-supported': 'notSupported'
@@ -50,7 +49,6 @@ let Blink = React.createClass({
             account: null,
             registrationState: null,
             currentCall: null,
-            callState: '',
             connection: null,
             connectionState: null,
             inboundCall: null,
@@ -58,12 +56,12 @@ let Blink = React.createClass({
             showIncomingModal: false,
             status: null,
             targetUri: '',
-            loading: false,
+            loading: null,
             guestMode: false,
-            callByUri: null,
+            callByUriState: null,
             localMedia: null,
             history: [],
-            historyLoaded: false,
+            historyLoaded: false
         };
     },
 
@@ -71,17 +69,18 @@ let Blink = React.createClass({
         if (!sylkrtc.rtcninja.hasWebRTC()) {
             window.location.hash = '#!/not-supported';
         }
+        // We wont hit any other path here, since other paths are handled by the webserver
         if(this.state.path === '/') {
             window.location.hash = '#!/login';
         }
     },
 
-    componentWillUpdate: function(nextProps, nextState) {
-        // This id used to catch location bar modifications, we only switch on nextProps
+    shouldComponentUpdate: function (nextProps, nextState) {
+        // This is used to catch location bar modifications, we only switch on nextProps
         if (this.state.path !== nextState.path) {
             if (!sylkrtc.rtcninja.hasWebRTC()) {
                 navigate('/not-supported');
-                return;
+                return false;
             }
 
             if ((nextState.path === '/login' || nextState.path === '/') && this.state.registrationState === 'registered') {
@@ -90,14 +89,23 @@ let Blink = React.createClass({
                 if (this.state.currentCall !== null) {
                     this.state.currentCall.terminate();
                 }
-
-                navigate('/call');
-                return;
-            } else if (nextState.path === '/' && this.state.registrationState !== 'registered') {
+                navigate('/ready');
+                return false ;
+            } else if (nextState.path === '/call' && this.state.localMedia === null && this.state.registrationState === 'registered') {
+                navigate('/ready')
+                return false;
+            } else if ((nextState.path === '/' || nextState.path === '/call' || nextState.path.startsWith('/ready')) && this.state.registrationState !== 'registered') {
                 navigate('/login');
-                return;
+                return false;
+
+            // Terminate call if we modify url from call -> ready, allow the transition
+            } else if (nextState.path === '/ready' && this.state.path === '/call' && this.state.registrationState === 'registered') {
+                if (this.state.currentCall !== null) {
+                    this.state.currentCall.terminate();
+                }
             }
         }
+        return true;
     },
 
     connectionStateChanged: function(oldState, newState) {
@@ -111,10 +119,10 @@ let Blink = React.createClass({
                 this.processRegistration(this.state.accountId, this.state.password, this.state.guestMode);
                 break;
             case 'disconnected':
-                this.setState({account:null, registrationState: null, loading: true, currentCall: null});
+                this.setState({account:null, registrationState: null, loading: 'Disconnected, reconnecting...', currentCall: null});
                 break;
             default:
-                this.setState({connectionState: newState, loading: true});
+                this.setState({connectionState: newState, loading: 'Connecting...'});
                 break;
         }
     },
@@ -131,16 +139,16 @@ let Blink = React.createClass({
                 reason = 'Connection failed';
             }
             this.setState({
-                loading     : false,
+                loading     : null,
                 status      : {
                     msg   : 'Sign In failed: ' + reason,
                     level : 'danger'
                 }
             });
         } else if (newState === 'registered') {
-            this.setState({loading: false});
+            this.setState({loading: null});
             this.refs.notifications.postNotification('success',this.state.accountId + ' signed in','Ready to receive calls');
-            navigate('/call');
+            navigate('/ready');
             return;
         } else {
             this.setState({status: null });
@@ -149,7 +157,6 @@ let Blink = React.createClass({
 
     callStateChanged: function(oldState, newState, data) {
         DEBUG('Call state changed! ' + newState);
-        this.setState({callState: newState});
 
         if (newState === 'terminated') {
             let reason = data.reason;
@@ -178,21 +185,34 @@ let Blink = React.createClass({
                 reason = 'Connection failed';
             }
             this.refs.notifications.postNotification('info', 'Call Terminated', reason);
+
+            let targetUri = '';
+            if (!callSuccesfull) {
+                targetUri = this.state.targetUri;
+            }
+
             this.setState({
                 currentCall         : null,
-                callState           : null,
-                targetUri           : '',
+                targetUri           : targetUri,
                 showIncomingModal   : false,
                 inboundCall         : null,
                 localMedia          : null
             });
 
-            if (callSuccesfull && this.state.callByUri !== null) {
+            if (callSuccesfull && this.state.callByUriState !== null) {
                 this.state.connection.removeListener('stateChanged', this.connectionStateChanged);
                 this.state.connection.close();
                 let newState = this.getInitialState();
-                newState.callByUri = 'finished';
+                newState.callByUriState = 'finished';
                 this.setState(newState);
+            } else if (this.state.callByUriState !== null) {
+                this.state.connection.removeListener('stateChanged', this.connectionStateChanged);
+                this.state.connection.close();
+                let newState = this.getInitialState();
+                newState.callByUriState = 'failed';
+                this.setState(newState);
+            } else {
+                navigate('/ready');
             }
         }
 
@@ -223,12 +243,12 @@ let Blink = React.createClass({
 
     handleCallByUri: function(accountId, targetUri) {
         this.setState({
-            accountId : accountId,
-            password  : '',
-            guestMode : true,
-            targetUri : utils.normalizeUri(targetUri, config.defaultDomain),
-            callByUri : 'init',
-            loading   : true
+            accountId      : accountId,
+            password       : '',
+            guestMode      : true,
+            targetUri      : utils.normalizeUri(targetUri, config.defaultDomain),
+            callByUriState : 'init',
+            loading        : 'Connecting...'
         });
 
         if (this.state.connection === null) {
@@ -247,7 +267,7 @@ let Blink = React.createClass({
             accountId : accountId,
             password  : password,
             guestMode : guestMode,
-            loading   : true
+            loading   : 'Connecting...'
         });
 
         if (this.state.connection === null) {
@@ -277,6 +297,7 @@ let Blink = React.createClass({
         let account = this.state.connection.addAccount(options, (error, account) => {
             if (!error) {
                 this.loadCallHistory();
+                account.on('outgoingCall', this.outgoingCall);
                 if (!this.state.guestMode) {
                     account.on('registrationStateChanged', this.registrationStateChanged);
                     account.on('incomingCall', this.incomingCall);
@@ -284,10 +305,10 @@ let Blink = React.createClass({
                     this.setState({account: account});
                     this.toggleRegister();
                 } else {
-                    this.setState({account: account, loading: false, registrationState: 'registered'});
+                    this.setState({account: account, loading: null, registrationState: 'registered'});
                     this.refs.notifications.postNotification('success', accountId + ' signed in');
-                    if (this.state.callByUri === null) {
-                        navigate('/call');
+                    if (this.state.callByUriState === null) {
+                        navigate('/ready');
                         return;
                     }
                     this.startVideoCall(this.state.targetUri);
@@ -295,7 +316,7 @@ let Blink = React.createClass({
                 }
             } else {
                 DEBUG('Add account error: ' + error);
-                this.setState({loading: false, status: {msg: error.message, level:'danger'}});
+                this.setState({loading: null, status: {msg: error.message, level:'danger'}});
             }
         });
     },
@@ -316,62 +337,41 @@ let Blink = React.createClass({
         }
     },
 
-    armMediaTimer: function() {
-        clearTimeout(this.statusTimer);
-        this.mediaTimer = setTimeout(() => {
-            this.setState({status : { msg: 'Please allow access to your media devices', level: 'info'}});
-        }, 5000);
-    },
-
-    getLocalMedia: function(targetUri, mediaConstraints) {
+    getLocalMedia: function(mediaConstraints) {
         let self = this;
-        this.mediaTimer = null;
+        this.loadScreenTimer = setTimeout(() => {
+            this.setState({loading: 'Please allow access to your media devices'});
+        }, 150);
+
         mediaConstraints = mediaConstraints || {audio:true, video:true };
+
         sylkrtc.rtcninja.getUserMedia(mediaConstraints, function(localStream) {
-            clearTimeout(self.mediaTimer);
-            self.setState({status: null, localMedia: localStream});
-            // Assumes when state.currentCall is present, we need to answer
-            if (self.state.currentCall !== null) {
-                let options = {pcConfig: {iceServers: config.iceServers}};
-                options.localStream = localStream;
-                self.state.currentCall.answer(options);
-            } else {
-                self.startCall(targetUri, localStream);
+            clearTimeout(self.loadScreenTimer);
+            self.setState({status: null, loading: null, localMedia: localStream});
+            if (self.state.callByUriState === null) {
+                navigate('/call');
             }
         }, this.userMediaFailed);
-        this.armMediaTimer();
     },
 
     userMediaFailed: function() {
-        clearTimeout(this.mediaTimer);
+        clearTimeout(this.loadScreenTimer);
         this.refs.notifications.postNotification('error', 'Access to media failed', '', 10);
         this.setState({
-            status    : null,
-            callState : null,
-            targetUri : ''
+            loading: null
         });
     },
 
     startAudioCall: function(targetUri) {
-        this.setState({callState: 'init'});
+        this.setState({targetUri: targetUri});
         this.addCallHistoryEntry(targetUri);
-        this.getLocalMedia(targetUri,{audio: true, video: false});
+        this.getLocalMedia({audio: true, video: false});
     },
 
     startVideoCall: function(targetUri) {
-        this.setState({callState: 'init'});
+        this.setState({targetUri: targetUri});
         this.addCallHistoryEntry(targetUri);
-        this.getLocalMedia(targetUri, {audio: true, video: true});
-    },
-
-    startCall: function(targetUri, localStream) {
-        assert(this.state.currentCall == null, 'currentCall is not null');
-        this.addCallHistoryEntry(targetUri);
-        let options = {pcConfig: {iceServers: config.iceServers}};
-        options.localStream = localStream;
-        let call = this.state.account.call(targetUri, options);
-        call.on('stateChanged', this.callStateChanged);
-        this.setState({currentCall: call, targetUri:''});
+        this.getLocalMedia({audio: true, video: true});
     },
 
     answerCall: function() {
@@ -379,13 +379,18 @@ let Blink = React.createClass({
         if (this.state.inboundCall !== this.state.currentCall) {
             this.switchToIncomingCall(this.state.inboundCall);
         } else {
-            this.getLocalMedia('',this.state.currentCall.mediaTypes);
+            this.getLocalMedia(this.state.currentCall.mediaTypes);
         }
     },
 
     rejectCall: function() {
         this.setState({showIncomingModal: false});
         this.state.inboundCall.terminate();
+    },
+
+    outgoingCall: function(call) {
+        call.on('stateChanged', this.callStateChanged);
+        this.setState({currentCall: call});
     },
 
     incomingCall: function(call, mediaTypes) {
@@ -411,20 +416,21 @@ let Blink = React.createClass({
     switchToMissedCall: function(targetUri) {
         if (this.state.currentCall !== null) {
             this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
-            this.setState({currentCall: null, callState: null, targetUri: targetUri, showIncomingModal: false, localMedia: null});
+            this.setState({currentCall: null, targetUri: targetUri, showIncomingModal: false, localMedia: null});
             this.state.currentCall.terminate();
         } else {
-            this.setState({ targetUri: targetUri});
+            this.setState({targetUri: targetUri});
         }
+        navigate('/ready');
     },
 
     switchToIncomingCall: function(call) {
         this.state.inboundCall.removeListener('stateChanged', this.inboundCallStateChanged);
         this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
         this.state.currentCall.terminate();
-        this.setState({currentCall: call, callState: call.state, inboundCall: null, localMedia: null});
+        this.setState({currentCall: call, inboundCall: null, localMedia: null});
         call.on('stateChanged', this.callStateChanged);
-        this.getLocalMedia('',call.mediaTypes);
+        this.getLocalMedia(call.mediaTypes);
     },
 
     missedCall: function(data) {
@@ -474,31 +480,41 @@ let Blink = React.createClass({
         let loadingScreen;
         let footerBox = <FooterBox />;
 
-        if (this.state.loading) {
-            loadingScreen = <LoadingScreen/>;
+        if (this.state.loading !== null) {
+            loadingScreen = <LoadingScreen text={this.state.loading} />;
         }
 
         if (this.state.localMedia) {
-            if (this.state.localMedia.getVideoTracks().length === 1) {
                 footerBox = '';
-            }
         }
 
-        // Prevent call screen when not registered
+        // Prevent call/ready screen when not registered
 
-        if ((this.state.path === '/call' || this.state.path === '/call/') && this.state.registrationState !== 'registered') {
+        if ((this.state.path.startsWith('/ready') || this.state.path === '/call') && this.state.registrationState !== 'registered') {
             navigate('/login');
             return (<div></div>);
         }
 
+        const audioPlayers = (<div>
+                            <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav" />
+                            <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav" />
+                            <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
+                        </div>);
+
         return (
             <div>
-            {this.renderCurrentRoute()}
-            {loadingScreen}
-            {footerBox}
-            <Notifications ref="notifications" />
-            <IncomingCallModal call={this.state.inboundCall} show={this.state.showIncomingModal} onAnswer={this.answerCall} onHide={this.rejectCall} />
-            <AboutModal show={this.state.showAboutModal} close={this.closeAboutModal} />
+                {this.renderCurrentRoute()}
+                {loadingScreen}
+                {footerBox}
+                {audioPlayers}
+                <Notifications ref="notifications" />
+                <IncomingCallModal
+                    call = {this.state.inboundCall}
+                    show = {this.state.showIncomingModal}
+                    onAnswer = {this.answerCall}
+                    onHide = {this.rejectCall}
+                />
+                <AboutModal show={this.state.showAboutModal} close={this.closeAboutModal} />
             </div>
         );
     },
@@ -526,109 +542,48 @@ let Blink = React.createClass({
         return <div><StatusBox {...status} /></div>;
     },
 
-    call: function() {
-        let statusBox;
-        let callBox;
-        let videoBox;
-        let localMedia;
-        let audioPlayers;
-        let navBar;
-
-        if (this.state.status !== null) {
-            statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.level} />;
-        }
-
-        audioPlayers = (<div>
-                            <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav"/>
-                            <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav"/>
-                            <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
-                        </div>);
-        if (this.state.localMedia !== null) {
-            if (this.state.callState === 'established') {
-                videoBox = <VideoBox call={this.state.currentCall} localMedia={this.state.localMedia}/>;
-            } else {
-                localMedia = <LocalMedia call={this.state.currentCall} localMedia={this.state.localMedia}/>;
-            }
-        } else {
-            if (this.state.status === null) {
-                callBox = (
-                    <CallBox
-                        account   = {this.state.account}
-                        startAudioCall = {this.startAudioCall}
-                        startVideoCall = {this.startVideoCall}
-                        targetUri = {this.state.targetUri}
-                        guestMode = {this.state.guestMode}
-                        callState = {this.state.callState}
-                        history = {this.state.history}
-                    />
-                );
-                navBar = (
-                    <NavigationBar
-                        account={this.state.account}
-                        guestMode={this.state.guestMode}
-                        showAbout={this.showAboutModal}
-                        notifications={this.refs.notifications}
-                    />
-                );
-            }
-        }
-
+    ready: function() {
         return (
             <div>
-                {navBar}
-                {callBox}
-                {videoBox}
-                {localMedia}
-                {audioPlayers}
-                {statusBox}
+                <NavigationBar
+                    account={this.state.account}
+                    guestMode={this.state.guestMode}
+                    showAbout={this.showAboutModal}
+                    notifications={this.refs.notifications}
+                />
+                <ReadyBox
+                    account   = {this.state.account}
+                    startAudioCall = {this.startAudioCall}
+                    startVideoCall = {this.startVideoCall}
+                    targetUri = {this.state.targetUri}
+                    guestMode = {this.state.guestMode}
+                    history = {this.state.history}
+                />
             </div>
         );
     },
 
-    callByUri: function(targetUri) {
-        let statusBox;
-        let callByUriBox;
-        let audioPlayers;
-        let videoBox;
-        let localMedia;
-
-        if (this.state.status !== null) {
-            statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.level} />;
-        }
-
-        audioPlayers = (<div>
-                            <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav"/>
-                            <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav"/>
-                            <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
-                        </div>);
-
-        if (this.state.localMedia !== null) {
-            if (this.state.callState === 'established') {
-                videoBox = <VideoBox call={this.state.currentCall} localMedia={this.state.localMedia}/>;
-            } else {
-                localMedia = <LocalMedia call={this.state.currentCall} localMedia={this.state.localMedia}/>;
-            }
-        } else {
-            if (this.state.status === null) {
-                callByUriBox = (
-                    <CallByUriBox
-                        handleCallByUri = {this.handleCallByUri}
-                        targetUri = {targetUri}
-                        callState = {this.state.callState}
-                        callByUri = {this.state.callByUri}
-                    />
-                );
-            }
-        }
-
+    call: function() {
         return (
-            <div>
-                {callByUriBox}
-                {videoBox}
-                {localMedia}
-                {audioPlayers}
-                {statusBox}
-            </div>
+                <Call
+                    localMedia = {this.state.localMedia}
+                    account = {this.state.account}
+                    targetUri = {this.state.targetUri}
+                    currentCall = {this.state.currentCall}
+                />
+        )
+    },
+
+    callByUri: function(targetUri) {
+        return (
+                <CallByUriBox
+                    handleCallByUri = {this.handleCallByUri}
+                    targetUri = {targetUri}
+                    callByUriState = {this.state.callByUriState}
+                    localMedia = {this.state.localMedia}
+                    account = {this.state.account}
+                    currentCall = {this.state.currentCall}
+                />
         );
     },
 

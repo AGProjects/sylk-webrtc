@@ -21,7 +21,6 @@ class ReadyBox extends React.Component {
         this.handleVideoCall = this.handleVideoCall.bind(this);
         this.showConferenceModal = this.showConferenceModal.bind(this);
         this.handleConferenceCall = this.handleConferenceCall.bind(this);
-        this.handleDropdownChange = this.handleDropdownChange.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -64,12 +63,6 @@ class ReadyBox extends React.Component {
         if (targetUri) {
             this.props.startAudioCall(targetUri);
         }
-    }
-
-    handleDropdownChange(event) {
-        let elem = document.getElementById('inputDestination');
-        elem.focus();
-        this.setState({targetUri: event.target.value});
     }
 
     render() {

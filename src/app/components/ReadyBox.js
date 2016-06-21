@@ -3,7 +3,8 @@
 const React          = require('react');
 const classNames     = require('classnames');
 
-const ConferenceModal = require('./ConferenceModal')
+const ConferenceModal = require('./ConferenceModal');
+const URIInput       = require('./URIInput');
 const config          = require('../config');
 const utils           = require('../utils');
 
@@ -79,23 +80,12 @@ class ReadyBox extends React.Component {
                     <div className="inner cover">
                         <form className="form-dial" name="DialForm">
                             <p className="lead">Enter the address you wish to call</p>
-                            <div className="form-group">
-                                <input type="text" list="historyList" id="inputDestination" className="form-control input-lg"
-                                    onChange={this.handleTargetChange}
-                                    value={this.state.targetUri}
-                                    autoCapitalize="off"
-                                    autoCorrect="off"
-                                    required
-                                    autoFocus
-                                />
-                                <datalist id="historyList">
-                                {
-                                    this.props.history.map((item, idx) => {
-                                        return <option key={idx} value={item}>{item}</option>;
-                                    })
-                                }
-                                </datalist>
-                            </div>
+                            <URIInput
+                                value={this.state.targetUri}
+                                data={this.props.history}
+                                onChange={this.handleTargetChange}
+                                autoFocus={true}
+                            />
                             <div className="form-group">
                                 <button type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
                                 <button type="submit" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>

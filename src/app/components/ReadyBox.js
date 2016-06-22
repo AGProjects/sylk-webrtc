@@ -18,6 +18,7 @@ class ReadyBox extends React.Component {
         };
         // ES6 classes no longer autobind
         this.handleTargetChange = this.handleTargetChange.bind(this);
+        this.handleTargetSelect = this.handleTargetSelect.bind(this);
         this.handleAudioCall = this.handleAudioCall.bind(this);
         this.handleVideoCall = this.handleVideoCall.bind(this);
         this.showConferenceModal = this.showConferenceModal.bind(this);
@@ -40,8 +41,13 @@ class ReadyBox extends React.Component {
         return utils.normalizeUri(this.state.targetUri, defaultDomain);
     }
 
-    handleTargetChange(event) {
-        this.setState({targetUri: event.target.value});
+    handleTargetChange(value) {
+        this.setState({targetUri: value});
+    }
+
+    handleTargetSelect() {
+        // the user pressed enter, start a video call by default
+        this.props.startVideoCall(this.getTargetUri());
     }
 
     handleAudioCall(event) {
@@ -81,14 +87,15 @@ class ReadyBox extends React.Component {
                         <form className="form-dial" name="DialForm">
                             <p className="lead">Enter the address you wish to call</p>
                             <URIInput
-                                value={this.state.targetUri}
+                                defaultValue={this.state.targetUri}
                                 data={this.props.history}
                                 onChange={this.handleTargetChange}
+                                onSelect={this.handleTargetSelect}
                                 autoFocus={true}
                             />
                             <div className="form-group">
                                 <button type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
-                                <button type="submit" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
+                                <button type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
                                 <button type="button" className="btn btn-primary btn-round-big" onClick={this.showConferenceModal}><i className="fa fa-users"></i></button>
                             </div>
                         </form>

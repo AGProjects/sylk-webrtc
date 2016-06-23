@@ -30,17 +30,12 @@ const IncomingCallModal = (props) => {
                         <p className="lead">From: {remoteIdentity}</p>
                     </div>
                 </div>
-            </Modal.Body>
-            <Modal.Footer>
-                <div className="btn-group btn-group-justified" role="group">
-                    <div className="btn-group" role="group">
-                        <button className="btn btn-danger" onClick={props.onHide}><i className="fa fa-phone rotate-135"></i></button>
-                    </div>
-                    <div className="btn-group" role="group">
-                        <button className="btn btn-success" onClick={props.onAnswer}><i className="fa fa-phone"></i></button>
-                    </div>
+                <br />
+                <div className="text-center">
+                    <button className="btn btn-danger btn-round-big" onClick={props.onHide}><i className="fa fa-phone rotate-135"></i></button>
+                    <button className="btn btn-success btn-round-big" onClick={props.onAnswer}><i className="fa fa-phone"></i></button>
                 </div>
-            </Modal.Footer>
+            </Modal.Body>
         </Modal>
     );
 }

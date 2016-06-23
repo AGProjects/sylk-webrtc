@@ -1,6 +1,7 @@
 'use strict';
 
-const React = require('react');
+const React        = require('react');
+const autocomplete = require('autocomplete.js');
 
 
 class URIInput extends React.Component {
@@ -16,15 +17,41 @@ class URIInput extends React.Component {
         this.onInputKeyDown = this.onInputKeyDown.bind(this);
     }
 
+    componentDidMount() {
+        autocomplete('#uri-input', { hint: false }, [
+            {
+                source: (query, cb) => {
+                    let data = this.props.data.filter((item) => {
+                        return item.startsWith(query);
+                    });
+                    cb(data);
+                },
+                displayKey: String,
+                templates: {
+                    suggestion: (suggestion) => {
+                        return suggestion;
+                    }
+                }
+            }
+        ]).on('autocomplete:selected', (event, suggestion, dataset) => {
+            this.setValue(suggestion);
+        });
+    }
+
     componentWillReceiveProps(nextProps) {
         this.setState({
             value: nextProps.defaultValue
         });
+        this.refs.uri_input.focus();
+    }
+
+    setValue(value) {
+        this.setState({value: value});
+        this.props.onChange(value);
     }
 
     onInputChange(event) {
-        this.setState({value: event.target.value});
-        this.props.onChange(event.target.value);
+        this.setValue(event.target.value);
     }
 
     onInputKeyDown(event) {
@@ -58,8 +85,8 @@ class URIInput extends React.Component {
 
     render() {
         return (
-            <div className="form-group">
-                <input type="text" list="historyList" className="form-control input-lg"
+            <div className="form-group uri-input">
+                <input type="text" id="uri-input" name="uri-input" ref="uri_input" className="form-control input-lg"
                     onChange={this.onInputChange}
                     onKeyDown={this.onInputKeyDown}
                     onBlur={this.onInputBlur}
@@ -69,13 +96,6 @@ class URIInput extends React.Component {
                     required
                     autoFocus={this.props.autoFocus}
                 />
-                <datalist id="historyList">
-                {
-                    this.props.data.map((item, idx) => {
-                        return <option key={idx} value={item}>{item}</option>;
-                    })
-                }
-                </datalist>
             </div>
         );
 

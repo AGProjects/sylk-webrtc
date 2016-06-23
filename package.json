@@ -4,6 +4,7 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "autocomplete.js": "^0.20.1",
     "classnames": "^2.2.3",
     "clipboard": "^1.5.10",
     "debug": "*",

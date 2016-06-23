@@ -84,7 +84,7 @@ class ReadyBox extends React.Component {
             <div>
                 <div className="cover-container">
                     <div className="inner cover">
-                        <form className="form-dial" name="DialForm">
+                        <div className="form-dial">
                             <p className="lead">Enter the address you wish to call</p>
                             <URIInput
                                 defaultValue={this.state.targetUri}
@@ -98,7 +98,7 @@ class ReadyBox extends React.Component {
                                 <button type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
                                 <button type="button" className="btn btn-primary btn-round-big" onClick={this.showConferenceModal}><i className="fa fa-users"></i></button>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
                 <ConferenceModal

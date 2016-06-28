@@ -1,6 +1,7 @@
 
 GULP = node_modules/.bin/gulp
 ESLINT = node_modules/.bin/eslint
+SASSLINT = node_modules/.bin/sass-lint
 
 .PHONY: all clean deploy deploy-test dist dist-dev distclean watch lint
 
@@ -33,4 +34,5 @@ watch:
 	$(GULP) watch --type dev
 
 lint:
+	$(SASSLINT) -v -q
 	$(ESLINT) src/app

@@ -1,0 +1,131 @@
+// Base structure
+
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    @include background-image-retina($base-background-image, 512px, 512px);
+    background-color: $base-background-color;
+    color: $base-foreground-color;
+    text-align: center;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5 {
+    font-weight: 300;
+}
+
+// This will get the negative margin when >768px
+%site-wrapper {
+    display: table;
+    height: 100%; // For at least Firefox
+    min-height: 100%;
+    width: 100%;
+}
+
+.site-wrapper {
+    @extend %site-wrapper;
+}
+
+// Extra markup and styles for table-esque vertical and horizontal centering
+.site-wrapper-shadow {
+    @extend %site-wrapper;
+    -webkit-box-shadow: inset 0 0 100px $black-transparent;
+    box-shadow: inset 0 0 100px $black-transparent;
+}
+
+.site-wrapper-inner {
+    display: table-cell;
+    vertical-align: top;
+}
+
+.cover-container {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+// Padding for spacing
+.inner {
+    padding: 30px;
+}
+
+.inner-small {
+    padding: 10px;
+}
+
+.blink-logo {
+    @include background-image-retina($base-logo-image, 125px, 125px);
+    height: 125px;
+    margin: 0 auto;
+    width: 125px;
+}
+
+// Cover
+
+.cover {
+    .btn-lg {
+        font-weight: bold;
+        padding: 10px 20px;
+    }
+    padding: 0 20px;
+}
+
+// Footer
+
+.footer {
+    color: $white-transparent;
+    font-size: 11px;
+    text-shadow: 0 1px 3px $black-transparent;
+}
+
+// Affix and center
+
+// TODO: check it out
+
+@media (min-width: 200px) {
+    // Start the vertical centering
+    .site-wrapper-inner {
+        vertical-align: middle;
+    }
+
+    .site-wrapper {
+        margin-top: -30px;
+    }
+
+    .footer {
+        bottom: 0;
+        position: fixed;
+    }
+
+    // Handle the widths
+    .footer,
+    .cover-container,
+    .half-width {
+        width: 100%; // Must be percentage or pixels for horizontal alignment
+    }
+}
+
+@media (min-width: 992px) {
+    .footer,
+    .cover-container {
+        width: 700px;
+    }
+
+    .half-width {
+        margin: auto;
+        width: 500px;
+    }
+}

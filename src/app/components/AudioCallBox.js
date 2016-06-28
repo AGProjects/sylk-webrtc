@@ -135,7 +135,7 @@ class AudioCallBox extends React.Component {
         );
 
         let header = (
-            <div key="header" className="video-header">
+            <div key="header" className="call-header">
                 <p className={headerTextClasses}><strong>Call with</strong> {this.props.remoteIdentity}</p>
                 <p className={headerTextClasses}>{callDuration}</p>
             </div>

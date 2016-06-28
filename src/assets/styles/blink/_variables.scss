@@ -1,0 +1,29 @@
+$black:         #000;
+$gray:          #333;
+$lighter-gray:  #999;
+$light-gray:    #ccc;
+$white:         #fff;
+
+$black-transparent:      rgba($black, .5);
+$white-transparent:      rgba($white, .5);
+$white-less-transparent: rgba($white, .8);
+
+$bootstrap-danger:       #a94442;
+$bootstrap-danger-bg:    #f2dede;
+$boostrap-danger-border: darken(adjust-hue($bootstrap-danger-bg, -10), 5%);
+$bootstrap-base:         #428bca;
+$bootstrap-primary:      darken($bootstrap-base, 6.5%); // #337ab7
+$boostrap-link-hover-bg: #f5f5f5;
+
+$base-foreground-color: $white;
+$base-background-color: $gray;
+
+$default-button-foreground-color: $gray;
+$default-button-background-color: $white;
+
+$base-background-image: '../images/dark_linen';
+
+// Needs to be 125 x 125px
+$base-logo-image: '../images/blink-white';
+
+$navbar-logo-image: '../images/blink-white';

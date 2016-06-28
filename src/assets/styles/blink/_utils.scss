@@ -1,0 +1,36 @@
+.semi-transparent {
+    opacity: .7;
+}
+
+// Rotate 135 degrees
+
+.rotate-135 {
+    -webkit-transform: rotate(135deg);
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1.5);
+    transform: rotate(135deg);
+}
+
+// Bigger fa-4
+
+.fa-4 {
+    font-size: 7em;
+}
+
+// First letter is a capital
+
+.capitalize {
+    text-transform: capitalize;
+}
+
+// Shift icons so they overlap
+
+// TODO: rename
+.move-icon {
+    margin-left: -21px;
+    z-index: 0;
+}
+
+.move-icon2 {
+    margin-left: 28px;
+    z-index: 1;
+}

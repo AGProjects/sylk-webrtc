@@ -11,7 +11,7 @@ const LoadingScreen = (props) => {
 
     return (
         <div>
-            <div className="modal-backdrop semi"></div>
+            <div className="modal-backdrop semi-transparent"></div>
             <div className="modal" style={{display: 'block'}}>
                 <div className="loading">
                     <div className="loading-inner">

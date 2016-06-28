@@ -1,0 +1,99 @@
+// General
+
+// Forms
+
+.form-dial,
+.form-guest,
+.form-signin {
+    margin: 0 auto;
+    max-width: 330px;
+    padding: 15px;
+}
+
+.form-guest-switcher {
+    margin: 0 auto;
+    max-width: 330px;
+}
+
+.form-dial {
+    max-width: 360px;
+}
+
+.form-signin {
+    .checkbox,
+    .form-signin-heading {
+        margin-bottom: 10px;
+    }
+
+    .checkbox {
+        font-weight: normal;
+    }
+
+    input {
+        &[type='password'] {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+    }
+
+    .input-group {
+        &:first-of-type {
+            input {
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+                margin-bottom: -1px;
+
+                // Needed to display blue border over next input group
+                &:focus {
+                    z-index: 3;
+                }
+            }
+
+            .input-group-addon {
+                &:first-child {
+                    border: 0;
+                    border-bottom-left-radius: 0;
+                    border-bottom-right-radius: 0;
+                    font-size: 16px;
+                    margin-bottom: -1px;
+                    padding: 10px;
+                    padding-top: 11px;
+                }
+            }
+        }
+
+        &:last-of-type {
+            .input-group-addon {
+                &:first-child  {
+                    border: 0;
+                    border-top: 1px solid $light-gray;
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 0;
+                    font-size: 16px;
+                    padding: 10px;
+                    padding-bottom: 11px;
+                    padding-top: 12px;
+                }
+            }
+        }
+    }
+}
+
+.form-guest,
+.form-signin {
+    .input-group {
+        &:last-of-type {
+            margin-bottom: 10px;
+        }
+    }
+
+    .form-control {
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        font-size: 16px;
+        height: auto;
+        padding: 10px;
+        position: relative;
+    }
+}

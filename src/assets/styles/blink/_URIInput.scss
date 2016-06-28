@@ -1,0 +1,34 @@
+div {
+    &.uri-input {
+        .algolia-autocomplete {
+            width: 100%;
+
+            .aa-hint {
+                color: $lighter-gray;
+            }
+
+            .aa-input,
+            .aa-hint {
+                width: 100%;
+            }
+
+            .aa-dropdown-menu {
+                background-color: $white;
+                border: 1px solid $lighter-gray;
+                border-top: 0;
+                width: 100%;
+
+                .aa-suggestion {
+                    &.aa-cursor {
+                        background-color: $boostrap-link-hover-bg;
+                        color: darken($gray, 5%);
+                    }
+                    color: $gray;
+                    cursor: pointer;
+                    padding: 5px 4px;
+                    text-align: left;
+                }
+            }
+        }
+    }
+}

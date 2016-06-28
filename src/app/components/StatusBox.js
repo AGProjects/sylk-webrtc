@@ -15,7 +15,7 @@ const StatusBox = (props) => {
     const widthClasses = classNames({
         'form-signin' : props.width === 'small' || !props.width,
         'form-dial'   : props.width === 'medium',
-        'halfWidth'   : props.width === 'large'
+        'half-width'   : props.width === 'large'
     });
 
     let message;

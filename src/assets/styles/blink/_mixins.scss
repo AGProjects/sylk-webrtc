@@ -1,0 +1,12 @@
+@mixin background-image-retina($file, $width: auto, $height: auto, $type: 'png') {
+    background-image: url($file + '.' + $type);
+    background-size: $width $height;
+    @media only screen and (-webkit-min-device-pixel-ratio: 1.5),
+        only screen and (-o-min-device-pixel-ratio: 3 / 2),
+        only screen and (min--moz-device-pixel-ratio: 1.5),
+        only screen and (min-device-pixel-ratio: 1.5) {
+            & {
+                background-image: url($file + '@2x.' + $type);
+        }
+    }
+}

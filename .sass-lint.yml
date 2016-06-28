@@ -1,0 +1,23 @@
+options:
+    merge-default-rules: true
+files:
+    include: 'src/assets/styles/**/*.s+(a|c)ss'
+    ignore:
+        - '**/*_react-toggle.scss'
+rules:
+    indentation:
+        - 2
+        -
+            size: 4
+    no-important:
+        - 0
+    no-vendor-prefixes:
+        - 1
+        -
+            'excluded-identifiers':
+                - 'webkit'
+                - 'moz'
+    nesting-depth:
+        - 1
+        -
+            'max-depth': 3

@@ -9,19 +9,6 @@ var gulpif       = require('gulp-if');
 var gutil        = require('gulp-util');
 var config       = require('../config');
 
-
-gulp.task('appCSS', function() {
-    //concatenate CSS files
-
-    return gulp.src(config.css.src, {base: 'src'})
-        .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(cleanCSS())
-        .pipe(concat('app.css'))
-        .pipe(gutil.env.type === 'dev' ? sourcemaps.write('./') : gutil.noop())
-        .pipe(gulp.dest(config.css.dest))
-        .pipe(browserSync.reload({stream:true}));
-});
-
 gulp.task('vendorCSS', function() {
     //concatenate CSS files
 

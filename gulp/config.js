@@ -2,9 +2,9 @@ var dest 	= './dist';
 var src 	= './src';
 
 module.exports = {
-    css: {
-        src: src + '/assets/styles/*.css',
-        dest: dest + '/assets/styles'
+    sass: {
+        src: src + '/assets/styles/**/*.s+(a|c)ss',
+        dest: dest
     },
 
     browserSync: {

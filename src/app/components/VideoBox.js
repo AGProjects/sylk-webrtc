@@ -218,7 +218,7 @@ let VideoBox = React.createClass({
                 fullScreenButton = <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
             }
             videoHeader = (
-                <div key="header" className="video-header">
+                <div key="header" className="call-header">
                     <p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p>
                     <p className={videoHeaderTextClasses}>{callDuration}</p>
                 </div>

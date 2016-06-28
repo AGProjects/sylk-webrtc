@@ -59,7 +59,7 @@ class LocalMedia extends React.Component {
         });
 
         videoHeader = (
-            <div key="header" className="video-header">
+            <div key="header" className="call-header">
                 <p className={videoHeaderTextClasses}><strong>Connecting to</strong> {remoteIdentity}</p>
             </div>
         );

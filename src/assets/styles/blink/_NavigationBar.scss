@@ -1,0 +1,15 @@
+
+.navbar-header {
+    float: left !important;
+}
+
+.navbar-blink-logo {
+    @include background-image-retina($navbar-logo-image, 50px, 50px);
+    height: 50px;
+    margin: 0 auto;
+    width: 50px;
+}
+
+.navbar-btn-toolbar {
+    margin-top: 5px;
+}

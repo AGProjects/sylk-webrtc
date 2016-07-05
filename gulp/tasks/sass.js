@@ -14,5 +14,5 @@ gulp.task('sass', function () {
     .pipe(sass({outputStyle:'compressed'}).on('error', sass.logError))
     .pipe(gutil.env.type === 'dev' ? sourcemaps.write('./') : gutil.noop())
     .pipe(gulp.dest(config.sass.dest))
-    .pipe(browserSync.reload({stream:true}));
+    .pipe(browserSync.stream({match: '**/*.css'}));
 });

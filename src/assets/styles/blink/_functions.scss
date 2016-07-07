@@ -1,0 +1,9 @@
+@function zero($number) {
+    $value: 0;
+
+    @if $number > 0 {
+        $value: $number;
+    }
+
+    @return $value;
+}

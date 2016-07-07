@@ -1,15 +1,36 @@
+// Values
+// 31 -> inner buttonsize + border
+// 38 -> default padding is 6 on a 50px 50-12
+// 20 -> default line-height
 
 .navbar-header {
     float: left !important;
 }
 
 .navbar-blink-logo {
-    @include background-image-retina($navbar-logo-image, 50px, 50px);
-    height: 50px;
+    @include background-image-retina($navbar-logo-image, $navbar-height, $navbar-height);
+    height: $navbar-height;
     margin: 0 auto;
-    width: 50px;
+    width: $navbar-height;
 }
 
 .navbar-btn-toolbar {
-    margin-top: 5px;
+    margin-top: ($navbar-height - 31 - zero($navbar-height - 38)) / 2; // 40 -> 7/2, 50 -> 7/2
+}
+
+.navbar {
+    min-height: $navbar-height;
+
+    button {
+        padding: zero(($navbar-height - 38) / 2) 12px;
+    }
+}
+
+.navbar-brand {
+    height: $navbar-height;
+    padding: ($navbar-height - 20) / 2 15px;
+}
+
+.navbar-text {
+    margin: ($navbar-height - 20) / 2 15px;
 }

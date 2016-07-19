@@ -31,6 +31,7 @@ h6,
 %site-wrapper {
     display: table;
     height: 100%; // For at least Firefox
+    margin-top: -30px;
     min-height: 100%;
     width: 100%;
 }
@@ -48,7 +49,7 @@ h6,
 
 .site-wrapper-inner {
     display: table-cell;
-    vertical-align: top;
+    vertical-align: middle;
 }
 
 .cover-container {
@@ -86,44 +87,22 @@ h6,
 // Footer
 
 .footer {
+    bottom: 0;
     color: $white-transparent;
     font-size: 11px;
+    position: fixed;
     text-shadow: 0 1px 3px $black-transparent;
 }
 
-// Affix and center
-
-// TODO: check it out
-
-@media (min-width: 200px) {
-    // Start the vertical centering
-    .site-wrapper-inner {
-        vertical-align: middle;
-    }
-
-    .site-wrapper {
-        margin-top: -30px;
-    }
-
-    .footer {
-        bottom: 0;
-        position: fixed;
-    }
-
-    // Handle the widths
-    .footer,
-    .cover-container,
-    .half-width {
-        width: 100%; // Must be percentage or pixels for horizontal alignment
-    }
+// Handle the widths
+.footer,
+.cover-container,
+.half-width {
+    width: 100%; // Must be percentage or pixels for horizontal alignment
 }
 
-@media (min-width: 992px) {
-    .footer,
-    .cover-container {
-        width: 700px;
-    }
 
+@media (min-width: 992px) {
     .half-width {
         margin: auto;
         width: 500px;

@@ -36,7 +36,7 @@ class CallByUriBox extends React.Component {
         let thanksContent;
         let call;
 
-        let classes = classNames({
+        const classes = classNames({
             'capitalize' : true,
             'btn'        : true,
             'btn-lg'     : true,

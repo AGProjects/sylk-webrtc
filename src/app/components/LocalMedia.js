@@ -48,32 +48,17 @@ class LocalMedia extends React.Component {
             'mirror'   : true
         });
 
-        const localVideo  = <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted/>;
-        const remoteIdentity = this.props.remoteIdentity;
-
-        let videoHeader;
-
-        let videoHeaderTextClasses = classNames({
-            'lead'      : true,
-            'text-info' : true
-        });
-
-        videoHeader = (
-            <div key="header" className="call-header">
-                <p className={videoHeaderTextClasses}><strong>Connecting to</strong> {remoteIdentity}</p>
-            </div>
-        );
-
-        let hangupButton = <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>;
 
         return (
             <div className="video-container" ref="videoContainer">
                 <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                    {videoHeader}
+                    <div key="header" className="call-header">
+                        <p className="lead text-info"><strong>Connecting to</strong> {this.props.remoteIdentity}</p>
+                    </div>
                 </ReactCSSTransitionGroup>
-                {localVideo}
+                <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted/>
                 <div className="call-buttons">
-                    {hangupButton}
+                    <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>
                 </div>
             </div>
         );

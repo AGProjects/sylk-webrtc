@@ -454,9 +454,7 @@ let Blink = React.createClass({
     },
 
     loadCallHistory: function() {
-        if (this.state.historyLoaded) {
-            return this.state.history;
-        } else {
+        if (!this.state.historyLoaded) {
             let history = [];
             if (!this.state.guestMode) {
                 let data = window.localStorage.getItem('blinkHistory');

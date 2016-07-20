@@ -27,7 +27,6 @@ class EnrollmentModal extends React.Component {
         this.onHide = this.onHide.bind(this);
         this.handleFormFieldChange = this.handleFormFieldChange.bind(this);
         this.enrollmentFormSubmitted = this.enrollmentFormSubmitted.bind(this);
-        this.enroll = this.enroll.bind(this);
     }
 
     handleFormFieldChange(event) {
@@ -75,20 +74,13 @@ class EnrollmentModal extends React.Component {
                   });
     }
 
-    enroll(event) {
-        event.preventDefault();
-        // what a horrible hack, YOLO.
-        // this will trigger the form submission, and enrollmentFormSubmitted will be called
-        document.getElementById('enrollmentFormSubmit').click();
-    }
-
     onHide() {
         this.props.handleEnrollment(null);
         this.setState(this.initialState);
     }
 
     render() {
-        let passwordClasses = classNames({
+        const passwordClasses = classNames({
             'form-group' : true,
             'has-error'  : this.state.password !== this.state.password2
         });
@@ -143,13 +135,13 @@ class EnrollmentModal extends React.Component {
                                 <input type="email" id="email" className="form-control" placeholder="alice@atlanta.example.com" onChange={this.handleFormFieldChange} required value={this.state.email} disabled={this.state.enrolling} />
                             </div>
                         </div>
-                        <button type="submit" id="enrollmentFormSubmit" style={{display: 'none'}}></button>
+                        <br />
+                        <div className="text-right">
+                            {errorBox}
+                            <button type="submit" className="btn btn-success" disabled={this.state.enrolling} onClick={this.enroll}>{buttonText}</button>
+                        </div>
                     </form>
                 </Modal.Body>
-                <Modal.Footer>
-                    {errorBox}
-                    <button className="btn btn-success" disabled={this.state.enrolling} onClick={this.enroll}>{buttonText}</button>
-                </Modal.Footer>
             </Modal>
         );
     }

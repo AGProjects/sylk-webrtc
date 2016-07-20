@@ -45,8 +45,8 @@ class ConferenceModal extends React.Component {
     }
 
     render() {
-        let validUri = this.state.conferenceTargetUri.length > 0 && this.state.conferenceTargetUri.indexOf('@') === -1;
-        let classes = classNames({
+        const validUri = this.state.conferenceTargetUri.length > 0 && this.state.conferenceTargetUri.indexOf('@') === -1;
+        const classes = classNames({
             'btn'         : true,
             'btn-success' : validUri,
             'btn-warning' : !validUri
@@ -55,7 +55,7 @@ class ConferenceModal extends React.Component {
         return (
             <Modal show={this.props.show} onHide={this.onHide} aria-labelledby="cmodal-title-sm">
                 <Modal.Header closeButton>
-                    <Modal.Title id="cmodal-title-sm">Join Conference</Modal.Title>
+                    <Modal.Title id="cmodal-title-sm">Join Audio Conference</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p className="lead">Enter the conference room you wish to join</p>
@@ -65,12 +65,12 @@ class ConferenceModal extends React.Component {
                             <span className="input-group-addon"><i className="fa fa-users fa-fw"></i></span>
                             <input id="inputTarget" className="form-control" placeholder="Conference Room" onChange={this.handleConferenceTargetChange} required autoFocus value={this.state.conferenceTargetUri} />
                         </div>
+                        <br />
+                        <div className="text-right">
+                            <button type="submit" className={classes} disabled={!validUri}><i className="fa fa-phone"></i> Join</button>
+                        </div>
                     </form>
                 </Modal.Body>
-                <Modal.Footer>
-                    <p className="pull-left">Supported media: audio</p>
-                    <button className={classes} disabled={!validUri} onClick={this.join}><i className="fa fa-phone"></i> Join</button>
-                </Modal.Footer>
             </Modal>
         );
     }

@@ -84,7 +84,7 @@ class EnrollmentModal extends React.Component {
 
     onHide() {
         this.props.handleEnrollment(null);
-        this.setState(this.getInitialState());
+        this.setState(this.initialState);
     }
 
     render() {

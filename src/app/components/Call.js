@@ -95,21 +95,13 @@ class Call extends React.Component {
     }
 
     render() {
-        let localMedia;
-        let videoBox;
-        let audioBox;
-
-        let remoteIdentity = this.props.targetUri;
-
-        if (this.props.currentCall != null) {
-                remoteIdentity = this.props.currentCall.remoteIdentity.toString();
-        }
+        let box;
 
         if (this.props.localMedia !== null) {
-
             if (this.props.currentCall != null && this.props.currentCall.state === 'established') {
                 if (this.state.audioOnly) {
-                    audioBox = (
+                    let remoteIdentity = this.props.currentCall.remoteIdentity.displayName || this.props.currentCall.remoteIdentity.uri;
+                    box = (
                         <AudioCallBox
                             remoteIdentity = {remoteIdentity}
                             hangupCall = {this.hangupCall}
@@ -118,7 +110,7 @@ class Call extends React.Component {
                         />
                     );
                 } else {
-                    videoBox = (
+                    box = (
                         <VideoBox
                             call = {this.props.currentCall}
                             localMedia = {this.props.localMedia}
@@ -127,8 +119,9 @@ class Call extends React.Component {
                     );
                 }
             } else {
+                let remoteIdentity = this.props.targetUri;
                 if (this.state.audioOnly) {
-                    audioBox = (
+                    box = (
                         <AudioCallBox
                             remoteIdentity = {remoteIdentity}
                             hangupCall = {this.hangupCall}
@@ -136,7 +129,7 @@ class Call extends React.Component {
                         />
                     );
                 } else {
-                    localMedia = (
+                    box = (
                         <LocalMedia
                             remoteIdentity = {remoteIdentity}
                             localMedia = {this.props.localMedia}
@@ -149,9 +142,7 @@ class Call extends React.Component {
         }
         return (
             <div>
-                {audioBox}
-                {videoBox}
-                {localMedia}
+                {box}
             </div>
         );
     }

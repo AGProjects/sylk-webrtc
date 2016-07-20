@@ -96,11 +96,17 @@ class Call extends React.Component {
 
     render() {
         let box;
+        let remoteIdentity;
+
+        if (this.props.currentCall !== null) {
+            remoteIdentity = this.props.currentCall.remoteIdentity.displayName || this.props.currentCall.remoteIdentity.uri;
+        } else {
+            remoteIdentity = this.props.targetUri;
+        }
 
         if (this.props.localMedia !== null) {
             if (this.props.currentCall != null && this.props.currentCall.state === 'established') {
                 if (this.state.audioOnly) {
-                    let remoteIdentity = this.props.currentCall.remoteIdentity.displayName || this.props.currentCall.remoteIdentity.uri;
                     box = (
                         <AudioCallBox
                             remoteIdentity = {remoteIdentity}
@@ -119,7 +125,6 @@ class Call extends React.Component {
                     );
                 }
             } else {
-                let remoteIdentity = this.props.targetUri;
                 if (this.state.audioOnly) {
                     box = (
                         <AudioCallBox

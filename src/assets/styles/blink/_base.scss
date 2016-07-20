@@ -31,13 +31,13 @@ h6,
 %site-wrapper {
     display: table;
     height: 100%; // For at least Firefox
-    margin-top: -30px;
     min-height: 100%;
     width: 100%;
 }
 
 .site-wrapper {
     @extend %site-wrapper;
+    margin-top: -30px;
 }
 
 // Extra markup and styles for table-esque vertical and horizontal centering

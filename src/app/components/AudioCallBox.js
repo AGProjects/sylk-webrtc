@@ -120,6 +120,8 @@ class AudioCallBox extends React.Component {
         let callDuration;
         if (this.state.callDuration !== null) {
             callDuration = <span><i className="fa fa-clock-o"></i> {this.state.callDuration}</span>;
+        } else {
+            callDuration = 'Connecting...';
         }
 
         return (

@@ -48,12 +48,17 @@ class LocalMedia extends React.Component {
             'mirror'   : true
         });
 
+        const headerTextClasses = classNames({
+            'lead'          : true,
+            'text-info'     : true
+        });
 
         return (
             <div className="video-container" ref="videoContainer">
                 <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     <div key="header" className="call-header">
-                        <p className="lead text-info"><strong>Connecting to</strong> {this.props.remoteIdentity}</p>
+                        <p className={headerTextClasses}><strong>Call with</strong> {this.props.remoteIdentity}</p>
+                        <p className={headerTextClasses}>Connecting...</p>
                     </div>
                 </ReactCSSTransitionGroup>
                 <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted/>

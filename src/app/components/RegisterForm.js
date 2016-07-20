@@ -56,8 +56,8 @@ class RegisterForm extends React.Component {
     }
 
     render() {
-        let validInput = this.state.accountId.indexOf('@') !== -1 && this.state.password !== 0;
-        let classes = classNames({
+        const validInput = this.state.accountId.indexOf('@') !== -1 && this.state.password !== 0;
+        const classes = classNames({
             'capitalize' : true,
             'btn'        : true,
             'btn-lg'     : true,

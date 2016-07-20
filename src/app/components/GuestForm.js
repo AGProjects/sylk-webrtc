@@ -27,15 +27,14 @@ class GuestForm extends React.Component {
     }
 
     render() {
-        let validInput = this.state.accountId !== '';
-
-        let classes = classNames({
+        const validInput = this.state.accountId !== '';
+        const classes = classNames({
             'capitalize' : true,
             'btn'        : true,
             'btn-lg'     : true,
             'btn-block'  : true,
-            'btn-default': this.state.accountId == '',
-            'btn-primary': this.state.accountId !== ''
+            'btn-default': !validInput,
+            'btn-primary': validInput
         });
 
         return (

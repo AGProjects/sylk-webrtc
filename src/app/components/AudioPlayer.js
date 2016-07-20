@@ -6,6 +6,8 @@ const React = require('react');
 class AudioPlayer extends React.Component {
     constructor(props) {
         super(props);
+        this.timeout = null;
+
         // ES6 classes no longer autobind
         this.audioEnded = this.audioEnded.bind(this);
         this.stop = this.stop.bind(this);
@@ -15,10 +17,6 @@ class AudioPlayer extends React.Component {
         this.timeout = setTimeout(() => {
             this.refs.audio.play();
         }, 3000);
-    }
-
-    componentDidMount() {
-        this.timeout = null;
     }
 
     componentWillUnmount() {
@@ -49,11 +47,9 @@ class AudioPlayer extends React.Component {
 
     render() {
         return (
-            <div>
-                <audio ref="audio">
-                    <source src={this.props.sourceFile} type="audio/wav" />
-                </audio>
-            </div>
+            <audio ref="audio">
+                <source src={this.props.sourceFile} type="audio/wav" />
+            </audio>
         );
     }
 }

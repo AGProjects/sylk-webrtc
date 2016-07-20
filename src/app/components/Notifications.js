@@ -30,7 +30,7 @@ class Notifications extends React.Component {
             };
         }
         this.refs.notificationSystem.addNotification({
-            message: 'From ' + (originator.displayName || originator.uri) + '<br />On ' + currentDate,
+            message: `From ${(originator.displayName || originator.uri)} <br />On ${currentDate}`,
             title: 'Missed Call',
             autoDismiss: 0,
             action: action,
@@ -41,9 +41,7 @@ class Notifications extends React.Component {
 
     render() {
         return (
-            <div>
-                <NotificationSystem ref="notificationSystem" allowHTML={true} />
-            </div>
+            <NotificationSystem ref="notificationSystem" allowHTML={true} />
         );
     }
 }

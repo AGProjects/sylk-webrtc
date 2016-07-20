@@ -98,7 +98,6 @@ class AudioCallBox extends React.Component {
         }, 300);
     }
 
-
     render() {
         const commonButtonClasses = classNames({
             'btn'           : true,
@@ -106,13 +105,13 @@ class AudioCallBox extends React.Component {
             'btn-default'   : true
         });
 
-        let muteButtonIconClasses = classNames({
+        const muteButtonIconClasses = classNames({
             'fa'                    : true,
             'fa-microphone'         : !this.state.audioMuted,
             'fa-microphone-slash'   : this.state.audioMuted
         });
 
-        let headerTextClasses = classNames({
+        const headerTextClasses = classNames({
             'lead'          : true,
             'text-success'  : this.props.call != null,
             'text-info'     : this.props.call == null
@@ -123,36 +122,25 @@ class AudioCallBox extends React.Component {
             callDuration = <span><i className="fa fa-clock-o"></i> {this.state.callDuration}</span>;
         }
 
-        let hangupButton = (
-            <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}>
-                <i className="fa fa-phone rotate-135"></i>
-            </button>
-        );
-        let muteButton = (
-            <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}>
-                <i className={muteButtonIconClasses}></i>
-            </button>
-        );
-
-        let header = (
-            <div key="header" className="call-header">
-                <p className={headerTextClasses}><strong>Call with</strong> {this.props.remoteIdentity}</p>
-                <p className={headerTextClasses}>{callDuration}</p>
-            </div>
-        );
-
         return (
             <div>
-                {header}
+                <div key="header" className="call-header">
+                    <p className={headerTextClasses}><strong>Call with</strong> {this.props.remoteIdentity}</p>
+                    <p className={headerTextClasses}>{callDuration}</p>
+                </div>
                 <audio id="remoteAudio" ref="remoteAudio" autoPlay />
                 <span className="fa-stack fa-4">
                     <i className="fa fa-volume-off move-icon fa-stack-2x"></i>
                     <i className="move-icon2 fa fa-volume-up fa-stack-2x animate-sound1"></i>
                 </span>
                 <div className="call-buttons">
-                    {muteButton}
+                    <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}>
+                        <i className={muteButtonIconClasses}></i>
+                    </button>
                     <br />
-                    {hangupButton}
+                    <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}>
+                        <i className="fa fa-phone rotate-135"></i>
+                    </button>
                 </div>
             </div>
         );

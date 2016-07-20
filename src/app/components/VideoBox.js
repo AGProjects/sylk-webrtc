@@ -141,7 +141,7 @@ let VideoBox = React.createClass({
     },
 
     render: function() {
-        let callEstablished = this.state.callDuration !== null;
+        const callEstablished = this.state.callDuration !== null;
 
         const localVideoClasses = classNames({
             'video-thumbnail' : true,
@@ -152,51 +152,41 @@ let VideoBox = React.createClass({
             'fadeOut'         : this.state.videoMuted
         });
 
-        let remoteVideoClasses = classNames({
+        const remoteVideoClasses = classNames({
             'hidden'        : !this.state.remoteVideoShow,
             'animated'      : true,
             'fadeIn'        : this.state.remoteVideoShow,
             'large'         : true
         });
 
-        let remoteVideo;
-        let localVideo;
-
-        remoteVideo = <video id="remoteVideo" className={remoteVideoClasses} ref="remoteVideo" autoPlay />;
-        localVideo  = <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted/>;
-
-        let hangupButton;
-        let fullScreenButton;
-        let muteButton;
-        let muteVideoButton;
-        let videoHeader;
-
-        let muteButtonIcons = classNames({
+        const muteButtonIcons = classNames({
             'fa'                    : true,
             'fa-microphone'         : !this.state.audioMuted,
             'fa-microphone-slash'   : this.state.audioMuted
         });
-        let muteVideoButtonIcons = classNames({
+
+        const muteVideoButtonIcons = classNames({
             'fa'                    : true,
             'fa-video-camera'       : !this.state.videoMuted,
             'fa-video-camera-slash' : this.state.videoMuted
         });
-        let fullScreenButtonIcons = classNames({
+
+        const fullScreenButtonIcons = classNames({
             'fa'            : true,
             'fa-expand'     : !this.isFullScreen(),
             'fa-compress'   : this.isFullScreen()
         });
 
-        let buttonBarClasses = classNames({
+        const buttonBarClasses = classNames({
             'video-started' : !this.state.audioOnly
         });
 
-        let videoHeaderTextClasses = classNames({
+        const videoHeaderTextClasses = classNames({
             'lead'          : true,
             'text-success'  : true
         });
 
-        let commonButtonClasses = classNames({
+        const commonButtonClasses = classNames({
             'btn'           : true,
             'btn-round'     : true,
             'btn-default'   : true
@@ -205,12 +195,20 @@ let VideoBox = React.createClass({
         let callDuration;
         if (this.state.callDuration !== null) {
             callDuration = <span><i className="fa fa-clock-o"></i> {this.state.callDuration}</span>;
+        } else {
+            callDuration = 'Connecting...'
         }
 
-        let remoteIdentity = '';
+        let remoteIdentity;
         if (this.props.call !== null) {
-            remoteIdentity = this.props.call.remoteIdentity.toString();
+            remoteIdentity = this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri
         }
+
+        let hangupButton;
+        let fullScreenButton;
+        let muteButton;
+        let muteVideoButton;
+        let videoHeader;
 
         if (this.state.hangupButtonVisible) {
             muteVideoButton = <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
@@ -232,8 +230,8 @@ let VideoBox = React.createClass({
                 <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {videoHeader}
                 </ReactCSSTransitionGroup>
-                {remoteVideo}
-                {localVideo}
+                <video id="remoteVideo" className={remoteVideoClasses} ref="remoteVideo" autoPlay />
+                <video id="localVideo" className={localVideoClasses} ref="localVideo" autoPlay muted/>
                 <div className="call-buttons">
                     <ReactCSSTransitionGroup transitionName="videobuttons" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                         {muteVideoButton}

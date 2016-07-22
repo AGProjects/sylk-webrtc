@@ -10,6 +10,7 @@ var browserSync  = require('browser-sync');
 var watchify     = require('watchify');
 var gulp         = require('gulp');
 var uglify       = require('gulp-uglify');
+var envify       = require('envify/custom');
 var gutil        = require('gulp-util');
 var source       = require('vinyl-source-stream');
 var buffer       = require('vinyl-buffer');
@@ -25,11 +26,13 @@ var browserifyTask = function(callback) {
     var bundleQueue = config.bundleConfigs.length;
 
     var browserifyThis = function(bundleConfig) {
-
         // When lauched from watch task, we start Watchify
         var watchMode = gutil.env._.indexOf('watch') !== -1 ? true : false;
 
-        var bundler = '';
+        // Development mode?
+        var devMode = gutil.env.type === 'dev';
+
+        var bundler;
 
         if(watchMode) {
             // Add watchify and Always add sourcemaps, our deployment tool will remove them for production
@@ -44,11 +47,15 @@ var browserifyTask = function(callback) {
         // Add in transforms
         bundler.transform(babelify);
 
+        // Remove the NODE_ENV === production checks from production builds
+        if (!devMode) {
+            bundler.transform(envify({_: 'purge', NODE_ENV: 'production'}), {global: true})
+        }
+
         if(bundleConfig.require) bundler.require(bundleConfig.require);
         if(bundleConfig.external) bundler.external(bundleConfig.external);
 
         var bundle = function() {
-
             return bundler
             .bundle()
             // Report compile errors
@@ -64,9 +71,9 @@ var browserifyTask = function(callback) {
             .pipe(buffer())
             .pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
             // Only uglify in dev mode
-            .pipe(gutil.env.type === 'dev' ? gutil.noop() : uglify())
+            .pipe(devMode ? gutil.noop() : uglify())
             // writes .map file only if dev mode is enabled
-            .pipe(gutil.env.type === 'dev' ? sourcemaps.write('./') : gutil.noop())
+            .pipe(devMode ? sourcemaps.write('./') : gutil.noop())
             // Specify the output destination
             .pipe(gulp.dest(bundleConfig.dest))
             .on('end', reportFinished)
@@ -80,8 +87,6 @@ var browserifyTask = function(callback) {
                 gutil.log('Rebundled ' + bundleConfig.entries + ' in ' + time + 'ms');
             });
         }
-
-
 
         var reportFinished = function() {
             if(bundleQueue) {

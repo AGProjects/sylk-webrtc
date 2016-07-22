@@ -19,7 +19,7 @@ deploy-test: dist-dev
 	rsync -av --exclude .htaccess --delete dist/ agp@node10.dns-hosting.info:/var/www/webrtc-test/
 
 dist:
-	$(GULP) build
+	$(GULP) build --type production
 
 dist-dev:
 	$(GULP) build --type dev

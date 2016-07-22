@@ -156,88 +156,88 @@ class VideoBox extends React.Component {
             'large'         : true
         });
 
-        const muteButtonIcons = classNames({
-            'fa'                    : true,
-            'fa-microphone'         : !this.state.audioMuted,
-            'fa-microphone-slash'   : this.state.audioMuted
-        });
-
-        const muteVideoButtonIcons = classNames({
-            'fa'                    : true,
-            'fa-video-camera'       : !this.state.videoMuted,
-            'fa-video-camera-slash' : this.state.videoMuted
-        });
-
-        const fullScreenButtonIcons = classNames({
-            'fa'            : true,
-            'fa-expand'     : !this.isFullScreen(),
-            'fa-compress'   : this.isFullScreen()
-        });
-
-        const buttonBarClasses = classNames({
-            'video-started' : !this.state.audioOnly
-        });
-
-        const videoHeaderTextClasses = classNames({
-            'lead'          : true,
-            'text-success'  : true
-        });
-
-        const commonButtonClasses = classNames({
-            'btn'           : true,
-            'btn-round'     : true,
-            'btn-default'   : true
-        });
-
-        let callDuration;
-        if (this.state.callDuration !== null) {
-            callDuration = <span><i className="fa fa-clock-o"></i> {this.state.callDuration}</span>;
-        } else {
-            callDuration = 'Connecting...'
-        }
-
-        let remoteIdentity;
-        if (this.props.call !== null) {
-            remoteIdentity = this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri
-        }
-
-        let hangupButton;
-        let fullScreenButton;
-        let muteButton;
-        let muteVideoButton;
         let videoHeader;
+        let callButtons;
 
         if (this.state.callOverlayVisible) {
+            const muteButtonIcons = classNames({
+                'fa'                    : true,
+                'fa-microphone'         : !this.state.audioMuted,
+                'fa-microphone-slash'   : this.state.audioMuted
+            });
+
+            const muteVideoButtonIcons = classNames({
+                'fa'                    : true,
+                'fa-video-camera'       : !this.state.videoMuted,
+                'fa-video-camera-slash' : this.state.videoMuted
+            });
+
+            const fullScreenButtonIcons = classNames({
+                'fa'            : true,
+                'fa-expand'     : !this.isFullScreen(),
+                'fa-compress'   : this.isFullScreen()
+            });
+
+            const buttonBarClasses = classNames({
+                'video-started' : !this.state.audioOnly
+            });
+
+            const videoHeaderTextClasses = classNames({
+                'lead'          : true,
+                'text-success'  : true
+            });
+
+            const commonButtonClasses = classNames({
+                'btn'           : true,
+                'btn-round'     : true,
+                'btn-default'   : true
+            });
+
+            let remoteIdentity;
+            if (this.props.call !== null) {
+                remoteIdentity = this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri
+            }
+
+            let callDuration;
+            if (this.state.callDuration !== null) {
+                callDuration = <span><i className="fa fa-clock-o"></i> {this.state.callDuration}</span>;
+            } else {
+                callDuration = 'Connecting...'
+            }
+
             videoHeader = (
-                <div key="header" className="call-header">
-                    <p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p>
-                    <p className={videoHeaderTextClasses}>{callDuration}</p>
-                </div>
+                <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                    <div key="header" className="call-header">
+                        <p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p>
+                        <p className={videoHeaderTextClasses}>{callDuration}</p>
+                    </div>
+                </ReactCSSTransitionGroup>
             );
+
+            let fullScreenButton;
             if (this.isFullscreenSupported()) {
                 fullScreenButton = <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
             }
-            muteVideoButton = <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
-            muteButton = <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
-            hangupButton = <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>;
+
+            callButtons = (
+                <div className="call-buttons">
+                    <ReactCSSTransitionGroup transitionName="videobuttons" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                        <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>
+                        <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>
+                        {fullScreenButton}
+                        <br />
+                        <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>
+                    </ReactCSSTransitionGroup>
+                </div>
+            );
         }
 
         return (
             <div className="video-container" ref="videoContainer" onMouseMove={this.showCallOverlay}>
-                <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                    {videoHeader}
-                </ReactCSSTransitionGroup>
+                {videoHeader}
                 <video id="remoteVideo" className={remoteVideoClasses} ref="remoteVideo" autoPlay />
                 <video id="localVideo" className={localVideoClasses} ref="localVideo" autoPlay muted/>
-                <div className="call-buttons">
-                    <ReactCSSTransitionGroup transitionName="videobuttons" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                        {muteVideoButton}
-                        {muteButton}
-                        {fullScreenButton}
-                        <br />
-                        {hangupButton}
-                    </ReactCSSTransitionGroup>
-                </div>
+                {callButtons}
             </div>
         );
     }

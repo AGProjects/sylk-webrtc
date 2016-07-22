@@ -17,7 +17,7 @@ class VideoBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            hangupButtonVisible: true,
+            callOverlayVisible: true,
             audioMuted: false,
             videoMuted: false,
             callDuration: null,
@@ -28,7 +28,7 @@ class VideoBox extends React.Component {
         // ES6 classes no longer autobind
         this.showLocalVideoElement = this.showLocalVideoElement.bind(this);
         this.showRemoteVideoElement = this.showRemoteVideoElement.bind(this);
-        this.showHangup = this.showHangup.bind(this);
+        this.showCallOverlay = this.showCallOverlay.bind(this);
         this.handleFullscreen = this.handleFullscreen.bind(this);
         this.muteAudio = this.muteAudio.bind(this);
         this.muteVideo = this.muteVideo.bind(this);
@@ -126,13 +126,13 @@ class VideoBox extends React.Component {
     armHangupTimer() {
         clearTimeout(this.hangupButtonTimer);
         this.hangupButtonTimer = setTimeout(() => {
-            this.setState({hangupButtonVisible: false});
+            this.setState({callOverlayVisible: false});
         }, 4000);
     }
 
-    showHangup() {
+    showCallOverlay() {
         if (this.state.remoteVideoShow) {
-            this.setState({hangupButtonVisible: true});
+            this.setState({callOverlayVisible: true});
             this.armHangupTimer();
         }
     }
@@ -207,23 +207,23 @@ class VideoBox extends React.Component {
         let muteVideoButton;
         let videoHeader;
 
-        if (this.state.hangupButtonVisible) {
-            muteVideoButton = <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
-            if (this.isFullscreenSupported()) {
-                fullScreenButton = <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
-            }
+        if (this.state.callOverlayVisible) {
             videoHeader = (
                 <div key="header" className="call-header">
                     <p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p>
                     <p className={videoHeaderTextClasses}>{callDuration}</p>
                 </div>
             );
+            if (this.isFullscreenSupported()) {
+                fullScreenButton = <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
+            }
+            muteVideoButton = <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>;
             muteButton = <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>;
             hangupButton = <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>;
         }
 
         return (
-            <div className="video-container" ref="videoContainer" onMouseMove={this.showHangup}>
+            <div className="video-container" ref="videoContainer" onMouseMove={this.showCallOverlay}>
                 <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {videoHeader}
                 </ReactCSSTransitionGroup>

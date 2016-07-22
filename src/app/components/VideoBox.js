@@ -2,6 +2,7 @@
 
 const React                     = require('react');
 const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
+const ReactMixin                = require('react-mixin');
 const rtcninja                  = require('sylkrtc').rtcninja;
 const classNames                = require('classnames');
 const debug                     = require('debug');
@@ -12,23 +13,10 @@ const FullscreenMixin           = require('../mixins/FullScreen');
 const DEBUG = debug('blinkrtc:Video');
 
 
-let VideoBox = React.createClass({
-    propTypes: {
-        call: React.PropTypes.object,
-        localMedia: React.PropTypes.object,
-        hangupCall: React.PropTypes.func
-    },
-
-    mixins: [FullscreenMixin],
-
-    getDefaultProps: function() {
-        return {
-          call: ''
-        };
-    },
-
-    getInitialState: function() {
-        return {
+class VideoBox extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
             hangupButtonVisible: true,
             audioMuted: false,
             videoMuted: false,
@@ -36,9 +24,18 @@ let VideoBox = React.createClass({
             localVideoShow: false,
             remoteVideoShow: false
         };
-    },
 
-    componentDidMount: function() {
+        // ES6 classes no longer autobind
+        this.showLocalVideoElement = this.showLocalVideoElement.bind(this);
+        this.showRemoteVideoElement = this.showRemoteVideoElement.bind(this);
+        this.showHangup = this.showHangup.bind(this);
+        this.handleFullscreen = this.handleFullscreen.bind(this);
+        this.muteAudio = this.muteAudio.bind(this);
+        this.muteVideo = this.muteVideo.bind(this);
+        this.hangupCall = this.hangupCall.bind(this);
+    }
+
+    componentDidMount() {
         this.callTimer = null;
         let remoteStream = this.props.call.getRemoteStreams()[0];
         this.refs.localVideo.addEventListener('playing', this.showLocalVideoElement);
@@ -56,9 +53,9 @@ let VideoBox = React.createClass({
         this.hangupButtonTimer = null;
         this.armHangupTimer();
         this.startCallTimer();
-    },
+    }
 
-    componentWillUnmount: function() {
+    componentWillUnmount() {
         clearTimeout(this.hangupButtonTimer);
         clearTimeout(this.callTimer);
 
@@ -66,22 +63,22 @@ let VideoBox = React.createClass({
         this.refs.localVideo.removeEventListener('playing', this.showLocalVideoElement);
 
         this.exitFullscreen();
-    },
+    }
 
-    handleFullscreen: function (event) {
+    handleFullscreen(event) {
         event.preventDefault();
         this.toggleFullscreen(this.refs.videoContainer);
-    },
+    }
 
-    showLocalVideoElement: function() {
+    showLocalVideoElement() {
         this.setState({localVideoShow: true});
-    },
+    }
 
-    showRemoteVideoElement: function() {
+    showRemoteVideoElement() {
         this.setState({remoteVideoShow: true});
-    },
+    }
 
-    muteAudio: function(event) {
+    muteAudio(event) {
         event.preventDefault();
         let localStream = this.props.call.getLocalStreams()[0];
         if (localStream.getAudioTracks().length > 0) {
@@ -95,9 +92,9 @@ let VideoBox = React.createClass({
                 this.setState({audioMuted: true});
             }
         }
-    },
+    }
 
-    muteVideo: function(event) {
+    muteVideo(event) {
         event.preventDefault();
         let localStream = this.props.call.getLocalStreams()[0];
         if (localStream.getVideoTracks().length > 0) {
@@ -111,36 +108,36 @@ let VideoBox = React.createClass({
                 this.setState({videoMuted: true});
             }
         }
-    },
+    }
 
-    hangupCall: function(event) {
+    hangupCall(event) {
         event.preventDefault();
         this.props.hangupCall();
-    },
+    }
 
-    startCallTimer: function() {
+    startCallTimer() {
         let startTime = new Date();
         this.callTimer = setInterval(() => {
             let duration = moment.duration(new Date() - startTime).format('hh:mm:ss', {trim: false});
             this.setState({callDuration: duration});
         }, 300);
-    },
+    }
 
-    armHangupTimer: function() {
+    armHangupTimer() {
         clearTimeout(this.hangupButtonTimer);
         this.hangupButtonTimer = setTimeout(() => {
             this.setState({hangupButtonVisible: false});
         }, 4000);
-    },
+    }
 
-    showHangup: function() {
+    showHangup() {
         if (this.state.remoteVideoShow) {
             this.setState({hangupButtonVisible: true});
             this.armHangupTimer();
         }
-    },
+    }
 
-    render: function() {
+    render() {
         const callEstablished = this.state.callDuration !== null;
 
         const localVideoClasses = classNames({
@@ -244,6 +241,15 @@ let VideoBox = React.createClass({
             </div>
         );
     }
-});
+}
+
+VideoBox.propTypes = {
+    call: React.PropTypes.object,
+    localMedia: React.PropTypes.object,
+    hangupCall: React.PropTypes.func
+};
+
+ReactMixin(VideoBox.prototype, FullscreenMixin);
+
 
 module.exports = VideoBox;

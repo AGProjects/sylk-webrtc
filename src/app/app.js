@@ -522,20 +522,14 @@ class Blink extends React.Component {
             return (<div></div>);
         }
 
-        const audioPlayers = (
-            <div>
-                <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav" />
-                <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav" />
-                <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
-            </div>
-        );
-
         return (
             <div>
                 {this.renderCurrentRoute()}
                 {loadingScreen}
                 {footerBox}
-                {audioPlayers}
+                <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav" />
+                <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav" />
+                <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
                 <Notifications ref="notifications" />
                 <IncomingCallModal
                     call = {this.state.inboundCall}
@@ -543,7 +537,10 @@ class Blink extends React.Component {
                     onAnswer = {this.answerCall}
                     onHide = {this.rejectCall}
                 />
-                <AboutModal show={this.state.showAboutModal} close={this.closeAboutModal} />
+                <AboutModal
+                    show = {this.state.showAboutModal}
+                    close = {this.closeAboutModal}
+                />
             </div>
         );
     }
@@ -562,13 +559,17 @@ class Blink extends React.Component {
     }
 
     notFound(path) {
-        let status = {
+        const status = {
             title   : '404',
             message : 'Oops, the page your looking for can\'t found: ' + path,
             level   : 'danger',
             width   : 'large'
         }
-        return <div><StatusBox {...status} /></div>;
+        return (
+            <StatusBox
+                {...status}
+            />
+        );
     }
 
     ready() {
@@ -621,7 +622,12 @@ class Blink extends React.Component {
         let statusBox;
 
         if (this.state.status !== null) {
-            statusBox = <StatusBox message={this.state.status.msg} level={this.state.status.level} />;
+            statusBox = (
+                <StatusBox
+                    message={this.state.status.msg}
+                    level={this.state.status.level}
+                />
+            );
         }
 
         if (this.state.registrationState !== 'registered') {

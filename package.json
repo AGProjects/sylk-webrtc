@@ -40,7 +40,6 @@
     "react-mini-router": "^2.0.0",
     "react-mixin": "^3.0.5",
     "react-notification-system": "^0.2.7",
-    "react-toggle": "^2.1.0",
     "require-dir": "^0.3.0",
     "sass-lint": "^1.8.2",
     "screenfull": "^3.0.0",

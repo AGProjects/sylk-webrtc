@@ -51,14 +51,14 @@ class RegisterForm extends React.Component {
         }
     }
 
-    createAccount() {
+    createAccount(event) {
+        event.preventDefault();
         this.setState({showEnrollmentModal: true});
     }
 
     render() {
         const validInput = this.state.accountId.indexOf('@') !== -1 && this.state.password !== 0;
         const classes = classNames({
-            'capitalize' : true,
             'btn'        : true,
             'btn-lg'     : true,
             'btn-block'  : true,
@@ -81,9 +81,20 @@ class RegisterForm extends React.Component {
                         <span className="input-group-addon second"><i className="fa fa-lock fa-fw"></i></span>
                         <input type="password" id="inputPassword" ref="pass" className="form-control" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} required />
                     </div>
-                    <button type="submit" className={classes} disabled={this.props.registrationInProgress || !validInput}>Sign In</button>
+                    <br />
+                    <div className="btn-group btn-group-justified">
+                        <div className="btn-group">
+                            <button type="submit" className={classes} disabled={this.props.registrationInProgress || !validInput}>
+                                <i className="fa fa-sign-in"></i>&nbsp;Sign In
+                            </button>
+                        </div>
+                        <div className="btn-group">
+                            <button className="btn btn-lg btn-primary" onClick={this.createAccount} disabled={this.props.registrationInProgress}>
+                                <i className="fa fa-plus"></i>&nbsp;Register
+                            </button>
+                        </div>
+                    </div>
                 </form>
-                <p>No SIP account? <button className="btn-link" onClick={this.createAccount}>Create an account</button></p>
                 <EnrollmentModal show={this.state.showEnrollmentModal} handleEnrollment={this.handleEnrollment} />
             </div>
         );

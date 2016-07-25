@@ -40,14 +40,14 @@ class RegisterForm extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        this.props.handleRegistration(this.state.accountId, this.state.password, false);
+        this.props.handleRegistration(this.state.accountId, this.state.password);
     }
 
     handleEnrollment(account) {
         this.setState({showEnrollmentModal: false});
         if (account !== null) {
             this.setState({accountId: account.accountId, password: account.password, registering: true});
-            this.props.handleRegistration(account.accountId, account.password, false);
+            this.props.handleRegistration(account.accountId, account.password);
         }
     }
 

@@ -285,12 +285,12 @@ class Blink extends React.Component {
         }
     }
 
-    handleRegistration(accountId, password='', guestMode=false) {
+    handleRegistration(accountId, password) {
         // Needed for ready event in connection
         this.setState({
             accountId : accountId,
             password  : password,
-            guestMode : guestMode,
+            guestMode : false,
             loading   : 'Connecting...'
         });
 
@@ -300,7 +300,7 @@ class Blink extends React.Component {
             this.setState({connection: connection});
         } else {
             DEBUG('Connection Present, try to register');
-            this.processRegistration(accountId, password, guestMode);
+            this.processRegistration(accountId, password, false);
         }
     }
 
@@ -577,7 +577,6 @@ class Blink extends React.Component {
             <div>
                 <NavigationBar
                     account={this.state.account}
-                    guestMode={this.state.guestMode}
                     showAbout={this.showAboutModal}
                     notifications={this.refs.notifications}
                 />
@@ -586,7 +585,6 @@ class Blink extends React.Component {
                     startAudioCall = {this.startAudioCall}
                     startVideoCall = {this.startVideoCall}
                     targetUri = {this.state.targetUri}
-                    guestMode = {this.state.guestMode}
                     history = {this.state.history}
                 />
             </div>

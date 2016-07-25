@@ -4,7 +4,7 @@ const React          = require('react');
 const classNames     = require('classnames');
 
 const ConferenceModal = require('./ConferenceModal');
-const URIInput       = require('./URIInput');
+const URIInput        = require('./URIInput');
 const config          = require('../config');
 const utils           = require('../utils');
 
@@ -32,12 +32,7 @@ class ReadyBox extends React.Component {
     }
 
     getTargetUri() {
-        let defaultDomain;
-        if (this.props.guestMode) {
-            defaultDomain = config.defaultDomain;
-        } else {
-            defaultDomain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
-        }
+        const defaultDomain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
         return utils.normalizeUri(this.state.targetUri, defaultDomain);
     }
 
@@ -113,7 +108,6 @@ class ReadyBox extends React.Component {
 
 ReadyBox.propTypes = {
     account        : React.PropTypes.object.isRequired,
-    guestMode      : React.PropTypes.bool,
     startAudioCall : React.PropTypes.func.isRequired,
     startVideoCall : React.PropTypes.func.isRequired,
     targetUri      : React.PropTypes.string,

@@ -206,12 +206,11 @@ class VideoBox extends React.Component {
             }
 
             videoHeader = (
-                <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     <div key="header" className="call-header">
                         <p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p>
                         <p className={videoHeaderTextClasses}>{callDuration}</p>
                     </div>
-                </ReactCSSTransitionGroup>
+
             );
 
             let fullScreenButton;
@@ -221,23 +220,25 @@ class VideoBox extends React.Component {
 
             callButtons = (
                 <div className="call-buttons">
-                    <ReactCSSTransitionGroup transitionName="videobuttons" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                         <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>
                         <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>
                         {fullScreenButton}
                         <br />
                         <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>
-                    </ReactCSSTransitionGroup>
                 </div>
             );
         }
 
         return (
             <div className="video-container" ref="videoContainer" onMouseMove={this.showCallOverlay}>
-                {videoHeader}
+                <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                    {videoHeader}
+                </ReactCSSTransitionGroup>
                 <video id="remoteVideo" className={remoteVideoClasses} ref="remoteVideo" autoPlay />
                 <video id="localVideo" className={localVideoClasses} ref="localVideo" autoPlay muted/>
-                {callButtons}
+                <ReactCSSTransitionGroup transitionName="videobuttons" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                    {callButtons}
+                </ReactCSSTransitionGroup>
             </div>
         );
     }

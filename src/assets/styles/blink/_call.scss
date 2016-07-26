@@ -34,7 +34,7 @@
 }
 
 .videobuttons-leave {
-    .videobuttons-leave-active {
+    &.videobuttons-leave-active {
         -webkit-animation: fadeOutDown linear .3s;
         animation: fadeOutDown linear .3s;
     }
@@ -47,7 +47,7 @@
 }
 
 .videoheader-leave {
-    .videoheader-leave-active {
+    &.videoheader-leave-active {
         -webkit-animation: fadeOutUp linear .3s;
         animation: fadeOutUp linear .3s;
     }

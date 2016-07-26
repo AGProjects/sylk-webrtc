@@ -32,9 +32,17 @@
     width: 55px;
 }
 
+.btn-round-xxl {
+    @extend %btn-round;
+    font-size: 24px;
+    height: 65px;
+    width: 65px;
+}
+
 .btn-link,
 .btn-round,
-.btn-round-big {
+.btn-round-big,
+.btn-round-xxl {
     &:focus {
         &,
         &:active {

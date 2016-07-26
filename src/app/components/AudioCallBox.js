@@ -7,6 +7,8 @@ const moment        = require('moment');
 const momentFormat  = require('moment-duration-format');
 const rtcninja      = require('sylkrtc').rtcninja;
 
+const DTMFModal     = require('./DTMFModal');
+
 const DEBUG = debug('blinkrtc:AudioCallBox');
 
 
@@ -15,13 +17,20 @@ class AudioCallBox extends React.Component {
         super(props);
         this.state = {
             callDuration : null,
-            audioMuted   : false
+            audioMuted   : false,
+            showDtmfModal: false
         };
 
         // ES6 classes no longer autobind
-        this.callStateChanged = this.callStateChanged.bind(this);
-        this.hangupCall = this.hangupCall.bind(this);
-        this.muteAudio = this.muteAudio.bind(this);
+        [
+            'callStateChanged',
+            'hangupCall',
+            'muteAudio',
+            'showDtmfModal',
+            'hideDtmfModal'
+        ].forEach((name) => {
+            this[name] = this[name].bind(this);
+        });
 
         if (this.props.call != null) {
             if (this.props.call.state !== 'established') {
@@ -90,6 +99,14 @@ class AudioCallBox extends React.Component {
 
     }
 
+    showDtmfModal() {
+        this.setState({showDtmfModal: true});
+    }
+
+    hideDtmfModal() {
+        this.setState({showDtmfModal: false});
+    }
+
     startCallTimer() {
         let startTime = new Date();
         this.callTimer = setInterval(() => {
@@ -139,11 +156,19 @@ class AudioCallBox extends React.Component {
                     <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}>
                         <i className={muteButtonIconClasses}></i>
                     </button>
+                    <button key="dtmfButton" type="button" disabled={this.state.callDuration === null} className={commonButtonClasses} onClick={this.showDtmfModal}>
+                        <i className="fa fa-fax"></i>
+                    </button>
                     <br />
                     <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}>
                         <i className="fa fa-phone rotate-135"></i>
                     </button>
                 </div>
+                <DTMFModal
+                    show={this.state.showDtmfModal}
+                    hide={this.hideDtmfModal}
+                    call={this.props.call}
+                />
             </div>
         );
     }

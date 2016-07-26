@@ -62,7 +62,7 @@
             }
         }
 
-        &:last-of-type {
+        ~.input-group {
             .input-group-addon {
                 &:first-child  {
                     border: 0;
@@ -82,8 +82,8 @@
 .form-guest,
 .form-signin {
     .input-group {
-        &:last-of-type {
-            margin-bottom: 10px;
+        ~.input-group {
+            margin-bottom: 20px;
         }
     }
 

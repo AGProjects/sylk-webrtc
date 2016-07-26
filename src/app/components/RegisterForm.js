@@ -81,7 +81,7 @@ class RegisterForm extends React.Component {
                         <span className="input-group-addon second"><i className="fa fa-lock fa-fw"></i></span>
                         <input type="password" id="inputPassword" ref="pass" className="form-control" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} required />
                     </div>
-                    <br />
+
                     <div className="btn-group btn-group-justified">
                         <div className="btn-group">
                             <button type="submit" className={classes} disabled={this.props.registrationInProgress || !validInput}>

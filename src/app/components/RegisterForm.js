@@ -5,29 +5,33 @@ const sylkrtc    = require('sylkrtc');
 const classNames = require('classnames');
 
 const EnrollmentModal = require('./EnrollmentModal');
+const storage         = require('../storage');
 
 
 class RegisterForm extends React.Component {
     constructor(props) {
         super(props);
-        let state = {
+        this.state = {
             accountId: '',
             password: '',
             registering: false,
             showEnrollmentModal: false
         };
-        let data = window.localStorage.getItem('blinkAccount');
-        if (data) {
-            let accountData = JSON.parse(data);
-            Object.assign(state, accountData);
-        }
-        this.state = state;
+
         // ES6 classes no longer autobind
         this.handleAccountIdChange = this.handleAccountIdChange.bind(this);
         this.handlePasswordChange = this.handlePasswordChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleEnrollment = this.handleEnrollment.bind(this);
         this.createAccount = this.createAccount.bind(this);
+    }
+
+    componentWillMount() {
+        storage.get('account').then((account) => {
+            if (account) {
+                this.setState(account);
+            }
+        });
     }
 
     handleAccountIdChange(event) {

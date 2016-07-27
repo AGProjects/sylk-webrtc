@@ -25,6 +25,8 @@ const LoadingScreen     = require('./components/LoadingScreen');
 const NavigationBar     = require('./components/NavigationBar');
 const utils             = require('./utils');
 const config            = require('./config');
+const storage           = require('./storage');
+const history           = require('./history');
 
 // attach debugger to the window for console access
 window.blinkDebugger = debug;
@@ -62,8 +64,7 @@ class Blink extends React.Component {
             guestMode: false,
             callByUriState: null,
             localMedia: null,
-            history: [],
-            historyLoaded: false
+            history: []
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -91,6 +92,8 @@ class Blink extends React.Component {
     }
 
     componentWillMount() {
+        storage.initialize();
+
         if (!sylkrtc.rtcninja.hasWebRTC()) {
             window.location.hash = '#!/not-supported';
         }
@@ -98,6 +101,12 @@ class Blink extends React.Component {
         if(this.state.path === '/') {
             window.location.hash = '#!/login';
         }
+
+        history.load().then((entries) => {
+            if (entries) {
+                this.setState({history: entries});
+            }
+        });
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -320,7 +329,6 @@ class Blink extends React.Component {
         let options = {account: accountId, password: password};
         let account = this.state.connection.addAccount(options, (error, account) => {
             if (!error) {
-                this.loadCallHistory();
                 account.on('outgoingCall', this.outgoingCall);
                 if (!this.state.guestMode) {
                     account.on('registrationStateChanged', this.registrationStateChanged);
@@ -355,8 +363,7 @@ class Blink extends React.Component {
         } else {
             this.state.account.register();
             if (!this.state.guestMode) {
-                window.localStorage.setItem('blinkAccount',
-                                            JSON.stringify({accountId: this.state.accountId, password: this.state.password}));
+                storage.set('account', {accountId: this.state.accountId, password: this.state.password});
             }
         }
     }
@@ -468,31 +475,9 @@ class Blink extends React.Component {
     }
 
     addCallHistoryEntry(uri) {
-        if (!this.state.guestMode) {
-            let history = this.state.history;
-            let idx = history.indexOf(uri);
-            if (idx !== -1) {
-                history.splice(idx, 1);
-            }
-            history.unshift(uri);
-            // keep just the last 50
-            history = history.slice(0, 50);
-            window.localStorage.setItem('blinkHistory', JSON.stringify(history));
-            this.setState({history: history});
-        }
-    }
-
-    loadCallHistory() {
-        if (!this.state.historyLoaded) {
-            let history = [];
-            if (!this.state.guestMode) {
-                let data = window.localStorage.getItem('blinkHistory');
-                if (data) {
-                    history = JSON.parse(data);
-                }
-            }
-            this.setState({history: history, historyLoaded: true});
-        }
+        history.add(uri).then((entries) => {
+            this.setState({history: entries});
+        });
     }
 
     showAboutModal() {

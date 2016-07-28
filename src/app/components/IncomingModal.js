@@ -2,49 +2,89 @@
 
 const React          = require('react');
 const ReactBootstrap = require('react-bootstrap');
-const Modal          = ReactBootstrap.Modal;
+const Popover        = ReactBootstrap.Popover;
+const OverlayTrigger = ReactBootstrap.OverlayTrigger;
+
+const classNames = require('classnames');
 
 
-const IncomingCallModal = (props) => {
-    let callType = 'Audio';
-    if (props.call !== null && props.call.mediaTypes.video) {
-        callType = 'Video';
+class IncomingCallModal extends React.Component {
+    constructor(props) {
+        super(props);
+
+        // ES6 classes no longer autobind
+        this.onKeyUp = this.onKeyUp.bind(this);
     }
 
-    let remoteIdentity = '';
-    if (props.call !== null) {
-        remoteIdentity = props.call.remoteIdentity.toString();
+    componentWillMount() {
+        document.addEventListener('keyup', this.onKeyUp);
     }
 
-    return (
-        <Modal show={props.show} onHide={props.onHide} aria-labelledby="modal-title-sm">
-            <Modal.Header closeButton>
-                <Modal.Title id="modal-title-sm">Incoming {callType} call</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <div className="row">
-                    <div className="col-md-3">
-                        <i className="fa-3x fa fa-bell faa-ring animated"></i>
-                    </div>
-                    <div className="col-md-9 text-left">
-                        <p className="lead">From: {remoteIdentity}</p>
+    componentWillUnmount() {
+        document.removeEventListener('keyup', this.onKeyUp);
+    }
+
+    onKeyUp(event) {
+        switch (event.which) {
+            case 27:
+                // ESC
+                this.props.onHangup()
+                break;
+            default:
+                break;
+        }
+    }
+
+    render() {
+        let callType = 'audio';
+        if (this.props.call !== null && this.props.call.mediaTypes.video) {
+            callType = 'video';
+        }
+
+        let remoteIdentityLine;
+        if (this.props.call !== null) {
+            if (this.props.call.remoteIdentity.displayName) {
+                remoteIdentityLine = this.props.call.remoteIdentity.displayName;
+            } else {
+                remoteIdentityLine = this.props.call.remoteIdentity.uri;
+            }
+        }
+
+        const tooltip = (
+            <Popover id="popover-trigger-hover-focus">
+                <strong>{this.props.call.remoteIdentity.uri}</strong>
+            </Popover>
+        );
+
+        return (
+            <div>
+                <div className="modal-backdrop"></div>
+                <div className="modal" style={{display: 'block'}}>
+                    <div className="loading">
+                        <div className="loading-inner">
+                            <OverlayTrigger placement="top" overlay={tooltip}>
+                                <i className="fa fa-user fa-5 fa-fw user-icon"></i>
+                            </OverlayTrigger>
+                            <h1>{remoteIdentityLine}</h1>
+                            <h4>is calling with {callType}</h4>
+                            <br />
+                            <br />
+                            <br />
+                            <button className="btn btn-danger btn-round-xxl" onClick={this.props.onHangup}><i className="fa fa-phone rotate-135"></i></button>
+                            &nbsp;&nbsp;&nbsp;
+                            <button className="btn btn-success btn-round-xxl" onClick={this.props.onAnswer}><i className="fa fa-phone"></i></button>
+                        </div>
                     </div>
                 </div>
-                <br />
-                <div className="text-center">
-                    <button className="btn btn-danger btn-round-big" onClick={props.onHide}><i className="fa fa-phone rotate-135"></i></button>
-                    <button className="btn btn-success btn-round-big" onClick={props.onAnswer}><i className="fa fa-phone"></i></button>
-                </div>
-            </Modal.Body>
-        </Modal>
-    );
+            </div>
+        );
+    }
 }
 
 IncomingCallModal.propTypes = {
-    show     : React.PropTypes.bool.isRequired,
     call     : React.PropTypes.object,
     onAnswer : React.PropTypes.func.isRequired,
-    onHide   : React.PropTypes.func.isRequired
+    onHangup : React.PropTypes.func.isRequired
 };
 
 

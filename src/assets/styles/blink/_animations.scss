@@ -151,3 +151,16 @@
         }
     }
 }
+
+// Incoming Modal animation
+.incoming-modal-enter {
+    -webkit-animation: fadeIn ease .3s;
+    animation: fadeIn ease .3s;
+}
+
+.incoming-modal-leave {
+    &.incoming-modal-leave-active {
+        -webkit-animation: fadeOut ease .3s;
+        animation: fadeOut ease .3s;
+    }
+}

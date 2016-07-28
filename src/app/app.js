@@ -1,10 +1,12 @@
 'use strict';
 
-const React      = require('react');
-const ReactDOM   = require('react-dom');
-const ReactMixin = require('react-mixin');
-const Router     = require('react-mini-router');
-const navigate   = Router.navigate;
+const React                     = require('react');
+const ReactDOM                  = require('react-dom');
+const ReactMixin                = require('react-mixin');
+const Router                    = require('react-mini-router');
+const navigate                  = Router.navigate
+const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
+
 const sylkrtc    = require('sylkrtc');
 const debug      = require('debug');
 
@@ -490,12 +492,21 @@ class Blink extends React.Component {
 
     render() {
         let loadingScreen;
+        let incomingCallModal;
         let footerBox = <FooterBox />;
 
         if (this.state.loading !== null) {
             loadingScreen = <LoadingScreen text={this.state.loading} />;
         }
-
+        if (this.state.showIncomingModal) {
+            incomingCallModal = (
+                    <IncomingCallModal
+                        call = {this.state.inboundCall}
+                        onAnswer = {this.answerCall}
+                        onHangup = {this.rejectCall}
+                    />
+            );
+        }
         if (this.state.localMedia) {
             footerBox = '';
         }
@@ -516,12 +527,9 @@ class Blink extends React.Component {
                 <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav" />
                 <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
                 <Notifications ref="notifications" />
-                <IncomingCallModal
-                    call = {this.state.inboundCall}
-                    show = {this.state.showIncomingModal}
-                    onAnswer = {this.answerCall}
-                    onHide = {this.rejectCall}
-                />
+                <ReactCSSTransitionGroup transitionName="incoming-modal" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                    {incomingCallModal}
+                </ReactCSSTransitionGroup>
                 <AboutModal
                     show = {this.state.showAboutModal}
                     close = {this.closeAboutModal}

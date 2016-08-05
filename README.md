@@ -4,12 +4,12 @@
 Blink for web is a simple web frontend for making audio / video calls from a
 web browser, using WebRTC technologies.
 
-It's built using HTML and JavaScript and uses the SylkRTC API.
+It's built using HTML and JavaScript and uses the [SylkRTC](https://github.com/AGProjects/sylkrtc.js) API.
 
 
 ## Development
 
-Nodejs is needed for development. Versions >= 0.12 are recommended. A convenience
+Nodejs is needed for development. Version >= 4.2 is recommended. A convenience
 `configure` script and `Makefile` are provided.
 
 * Install all dependencies
@@ -72,8 +72,8 @@ Blink for Web is available under the AGPLv3 license. See the LICENSE file.
 
 ## Authors
 
-* Saúl Ibarra Corretgé (@saghul)
-* Tijmen de Mes (@tijmenNL)
+* Saúl Ibarra Corretgé ([@saghul](https://github.com/saghul))
+* Tijmen de Mes ([@tijmenNL](https://github.com/tijmenNL))
 
 
 ## Credits
@@ -82,4 +82,3 @@ The following organizations have helped the development of Blink for Web by prov
 
 * [NLnet Foundation](https://www.nlnet.nl)
 * [SIDN](https://www.sidn.nl)
-

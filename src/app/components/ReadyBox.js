@@ -42,17 +42,17 @@ class ReadyBox extends React.Component {
 
     handleTargetSelect() {
         // the user pressed enter, start a video call by default
-        this.props.startVideoCall(this.getTargetUri());
+        this.props.startCall(this.getTargetUri(), {audio: true, video: true});
     }
 
     handleAudioCall(event) {
         event.preventDefault();
-        this.props.startAudioCall(this.getTargetUri());
+        this.props.startCall(this.getTargetUri(), {audio: true, video: false});
     }
 
     handleVideoCall(event) {
         event.preventDefault();
-        this.props.startVideoCall(this.getTargetUri());
+        this.props.startCall(this.getTargetUri(), {audio: true, video: true});
     }
 
     showConferenceModal(event) {
@@ -63,7 +63,7 @@ class ReadyBox extends React.Component {
     handleConferenceCall(targetUri) {
         this.setState({showConferenceModal: false, targetUri: targetUri || ''});
         if (targetUri) {
-            this.props.startAudioCall(targetUri);
+            this.props.startCall(targetUri, {audio: true, video: false});
         }
     }
 
@@ -108,8 +108,7 @@ class ReadyBox extends React.Component {
 
 ReadyBox.propTypes = {
     account        : React.PropTypes.object.isRequired,
-    startAudioCall : React.PropTypes.func.isRequired,
-    startVideoCall : React.PropTypes.func.isRequired,
+    startCall      : React.PropTypes.func.isRequired,
     targetUri      : React.PropTypes.string,
     history        : React.PropTypes.array
 };

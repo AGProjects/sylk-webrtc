@@ -78,8 +78,7 @@ class Blink extends React.Component {
             'inboundCallStateChanged',
             'handleCallByUri',
             'handleRegistration',
-            'startAudioCall',
-            'startVideoCall',
+            'startCall',
             'answerCall',
             'rejectCall',
             'outgoingCall',
@@ -389,16 +388,10 @@ class Blink extends React.Component {
         });
     }
 
-    startAudioCall(targetUri) {
+    startCall(targetUri, options) {
         this.setState({targetUri: targetUri});
         this.addCallHistoryEntry(targetUri);
-        this.getLocalMedia({audio: true, video: false});
-    }
-
-    startVideoCall(targetUri) {
-        this.setState({targetUri: targetUri});
-        this.addCallHistoryEntry(targetUri);
-        this.getLocalMedia({audio: true, video: true});
+        this.getLocalMedia(Object.assign({audio: true, video: true}, options));
     }
 
     answerCall() {
@@ -558,8 +551,7 @@ class Blink extends React.Component {
                 />
                 <ReadyBox
                     account   = {this.state.account}
-                    startAudioCall = {this.startAudioCall}
-                    startVideoCall = {this.startVideoCall}
+                    startCall = {this.startCall}
                     targetUri = {this.state.targetUri}
                     history = {this.state.history}
                 />

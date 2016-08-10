@@ -440,8 +440,7 @@ class Blink extends React.Component {
         call.mediaTypes = mediaTypes;
         if (this.state.currentCall !== null) {
             // detect if we called ourselves
-            if (this.state.currentCall.localIdentity.uri === this.state.currentCall.localIdentity.uri &&
-                this.state.currentCall.localIdentity.uri === call.remoteIdentity.uri) {
+            if (this.state.currentCall.localIdentity.uri === call.remoteIdentity.uri) {
                 DEBUG('Aborting call to myself');
                 call.terminate();
                 return;

@@ -221,30 +221,19 @@ class Blink extends React.Component {
             }
             this.refs.notifications.postNotification('info', 'Call Terminated', reason);
 
-            let targetUri = '';
-            if (!callSuccesfull) {
-                targetUri = this.state.targetUri;
-            }
-
             this.setState({
                 currentCall         : null,
-                targetUri           : targetUri,
+                targetUri           : callSuccesfull ? '' : this.state.targetUri,
                 showIncomingModal   : false,
                 inboundCall         : null,
                 localMedia          : null
             });
 
-            if (callSuccesfull && this.state.callByUriState !== null) {
+            if (this.state.callByUriState !== null) {
                 this.state.connection.removeListener('stateChanged', this.connectionStateChanged);
                 this.state.connection.close();
                 let newState = Object.assign({}, this._initialSstate);
-                newState.callByUriState = 'finished';
-                this.setState(newState);
-            } else if (this.state.callByUriState !== null) {
-                this.state.connection.removeListener('stateChanged', this.connectionStateChanged);
-                this.state.connection.close();
-                let newState = Object.assign({}, this._initialSstate);
-                newState.callByUriState = 'failed';
+                newState.callByUriState = callSuccesfull ? 'finished' : 'failed';
                 this.setState(newState);
             } else {
                 navigate('/ready');

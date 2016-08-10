@@ -415,10 +415,14 @@ class Blink extends React.Component {
     answerCall() {
         this.setState({ showIncomingModal: false });
         if (this.state.inboundCall !== this.state.currentCall) {
-            this.switchToIncomingCall(this.state.inboundCall);
-        } else {
-            this.getLocalMedia(this.state.currentCall.mediaTypes);
+            // terminate current call to switch to incoming one
+            this.state.inboundCall.removeListener('stateChanged', this.inboundCallStateChanged);
+            this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
+            this.state.currentCall.terminate();
+            this.setState({currentCall: this.state.inboundCall, inboundCall: this.state.inboundCall, localMedia: null});
+            this.state.inboundCall.on('stateChanged', this.callStateChanged);
         }
+        this.getLocalMedia(this.state.inboundCall.mediaTypes);
     }
 
     rejectCall() {
@@ -460,15 +464,6 @@ class Blink extends React.Component {
             this.setState({targetUri: targetUri});
         }
         navigate('/ready');
-    }
-
-    switchToIncomingCall(call) {
-        this.state.inboundCall.removeListener('stateChanged', this.inboundCallStateChanged);
-        this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
-        this.state.currentCall.terminate();
-        this.setState({currentCall: call, inboundCall: null, localMedia: null});
-        call.on('stateChanged', this.callStateChanged);
-        this.getLocalMedia(call.mediaTypes);
     }
 
     missedCall(data) {

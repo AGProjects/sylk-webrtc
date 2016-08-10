@@ -85,8 +85,7 @@ class Blink extends React.Component {
             'incomingCall',
             'switchToMissedCall',
             'missedCall',
-            'showAboutModal',
-            'closeAboutModal'
+            'toggleAboutModal'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -458,12 +457,8 @@ class Blink extends React.Component {
         });
     }
 
-    showAboutModal() {
-        this.setState({showAboutModal: true});
-    }
-
-    closeAboutModal() {
-        this.setState({showAboutModal: false});
+    toggleAboutModal() {
+        this.setState({showAboutModal: !this.state.showAboutModal});
     }
 
     render() {
@@ -508,7 +503,7 @@ class Blink extends React.Component {
                 </ReactCSSTransitionGroup>
                 <AboutModal
                     show = {this.state.showAboutModal}
-                    close = {this.closeAboutModal}
+                    close = {this.toggleAboutModal}
                 />
             </div>
         );
@@ -546,7 +541,7 @@ class Blink extends React.Component {
             <div>
                 <NavigationBar
                     account={this.state.account}
-                    showAbout={this.showAboutModal}
+                    showAbout={this.toggleAboutModal}
                     notifications={this.refs.notifications}
                 />
                 <ReadyBox

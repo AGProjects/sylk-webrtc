@@ -597,10 +597,9 @@ class Blink extends React.Component {
         }
 
         if (this.state.registrationState !== 'registered') {
-            let registrationInProgress = this.state.registrationState !== null && this.state.registrationState !== 'failed';
             registerBox = (
                 <RegisterBox
-                    registrationInProgress = {registrationInProgress}
+                    registrationInProgress = {this.state.registrationState !== null && this.state.registrationState !== 'failed'}
                     handleRegistration = {this.handleRegistration}
                 />
             );

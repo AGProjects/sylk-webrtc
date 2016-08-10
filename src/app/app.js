@@ -561,25 +561,25 @@ class Blink extends React.Component {
 
     call() {
         return (
-                <Call
-                    localMedia = {this.state.localMedia}
-                    account = {this.state.account}
-                    targetUri = {this.state.targetUri}
-                    currentCall = {this.state.currentCall}
-                />
+            <Call
+                localMedia = {this.state.localMedia}
+                account = {this.state.account}
+                targetUri = {this.state.targetUri}
+                currentCall = {this.state.currentCall}
+            />
         )
     }
 
     callByUri(targetUri) {
         return (
-                <CallByUriBox
-                    handleCallByUri = {this.handleCallByUri}
-                    targetUri = {targetUri}
-                    callByUriState = {this.state.callByUriState}
-                    localMedia = {this.state.localMedia}
-                    account = {this.state.account}
-                    currentCall = {this.state.currentCall}
-                />
+            <CallByUriBox
+                handleCallByUri = {this.handleCallByUri}
+                targetUri = {targetUri}
+                callByUriState = {this.state.callByUriState}
+                localMedia = {this.state.localMedia}
+                account = {this.state.account}
+                currentCall = {this.state.currentCall}
+            />
         );
     }
 

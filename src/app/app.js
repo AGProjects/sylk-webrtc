@@ -149,7 +149,7 @@ class Blink extends React.Component {
                 break;
             case 'ready':
                 this.setState({connectionState: newState});
-                this.processRegistration(this.state.accountId, this.state.password, this.state.guestMode);
+                this.processRegistration(this.state.accountId, this.state.password);
                 break;
             case 'disconnected':
                 this.setState({account:null, registrationState: null, loading: 'Disconnected, reconnecting...', currentCall: null});
@@ -279,7 +279,7 @@ class Blink extends React.Component {
             this.setState({connection: connection});
         } else {
             DEBUG('Connection Present, try to register');
-            this.processRegistration(accountId, '', true);
+            this.processRegistration(accountId, '');
         }
     }
 
@@ -298,11 +298,11 @@ class Blink extends React.Component {
             this.setState({connection: connection});
         } else {
             DEBUG('Connection Present, try to register');
-            this.processRegistration(accountId, password, false);
+            this.processRegistration(accountId, password);
         }
     }
 
-    processRegistration(accountId, password, guestMode) {
+    processRegistration(accountId, password) {
         if (this.state.account !== null) {
             DEBUG('We already have an account, removing it');
             this.state.connection.removeAccount(this.state.account,

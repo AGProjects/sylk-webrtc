@@ -56,7 +56,6 @@ class Blink extends React.Component {
             registrationState: null,
             currentCall: null,
             connection: null,
-            connectionState: null,
             inboundCall: null,
             showAboutModal: false,
             showIncomingModal: false,
@@ -142,20 +141,19 @@ class Blink extends React.Component {
     }
 
     connectionStateChanged(oldState, newState) {
-        DEBUG('Connection state changed! ' + newState);
+        DEBUG(`Connection state changed! ${oldState} -> ${newState}`);
         switch (newState) {
             case 'closed':
-                this.setState({connection: null, connectionState: newState});
+                this.setState({connection: null});
                 break;
             case 'ready':
-                this.setState({connectionState: newState});
                 this.processRegistration(this.state.accountId, this.state.password);
                 break;
             case 'disconnected':
                 this.setState({account:null, registrationState: null, loading: 'Disconnected, reconnecting...', currentCall: null});
                 break;
             default:
-                this.setState({connectionState: newState, loading: 'Connecting...'});
+                this.setState({loading: 'Connecting...'});
                 break;
         }
     }

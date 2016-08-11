@@ -326,12 +326,8 @@ class Blink extends React.Component {
                 } else {
                     this.setState({account: account, loading: null, registrationState: 'registered'});
                     this.refs.notifications.postNotification('success', accountId + ' signed in');
-                    if (this.state.callByUriState === null) {
-                        navigate('/ready');
-                        return;
-                    }
+                    // Start the call immediately, this is call started with "Call by URI"
                     this.startVideoCall(this.state.targetUri);
-                    return;
                 }
             } else {
                 DEBUG('Add account error: ' + error);

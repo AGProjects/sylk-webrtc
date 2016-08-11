@@ -71,6 +71,7 @@ class CallByUriBox extends React.Component {
                                 autoFocus
                             />
                         </div>
+                        <br />
                         <button type="submit" className={classes} disabled={!validInput}><i className="fa fa-video-camera"></i> Call</button>
                     </form>
                 </div>

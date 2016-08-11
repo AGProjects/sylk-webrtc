@@ -137,6 +137,13 @@ class Blink extends React.Component {
                 }
             }
         }
+
+        // Redirect to /logout if a guest goes to /ready
+        if (nextState.path === '/ready' && this.state.guestMode) {
+            navigate('/logout');
+            return false;
+        }
+
         return true;
     }
 
@@ -599,8 +606,10 @@ class Blink extends React.Component {
     }
 
     logout() {
-        this.toggleRegister();
-        navigate('/login');
+        setTimeout(() => {
+            this.toggleRegister();
+            navigate('/login');
+        });
         return <div></div>;
     }
 

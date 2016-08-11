@@ -226,8 +226,6 @@ class Blink extends React.Component {
             });
 
             if (this.state.callByUriState !== null) {
-                this.state.connection.removeListener('stateChanged', this.connectionStateChanged);
-                this.state.connection.close();
                 let newState = Object.assign({}, this._initialSstate);
                 newState.callByUriState = callSuccesfull ? 'finished' : 'failed';
                 this.setState(newState);

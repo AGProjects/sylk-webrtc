@@ -63,7 +63,6 @@ class Blink extends React.Component {
             targetUri: '',
             loading: null,
             guestMode: false,
-            callByUriState: null,
             localMedia: null,
             history: []
         };
@@ -232,11 +231,7 @@ class Blink extends React.Component {
                 localMedia          : null
             });
 
-            if (this.state.callByUriState !== null) {
-                this.setState({callByUriState: callSuccesfull ? 'finished' : 'failed'});
-            } else {
-                navigate('/ready');
-            }
+            navigate('/ready');
         }
 
         switch (newState) {
@@ -270,7 +265,6 @@ class Blink extends React.Component {
             password       : '',
             guestMode      : true,
             targetUri      : utils.normalizeUri(targetUri, config.defaultDomain),
-            callByUriState : 'init',
             loading        : 'Connecting...'
         });
 
@@ -330,7 +324,7 @@ class Blink extends React.Component {
                     this.setState({account: account, loading: null, registrationState: 'registered'});
                     this.refs.notifications.postNotification('success', accountId + ' signed in');
                     // Start the call immediately, this is call started with "Call by URI"
-                    this.startCall(this.state.targetUri, {audio: true, video: true});
+                    this.startGuestCall(this.state.targetUri, {audio: true, video: true});
                 }
             } else {
                 DEBUG('Add account error: ' + error);
@@ -354,7 +348,7 @@ class Blink extends React.Component {
         }
     }
 
-    getLocalMedia(mediaConstraints) {
+    getLocalMedia(mediaConstraints, nextRoute=null) {
         this.loadScreenTimer = setTimeout(() => {
             this.setState({loading: 'Please allow access to your media devices'});
         }, 150);
@@ -366,8 +360,8 @@ class Blink extends React.Component {
             (localStream) => {
                 clearTimeout(this.loadScreenTimer);
                 this.setState({status: null, loading: null, localMedia: localStream});
-                if (this.state.callByUriState === null) {
-                    navigate('/call');
+                if (nextRoute !== null) {
+                    navigate(nextRoute);
                 }
             },
             (error) => {
@@ -387,6 +381,11 @@ class Blink extends React.Component {
     startCall(targetUri, options) {
         this.setState({targetUri: targetUri});
         this.addCallHistoryEntry(targetUri);
+        this.getLocalMedia(Object.assign({audio: true, video: true}, options), '/call');
+    }
+
+    startGuestCall(targetUri, options) {
+        this.setState({targetUri: targetUri});
         this.getLocalMedia(Object.assign({audio: true, video: true}, options));
     }
 
@@ -567,10 +566,10 @@ class Blink extends React.Component {
             <CallByUriBox
                 handleCallByUri = {this.handleCallByUri}
                 targetUri = {targetUri}
-                callByUriState = {this.state.callByUriState}
                 localMedia = {this.state.localMedia}
                 account = {this.state.account}
                 currentCall = {this.state.currentCall}
+                notifications={this.refs.notifications}
             />
         );
     }

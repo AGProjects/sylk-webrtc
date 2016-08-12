@@ -17,6 +17,23 @@ class CallByUriBox extends React.Component {
         // ES6 classes no longer autobind
         this.handleAccountIdChange = this.handleAccountIdChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.callStateChanged = this.callStateChanged.bind(this);
+
+        if (this.props.currentCall) {
+            this.props.currentCall.on('stateChanged', this.callStateChanged);
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (!this.props.currentCall && nextProps.currentCall) {
+            nextProps.currentCall.on('stateChanged', this.callStateChanged);
+        }
+    }
+
+    callStateChanged(oldState, newState, data) {
+        if (newState === 'terminated') {
+            this.props.notifications.postNotification('info', 'Thanks for calling with Blink!', '');
+        }
     }
 
     handleAccountIdChange(event) {
@@ -31,22 +48,11 @@ class CallByUriBox extends React.Component {
     }
 
     render() {
-        let validInput = this.state.accountId !== '';
-        let defaultContent;
-        let thanksContent;
-        let call;
-
-        const classes = classNames({
-            'capitalize' : true,
-            'btn'        : true,
-            'btn-lg'     : true,
-            'btn-block'  : true,
-            'btn-default': this.state.accountId == '',
-            'btn-primary': this.state.accountId !== ''
-        });
+        const validInput = this.state.accountId !== '';
+        let content;
 
         if (this.props.localMedia !== null) {
-            call = (
+            content = (
                 <Call
                     localMedia = {this.props.localMedia}
                     account = {this.props.account}
@@ -54,8 +60,17 @@ class CallByUriBox extends React.Component {
                     targetUri = {this.props.targetUri}
                 />
             );
-        } else if (this.props.callByUriState !== 'finished') {
-            defaultContent = (
+        } else {
+            const classes = classNames({
+                'capitalize' : true,
+                'btn'        : true,
+                'btn-lg'     : true,
+                'btn-block'  : true,
+                'btn-default': !validInput,
+                'btn-primary': validInput
+            });
+
+            content = (
                 <div>
                     <h2>You've been invited to call<br/><strong>{this.props.targetUri}</strong></h2>
                     <form className="form-guest" onSubmit={this.handleSubmit}>
@@ -76,21 +91,12 @@ class CallByUriBox extends React.Component {
                     </form>
                 </div>
             );
-        } else {
-            thanksContent = (
-                <div>
-                    <Logo />
-                    <h2>Thanks for calling!</h2>
-                </div>
-            );
         }
 
         return (
             <div className="cover-container">
                 <div className="inner cover" >
-                    {call}
-                    {defaultContent}
-                    {thanksContent}
+                    {content}
                 </div>
             </div>
         );
@@ -100,10 +106,10 @@ class CallByUriBox extends React.Component {
 CallByUriBox.propTypes = {
     handleCallByUri : React.PropTypes.func.isRequired,
     targetUri       : React.PropTypes.string,
-    callByUriState  : React.PropTypes.string,
     localMedia      : React.PropTypes.object,
     account         : React.PropTypes.object,
-    currentCall     : React.PropTypes.object
+    currentCall     : React.PropTypes.object,
+    notifications   : React.PropTypes.object.isRequired
 };
 
 

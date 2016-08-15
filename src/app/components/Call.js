@@ -40,11 +40,12 @@ class Call extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         // Needed for switching to incoming call while in a call
-        if (this.props.currentCall != null && this.props.currentCall != nextProps.currentCall && nextProps.currentCall != null) {
-            nextProps.currentCall.on('stateChanged', this.callStateChanged);
-        }
-        if (this.props.currentCall != null && this.props.currentCall != nextProps.currentCall && nextProps.currentCall == null) {
-             this.props.currentCall.removeListener('stateChanged', this.callStateChanged);
+        if (this.props.currentCall != null && this.props.currentCall != nextProps.currentCall) {
+            if (nextProps.currentCall != null) {
+                nextProps.currentCall.on('stateChanged', this.callStateChanged);
+            } else {
+                this.props.currentCall.removeListener('stateChanged', this.callStateChanged);
+            }
         }
     }
 

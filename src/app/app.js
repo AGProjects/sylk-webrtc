@@ -365,17 +365,13 @@ class Blink extends React.Component {
                 }
             },
             (error) => {
-                this.userMediaFailed();
+                clearTimeout(this.loadScreenTimer);
+                utils.postNotification('Access to media failed', '', 10);
+                this.setState({
+                    loading: null
+                });
             }
         );
-    }
-
-    userMediaFailed() {
-        clearTimeout(this.loadScreenTimer);
-        utils.postNotification('Access to media failed', '', 10);
-        this.setState({
-            loading: null
-        });
     }
 
     startCall(targetUri, options) {

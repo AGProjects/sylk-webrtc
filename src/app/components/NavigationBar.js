@@ -17,6 +17,7 @@ const timers         = require('timers');
 const Clipboard      = require('clipboard');
 
 const config = require('../config');
+const utils  = require('../utils');
 
 
 const NavigationBar = (props) => {
@@ -31,7 +32,7 @@ const NavigationBar = (props) => {
     };
 
     const handleClipboardButton = function() {
-        props.notifications.postNotification('info', 'Call me, maybe?', 'URL copied to the clipboard');
+        utils.postNotification('Call me, maybe?', 'URL copied to the clipboard');
     };
 
     const clipboard = new Clipboard('.btn');
@@ -95,7 +96,6 @@ const NavigationBar = (props) => {
 
 NavigationBar.propTypes = {
     account: React.PropTypes.object.isRequired,
-    notifications: React.PropTypes.object.isRequired,
     showAbout : React.PropTypes.func.isRequired
 };
 

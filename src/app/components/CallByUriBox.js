@@ -6,6 +6,7 @@ const classNames = require('classnames');
 const Logo       = require('./Logo');
 const Call       = require('./Call');
 const config     = require('../config');
+const utils      = require('../utils');
 
 
 class CallByUriBox extends React.Component {
@@ -32,7 +33,7 @@ class CallByUriBox extends React.Component {
 
     callStateChanged(oldState, newState, data) {
         if (newState === 'terminated') {
-            this.props.notifications.postNotification('info', 'Thanks for calling with Blink!', '');
+            utils.postNotification('Thanks for calling with Blink!', '', 10);
         }
     }
 
@@ -108,8 +109,7 @@ CallByUriBox.propTypes = {
     targetUri       : React.PropTypes.string,
     localMedia      : React.PropTypes.object,
     account         : React.PropTypes.object,
-    currentCall     : React.PropTypes.object,
-    notifications   : React.PropTypes.object.isRequired
+    currentCall     : React.PropTypes.object
 };
 
 

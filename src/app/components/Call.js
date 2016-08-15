@@ -88,7 +88,7 @@ class Call extends React.Component {
     }
 
     mediaPlaying() {
-        if (this.props.currentCall == null) {
+        if (this.props.currentCall === null) {
             this.startCall();
         } else {
             this.answerCall();

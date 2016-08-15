@@ -6,9 +6,9 @@ const ReactMixin                = require('react-mixin');
 const Router                    = require('react-mini-router');
 const navigate                  = Router.navigate
 const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
-
-const sylkrtc    = require('sylkrtc');
-const debug      = require('debug');
+const uuid                      = require('node-uuid');
+const sylkrtc                   = require('sylkrtc');
+const debug                     = require('debug');
 
 const AutobindMixinFactory = require('./mixins/Autobind');
 
@@ -52,6 +52,7 @@ class Blink extends React.Component {
         this._initialSstate = {
             accountId: '',
             password: '',
+            displayName: '',
             account: null,
             registrationState: null,
             currentCall: null,
@@ -153,7 +154,7 @@ class Blink extends React.Component {
                 this.setState({connection: null});
                 break;
             case 'ready':
-                this.processRegistration(this.state.accountId, this.state.password);
+                this.processRegistration(this.state.accountId, this.state.password, this.state.displayName);
                 break;
             case 'disconnected':
                 this.setState({account:null, registrationState: null, loading: 'Disconnected, reconnecting...', currentCall: null});
@@ -259,10 +260,12 @@ class Blink extends React.Component {
         }
     }
 
-    handleCallByUri(accountId, targetUri) {
+    handleCallByUri(displayName, targetUri) {
+        const accountId = `${uuid.v4()}@${config.defaultGuestDomain}`;
         this.setState({
             accountId      : accountId,
             password       : '',
+            displayName    : displayName,
             guestMode      : true,
             targetUri      : utils.normalizeUri(targetUri, config.defaultDomain),
             loading        : 'Connecting...'
@@ -274,7 +277,7 @@ class Blink extends React.Component {
             this.setState({connection: connection});
         } else {
             DEBUG('Connection Present, try to register');
-            this.processRegistration(accountId, '');
+            this.processRegistration(accountId, '', displayName);
         }
     }
 
@@ -297,7 +300,7 @@ class Blink extends React.Component {
         }
     }
 
-    processRegistration(accountId, password) {
+    processRegistration(accountId, password, displayName) {
         if (this.state.account !== null) {
             DEBUG('We already have an account, removing it');
             this.state.connection.removeAccount(this.state.account,
@@ -310,8 +313,12 @@ class Blink extends React.Component {
             );
         }
 
-        let options = {account: accountId, password: password};
-        let account = this.state.connection.addAccount(options, (error, account) => {
+        const options = {
+            account: accountId,
+            password: password,
+            displayName: displayName
+        };
+        const account = this.state.connection.addAccount(options, (error, account) => {
             if (!error) {
                 account.on('outgoingCall', this.outgoingCall);
                 if (!this.state.guestMode) {

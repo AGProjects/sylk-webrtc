@@ -5,7 +5,6 @@ const classNames = require('classnames');
 
 const Logo       = require('./Logo');
 const Call       = require('./Call');
-const config     = require('../config');
 const utils      = require('../utils');
 
 
@@ -13,10 +12,10 @@ class CallByUriBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            accountId: ''
+            displayName: ''
         };
         // ES6 classes no longer autobind
-        this.handleAccountIdChange = this.handleAccountIdChange.bind(this);
+        this.handleDisplayNameChange = this.handleDisplayNameChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.callStateChanged = this.callStateChanged.bind(this);
 
@@ -37,19 +36,17 @@ class CallByUriBox extends React.Component {
         }
     }
 
-    handleAccountIdChange(event) {
-        this.setState({accountId: event.target.value});
+    handleDisplayNameChange(event) {
+        this.setState({displayName: event.target.value});
     }
 
     handleSubmit(event) {
         event.preventDefault();
-        let accountId = this.state.accountId.replace(/ /g,'_');
-        accountId = accountId + '@' + config.defaultGuestDomain;
-        this.props.handleCallByUri(accountId, this.props.targetUri);
+        this.props.handleCallByUri(this.state.displayName, this.props.targetUri);
     }
 
     render() {
-        const validInput = this.state.accountId !== '';
+        const validInput = this.state.displayName !== '';
         let content;
 
         if (this.props.localMedia !== null) {
@@ -81,8 +78,8 @@ class CallByUriBox extends React.Component {
                             <input id="inputName"
                                 className="form-control"
                                 placeholder="Enter your name"
-                                value={this.state.accountId}
-                                onChange={this.handleAccountIdChange}
+                                value={this.state.displayName}
+                                onChange={this.handleDisplayNameChange}
                                 required
                                 autoFocus
                             />

@@ -395,7 +395,7 @@ class Blink extends React.Component {
             this.setState({currentCall: this.state.inboundCall, inboundCall: this.state.inboundCall, localMedia: null});
             this.state.inboundCall.on('stateChanged', this.callStateChanged);
         }
-        this.getLocalMedia(this.state.inboundCall.mediaTypes);
+        this.getLocalMedia(this.state.inboundCall.mediaTypes, '/call');
     }
 
     rejectCall() {

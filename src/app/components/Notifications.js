@@ -25,7 +25,7 @@ class Notifications extends React.Component {
             autoDismiss: 0,
             action: action,
             level: 'info',
-            position: 'tr'
+            position: 'br'
         });
     }
 

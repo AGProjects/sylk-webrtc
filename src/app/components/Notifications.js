@@ -8,16 +8,6 @@ const config = require('../config');
 
 
 class Notifications extends React.Component {
-    postNotification(level, title, message, dismiss=5) {
-        this.refs.notificationSystem.addNotification({
-            message: message,
-            title: title,
-            level: level,
-            autoDismiss: dismiss,
-            position: 'tc'
-        });
-    }
-
     postMissedCall(originator, call) {
         let currentDate = moment().format('MMMM Do YYYY [at] HH:mm:ss');
         let action;

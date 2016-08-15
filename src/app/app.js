@@ -329,7 +329,7 @@ class Blink extends React.Component {
                     this.toggleRegister();
                 } else {
                     this.setState({account: account, loading: null, registrationState: 'registered'});
-                    utils.postNotification(`${accountId} signed in`);
+                    DEBUG(`${accountId} (guest) signed in`);
                     // Start the call immediately, this is call started with "Call by URI"
                     this.startGuestCall(this.state.targetUri, {audio: true, video: true});
                 }

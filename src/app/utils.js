@@ -1,5 +1,7 @@
 'use strict';
 
+const Notify = require('notifyjs').default;
+
 
 function normalizeUri(uri, defaultDomain) {
     let targetUri = uri;
@@ -18,4 +20,27 @@ function normalizeUri(uri, defaultDomain) {
 }
 
 
+function _postNotification(title, options) {
+    const n = new Notify(title, options);
+    n.show();
+    return n;
+}
+
+function postNotification(title, text='', timeout=5) {
+    let options = {
+        icon: '/assets/images/blink-48.png',
+        body: text || '',
+        timeout: timeout
+    };
+    if (Notify.needsPermission) {
+        Notify.requestPermission(() => {
+            _postNotification(title, options);
+        });
+    } else {
+        _postNotification(title, options);
+    }
+}
+
+
 exports.normalizeUri = normalizeUri;
+exports.postNotification = postNotification;

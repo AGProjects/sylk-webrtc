@@ -35,6 +35,10 @@ window.blinkDebugger = debug;
 
 const DEBUG = debug('blinkrtc:App');
 
+// Application modes
+const MODE_NORMAL = Symbol('mode-normal');
+const MODE_GUEST_CALL = Symbol('mode-guest-call');
+
 
 class Blink extends React.Component {
     routes = {
@@ -63,7 +67,7 @@ class Blink extends React.Component {
             status: null,
             targetUri: '',
             loading: null,
-            guestMode: false,
+            mode: MODE_NORMAL,
             localMedia: null,
             history: []
         };
@@ -139,7 +143,7 @@ class Blink extends React.Component {
         }
 
         // Redirect to /logout if a guest goes to /ready
-        if (nextState.path === '/ready' && this.state.guestMode) {
+        if (nextState.path === '/ready' && this.state.mode === MODE_GUEST_CALL) {
             navigate('/logout');
             return false;
         }
@@ -266,7 +270,7 @@ class Blink extends React.Component {
             accountId      : accountId,
             password       : '',
             displayName    : displayName,
-            guestMode      : true,
+            mode           : MODE_GUEST_CALL,
             targetUri      : utils.normalizeUri(targetUri, config.defaultDomain),
             loading        : 'Connecting...'
         });
@@ -286,7 +290,7 @@ class Blink extends React.Component {
         this.setState({
             accountId : accountId,
             password  : password,
-            guestMode : false,
+            mode      : MODE_NORMAL,
             loading   : 'Connecting...'
         });
 
@@ -321,38 +325,31 @@ class Blink extends React.Component {
         const account = this.state.connection.addAccount(options, (error, account) => {
             if (!error) {
                 account.on('outgoingCall', this.outgoingCall);
-                if (!this.state.guestMode) {
-                    account.on('registrationStateChanged', this.registrationStateChanged);
-                    account.on('incomingCall', this.incomingCall);
-                    account.on('missedCall', this.missedCall);
-                    this.setState({account: account});
-                    this.toggleRegister();
-                } else {
-                    this.setState({account: account, loading: null, registrationState: 'registered'});
-                    DEBUG(`${accountId} (guest) signed in`);
-                    // Start the call immediately, this is call started with "Call by URI"
-                    this.startGuestCall(this.state.targetUri, {audio: true, video: true});
+                switch (this.state.mode) {
+                    case MODE_NORMAL:
+                        account.on('registrationStateChanged', this.registrationStateChanged);
+                        account.on('incomingCall', this.incomingCall);
+                        account.on('missedCall', this.missedCall);
+                        this.setState({account: account});
+                        this.state.account.register();
+                        storage.set('account', {accountId: this.state.accountId, password: this.state.password});
+                        break;
+                    case MODE_GUEST_CALL:
+                        this.setState({account: account, loading: null, registrationState: 'registered'});
+                        DEBUG(`${accountId} (guest) signed in`);
+                        // Start the call immediately, this is call started with "Call by URI"
+                        this.startGuestCall(this.state.targetUri, {audio: true, video: true});
+                        break;
+                    default:
+                        DEBUG(`Unknown mode: ${this.state.mode}`);
+                        break;
+
                 }
             } else {
                 DEBUG('Add account error: ' + error);
                 this.setState({loading: null, status: {msg: error.message, level:'danger'}});
             }
         });
-    }
-
-    toggleRegister() {
-        if (this.state.registrationState !== null) {
-            if (this.state.guestMode) {
-                this.setState({registrationState: null});
-            } else {
-                this.state.account.unregister();
-            }
-        } else {
-            this.state.account.register();
-            if (!this.state.guestMode) {
-                storage.set('account', {accountId: this.state.accountId, password: this.state.password});
-            }
-        }
     }
 
     getLocalMedia(mediaConstraints, nextRoute=null) {
@@ -608,7 +605,10 @@ class Blink extends React.Component {
 
     logout() {
         setTimeout(() => {
-            this.toggleRegister();
+            if (this.state.registrationState !== null && this.state.mode === MODE_NORMAL) {
+                this.state.account.unregister();
+            }
+            this.setState({registrationState: null, status: null});
             navigate('/login');
         });
         return <div></div>;

@@ -79,14 +79,14 @@ const NavigationBar = (props) => {
                         <strong><i className="fa fa-user"></i> {props.account.id}</strong>
                     </MenuItem>
                     <MenuItem divider />
+                    <MenuItem eventKey="about">
+                        <i className="fa fa-info-circle"></i> About
+                    </MenuItem>
                     <MenuItem eventKey="settings" target="_blank" href="https://mdns.sipthor.net/sip_settings.phtml">
                         <i className="fa fa-wrench"></i> Settings
                     </MenuItem>
                     <MenuItem eventKey="logOut">
                         <i className="fa fa-sign-out"></i> Sign Out
-                    </MenuItem>
-                    <MenuItem eventKey="about">
-                        <i className="fa fa-info-circle"></i> About
                     </MenuItem>
                 </DropdownButton>
             </ButtonToolbar>

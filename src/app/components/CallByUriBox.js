@@ -32,7 +32,7 @@ class CallByUriBox extends React.Component {
 
     callStateChanged(oldState, newState, data) {
         if (newState === 'terminated') {
-            utils.postNotification('Thanks for calling with Blink!', '', 10);
+            utils.postNotification('Thanks for calling with Blink!', {timeout: 10});
         }
     }
 

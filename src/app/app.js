@@ -189,7 +189,7 @@ class Blink extends React.Component {
             });
         } else if (newState === 'registered') {
             this.setState({loading: null});
-            utils.postNotification(`${this.state.accountId} signed in`, 'Ready to receive calls');
+            utils.postNotification(`${this.state.accountId} signed in`, {body: 'Ready to receive calls'});
             navigate('/ready');
             return;
         } else {
@@ -226,7 +226,7 @@ class Blink extends React.Component {
             } else {
                 reason = 'Connection failed';
             }
-            utils.postNotification('Call Terminated', reason);
+            utils.postNotification('Call Terminated', {body: reason});
 
             this.setState({
                 currentCall         : null,
@@ -370,7 +370,7 @@ class Blink extends React.Component {
             },
             (error) => {
                 clearTimeout(this.loadScreenTimer);
-                utils.postNotification('Access to media failed', '', 10);
+                utils.postNotification('Access to media failed', {timeout: 10});
                 this.setState({
                     loading: null
                 });
@@ -444,7 +444,7 @@ class Blink extends React.Component {
 
     missedCall(data) {
         DEBUG('Missed call from ' + data.originator);
-        utils.postNotification('Missed call', `From ${data.originator.displayName || data.originator.uri}`, 15);
+        utils.postNotification('Missed call', {body: `From ${data.originator.displayName || data.originator.uri}`, timeout: 15, silent: false});
         this.refs.notifications.postMissedCall(data.originator, this.switchToMissedCall);
     }
 

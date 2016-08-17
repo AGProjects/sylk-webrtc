@@ -32,7 +32,7 @@ const NavigationBar = (props) => {
     };
 
     const handleClipboardButton = function() {
-        utils.postNotification('Call me, maybe?', 'URL copied to the clipboard');
+        utils.postNotification('Call me, maybe?', {body: 'URL copied to the clipboard'});
     };
 
     const clipboard = new Clipboard('.btn');

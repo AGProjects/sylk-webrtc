@@ -26,18 +26,19 @@ function _postNotification(title, options) {
     return n;
 }
 
-function postNotification(title, text='', timeout=5) {    // eslint-disable-line space-infix-ops
-    let options = {
+function postNotification(title, options={}) {    // eslint-disable-line space-infix-ops
+    const defaultOptions = {
         icon: '/assets/images/blink-48.png',
-        body: text || '',
-        timeout: timeout
-    };
+        body: '',
+        timeout: 5,
+        silent: true
+    }
     if (Notify.needsPermission) {
         Notify.requestPermission(() => {
-            _postNotification(title, options);
+            _postNotification(title, Object.assign({}, defaultOptions, options));
         });
     } else {
-        _postNotification(title, options);
+        _postNotification(title, Object.assign({}, defaultOptions, options));
     }
 }
 

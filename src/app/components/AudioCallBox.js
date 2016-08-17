@@ -130,8 +130,8 @@ class AudioCallBox extends React.Component {
 
         const headerTextClasses = classNames({
             'lead'          : true,
-            'text-success'  : this.props.call != null,
-            'text-info'     : this.props.call == null
+            'text-success'  : this.state.callDuration !== null,
+            'text-info'     : this.state.callDuration === null
         });
 
         let callDuration;

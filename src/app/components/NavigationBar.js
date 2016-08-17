@@ -60,9 +60,9 @@ const NavigationBar = (props) => {
     return (
         <Navbar inverse={true} fixedTop={true}>
             <Navbar.Header>
-                <a href="#" className="pull-left"><div className="navbar-blink-logo"></div></a>
+                <div className="navbar-blink-logo pull-left"></div>
                 <Navbar.Brand>
-                    <a href="#">Blink</a>
+                    Blink
                 </Navbar.Brand>
                 <p className="navbar-text hidden-xs">
                     Signed in as: <strong>{props.account.id}</strong>

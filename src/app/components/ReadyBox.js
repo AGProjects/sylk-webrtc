@@ -63,7 +63,7 @@ class ReadyBox extends React.Component {
     handleConferenceCall(targetUri) {
         this.setState({showConferenceModal: false, targetUri: targetUri || ''});
         if (targetUri) {
-            this.props.startCall(targetUri, {audio: true, video: false});
+            this.props.startConference(targetUri, {audio: true, video: false});
         }
     }
 
@@ -107,10 +107,11 @@ class ReadyBox extends React.Component {
 }
 
 ReadyBox.propTypes = {
-    account        : React.PropTypes.object.isRequired,
-    startCall      : React.PropTypes.func.isRequired,
-    targetUri      : React.PropTypes.string,
-    history        : React.PropTypes.array
+    account         : React.PropTypes.object.isRequired,
+    startCall       : React.PropTypes.func.isRequired,
+    startConference : React.PropTypes.func.isRequired,
+    targetUri       : React.PropTypes.string,
+    history         : React.PropTypes.array
 };
 
 

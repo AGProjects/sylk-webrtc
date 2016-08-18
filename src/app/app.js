@@ -11,24 +11,26 @@ const sylkrtc                   = require('sylkrtc');
 const debug                     = require('debug');
 
 const AutobindMixinFactory = require('./mixins/Autobind');
+const RegisterBox          = require('./components/RegisterBox');
+const ReadyBox             = require('./components/ReadyBox');
+const Call                 = require('./components/Call');
+const CallByUriBox         = require('./components/CallByUriBox');
+const Conference           = require('./components/Conference');
+const ConferenceByUriBox   = require('./components/ConferenceByUriBox');
+const AudioPlayer          = require('./components/AudioPlayer');
+const ErrorPanel           = require('./components/ErrorPanel');
+const FooterBox            = require('./components/FooterBox');
+const StatusBox            = require('./components/StatusBox');
+const AboutModal           = require('./components/AboutModal');
+const IncomingCallModal    = require('./components/IncomingModal');
+const Notifications        = require('./components/Notifications');
+const LoadingScreen        = require('./components/LoadingScreen');
+const NavigationBar        = require('./components/NavigationBar');
 
-const RegisterBox       = require('./components/RegisterBox');
-const ReadyBox          = require('./components/ReadyBox');
-const Call              = require('./components/Call');
-const CallByUriBox      = require('./components/CallByUriBox');
-const AudioPlayer       = require('./components/AudioPlayer');
-const ErrorPanel        = require('./components/ErrorPanel');
-const FooterBox         = require('./components/FooterBox');
-const StatusBox         = require('./components/StatusBox');
-const AboutModal        = require('./components/AboutModal');
-const IncomingCallModal = require('./components/IncomingModal');
-const Notifications     = require('./components/Notifications');
-const LoadingScreen     = require('./components/LoadingScreen');
-const NavigationBar     = require('./components/NavigationBar');
-const utils             = require('./utils');
-const config            = require('./config');
-const storage           = require('./storage');
-const history           = require('./history');
+const utils     = require('./utils');
+const config    = require('./config');
+const storage   = require('./storage');
+const history   = require('./history');
 
 // attach debugger to the window for console access
 window.blinkDebugger = debug;
@@ -36,8 +38,9 @@ window.blinkDebugger = debug;
 const DEBUG = debug('blinkrtc:App');
 
 // Application modes
-const MODE_NORMAL = Symbol('mode-normal');
-const MODE_GUEST_CALL = Symbol('mode-guest-call');
+const MODE_NORMAL           = Symbol('mode-normal');
+const MODE_GUEST_CALL       = Symbol('mode-guest-call');
+const MODE_GUEST_CONFERENCE = Symbol('mode-guest-conference');
 
 
 class Blink extends React.Component {
@@ -48,6 +51,8 @@ class Blink extends React.Component {
         '/ready': 'ready',
         '/call': 'call',
         '/call/:targetUri' : 'callByUri',
+        '/conference': 'conference',
+        '/conference/:targetUri' : 'conferenceByUri',
         '/not-supported': 'notSupported'
     };
 
@@ -80,8 +85,10 @@ class Blink extends React.Component {
             'callStateChanged',
             'inboundCallStateChanged',
             'handleCallByUri',
+            'handleConferenceByUri',
             'handleRegistration',
             'startCall',
+            'startConference',
             'answerCall',
             'rejectCall',
             'outgoingCall',
@@ -127,23 +134,21 @@ class Blink extends React.Component {
                 }
                 navigate('/ready');
                 return false ;
-            } else if (nextState.path === '/call' && this.state.localMedia === null && this.state.registrationState === 'registered') {
+            } else if ((nextState.path === '/call' || nextState.path === '/conference') && this.state.localMedia === null && this.state.registrationState === 'registered') {
                 navigate('/ready')
                 return false;
-            } else if ((nextState.path === '/' || nextState.path === '/call' || nextState.path.startsWith('/ready')) && this.state.registrationState !== 'registered') {
+            } else if ((nextState.path === '/' || nextState.path === '/call' || nextState.path === '/conference' || nextState.path.startsWith('/ready')) && this.state.registrationState !== 'registered') {
                 navigate('/login');
                 return false;
 
             // Terminate call if we modify url from call -> ready, allow the transition
-            } else if (nextState.path === '/ready' && this.state.path === '/call' && this.state.registrationState === 'registered') {
-                if (this.state.currentCall !== null) {
-                    this.state.currentCall.terminate();
-                }
+            } else if (nextState.path === '/ready' && this.state.registrationState === 'registered' && this.state.currentCall !== null) {
+                this.state.currentCall.terminate();
             }
         }
 
         // Redirect to /logout if a guest goes to /ready
-        if (nextState.path === '/ready' && this.state.mode === MODE_GUEST_CALL) {
+        if (nextState.path === '/ready' && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
             navigate('/logout');
             return false;
         }
@@ -285,6 +290,27 @@ class Blink extends React.Component {
         }
     }
 
+    handleConferenceByUri(displayName, targetUri) {
+        const accountId = `${uuid.v4()}@${config.defaultGuestDomain}`;
+        this.setState({
+            accountId      : accountId,
+            password       : '',
+            displayName    : displayName,
+            mode           : MODE_GUEST_CONFERENCE,
+            targetUri      : utils.normalizeUri(targetUri, config.defaultDomain),
+            loading        : 'Connecting...'
+        });
+
+        if (this.state.connection === null) {
+            let connection = sylkrtc.createConnection({server: config.wsServer});
+            connection.on('stateChanged', this.connectionStateChanged);
+            this.setState({connection: connection});
+        } else {
+            DEBUG('Connection Present, try to register');
+            this.processRegistration(accountId, '', displayName);
+        }
+    }
+
     handleRegistration(accountId, password) {
         // Needed for ready event in connection
         this.setState({
@@ -339,6 +365,12 @@ class Blink extends React.Component {
                         DEBUG(`${accountId} (guest) signed in`);
                         // Start the call immediately, this is call started with "Call by URI"
                         this.startGuestCall(this.state.targetUri, {audio: true, video: true});
+                        break;
+                    case MODE_GUEST_CONFERENCE:
+                        this.setState({account: account, loading: null, registrationState: 'registered'});
+                        DEBUG(`${accountId} (conference guest) signed in`);
+                        // Start the call immediately, this is call started with "Conference by URI"
+                        this.startGuestConference(this.state.targetUri, {audio: true, video: false});
                         break;
                     default:
                         DEBUG(`Unknown mode: ${this.state.mode}`);
@@ -405,6 +437,16 @@ class Blink extends React.Component {
     rejectCall() {
         this.setState({showIncomingModal: false});
         this.state.inboundCall.terminate();
+    }
+
+    startConference(targetUri, options) {
+        this.setState({targetUri: targetUri});
+        this.getLocalMedia(Object.assign({audio: true, video: true}, options), '/conference');
+    }
+
+    startGuestConference(targetUri, options) {
+        this.setState({targetUri: targetUri});
+        this.getLocalMedia(Object.assign({audio: true, video: true}, options));
     }
 
     outgoingCall(call) {
@@ -482,7 +524,7 @@ class Blink extends React.Component {
 
         // Prevent call/ready screen when not registered
 
-        if ((this.state.path.startsWith('/ready') || this.state.path === '/call') && this.state.registrationState !== 'registered') {
+        if ((this.state.path.startsWith('/ready') || this.state.path === '/call' || this.state.path === '/conference') && this.state.registrationState !== 'registered') {
             navigate('/login');
             return (<div></div>);
         }
@@ -544,6 +586,7 @@ class Blink extends React.Component {
                 <ReadyBox
                     account   = {this.state.account}
                     startCall = {this.startCall}
+                    startConference = {this.startConference}
                     targetUri = {this.state.targetUri}
                     history = {this.state.history}
                 />
@@ -566,6 +609,29 @@ class Blink extends React.Component {
         return (
             <CallByUriBox
                 handleCallByUri = {this.handleCallByUri}
+                targetUri = {targetUri}
+                localMedia = {this.state.localMedia}
+                account = {this.state.account}
+                currentCall = {this.state.currentCall}
+            />
+        );
+    }
+
+    conference() {
+        return (
+            <Conference
+                localMedia = {this.state.localMedia}
+                account = {this.state.account}
+                targetUri = {this.state.targetUri}
+                currentCall = {this.state.currentCall}
+            />
+        )
+    }
+
+    conferenceByUri(targetUri) {
+        return (
+            <ConferenceByUriBox
+                handler = {this.handleConferenceByUri}
                 targetUri = {targetUri}
                 localMedia = {this.state.localMedia}
                 account = {this.state.account}

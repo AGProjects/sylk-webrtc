@@ -18,10 +18,6 @@ class CallByUriBox extends React.Component {
         this.handleDisplayNameChange = this.handleDisplayNameChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.callStateChanged = this.callStateChanged.bind(this);
-
-        if (this.props.currentCall) {
-            this.props.currentCall.on('stateChanged', this.callStateChanged);
-        }
     }
 
     componentWillReceiveProps(nextProps) {

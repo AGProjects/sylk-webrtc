@@ -106,32 +106,22 @@ class Call extends React.Component {
         }
 
         if (this.props.localMedia !== null) {
-            if (this.props.currentCall != null && this.props.currentCall.state === 'established') {
-                if (this.state.audioOnly) {
-                    box = (
-                        <AudioCallBox
-                            remoteIdentity = {remoteIdentity}
-                            hangupCall = {this.hangupCall}
-                            call = {this.props.currentCall}
-                            mediaPlaying = {null}
-                        />
-                    );
-                } else {
+            if (this.state.audioOnly) {
+                box = (
+                    <AudioCallBox
+                        remoteIdentity = {remoteIdentity}
+                        hangupCall = {this.hangupCall}
+                        call = {this.props.currentCall}
+                        mediaPlaying = {this.mediaPlaying}
+                    />
+                );
+            } else {
+                if (this.props.currentCall != null && this.props.currentCall.state === 'established') {
                     box = (
                         <VideoBox
                             call = {this.props.currentCall}
                             localMedia = {this.props.localMedia}
                             hangupCall = {this.hangupCall}
-                        />
-                    );
-                }
-            } else {
-                if (this.state.audioOnly) {
-                    box = (
-                        <AudioCallBox
-                            remoteIdentity = {remoteIdentity}
-                            hangupCall = {this.hangupCall}
-                            mediaPlaying = {this.mediaPlaying}
                         />
                     );
                 } else {

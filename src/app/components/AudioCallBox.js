@@ -31,20 +31,27 @@ class AudioCallBox extends React.Component {
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
-
-        if (this.props.call != null) {
-            if (this.props.call.state !== 'established') {
-                this.props.call.on('stateChanged', this.callStateChanged);
-            }
-        }
     }
 
     componentDidMount() {
-        if (this.props.mediaPlaying !== null) {
-            this.props.mediaPlaying();
+        // This component is used both for as 'local media' and as the in-call component.
+        // Thus, if the call is not null ite means we are beyond the 'local media' phase
+        // so don't call the mediaPlaying prop.
+
+        if (this.props.call != null) {
+            switch (this.props.call.state) {
+                case 'established':
+                    this.startCall(this.props.call);
+                    break;
+                case 'incoming':
+                    this.props.mediaPlaying();
+                    // fall through
+                default:
+                    this.props.call.on('stateChanged', this.callStateChanged);
+                    break;
+            }
         } else {
-            // We need to do this here, else we don't have the audio tag
-            this.startCall(this.props.call);
+            this.props.mediaPlaying();
         }
     }
 
@@ -85,7 +92,7 @@ class AudioCallBox extends React.Component {
 
     muteAudio(event) {
         event.preventDefault();
-        let localStream = this.props.call.getLocalStreams()[0];
+        const localStream = this.props.call.getLocalStreams()[0];
 
         if(this.state.audioMuted) {
             DEBUG('Unmute microphone');
@@ -108,9 +115,9 @@ class AudioCallBox extends React.Component {
     }
 
     startCallTimer() {
-        let startTime = new Date();
+        const startTime = new Date();
         this.callTimer = setInterval(() => {
-            let duration = moment.duration(new Date() - startTime).format('hh:mm:ss', {trim: false});
+            const duration = moment.duration(new Date() - startTime).format('hh:mm:ss', {trim: false});
             this.setState({callDuration: duration});
         }, 300);
     }

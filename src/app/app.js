@@ -384,12 +384,10 @@ class Blink extends React.Component {
         });
     }
 
-    getLocalMedia(mediaConstraints, nextRoute=null) {    // eslint-disable-line space-infix-ops
+    getLocalMedia(mediaConstraints={audio: true, video: true}, nextRoute=null) {    // eslint-disable-line space-infix-ops
         this.loadScreenTimer = setTimeout(() => {
             this.setState({loading: 'Please allow access to your media devices'});
         }, 150);
-
-        mediaConstraints = mediaConstraints || {audio:true, video:true };
 
         sylkrtc.rtcninja.getUserMedia(
             mediaConstraints,

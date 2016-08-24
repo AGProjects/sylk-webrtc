@@ -194,7 +194,6 @@ class Blink extends React.Component {
             });
         } else if (newState === 'registered') {
             this.setState({loading: null});
-            utils.postNotification(`${this.state.accountId} signed in`, {body: 'Ready to receive calls'});
             navigate('/ready');
             return;
         } else {

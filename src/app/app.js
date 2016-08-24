@@ -438,12 +438,12 @@ class Blink extends React.Component {
 
     startConference(targetUri, options) {
         this.setState({targetUri: targetUri});
-        this.getLocalMedia(Object.assign({audio: true, video: true}, options), '/conference');
+        this.getLocalMedia(options, '/conference');
     }
 
     startGuestConference(targetUri, options) {
         this.setState({targetUri: targetUri});
-        this.getLocalMedia(Object.assign({audio: true, video: true}, options));
+        this.getLocalMedia(options);
     }
 
     outgoingCall(call) {

@@ -12,7 +12,7 @@ const AboutModal = (props) => {
                 <Modal.Title id="cmodal-title-sm">About Blink</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <p>Copyright &copy; <a href="http://ag-projects.com" target="_blank">AG Projects</a></p>
+                <p>Copyright &copy; <a href="http://ag-projects.com" target="_blank" rel="noopener noreferrer">AG Projects</a></p>
                 <p>Powered by <a href="http://sylkserver.com" target="_blank">SylkServer</a></p>
             </Modal.Body>
         </Modal>

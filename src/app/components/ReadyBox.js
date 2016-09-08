@@ -63,7 +63,7 @@ class ReadyBox extends React.Component {
     handleConferenceCall(targetUri) {
         this.setState({showConferenceModal: false, targetUri: targetUri || ''});
         if (targetUri) {
-            this.props.startConference(targetUri, {audio: true, video: false});
+            this.props.startConference(targetUri);
         }
     }
 

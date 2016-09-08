@@ -1,4 +1,10 @@
 .video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+
     video {
         &.mirror {
             transform: scaleX(-1);    // mirror
@@ -6,12 +12,9 @@
 
         &.large {
             height: auto !important;
-            left: 0;
-            max-height: 100%;
-            min-height: 100%;
-            position: absolute;
-            top: 0;
             width: 100% !important;
+            min-height: 100%;
+            max-height: 100%;
             z-index: 0;
         }
 

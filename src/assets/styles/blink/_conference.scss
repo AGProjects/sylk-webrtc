@@ -1,0 +1,47 @@
+.conference-buttons {
+    top: 0 !important;
+    left: 0;
+    margin: auto;
+    overflow: hidden;
+    padding-top: $navbar-height + 10px;
+    position: absolute;
+    right: 0;
+    z-index: 1;
+}
+
+.conference-thumbnails {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 114px;
+    min-height: 114px;
+
+    video {
+        width: 150px !important;
+        height: 100px !important;
+        object-fit: cover;
+        background-color: red;
+        border: 1px solid $white;
+        border-radius: 10px;
+        margin: 5px;
+    }
+
+    .conference-active {
+        box-shadow: 0px 0px 10px 2px $bootstrap-base;
+    }
+
+    .carousel {
+        margin-left: 30px !important;
+        margin-right: 30px !important;
+        overflow: hidden;
+    }
+
+    .carousel-list {
+        margin: auto !important;
+        white-space: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 17px;
+    }
+}

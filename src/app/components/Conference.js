@@ -8,9 +8,9 @@ const Router     = require('react-mini-router');
 const navigate   = Router.navigate;
 const debug      = require('debug');
 
-const AudioCallBox = require('./AudioCallBox');
-const LocalMedia   = require('./LocalMedia');
-const config       = require('../config');
+const ConferenceBox = require('./ConferenceBox');
+const LocalMedia    = require('./LocalMedia');
+const config        = require('../config');
 
 const DEBUG = debug('blinkrtc:Conference');
 
@@ -21,23 +21,31 @@ class Conference extends React.Component {
 
         // ES6 classes no longer autobind
         this.mediaPlaying = this.mediaPlaying.bind(this);
-        this.callStateChanged = this.callStateChanged.bind(this);
+        this.confStateChanged = this.confStateChanged.bind(this);
         this.hangup = this.hangup.bind(this);
     }
 
-    callStateChanged(oldState, newState, data) {
-        if (newState === 'established' || newState === 'terminated') {
+    confStateChanged(oldState, newState, data) {
+        DEBUG(`Conference state changed ${oldState} -> ${newState}`);
+        if (newState === 'established') {
             this.forceUpdate();
-            this.props.currentCall.removeListener('stateChanged', this.callStateChanged);
         }
     }
 
     start() {
         assert(this.props.currentCall == null, 'currentCall is not null');
-        let options = {pcConfig: {iceServers: config.iceServers}};
-        options.localStream = this.props.localMedia;
-        let call = this.props.account.call(this.props.targetUri, options);
-        call.on('stateChanged', this.callStateChanged);
+        const options = {
+            pcConfig: {iceServers: config.iceServers},
+            localStream: this.props.localMedia,
+            audio: true,
+            video: true,
+            offerOptions: {
+                offerToReceiveAudio: false,
+                offerToReceiveVideo: false
+            }
+        };
+        const confCall = this.props.account.joinConference(this.props.targetUri, options);
+        confCall.on('stateChanged', this.confStateChanged);
     }
 
     hangup() {
@@ -57,23 +65,25 @@ class Conference extends React.Component {
 
     render() {
         let box;
-        let remoteIdentity;
-
-        if (this.props.currentCall !== null) {
-            remoteIdentity = this.props.currentCall.remoteIdentity.displayName || this.props.currentCall.remoteIdentity.uri;
-        } else {
-            remoteIdentity = this.props.targetUri;
-        }
 
         if (this.props.localMedia !== null) {
-            box = (
-                <AudioCallBox
-                    remoteIdentity = {remoteIdentity}
-                    hangupCall = {this.hangup}
-                    call = {this.props.currentCall}
-                    mediaPlaying = {this.mediaPlaying}
-                />
-            );
+            if (this.props.currentCall != null && this.props.currentCall.state === 'established') {
+                box = (
+                    <ConferenceBox
+                        call = {this.props.currentCall}
+                        hangup = {this.hangup}
+                    />
+                );
+            } else {
+                box = (
+                    <LocalMedia
+                        remoteIdentity = {this.props.targetUri}
+                        localMedia = {this.props.localMedia}
+                        mediaPlaying = {this.mediaPlaying}
+                        hangupCall = {this.hangup}
+                    />
+                );
+            }
         }
 
         return (

@@ -205,9 +205,9 @@ class Blink extends React.Component {
         DEBUG('Call state changed! ' + newState);
 
         if (newState === 'terminated') {
-            let reason = data.reason;
             let callSuccesfull = false;
-            if (reason.match(/200/)) {
+            let reason = data.reason;
+            if (!reason || reason.match(/200/)) {
                 reason = 'Hangup';
                 callSuccesfull = true;
             } else if (reason.match(/404/)) {
@@ -350,6 +350,7 @@ class Blink extends React.Component {
         const account = this.state.connection.addAccount(options, (error, account) => {
             if (!error) {
                 account.on('outgoingCall', this.outgoingCall);
+                account.on('conferenceCall', this.outgoingCall);
                 switch (this.state.mode) {
                     case MODE_NORMAL:
                         account.on('registrationStateChanged', this.registrationStateChanged);
@@ -369,7 +370,7 @@ class Blink extends React.Component {
                         this.setState({account: account, loading: null, registrationState: 'registered'});
                         DEBUG(`${accountId} (conference guest) signed in`);
                         // Start the call immediately, this is call started with "Conference by URI"
-                        this.startGuestConference(this.state.targetUri, {audio: true, video: false});
+                        this.startGuestConference(this.state.targetUri);
                         break;
                     default:
                         DEBUG(`Unknown mode: ${this.state.mode}`);
@@ -384,6 +385,8 @@ class Blink extends React.Component {
     }
 
     getLocalMedia(mediaConstraints={audio: true, video: true}, nextRoute=null) {    // eslint-disable-line space-infix-ops
+        DEBUG('getLocalMedia(), mediaConstraints=%o', mediaConstraints);
+
         this.loadScreenTimer = setTimeout(() => {
             this.setState({loading: 'Please allow access to your media devices'});
         }, 150);
@@ -436,14 +439,14 @@ class Blink extends React.Component {
         this.state.inboundCall.terminate();
     }
 
-    startConference(targetUri, options) {
+    startConference(targetUri) {
         this.setState({targetUri: targetUri});
-        this.getLocalMedia(options, '/conference');
+        this.getLocalMedia({audio: true, video: true}, '/conference');
     }
 
-    startGuestConference(targetUri, options) {
+    startGuestConference(targetUri) {
         this.setState({targetUri: targetUri});
-        this.getLocalMedia(options);
+        this.getLocalMedia({audio: true, video: true});
     }
 
     outgoingCall(call) {

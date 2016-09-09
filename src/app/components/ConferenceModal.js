@@ -55,7 +55,7 @@ class ConferenceModal extends React.Component {
         return (
             <Modal show={this.props.show} onHide={this.onHide} aria-labelledby="cmodal-title-sm">
                 <Modal.Header closeButton>
-                    <Modal.Title id="cmodal-title-sm">Join Audio Conference</Modal.Title>
+                    <Modal.Title id="cmodal-title-sm">Join Video Conference</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p className="lead">Enter the conference room you wish to join</p>
@@ -67,7 +67,7 @@ class ConferenceModal extends React.Component {
                         </div>
                         <br />
                         <div className="text-right">
-                            <button type="submit" className={classes} disabled={!validUri}><i className="fa fa-phone"></i> Join</button>
+                            <button type="submit" className={classes} disabled={!validUri}><i className="fa fa-video-camera"></i> Join</button>
                         </div>
                     </form>
                 </Modal.Body>

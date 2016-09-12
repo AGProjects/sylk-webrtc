@@ -230,7 +230,7 @@ class Blink extends React.Component {
             } else {
                 reason = 'Connection failed';
             }
-            utils.postNotification('Call Terminated', {body: reason});
+            utils.postNotification('Call Terminated', {body: reason, timeout: callSuccesfull ? 5 : 10});
 
             this.setState({
                 currentCall         : null,

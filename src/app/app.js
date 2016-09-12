@@ -387,12 +387,29 @@ class Blink extends React.Component {
     getLocalMedia(mediaConstraints={audio: true, video: true}, nextRoute=null) {    // eslint-disable-line space-infix-ops
         DEBUG('getLocalMedia(), mediaConstraints=%o', mediaConstraints);
 
+        const constranints = Object.assign({}, mediaConstraints);
+        if (constranints.video === true) {
+            // ask for 720p video
+            constranints.video = {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                optional: [
+                    { minWidth: 1280 },
+                    { maxWidth: 1280 },
+                    { minHeight: 720 },
+                    { maxHeight: 720 }
+                ]
+            };
+        }
+
+        DEBUG('getLocalMedia(), (modified) mediaConstraints=%o', constranints);
+
         this.loadScreenTimer = setTimeout(() => {
             this.setState({loading: 'Please allow access to your media devices'});
         }, 150);
 
         sylkrtc.rtcninja.getUserMedia(
-            mediaConstraints,
+            constranints,
             (localStream) => {
                 clearTimeout(this.loadScreenTimer);
                 this.setState({status: null, loading: null, localMedia: localStream});

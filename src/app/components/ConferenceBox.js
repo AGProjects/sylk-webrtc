@@ -3,13 +3,18 @@
 const React                     = require('react');
 const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
 const ReactMixin                = require('react-mixin');
+const ReactBootstrap            = require('react-bootstrap');
+const Popover                   = ReactBootstrap.Popover;
+const OverlayTrigger            = ReactBootstrap.OverlayTrigger;
 const rtcninja                  = require('sylkrtc').rtcninja;
 const classNames                = require('classnames');
 const debug                     = require('debug');
 const moment                    = require('moment');
 const momentFormat              = require('moment-duration-format');
-const FullscreenMixin           = require('../mixins/FullScreen');
+const Clipboard                 = require('clipboard');
 
+const utils                     = require('../utils');
+const FullscreenMixin           = require('../mixins/FullScreen');
 const ConferenceCarousel        = require('./ConferenceCarousel');
 const ConferenceParticipant     = require('./ConferenceParticipant');
 const ConferenceParticipantSelf = require('./ConferenceParticipantSelf');
@@ -32,6 +37,7 @@ class ConferenceBox extends React.Component {
 
         this.callTimer = null;
         this.overlayTimer = null;
+        this.clipboard = new Clipboard('#shareBtn');
 
         // ES6 classes no longer autobind
         [
@@ -44,7 +50,8 @@ class ConferenceBox extends React.Component {
             'onParticipantLeft',
             'onParticipantStateChanged',
             'onVideoSelected',
-            'maybeSwitchLargeVideo'
+            'maybeSwitchLargeVideo',
+            'handleClipboardButton'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -145,6 +152,13 @@ class ConferenceBox extends React.Component {
     handleFullscreen(event) {
         event.preventDefault();
         this.toggleFullscreen(this.refs.videoContainer);
+    }
+
+    handleClipboardButton() {
+        utils.postNotification('Join me, maybe?', {body: 'URL copied to the clipboard'});
+        setTimeout(() => {
+            this.setState({callOverlayVisible: false});
+        }, 150);
     }
 
     muteAudio(event) {
@@ -277,6 +291,23 @@ class ConferenceBox extends React.Component {
 
             );
 
+            let callUrl;
+            if (window.location.origin.startsWith('file://')) {
+                callUrl = `${config.publicUrl}/#!/conference/${this.props.call.remoteIdentity.uri}`;
+            } else {
+                callUrl = `${window.location.origin}/#!/conference/${this.props.call.remoteIdentity.uri}`;
+            }
+            const shareOverlay = (
+                <Popover id="shareOverlay" title="Join me, maybe?">
+                    Share <strong><a href={callUrl} target="_blank" rel="noopener noreferrer">this link</a></strong> with others so they can easily join this conference.
+                    <div className="text-center">
+                        <button id="shareBtn" className="btn btn-link" onClick={this.handleClipboardButton} data-clipboard-text={callUrl}>
+                            <strong>Copy to clipboard</strong>
+                        </button>
+                    </div>
+                </Popover>
+            );
+
             callButtons = (
                 <div className="conference-buttons">
                         <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>
@@ -286,6 +317,9 @@ class ConferenceBox extends React.Component {
                                 return <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
                             }
                         })()}
+                        <OverlayTrigger trigger="click" placement="bottom" overlay={shareOverlay} rootClose>
+                            <button key="shareButton" type="button" className={commonButtonClasses}> <i className="fa fa-share"></i> </button>
+                        </OverlayTrigger>
                         <button key="hangupButton" type="button" className="btn btn-round btn-danger" onClick={this.hangup}> <i className="fa fa-phone rotate-135"></i> </button>
                 </div>
             );

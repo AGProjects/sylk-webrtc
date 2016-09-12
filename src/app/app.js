@@ -401,6 +401,7 @@ class Blink extends React.Component {
                 }
             },
             (error) => {
+                DEBUG('Access to local media failed: %o', error);
                 clearTimeout(this.loadScreenTimer);
                 utils.postNotification('Access to media failed', {timeout: 10});
                 this.setState({

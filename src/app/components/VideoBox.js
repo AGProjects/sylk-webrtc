@@ -213,16 +213,15 @@ class VideoBox extends React.Component {
 
             );
 
-            let fullScreenButton;
-            if (this.isFullscreenSupported()) {
-                fullScreenButton = <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
-            }
-
             callButtons = (
                 <div className="call-buttons">
                         <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>
                         <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>
-                        {fullScreenButton}
+                        {(() => {
+                            if (this.isFullscreenSupported()) {
+                                return <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>
+                            }
+                        })()}
                         <br />
                         <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>
                 </div>

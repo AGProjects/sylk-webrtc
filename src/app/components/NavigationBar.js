@@ -35,7 +35,7 @@ const NavigationBar = (props) => {
         utils.postNotification('Call me, maybe?', {body: 'URL copied to the clipboard'});
     };
 
-    const clipboard = new Clipboard('.btn');
+    const clipboard = new Clipboard('#shareBtn');
     let callUrl;
     if (window.location.origin.startsWith('file://')) {
         callUrl = `${config.publicUrl}/#!/call/${props.account.id}`;
@@ -46,7 +46,7 @@ const NavigationBar = (props) => {
         <Popover id="shareOverlay" title="Call me, maybe?">
             Share <strong><a href={callUrl} target="_blank" rel="noopener noreferrer">this link</a></strong> with others so they can easily call you.
             <div className="text-center">
-                <button className="btn btn-link" onClick={handleClipboardButton} data-clipboard-text={callUrl}>
+                <button id="shareBtn" className="btn btn-link" onClick={handleClipboardButton} data-clipboard-text={callUrl}>
                     <strong>Copy to clipboard</strong>
                 </button>
             </div>

@@ -25,9 +25,10 @@ class VideoBox extends React.Component {
             remoteVideoShow: false
         };
 
+        this.callTimer = null;
+        this.overlayTimer = null;
+
         // ES6 classes no longer autobind
-        this.showLocalVideoElement = this.showLocalVideoElement.bind(this);
-        this.showRemoteVideoElement = this.showRemoteVideoElement.bind(this);
         this.showCallOverlay = this.showCallOverlay.bind(this);
         this.handleFullscreen = this.handleFullscreen.bind(this);
         this.muteAudio = this.muteAudio.bind(this);
@@ -36,31 +37,31 @@ class VideoBox extends React.Component {
     }
 
     componentDidMount() {
-        this.callTimer = null;
-        let remoteStream = this.props.call.getRemoteStreams()[0];
-        this.refs.localVideo.addEventListener('playing', this.showLocalVideoElement);
-        this.refs.localVideo.oncontextmenu = function(e) {
+        this.refs.localVideo.addEventListener('playing', () => {
+            this.setState({localVideoShow: true});    // eslint-disable-line react/no-did-mount-set-state
+        });
+        this.refs.localVideo.oncontextmenu = (e) => {
             // disable right click for video elements
             e.preventDefault();
         };
         rtcninja.attachMediaStream(this.refs.localVideo, this.props.localMedia);
-        this.refs.remoteVideo.addEventListener('playing', this.showRemoteVideoElement);
-        this.refs.remoteVideo.oncontextmenu = function(e) {
+
+        this.refs.remoteVideo.addEventListener('playing', () => {
+            this.setState({remoteVideoShow: true});    // eslint-disable-line react/no-did-mount-set-state
+        });
+        this.refs.remoteVideo.oncontextmenu = (e) => {
             // disable right click for video elements
             e.preventDefault();
         };
-        rtcninja.attachMediaStream(this.refs.remoteVideo, remoteStream);
-        this.hangupButtonTimer = null;
-        this.armHangupTimer();
+        rtcninja.attachMediaStream(this.refs.remoteVideo, this.props.call.getRemoteStreams()[0]);
+
+        this.armOverlayTimer();
         this.startCallTimer();
     }
 
     componentWillUnmount() {
-        clearTimeout(this.hangupButtonTimer);
+        clearTimeout(this.overlayTimer);
         clearTimeout(this.callTimer);
-
-        this.refs.remoteVideo.removeEventListener('playing', this.showRemoteVideoElement);
-        this.refs.localVideo.removeEventListener('playing', this.showLocalVideoElement);
 
         this.exitFullscreen();
     }
@@ -70,25 +71,18 @@ class VideoBox extends React.Component {
         this.toggleFullscreen(this.refs.videoContainer);
     }
 
-    showLocalVideoElement() {
-        this.setState({localVideoShow: true});
-    }
-
-    showRemoteVideoElement() {
-        this.setState({remoteVideoShow: true});
-    }
-
     muteAudio(event) {
         event.preventDefault();
-        let localStream = this.props.call.getLocalStreams()[0];
+        const localStream = this.props.call.getLocalStreams()[0];
         if (localStream.getAudioTracks().length > 0) {
+            const track = localStream.getAudioTracks()[0];
             if(this.state.audioMuted) {
                 DEBUG('Unmute microphone');
-                localStream.getAudioTracks()[0].enabled = true;
+                track.enabled = true;
                 this.setState({audioMuted: false});
             } else {
                 DEBUG('Mute microphone');
-                localStream.getAudioTracks()[0].enabled = false;
+                track.enabled = false;
                 this.setState({audioMuted: true});
             }
         }
@@ -96,15 +90,16 @@ class VideoBox extends React.Component {
 
     muteVideo(event) {
         event.preventDefault();
-        let localStream = this.props.call.getLocalStreams()[0];
+        const localStream = this.props.call.getLocalStreams()[0];
         if (localStream.getVideoTracks().length > 0) {
+            const track = localStream.getVideoTracks()[0];
             if(this.state.videoMuted) {
                 DEBUG('Unmute camera');
-                localStream.getVideoTracks()[0].enabled = true;
+                track.enabled = true;
                 this.setState({videoMuted: false});
             } else {
                 DEBUG('Mute camera');
-                localStream.getVideoTracks()[0].enabled = false;
+                track.enabled = false;
                 this.setState({videoMuted: true});
             }
         }
@@ -116,16 +111,16 @@ class VideoBox extends React.Component {
     }
 
     startCallTimer() {
-        let startTime = new Date();
+        const startTime = new Date();
         this.callTimer = setInterval(() => {
-            let duration = moment.duration(new Date() - startTime).format('hh:mm:ss', {trim: false});
+            const duration = moment.duration(new Date() - startTime).format('hh:mm:ss', {trim: false});
             this.setState({callDuration: duration});
         }, 300);
     }
 
-    armHangupTimer() {
-        clearTimeout(this.hangupButtonTimer);
-        this.hangupButtonTimer = setTimeout(() => {
+    armOverlayTimer() {
+        clearTimeout(this.overlayTimer);
+        this.overlayTimer = setTimeout(() => {
             this.setState({callOverlayVisible: false});
         }, 4000);
     }
@@ -133,11 +128,15 @@ class VideoBox extends React.Component {
     showCallOverlay() {
         if (this.state.remoteVideoShow) {
             this.setState({callOverlayVisible: true});
-            this.armHangupTimer();
+            this.armOverlayTimer();
         }
     }
 
     render() {
+        if (this.props.call === null) {
+            return (<div></div>);
+        }
+
         const localVideoClasses = classNames({
             'video-thumbnail' : true,
             'mirror'          : true,
@@ -191,37 +190,33 @@ class VideoBox extends React.Component {
                 'btn-default'   : true
             });
 
-            let remoteIdentity;
-            if (this.props.call !== null) {
-                remoteIdentity = this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri
-            }
+            const remoteIdentity = this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri;
 
-            let callDuration;
+            let callDetail;
             if (this.state.callDuration !== null) {
-                callDuration = <span><i className="fa fa-clock-o"></i> {this.state.callDuration}</span>;
+                callDetail = <span><i className="fa fa-clock-o"></i> {this.state.callDuration}</span>;
             } else {
-                callDuration = 'Connecting...'
+                callDetail = 'Connecting...'
             }
 
             videoHeader = (
-                    <div key="header" className="call-header">
-                        <p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p>
-                        <p className={videoHeaderTextClasses}>{callDuration}</p>
-                    </div>
-
+                <div key="header" className="call-header">
+                    <p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p>
+                    <p className={videoHeaderTextClasses}>{callDetail}</p>
+                </div>
             );
 
             callButtons = (
                 <div className="call-buttons">
-                        <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>
-                        <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>
-                        {(() => {
-                            if (this.isFullscreenSupported()) {
-                                return <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>
-                            }
-                        })()}
-                        <br />
-                        <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>
+                    <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>
+                    <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>
+                    {(() => {
+                        if (this.isFullscreenSupported()) {
+                            return <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>
+                        }
+                    })()}
+                    <br />
+                    <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>
                 </div>
             );
         }

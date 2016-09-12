@@ -61,11 +61,9 @@ class ConferenceParticipant extends React.Component {
             };
             this.speechEvents = hark(streams[0], options);
             this.speechEvents.on('speaking', () => {
-                console.log(`${this.props.participant.identity} is speaking`);
                 this.setState({active: true});
             });
             this.speechEvents.on('stopped_speaking', () => {
-                console.log(`${this.props.participant.identity} stopped speaking`);
                 this.setState({active: false});
             });
         }

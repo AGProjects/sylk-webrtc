@@ -138,8 +138,6 @@ class VideoBox extends React.Component {
     }
 
     render() {
-        const callEstablished = this.state.callDuration !== null;
-
         const localVideoClasses = classNames({
             'video-thumbnail' : true,
             'mirror'          : true,

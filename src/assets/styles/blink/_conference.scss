@@ -9,6 +9,19 @@
     z-index: 1;
 }
 
+.conference {
+    video {
+        @include background-image-retina($video-poster-image, 75px, 75px);
+        background-blend-mode: luminosity;
+        background-position: center;
+        background-repeat: no-repeat;
+
+        &.large {
+            @include background-image-retina($video-big-poster-image, 350px, 350px);
+            background-color: $black-transparent;
+        }
+    }
+}
 .conference-thumbnails {
     position: absolute;
     bottom: 0;
@@ -21,14 +34,14 @@
         width: 150px !important;
         height: 100px !important;
         object-fit: cover;
-        background-color: red;
+        background-color: $gray;
         border: 1px solid $white;
         border-radius: 10px;
         margin: 5px;
     }
 
     .conference-active {
-        box-shadow: 0px 0px 10px 2px $bootstrap-base;
+        box-shadow: 0 0 10px 2px $bootstrap-base;
     }
 
     .carousel {

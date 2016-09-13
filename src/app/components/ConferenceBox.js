@@ -78,6 +78,11 @@ class ConferenceBox extends React.Component {
         clearTimeout(this.callTimer);
 
         this.exitFullscreen();
+
+        this.refs.largeVideo.src = '';
+
+        this.clipboard.destroy();
+        this.clipboard = null;
     }
 
     onParticipantJoined(p) {

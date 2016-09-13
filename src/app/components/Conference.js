@@ -2,7 +2,7 @@
 
 const React      = require('react');
 const classNames = require('classnames');
-const rtcninja   = require('sylkrtc').rtcninja;
+const rtcninja   = require('rtcninja');
 const assert     = require('assert');
 const Router     = require('react-mini-router');
 const navigate   = Router.navigate;

@@ -47,6 +47,7 @@
     "react-mixin": "^3.0.5",
     "react-notification-system": "^0.2.7",
     "require-dir": "^0.3.0",
+    "rtcninja": "^0.6.8",
     "sass-lint": "^1.8.2",
     "screenfull": "^3.0.0",
     "superagent": "^2.0.0",

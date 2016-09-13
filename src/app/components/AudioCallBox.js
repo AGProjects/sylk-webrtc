@@ -5,7 +5,7 @@ const classNames    = require('classnames');
 const debug         = require('debug');
 const moment        = require('moment');
 const momentFormat  = require('moment-duration-format');
-const rtcninja      = require('sylkrtc').rtcninja;
+const rtcninja      = require('rtcninja');
 
 const DTMFModal     = require('./DTMFModal');
 

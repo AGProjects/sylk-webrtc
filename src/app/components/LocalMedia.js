@@ -2,7 +2,7 @@
 
 const React                   = require('react');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
-const rtcninja                = require('sylkrtc').rtcninja;
+const rtcninja                = require('rtcninja');
 const classNames              = require('classnames');
 
 

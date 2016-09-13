@@ -4,7 +4,7 @@ const React           = require('react');
 const ReactBootstrap  = require('react-bootstrap');
 const Tooltip         = ReactBootstrap.Tooltip;
 const OverlayTrigger  = ReactBootstrap.OverlayTrigger;
-const rtcninja        = require('sylkrtc').rtcninja;
+const rtcninja        = require('rtcninja');
 const hark            = require('hark');
 const classNames      = require('classnames');
 

@@ -3,11 +3,12 @@
 const React                     = require('react');
 const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
 const ReactMixin                = require('react-mixin');
-const rtcninja                  = require('sylkrtc').rtcninja;
+const rtcninja                  = require('rtcninja');
 const classNames                = require('classnames');
 const debug                     = require('debug');
 const moment                    = require('moment');
 const momentFormat              = require('moment-duration-format');
+
 const FullscreenMixin           = require('../mixins/FullScreen');
 
 const DEBUG = debug('blinkrtc:Video');

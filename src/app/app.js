@@ -8,6 +8,7 @@ const navigate                  = Router.navigate
 const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
 const uuid                      = require('node-uuid');
 const sylkrtc                   = require('sylkrtc');
+const rtcninja                  = require('rtcninja');
 const debug                     = require('debug');
 const bowser                    = require('bowser');
 
@@ -105,7 +106,7 @@ class Blink extends React.Component {
     componentWillMount() {
         storage.initialize();
 
-        if (!sylkrtc.rtcninja.hasWebRTC()) {
+        if (!rtcninja.hasWebRTC()) {
             window.location.hash = '#!/not-supported';
         }
         // We wont hit any other path here, since other paths are handled by the webserver
@@ -123,7 +124,7 @@ class Blink extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
         // This is used to catch location bar modifications, we only switch on nextProps
         if (this.state.path !== nextState.path) {
-            if (!sylkrtc.rtcninja.hasWebRTC()) {
+            if (!rtcninja.hasWebRTC()) {
                 navigate('/not-supported');
                 return false;
             }
@@ -412,7 +413,7 @@ class Blink extends React.Component {
             this.setState({loading: 'Please allow access to your media devices'});
         }, 150);
 
-        sylkrtc.rtcninja.getUserMedia(
+        rtcninja.getUserMedia(
             constranints,
             (localStream) => {
                 clearTimeout(this.loadScreenTimer);

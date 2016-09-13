@@ -32,6 +32,7 @@ class ConferenceParticipantSelf extends React.Component {
     }
 
     componentWillUnmount() {
+        this.refs.videoElement.src = '';
         if (this.speechEvents !== null) {
             this.speechEvents.stop();
             this.speechEvents = null;

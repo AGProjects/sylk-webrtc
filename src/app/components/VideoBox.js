@@ -68,7 +68,7 @@ class VideoBox extends React.Component {
 
     handleFullscreen(event) {
         event.preventDefault();
-        this.toggleFullscreen(this.refs.videoContainer);
+        this.toggleFullscreen(document.body);
     }
 
     muteAudio(event) {
@@ -222,7 +222,7 @@ class VideoBox extends React.Component {
         }
 
         return (
-            <div className="video-container" ref="videoContainer" onMouseMove={this.showCallOverlay}>
+            <div className="video-container" onMouseMove={this.showCallOverlay}>
                 <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {videoHeader}
                 </ReactCSSTransitionGroup>

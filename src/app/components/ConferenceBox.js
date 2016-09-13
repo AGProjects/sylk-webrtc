@@ -151,7 +151,7 @@ class ConferenceBox extends React.Component {
 
     handleFullscreen(event) {
         event.preventDefault();
-        this.toggleFullscreen(this.refs.videoContainer);
+        this.toggleFullscreen(document.body);
     }
 
     handleClipboardButton() {
@@ -347,7 +347,7 @@ class ConferenceBox extends React.Component {
         });
 
         return (
-            <div className="video-container" ref="videoContainer">
+            <div className="video-container">
                 <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {videoHeader}
                     {callButtons}

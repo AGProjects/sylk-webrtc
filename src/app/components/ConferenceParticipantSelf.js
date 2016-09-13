@@ -31,6 +31,13 @@ class ConferenceParticipantSelf extends React.Component {
         this.attachSpeechEvents();
     }
 
+    componentWillUnmount() {
+        if (this.speechEvents !== null) {
+            this.speechEvents.stop();
+            this.speechEvents = null;
+        }
+    }
+
     attachSpeechEvents() {
         const options = {
             interval: 150,

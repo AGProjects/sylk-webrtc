@@ -34,6 +34,10 @@ class ConferenceParticipant extends React.Component {
 
     componentWillUnmount() {
         this.props.participant.removeListener('stateChanged', this.onParticipantStateChanged);
+        if (this.speechEvents !== null) {
+            this.speechEvents.stop();
+            this.speechEvents = null;
+        }
     }
 
     onParticipantStateChanged(oldState, newState) {

@@ -11,6 +11,7 @@
     "babel-preset-react": "^6.5.0",
     "babelify": "^7.3.0",
     "bower": "^1.7.9",
+    "bowser": "^1.4.5",
     "browser-sync": "^2.13.0",
     "browserify": "13.0.1",
     "classnames": "^2.2.5",

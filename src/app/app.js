@@ -9,6 +9,7 @@ const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
 const uuid                      = require('node-uuid');
 const sylkrtc                   = require('sylkrtc');
 const debug                     = require('debug');
+const bowser                    = require('bowser');
 
 const AutobindMixinFactory = require('./mixins/Autobind');
 const RegisterBox          = require('./components/RegisterBox');
@@ -390,16 +391,19 @@ class Blink extends React.Component {
         const constranints = Object.assign({}, mediaConstraints);
         if (constranints.video === true) {
             // ask for 720p video
-            constranints.video = {
-                width: { ideal: 1280 },
-                height: { ideal: 720 },
-                optional: [
+            // "standards", they said!
+            constranints.video = {};
+            if (bowser.chrome) {
+                constranints.video.optional = [
                     { minWidth: 1280 },
                     { maxWidth: 1280 },
                     { minHeight: 720 },
                     { maxHeight: 720 }
-                ]
-            };
+                ];
+            } else {
+                constranints.video.width = { ideal: 1280 };
+                constranints.video.height = { ideal: 720 };
+            }
         }
 
         DEBUG('getLocalMedia(), (modified) mediaConstraints=%o', constranints);

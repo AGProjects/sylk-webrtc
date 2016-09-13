@@ -293,7 +293,6 @@ class ConferenceBox extends React.Component {
                         <p className={videoHeaderTextClasses}><strong>Conference:</strong> {remoteIdentity}</p>
                         <p className={videoHeaderTextClasses}>{callDetail}</p>
                     </div>
-
             );
 
             let callUrl;

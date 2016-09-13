@@ -161,9 +161,7 @@ class ConferenceBox extends React.Component {
 
     handleClipboardButton() {
         utils.postNotification('Join me, maybe?', {body: 'URL copied to the clipboard'});
-        setTimeout(() => {
-            this.setState({callOverlayVisible: false});
-        }, 150);
+        this.refs.shareOverlay.hide();
     }
 
     muteAudio(event) {
@@ -321,7 +319,7 @@ class ConferenceBox extends React.Component {
                                 return <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
                             }
                         })()}
-                        <OverlayTrigger trigger="click" placement="bottom" overlay={shareOverlay} rootClose>
+                        <OverlayTrigger ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} rootClose>
                             <button key="shareButton" type="button" className={commonButtonClasses}> <i className="fa fa-share"></i> </button>
                         </OverlayTrigger>
                         <button key="hangupButton" type="button" className="btn btn-round btn-danger" onClick={this.hangup}> <i className="fa fa-phone rotate-135"></i> </button>

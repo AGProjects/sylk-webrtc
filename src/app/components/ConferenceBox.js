@@ -325,6 +325,27 @@ class ConferenceBox extends React.Component {
             );
         }
 
+        const participants = [];
+
+        if (this.state.participants.length > 0) {
+            participants.push(<ConferenceParticipantSelf
+                                    key="myself"
+                                    stream={this.props.call.getLocalStreams()[0]}
+                                    identity={this.props.call.localIdentity}
+                                    selected={this.onVideoSelected}
+                              />
+            );
+        }
+
+        this.state.participants.forEach((p) => {
+            participants.push(<ConferenceParticipant
+                                    key={p.id}
+                                    participant={p}
+                                    selected={this.onVideoSelected}
+                              />
+            );
+        });
+
         return (
             <div className="video-container" ref="videoContainer">
                 <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
@@ -334,23 +355,7 @@ class ConferenceBox extends React.Component {
                 <video ref="largeVideo" className={largeVideoClasses} onMouseMove={this.showOverlay} autoPlay muted />
                 <div className="conference-thumbnails">
                     <ConferenceCarousel>
-                        <ConferenceParticipantSelf
-                            key="myself"
-                            stream={this.props.call.getLocalStreams()[0]}
-                            identity={this.props.call.localIdentity}
-                            selected={this.onVideoSelected}
-                        />
-                        {
-                            this.state.participants.map((p) => {
-                                return (
-                                    <ConferenceParticipant
-                                        key={p.id}
-                                        participant={p}
-                                        selected={this.onVideoSelected}
-                                    />
-                                );
-                            })
-                        }
+                        {participants}
                     </ConferenceCarousel>
                 </div>
             </div>

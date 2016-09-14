@@ -360,7 +360,7 @@ class ConferenceBox extends React.Component {
                     {videoHeader}
                     {callButtons}
                 </ReactCSSTransitionGroup>
-                <video ref="largeVideo" className={largeVideoClasses} onMouseMove={this.showOverlay} poster="/assets/images/transparent-1px.png" autoPlay muted />
+                <video ref="largeVideo" className={largeVideoClasses} onMouseMove={this.showOverlay} poster="assets/images/transparent-1px.png" autoPlay muted />
                 <div className="conference-thumbnails">
                     <ConferenceCarousel>
                         {participants}

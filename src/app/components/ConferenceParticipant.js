@@ -89,7 +89,7 @@ class ConferenceParticipant extends React.Component {
 
         return (
             <OverlayTrigger placement="top" overlay={tooltip}>
-                <video ref="videoElement" onClick={this.onVideoClicked} className={classes} poster="/assets/images/transparent-1px.png" autoPlay />
+                <video ref="videoElement" onClick={this.onVideoClicked} className={classes} poster="assets/images/transparent-1px.png" autoPlay />
             </OverlayTrigger>
         );
     }

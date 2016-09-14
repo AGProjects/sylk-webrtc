@@ -28,7 +28,7 @@ function _postNotification(title, options) {
 
 function postNotification(title, options={}) {    // eslint-disable-line space-infix-ops
     const defaultOptions = {
-        icon: '/assets/images/blink-48.png',
+        icon: 'assets/images/blink-48.png',
         body: '',
         timeout: 5,
         silent: true

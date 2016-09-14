@@ -479,6 +479,10 @@ class Blink extends React.Component {
 
     incomingCall(call, mediaTypes) {
         DEBUG('New incoming call from %s with %o', call.remoteIdentity, mediaTypes);
+        if (!mediaTypes.audio && !mediaTypes.video) {
+            call.terminate();
+            return;
+        }
         call.mediaTypes = mediaTypes;
         if (this.state.currentCall !== null) {
             // detect if we called ourselves

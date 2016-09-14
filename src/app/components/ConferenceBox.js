@@ -13,6 +13,7 @@ const moment                    = require('moment');
 const momentFormat              = require('moment-duration-format');
 const Clipboard                 = require('clipboard');
 
+const config                    = require('../config');
 const utils                     = require('../utils');
 const FullscreenMixin           = require('../mixins/FullScreen');
 const ConferenceCarousel        = require('./ConferenceCarousel');

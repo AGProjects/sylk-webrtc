@@ -115,6 +115,13 @@ class ConferenceBox extends React.Component {
 
     onVideoSelected(item) {
         DEBUG('Switching video to: %o', item);
+        const localStream = this.props.call.getLocalStreams()[0];
+        // always show local stream mirrored
+        if (item.stream === localStream && localStream.getVideoTracks().length > 0) {
+            this.refs.largeVideo.style.transform = 'scaleX(-1)';
+        } else {
+            this.refs.largeVideo.style.transform = '';
+        }
         if (item.stream) {
             this.setState({currentLargeVideo: item.stream});
             rtcninja.attachMediaStream(this.refs.largeVideo, item.stream);

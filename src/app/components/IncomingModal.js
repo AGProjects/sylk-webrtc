@@ -36,19 +36,16 @@ class IncomingCallModal extends React.Component {
     }
 
     render() {
+        if (this.props.call == null) {
+            return false;
+        }
+
         let callType = 'audio';
-        if (this.props.call !== null && this.props.call.mediaTypes.video) {
+        if (this.props.call.mediaTypes.video) {
             callType = 'video';
         }
 
-        let remoteIdentityLine;
-        if (this.props.call !== null) {
-            if (this.props.call.remoteIdentity.displayName) {
-                remoteIdentityLine = this.props.call.remoteIdentity.displayName;
-            } else {
-                remoteIdentityLine = this.props.call.remoteIdentity.uri;
-            }
-        }
+        const remoteIdentityLine = this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri;
 
         const tooltip = (
             <Popover id="popover-trigger-hover-focus">

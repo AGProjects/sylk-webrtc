@@ -32,7 +32,6 @@ class ConferenceParticipantSelf extends React.Component {
     }
 
     componentWillUnmount() {
-        this.refs.videoElement.src = '';
         if (this.speechEvents !== null) {
             this.speechEvents.stop();
             this.speechEvents = null;
@@ -62,6 +61,10 @@ class ConferenceParticipantSelf extends React.Component {
     }
 
     render() {
+        if (this.props.stream == null) {
+            return false;
+        }
+
         const tooltip = (
             <Tooltip id="t-myself">{this.props.identity.displayName || this.props.identity.uri}</Tooltip>
         );

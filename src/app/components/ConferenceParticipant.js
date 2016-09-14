@@ -79,7 +79,11 @@ class ConferenceParticipant extends React.Component {
             <Tooltip id={this.props.participant.id}>{this.props.participant.identity.displayName || this.props.participant.identity.uri}</Tooltip>
         );
 
+        const streams = this.props.participant.streams;
+        const hasVideo = streams.length > 0 ? streams[0].getVideoTracks().length > 0 : false;
+
         const classes = classNames({
+            'poster' : !hasVideo,
             'conference-active' : this.state.active
         });
 

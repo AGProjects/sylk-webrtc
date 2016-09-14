@@ -66,8 +66,11 @@ class ConferenceParticipantSelf extends React.Component {
             <Tooltip id="t-myself">{this.props.identity.displayName || this.props.identity.uri}</Tooltip>
         );
 
+        const hasVideo = this.props.stream.getVideoTracks().length > 0;
+
         const classes = classNames({
-            'mirror': true,
+            'mirror' : hasVideo,
+            'poster' : !hasVideo,
             'conference-active' : this.state.active
         });
 

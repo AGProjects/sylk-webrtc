@@ -10,7 +10,7 @@
 }
 
 .conference {
-    video {
+    .poster {
         @include background-image-retina($video-poster-image, 75px, 75px);
         background-blend-mode: luminosity;
         background-position: center;
@@ -22,6 +22,7 @@
         }
     }
 }
+
 .conference-thumbnails {
     position: absolute;
     bottom: 0;

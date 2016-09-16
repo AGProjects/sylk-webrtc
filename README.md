@@ -81,4 +81,4 @@ Blink for Web is available under the AGPLv3 license. See the LICENSE file.
 The following organizations have helped the development of Blink for Web by providing funding:
 
 * [NLnet Foundation](https://www.nlnet.nl)
-* [SIDN](https://www.sidn.nl)
+* [SIDNfonds](https://www.sidnfonds.nl)

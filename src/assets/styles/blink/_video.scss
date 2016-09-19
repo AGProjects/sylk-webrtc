@@ -6,6 +6,8 @@
     height: 100% !important;
 
     video {
+        object-fit: cover;
+
         &.mirror {
             transform: scaleX(-1);    // mirror
         }
@@ -26,7 +28,6 @@
             position: absolute;
             width: 150px !important;
             height: 100px !important;
-            object-fit: cover;
             z-index: 3;
         }
     }

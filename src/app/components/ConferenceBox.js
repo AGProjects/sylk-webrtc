@@ -363,7 +363,9 @@ class ConferenceBox extends React.Component {
                 <video ref="largeVideo" className={largeVideoClasses} onMouseMove={this.showOverlay} poster="assets/images/transparent-1px.png" autoPlay muted />
                 <div className="conference-thumbnails">
                     <ConferenceCarousel>
-                        {participants}
+                        <ReactCSSTransitionGroup transitionName="carousel" transitionEnterTimeout={500} transitionLeaveTimeout={300}>
+                            {participants}
+                        </ReactCSSTransitionGroup>
                     </ConferenceCarousel>
                 </div>
             </div>

@@ -59,3 +59,17 @@
         padding-bottom: 17px;
     }
 }
+
+// Carousel Animation
+
+.carousel-enter {
+    -webkit-animation: fadeIn ease .5s;
+    animation: fadeIn ease .5s;
+}
+
+.carousel-leave {
+    &.carousel-leave-active {
+        -webkit-animation: fadeOutDown ease .3s;
+        animation: fadeOutDown ease .3s;
+    }
+}

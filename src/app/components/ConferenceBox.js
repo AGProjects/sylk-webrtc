@@ -52,7 +52,9 @@ class ConferenceBox extends React.Component {
             'onParticipantStateChanged',
             'onVideoSelected',
             'maybeSwitchLargeVideo',
-            'handleClipboardButton'
+            'handleClipboardButton',
+            'handleShareOverlayEntered',
+            'handleShareOverlayExited'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -163,6 +165,16 @@ class ConferenceBox extends React.Component {
     handleClipboardButton() {
         utils.postNotification('Join me, maybe?', {body: 'URL copied to the clipboard'});
         this.refs.shareOverlay.hide();
+    }
+
+    handleShareOverlayEntered() {
+        // keep the buttons and overlay visible
+        clearTimeout(this.overlayTimer);
+    }
+
+    handleShareOverlayExited() {
+        // re-arm the buttons and overlay timeout
+        this.armOverlayTimer();
     }
 
     muteAudio(event) {
@@ -325,7 +337,7 @@ class ConferenceBox extends React.Component {
                                 return <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
                             }
                         })()}
-                        <OverlayTrigger ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} rootClose>
+                        <OverlayTrigger ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
                             <button key="shareButton" type="button" className={commonButtonClasses}> <i className="fa fa-share"></i> </button>
                         </OverlayTrigger>
                         <button key="hangupButton" type="button" className="btn btn-round btn-danger" onClick={this.hangup}> <i className="fa fa-phone rotate-135"></i> </button>

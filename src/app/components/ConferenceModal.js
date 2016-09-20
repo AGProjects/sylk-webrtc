@@ -12,16 +12,11 @@ class ConferenceModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            conferenceTargetUri: props.targetUri || ''
+            conferenceTargetUri: ''
         };
         this.handleConferenceTargetChange = this.handleConferenceTargetChange.bind(this);
         this.onHide = this.onHide.bind(this);
         this.join = this.join.bind(this);
-    }
-
-    componentWillReceiveProps(nextProps) {
-        const targetUri = nextProps.targetUri || '';
-        this.setState({conferenceTargetUri: targetUri});
     }
 
     handleConferenceTargetChange(event) {
@@ -72,7 +67,6 @@ class ConferenceModal extends React.Component {
 }
 
 ConferenceModal.propTypes = {
-    targetUri: React.PropTypes.string,
     show: React.PropTypes.bool.isRequired,
     handleConferenceCall: React.PropTypes.func.isRequired
 };

@@ -99,7 +99,6 @@ class ReadyBox extends React.Component {
                 <ConferenceModal
                     show={this.state.showConferenceModal}
                     handleConferenceCall={this.handleConferenceCall}
-                    targetUri={this.state.targetUri}
                 />
             </div>
         );

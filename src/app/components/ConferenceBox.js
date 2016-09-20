@@ -16,6 +16,7 @@ const Clipboard                 = require('clipboard');
 const config                    = require('../config');
 const utils                     = require('../utils');
 const FullscreenMixin           = require('../mixins/FullScreen');
+const AudioPlayer               = require('./AudioPlayer');
 const ConferenceCarousel        = require('./ConferenceCarousel');
 const ConferenceParticipant     = require('./ConferenceParticipant');
 const ConferenceParticipantSelf = require('./ConferenceParticipantSelf');
@@ -90,6 +91,7 @@ class ConferenceBox extends React.Component {
 
     onParticipantJoined(p) {
         DEBUG(`Participant joined: ${p.identity}`);
+        this.refs.audioPlayerParticipantJoined.play();
         p.on('stateChanged', this.onParticipantStateChanged);
         p.attach();
         this.setState({
@@ -99,6 +101,7 @@ class ConferenceBox extends React.Component {
 
     onParticipantLeft(p) {
         DEBUG(`Participant left: ${p.identity}`);
+        this.refs.audioPlayerParticipantLeft.play();
         p.detach();
         const participants = this.state.participants.slice();
         const idx = participants.indexOf(p);
@@ -382,6 +385,8 @@ class ConferenceBox extends React.Component {
                         </ReactCSSTransitionGroup>
                     </ConferenceCarousel>
                 </div>
+                <AudioPlayer ref="audioPlayerParticipantJoined" sourceFile="assets/sounds/participant_joined.wav" />
+                <AudioPlayer ref="audioPlayerParticipantLeft" sourceFile="assets/sounds/participant_left.wav" />
             </div>
         );
     }

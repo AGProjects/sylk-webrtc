@@ -31,11 +31,11 @@ class ConferenceBox extends React.Component {
             callOverlayVisible: true,
             audioMuted: false,
             videoMuted: false,
-            callDuration: null,
             participants: props.call.participants.slice(),
             currentLargeVideo: null
         };
 
+        this.callDuration = null;
         this.callTimer = null;
         this.overlayTimer = null;
         this.clipboard = new Clipboard('#shareBtn');
@@ -222,8 +222,10 @@ class ConferenceBox extends React.Component {
     startCallTimer() {
         const startTime = new Date();
         this.callTimer = setInterval(() => {
-            const duration = moment.duration(new Date() - startTime).format('hh:mm:ss', {trim: false});
-            this.setState({callDuration: duration});
+            this.callDuration = moment.duration(new Date() - startTime).format('hh:mm:ss', {trim: false});
+            if (this.state.callOverlayVisible) {
+                this.forceUpdate();
+            }
         }, 300);
     }
 
@@ -295,7 +297,7 @@ class ConferenceBox extends React.Component {
                 const participantCount = this.state.participants.length + 1;
                 callDetail = (
                     <span>
-                        <i className="fa fa-clock-o"></i> {this.state.callDuration}
+                        <i className="fa fa-clock-o"></i> {this.callDuration}
                         &nbsp;&mdash;&nbsp;
                         <i className="fa fa-users"></i> {participantCount} participant{participantCount > 1 ? 's' : ''}
                     </span>

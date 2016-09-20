@@ -21,11 +21,11 @@ class VideoBox extends React.Component {
             callOverlayVisible: true,
             audioMuted: false,
             videoMuted: false,
-            callDuration: null,
             localVideoShow: false,
             remoteVideoShow: false
         };
 
+        this.callDuration = null;
         this.callTimer = null;
         this.overlayTimer = null;
 
@@ -114,8 +114,10 @@ class VideoBox extends React.Component {
     startCallTimer() {
         const startTime = new Date();
         this.callTimer = setInterval(() => {
-            const duration = moment.duration(new Date() - startTime).format('hh:mm:ss', {trim: false});
-            this.setState({callDuration: duration});
+            this.callDuration = moment.duration(new Date() - startTime).format('hh:mm:ss', {trim: false});
+            if (this.state.callOverlayVisible) {
+                this.forceUpdate();
+            }
         }, 300);
     }
 
@@ -194,8 +196,8 @@ class VideoBox extends React.Component {
             const remoteIdentity = this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri;
 
             let callDetail;
-            if (this.state.callDuration !== null) {
-                callDetail = <span><i className="fa fa-clock-o"></i> {this.state.callDuration}</span>;
+            if (this.callDuration !== null) {
+                callDetail = <span><i className="fa fa-clock-o"></i> {this.callDuration}</span>;
             } else {
                 callDetail = 'Connecting...'
             }

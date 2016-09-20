@@ -656,9 +656,11 @@ class Blink extends React.Component {
     }
 
     conferenceByUri(targetUri) {
+        targetUri = targetUri.toLowerCase();
+
         // check if the targetUri is valid
-        let idx = targetUri.indexOf('@');
-        let uri = {};
+        const idx = targetUri.indexOf('@');
+        const uri = {};
         if (idx !== -1) {
             uri.user = targetUri.substring(0, idx);
             uri.domain = targetUri.substring(idx + 1);

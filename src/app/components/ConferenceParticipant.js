@@ -16,6 +16,7 @@ class ConferenceParticipant extends React.Component {
             active: false
         }
         this.speechEvents = null;
+        this.speechActivityTimer = null;
 
         // ES6 classes no longer autobind
         this.onParticipantStateChanged = this.onParticipantStateChanged.bind(this);
@@ -39,6 +40,7 @@ class ConferenceParticipant extends React.Component {
             this.speechEvents.stop();
             this.speechEvents = null;
         }
+        clearInterval(this.speechActivityTimer);
     }
 
     onParticipantStateChanged(oldState, newState) {
@@ -66,9 +68,17 @@ class ConferenceParticipant extends React.Component {
             };
             this.speechEvents = hark(streams[0], options);
             this.speechEvents.on('speaking', () => {
+                this.speechActivityTimer = setInterval(() => {
+                    const item = {
+                        stream: streams[0],
+                        identity: this.props.participant.identity
+                    };
+                    this.props.active(item);
+                }, 500);
                 this.setState({active: true});
             });
             this.speechEvents.on('stopped_speaking', () => {
+                clearInterval(this.speechActivityTimer);
                 this.setState({active: false});
             });
         }
@@ -97,7 +107,8 @@ class ConferenceParticipant extends React.Component {
 
 ConferenceParticipant.propTypes = {
     participant: React.PropTypes.object.isRequired,
-    selected: React.PropTypes.func.isRequired
+    selected: React.PropTypes.func.isRequired,
+    active: React.PropTypes.func.isRequired
 };
 
 

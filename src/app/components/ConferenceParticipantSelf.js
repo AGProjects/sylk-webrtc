@@ -16,6 +16,7 @@ class ConferenceParticipantSelf extends React.Component {
             active: false
         }
         this.speechEvents = null;
+        this.speechActivityTimer = null;
 
         // ES6 classes no longer autobind
         this.onVideoClicked = this.onVideoClicked.bind(this);
@@ -36,6 +37,7 @@ class ConferenceParticipantSelf extends React.Component {
             this.speechEvents.stop();
             this.speechEvents = null;
         }
+        clearInterval(this.speechActivityTimer);
     }
 
     attachSpeechEvents() {
@@ -88,7 +90,8 @@ class ConferenceParticipantSelf extends React.Component {
 ConferenceParticipantSelf.propTypes = {
     stream: React.PropTypes.object.isRequired,
     identity: React.PropTypes.object.isRequired,
-    selected: React.PropTypes.func.isRequired
+    selected: React.PropTypes.func.isRequired,
+    active: React.PropTypes.func.isRequired
 };
 
 

@@ -32,10 +32,12 @@ class ConferenceBox extends React.Component {
             callOverlayVisible: true,
             audioMuted: false,
             videoMuted: false,
+            autoRotate: true,
             participants: props.call.participants.slice(),
             currentLargeVideo: null
         };
 
+        this.rotateTimer = null;
         this.callDuration = null;
         this.callTimer = null;
         this.overlayTimer = null;
@@ -51,11 +53,13 @@ class ConferenceBox extends React.Component {
             'onParticipantJoined',
             'onParticipantLeft',
             'onParticipantStateChanged',
+            'onParticipantActive',
             'onVideoSelected',
             'maybeSwitchLargeVideo',
             'handleClipboardButton',
             'handleShareOverlayEntered',
-            'handleShareOverlayExited'
+            'handleShareOverlayExited',
+            'toggleAutoRotate'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -120,13 +124,32 @@ class ConferenceBox extends React.Component {
     }
 
     onVideoSelected(item) {
+        this.setState({autoRotate: false});
+        this.selectVideo(item);
+    }
+
+    selectVideo(item) {
         DEBUG('Switching video to: %o', item);
         if (item.stream) {
-            this.setState({currentLargeVideo: item.stream});
-            rtcninja.attachMediaStream(this.refs.largeVideo, item.stream);
+            if (item.stream !== this.state.currentLargeVideo) {
+                this.setState({currentLargeVideo: item.stream});
+                rtcninja.attachMediaStream(this.refs.largeVideo, item.stream);
+            }
         } else {
             this.setState({currentLargeVideo: null});
             this.refs.largeVideo.src = '';
+        }
+    }
+
+    onParticipantActive(item) {
+        DEBUG('Participant is active: %o', item);
+        if (this.state.autoRotate) {
+            if (this.rotateTimer === null) {
+                this.selectVideo(item);
+                this.rotateTimer = setTimeout(() => {
+                    this.rotateTimer = null;
+                }, 5000);
+            }
         }
     }
 
@@ -144,7 +167,7 @@ class ConferenceBox extends React.Component {
                         stream: streams[0],
                         identity: p.identity
                     };
-                    this.onVideoSelected(item);
+                    this.selectVideo(item);
                     done = true;
                     break;
                 }
@@ -155,9 +178,14 @@ class ConferenceBox extends React.Component {
                     stream: this.props.call.getLocalStreams()[0],
                     identity: this.props.call.localIdentity
                 };
-                this.onVideoSelected(item);
+                this.selectVideo(item);
             }
         }
+    }
+
+    toggleAutoRotate(event) {
+        event.preventDefault();
+        this.setState({autoRotate: !this.state.autoRotate});
     }
 
     handleFullscreen(event) {
@@ -293,6 +321,13 @@ class ConferenceBox extends React.Component {
                 'btn-default'   : true
             });
 
+            const rotateButtonClasses = classNames({
+                'btn'           : true,
+                'btn-round'     : true,
+                'btn-default'   : !this.state.autoRotate,
+                'btn-primary'   : this.state.autoRotate
+            });
+
             const remoteIdentity = this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri;
 
             let callDetail;
@@ -335,17 +370,18 @@ class ConferenceBox extends React.Component {
 
             callButtons = (
                 <div className="conference-buttons">
-                        <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>
-                        <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>
+                        <button key="muteVideo" type="button" title="Mute/unmute video" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>
+                        <button key="muteAudio" type="button" title="Mute/unmute audio" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>
                         {(() => {
                             if (this.isFullscreenSupported()) {
-                                return <button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
+                                return <button key="fsButton" type="button" title="Go full-screen" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>;
                             }
                         })()}
                         <OverlayTrigger ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
-                            <button key="shareButton" type="button" className={commonButtonClasses}> <i className="fa fa-share"></i> </button>
+                            <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-share"></i> </button>
                         </OverlayTrigger>
-                        <button key="hangupButton" type="button" className="btn btn-round btn-danger" onClick={this.hangup}> <i className="fa fa-phone rotate-135"></i> </button>
+                        <button key="autoRotate" type="button" title="Automatically switch to active speaker" className={rotateButtonClasses} onClick={this.toggleAutoRotate}> <i className="fa fa-street-view"></i> </button>
+                        <button key="hangupButton" type="button" title="Leave conference" className="btn btn-round btn-danger" onClick={this.hangup}> <i className="fa fa-phone rotate-135"></i> </button>
                 </div>
             );
         }
@@ -358,6 +394,7 @@ class ConferenceBox extends React.Component {
                                     stream={this.props.call.getLocalStreams()[0]}
                                     identity={this.props.call.localIdentity}
                                     selected={this.onVideoSelected}
+                                    active={this.onParticipantActive}
                               />
             );
         }
@@ -367,6 +404,7 @@ class ConferenceBox extends React.Component {
                                     key={p.id}
                                     participant={p}
                                     selected={this.onVideoSelected}
+                                    active={this.onParticipantActive}
                               />
             );
         });

@@ -385,7 +385,7 @@ class ConferenceBox extends React.Component {
                     </p>
                     <div className="text-center">
                         <button className="btn btn-primary" onClick={this.toggleInviteModal}>
-                            <i className="fa fa-user-plus"></i> Invite others
+                            <i className="fa fa-user-plus"></i> Invite users
                         </button>
                     </div>
                     <hr />
@@ -394,7 +394,7 @@ class ConferenceBox extends React.Component {
                     </p>
                     <div className="text-center">
                         <button id="shareBtn" className="btn btn-primary" onClick={this.handleClipboardButton} data-clipboard-text={callUrl}>
-                            <i className="fa fa-clipboard"></i> Copy link to clipboard
+                            <i className="fa fa-clipboard"></i> Copy link
                         </button>
                     </div>
                 </Popover>

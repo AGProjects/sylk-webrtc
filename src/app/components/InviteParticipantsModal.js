@@ -34,12 +34,12 @@ class InviteParticipantsModal extends React.Component {
         return (
             <Modal show={this.props.show} onHide={this.props.close}>
                 <Modal.Header closeButton>
-                    <Modal.Title id="cmodal-title-sm">Invite Participants</Modal.Title>
+                    <Modal.Title id="cmodal-title-sm">Invite Online Users</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p className="lead">Enter the participants you wish to invite</p>
+                    <p className="lead">Enter the users you wish to invite</p>
                     <form onSubmit={this.invite}>
-                        <label htmlFor="inputTarget" className="sr-only">Participants</label>
+                        <label htmlFor="inputTarget" className="sr-only">Users</label>
                         <div className="input-group">
                             <span className="input-group-addon"><i className="fa fa-user-plus fa-fw"></i></span>
                             <input id="inputTarget" ref="invitees" className="form-control" placeholder="alice@sip2sip.info,bob,carol" required autoFocus />

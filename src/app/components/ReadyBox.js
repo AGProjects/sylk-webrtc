@@ -42,17 +42,29 @@ class ReadyBox extends React.Component {
 
     handleTargetSelect() {
         // the user pressed enter, start a video call by default
-        this.props.startCall(this.getTargetUri(), {audio: true, video: true});
+        if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
+            this.props.startConference(this.state.targetUri);
+        } else {
+            this.props.startCall(this.getTargetUri(), {audio: true, video: true});
+        }
     }
 
     handleAudioCall(event) {
         event.preventDefault();
-        this.props.startCall(this.getTargetUri(), {audio: true, video: false});
+        if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
+            this.props.startConference(this.state.targetUri);
+        } else {
+            this.props.startCall(this.getTargetUri(), {audio: true, video: false});
+        }
     }
 
     handleVideoCall(event) {
         event.preventDefault();
-        this.props.startCall(this.getTargetUri(), {audio: true, video: true});
+        if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
+            this.props.startConference(this.state.targetUri);
+        } else {
+            this.props.startCall(this.getTargetUri(), {audio: true, video: true});
+        }
     }
 
     showConferenceModal(event) {
@@ -61,7 +73,7 @@ class ReadyBox extends React.Component {
     }
 
     handleConferenceCall(targetUri) {
-        this.setState({showConferenceModal: false, targetUri: targetUri || ''});
+        this.setState({showConferenceModal: false});
         if (targetUri) {
             this.props.startConference(targetUri);
         }

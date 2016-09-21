@@ -5,7 +5,6 @@ const classNames = require('classnames');
 
 const Logo       = require('./Logo');
 const Conference = require('./Conference');
-const utils      = require('../utils');
 
 
 class ConferenceByUriBox extends React.Component {
@@ -28,7 +27,7 @@ class ConferenceByUriBox extends React.Component {
 
     callStateChanged(oldState, newState, data) {
         if (newState === 'terminated') {
-            utils.postNotification('Thanks for calling with Blink!', {timeout: 10});
+            this.props.notifications.postSystemNotification('Thanks for calling with Blink!', {timeout: 10});
         }
     }
 
@@ -98,6 +97,7 @@ class ConferenceByUriBox extends React.Component {
 }
 
 ConferenceByUriBox.propTypes = {
+    notifications   : React.PropTypes.func.isRequired,
     handler         : React.PropTypes.func.isRequired,
     targetUri       : React.PropTypes.string,
     localMedia      : React.PropTypes.object,

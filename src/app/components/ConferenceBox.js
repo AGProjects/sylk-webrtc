@@ -14,12 +14,12 @@ const momentFormat              = require('moment-duration-format');
 const Clipboard                 = require('clipboard');
 
 const config                    = require('../config');
-const utils                     = require('../utils');
 const FullscreenMixin           = require('../mixins/FullScreen');
 const AudioPlayer               = require('./AudioPlayer');
 const ConferenceCarousel        = require('./ConferenceCarousel');
 const ConferenceParticipant     = require('./ConferenceParticipant');
 const ConferenceParticipantSelf = require('./ConferenceParticipantSelf');
+const InviteParticipantsModal   = require('./InviteParticipantsModal');
 
 
 const DEBUG = debug('blinkrtc:ConferenceBox');
@@ -34,7 +34,8 @@ class ConferenceBox extends React.Component {
             videoMuted: false,
             autoRotate: true,
             participants: props.call.participants.slice(),
-            currentLargeVideo: null
+            currentLargeVideo: null,
+            showInviteModal: false
         };
 
         this.rotateTimer = null;
@@ -59,7 +60,8 @@ class ConferenceBox extends React.Component {
             'handleClipboardButton',
             'handleShareOverlayEntered',
             'handleShareOverlayExited',
-            'toggleAutoRotate'
+            'toggleAutoRotate',
+            'toggleInviteModal'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -204,7 +206,7 @@ class ConferenceBox extends React.Component {
     }
 
     handleClipboardButton() {
-        utils.postNotification('Join me, maybe?', {body: 'URL copied to the clipboard'});
+        this.props.notifications.postSystemNotification('Join me, maybe?', {body: 'Link copied to the clipboard'});
         this.refs.shareOverlay.hide();
     }
 
@@ -280,6 +282,14 @@ class ConferenceBox extends React.Component {
     showOverlay() {
         this.setState({callOverlayVisible: true});
         this.armOverlayTimer();
+    }
+
+
+    toggleInviteModal() {
+        this.setState({showInviteModal: !this.state.showInviteModal});
+        if (this.refs.showOverlay) {
+            this.refs.shareOverlay.hide();
+        }
     }
 
     render() {
@@ -369,10 +379,21 @@ class ConferenceBox extends React.Component {
             }
             const shareOverlay = (
                 <Popover id="shareOverlay" title="Join me, maybe?">
-                    Share <strong><a href={callUrl} target="_blank" rel="noopener noreferrer">this link</a></strong> with others so they can easily join this conference.
+                    <p>
+                        Invite other online users of this service.
+                    </p>
                     <div className="text-center">
-                        <button id="shareBtn" className="btn btn-link" onClick={this.handleClipboardButton} data-clipboard-text={callUrl}>
-                            <strong>Copy to clipboard</strong>
+                        <button className="btn btn-primary" onClick={this.toggleInviteModal}>
+                            <i className="fa fa-user-plus"></i> Invite others
+                        </button>
+                    </div>
+                    <hr />
+                    <p>
+                        Share <strong><a href={callUrl} target="_blank" rel="noopener noreferrer">this link</a></strong> with others so they can easily join this conference.
+                    </p>
+                    <div className="text-center">
+                        <button id="shareBtn" className="btn btn-primary" onClick={this.handleClipboardButton} data-clipboard-text={callUrl}>
+                            <i className="fa fa-clipboard"></i> Copy link to clipboard
                         </button>
                     </div>
                 </Popover>
@@ -437,12 +458,18 @@ class ConferenceBox extends React.Component {
                 </div>
                 <AudioPlayer ref="audioPlayerParticipantJoined" sourceFile="assets/sounds/participant_joined.wav" />
                 <AudioPlayer ref="audioPlayerParticipantLeft" sourceFile="assets/sounds/participant_left.wav" />
+                <InviteParticipantsModal
+                    show={this.state.showInviteModal}
+                    call={this.props.call}
+                    close={this.toggleInviteModal}
+                />
             </div>
         );
     }
 }
 
 ConferenceBox.propTypes = {
+    notifications: React.PropTypes.object.isRequired,
     call: React.PropTypes.object,
     hangup: React.PropTypes.func
 };

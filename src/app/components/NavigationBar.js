@@ -45,7 +45,7 @@ class NavigationBar extends React.Component {
     }
 
     handleClipboardButton() {
-        utils.postNotification('Call me, maybe?', {body: 'URL copied to the clipboard'});
+        this.props.notifications.postSystemNotification('Call me, maybe?', {body: 'URL copied to the clipboard'});
         this.refs.shareOverlay.hide();
     }
 
@@ -110,8 +110,9 @@ class NavigationBar extends React.Component {
 }
 
 NavigationBar.propTypes = {
-    account: React.PropTypes.object.isRequired,
-    showAbout : React.PropTypes.func.isRequired
+    notifications : React.PropTypes.object.isRequired,
+    account       : React.PropTypes.object.isRequired,
+    showAbout     : React.PropTypes.func.isRequired
 };
 
 

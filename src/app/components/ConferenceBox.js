@@ -76,9 +76,16 @@ class ConferenceBox extends React.Component {
         this.armOverlayTimer();
         this.startCallTimer();
 
-        setTimeout(() => {
-            this.maybeSwitchLargeVideo();
-        });
+        // attach to ourselves first if there are no other participants
+        if (this.state.participants.length === 0) {
+            setTimeout(() => {
+                const item = {
+                    stream: this.props.call.getLocalStreams()[0],
+                    identity: this.props.call.localIdentity
+                };
+                this.selectVideo(item);
+            });
+        }
     }
 
     componentWillUnmount() {
@@ -161,6 +168,9 @@ class ConferenceBox extends React.Component {
 
             let done = false;
             for (let p of this.state.participants) {
+                if (p.state !== 'established') {
+                    continue;
+                }
                 const streams = p.streams;
                 if (streams.length > 0 && streams[0].active && streams[0].getVideoTracks().length > 0) {
                     const item = {

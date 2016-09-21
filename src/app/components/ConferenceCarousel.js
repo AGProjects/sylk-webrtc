@@ -1,19 +1,23 @@
 'use strict';
 
-const React = require('react');
+const React                   = require('react');
+const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 
 class ConferenceCarousel extends React.Component {
     render() {
+        const items = [];
+        let idx = 0;
+        React.Children.forEach(this.props.children, (child) => {
+            items.push(<li key={idx} className="carousel-item">{child}</li>);
+            idx++;
+        });
+
         return (
             <div className="carousel">
-                <ul className="carousel-list list-inline">
-                {
-                    React.Children.map(this.props.children, (child, index) => {
-                        return <li key={index} className="carousel-item">{child}</li>
-                    })
-                }
-                </ul>
+                    <ReactCSSTransitionGroup component="ul" className="carousel-list list-inline" transitionName="carousel" transitionEnterTimeout={500} transitionLeaveTimeout={300}>
+                        {items}
+                    </ReactCSSTransitionGroup>
             </div>
         );
     }

@@ -97,7 +97,7 @@ class ConferenceByUriBox extends React.Component {
 }
 
 ConferenceByUriBox.propTypes = {
-    notifications   : React.PropTypes.func.isRequired,
+    notifications   : React.PropTypes.object.isRequired,
     handler         : React.PropTypes.func.isRequired,
     targetUri       : React.PropTypes.string,
     localMedia      : React.PropTypes.object,

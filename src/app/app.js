@@ -108,6 +108,7 @@ class Blink extends React.Component {
 
         if (!rtcninja.hasWebRTC()) {
             window.location.hash = '#!/not-supported';
+            return;
         }
         // We wont hit any other path here, since other paths are handled by the webserver
         if(this.state.path === '/') {
@@ -126,7 +127,7 @@ class Blink extends React.Component {
         if (this.state.path !== nextState.path) {
             if (!rtcninja.hasWebRTC()) {
                 navigate('/not-supported');
-                return false;
+                return true;
             }
 
             if ((nextState.path === '/login' || nextState.path === '/') && this.state.registrationState === 'registered') {

@@ -38,6 +38,12 @@ class ConferenceBox extends React.Component {
             showInviteModal: false
         };
 
+        if (window.location.origin.startsWith('file://')) {
+            this.callUrl = `${config.publicUrl}/#!/conference/${this.props.call.remoteIdentity.uri}`;
+        } else {
+            this.callUrl = `${window.location.origin}/#!/conference/${this.props.call.remoteIdentity.uri}`;
+        }
+
         this._notificationCenter = null;
         this.rotateTimer = null;
         this.callDuration = null;
@@ -375,12 +381,6 @@ class ConferenceBox extends React.Component {
                     </div>
             );
 
-            let callUrl;
-            if (window.location.origin.startsWith('file://')) {
-                callUrl = `${config.publicUrl}/#!/conference/${this.props.call.remoteIdentity.uri}`;
-            } else {
-                callUrl = `${window.location.origin}/#!/conference/${this.props.call.remoteIdentity.uri}`;
-            }
             const shareOverlay = (
                 <Popover id="shareOverlay" title="Join me, maybe?">
                     <p>
@@ -393,10 +393,10 @@ class ConferenceBox extends React.Component {
                     </div>
                     <hr />
                     <p>
-                        Share <strong><a href={callUrl} target="_blank" rel="noopener noreferrer">this link</a></strong> with others so they can easily join this conference.
+                        Share <strong><a href={this.callUrl} target="_blank" rel="noopener noreferrer">this link</a></strong> with others so they can easily join this conference.
                     </p>
                     <div className="text-center">
-                        <button id="shareBtn" className="btn btn-primary" onClick={this.handleClipboardButton} data-clipboard-text={callUrl}>
+                        <button id="shareBtn" className="btn btn-primary" onClick={this.handleClipboardButton} data-clipboard-text={this.callUrl}>
                             <i className="fa fa-clipboard"></i> Copy link
                         </button>
                     </div>

@@ -299,6 +299,7 @@ class ConferenceBox extends React.Component {
 
         let videoHeader;
         let callButtons;
+        let watermark;
 
         const isLocalStream = this.state.currentLargeVideo === this.props.call.getLocalStreams()[0];
         const hasVideo = this.state.currentLargeVideo !== null ? this.state.currentLargeVideo.getVideoTracks().length > 0 : false;
@@ -419,6 +420,8 @@ class ConferenceBox extends React.Component {
                     {buttons}
                 </div>
             );
+        } else {
+            watermark = <div className="watermark"></div>;
         }
 
         const participants = [];
@@ -449,6 +452,9 @@ class ConferenceBox extends React.Component {
                 <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {videoHeader}
                     {callButtons}
+                </ReactCSSTransitionGroup>
+                <ReactCSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
+                    {watermark}
                 </ReactCSSTransitionGroup>
                 <video ref="largeVideo" className={largeVideoClasses} onMouseMove={this.showOverlay} poster="assets/images/transparent-1px.png" autoPlay muted />
                 <div className="conference-thumbnails">

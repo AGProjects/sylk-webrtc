@@ -158,6 +158,7 @@ class VideoBox extends React.Component {
 
         let videoHeader;
         let callButtons;
+        let watermark;
 
         if (this.state.callOverlayVisible) {
             const muteButtonIcons = classNames({
@@ -224,12 +225,17 @@ class VideoBox extends React.Component {
                     {buttons}
                 </div>
             );
+        } else {
+            watermark = <div className="watermark"></div>;
         }
 
         return (
             <div className="video-container" onMouseMove={this.showCallOverlay}>
                 <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {videoHeader}
+                </ReactCSSTransitionGroup>
+                <ReactCSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
+                    {watermark}
                 </ReactCSSTransitionGroup>
                 <video id="remoteVideo" className={remoteVideoClasses} ref="remoteVideo" autoPlay />
                 <video id="localVideo" className={localVideoClasses} ref="localVideo" autoPlay muted/>

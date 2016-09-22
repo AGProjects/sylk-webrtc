@@ -52,3 +52,16 @@
         animation: fadeOutUp linear .3s;
     }
 }
+
+// Watermark animation
+.watermark-enter {
+    -webkit-animation: fadeIn linear .6s;
+    animation: fadeIn linear .6s;
+}
+
+.watermark-leave {
+    &.watermark-leave-active {
+        -webkit-animation: fadeOut linear .3s;
+        animation: fadeOut linear .3s;
+    }
+}

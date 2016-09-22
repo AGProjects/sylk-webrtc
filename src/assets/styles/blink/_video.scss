@@ -31,4 +31,14 @@
             z-index: 3;
         }
     }
+
+    .watermark {
+        background-image: url($video-watermark-image);
+        height: 50px;
+        left: 30px;
+        position: absolute;
+        top: 20px;
+        width: 160px;
+        z-index: 2;
+    }
 }

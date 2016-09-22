@@ -99,6 +99,7 @@ class ReadyBox extends React.Component {
                                 onChange={this.handleTargetChange}
                                 onSelect={this.handleTargetSelect}
                                 autoFocus={true}
+                                placeholder="Eg. alice@sip2sip.info or 3333"
                             />
                             <div className="form-group">
                                 <button type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>

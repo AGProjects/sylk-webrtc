@@ -95,6 +95,7 @@ class URIInput extends React.Component {
                     autoCorrect="off"
                     required
                     autoFocus={this.props.autoFocus}
+                    placeholder={this.props.placeholder}
                 />
             </div>
         );
@@ -107,7 +108,8 @@ URIInput.propTypes = {
     data: React.PropTypes.array.isRequired,
     autoFocus: React.PropTypes.bool.isRequired,
     onChange: React.PropTypes.func.isRequired,
-    onSelect: React.PropTypes.func.isRequired
+    onSelect: React.PropTypes.func.isRequired,
+    placeholder : React.PropTypes.string
 };
 
 

@@ -106,10 +106,6 @@ class Blink extends React.Component {
     componentWillMount() {
         storage.initialize();
 
-        if (!rtcninja.hasWebRTC()) {
-            window.location.hash = '#!/not-supported';
-            return;
-        }
         // We wont hit any other path here, since other paths are handled by the webserver
         if(this.state.path === '/') {
             window.location.hash = '#!/login';
@@ -122,11 +118,21 @@ class Blink extends React.Component {
         });
     }
 
+    componentDidMount() {
+        if (!rtcninja.hasWebRTC()) {
+            setTimeout(() => {
+                navigate('/not-supported');
+            });
+        }
+    }
+
     shouldComponentUpdate(nextProps, nextState) {
         // This is used to catch location bar modifications, we only switch on nextProps
         if (this.state.path !== nextState.path) {
             if (!rtcninja.hasWebRTC()) {
-                navigate('/not-supported');
+                setTimeout(() => {
+                    navigate('/not-supported');
+                });
                 return true;
             }
 

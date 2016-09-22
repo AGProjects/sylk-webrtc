@@ -23,7 +23,6 @@ const AudioPlayer          = require('./components/AudioPlayer');
 const ErrorPanel           = require('./components/ErrorPanel');
 const FooterBox            = require('./components/FooterBox');
 const StatusBox            = require('./components/StatusBox');
-const AboutModal           = require('./components/AboutModal');
 const IncomingCallModal    = require('./components/IncomingModal');
 const NotificationCenter   = require('./components/NotificationCenter');
 const LoadingScreen        = require('./components/LoadingScreen');
@@ -69,7 +68,6 @@ class Blink extends React.Component {
             currentCall: null,
             connection: null,
             inboundCall: null,
-            showAboutModal: false,
             showIncomingModal: false,
             status: null,
             targetUri: '',
@@ -99,7 +97,6 @@ class Blink extends React.Component {
             'incomingCall',
             'missedCall',
             'conferenceInvite',
-            'toggleAboutModal',
             'notificationCenter'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
@@ -552,10 +549,6 @@ class Blink extends React.Component {
         });
     }
 
-    toggleAboutModal() {
-        this.setState({showAboutModal: !this.state.showAboutModal});
-    }
-
     render() {
         let loadingScreen;
         let incomingCallModal;
@@ -596,10 +589,6 @@ class Blink extends React.Component {
                 <ReactCSSTransitionGroup transitionName="incoming-modal" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {incomingCallModal}
                 </ReactCSSTransitionGroup>
-                <AboutModal
-                    show = {this.state.showAboutModal}
-                    close = {this.toggleAboutModal}
-                />
             </div>
         );
     }
@@ -637,7 +626,6 @@ class Blink extends React.Component {
                 <NavigationBar
                     notificationCenter = {this.notificationCenter}
                     account = {this.state.account}
-                    showAbout = {this.toggleAboutModal}
                 />
                 <ReadyBox
                     account   = {this.state.account}

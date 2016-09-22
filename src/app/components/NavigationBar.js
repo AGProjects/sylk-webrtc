@@ -18,10 +18,15 @@ const Clipboard      = require('clipboard');
 const config = require('../config');
 const utils  = require('../utils');
 
+const AboutModal = require('./AboutModal');
+
 
 class NavigationBar extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            showAboutModal: false
+        }
 
         this._notificationCenter = null;
         this.clipboard = new Clipboard('#shareBtn');
@@ -34,7 +39,8 @@ class NavigationBar extends React.Component {
         // ES6 classes no longer autobind
         [
             'handleClipboardButton',
-            'handleMenu'
+            'handleMenu',
+            'toggleAboutModal'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -60,8 +66,12 @@ class NavigationBar extends React.Component {
                 navigate('/logout');
             });
         } else if (event === 'about') {
-            this.props.showAbout();
+            this.toggleAboutModal();
         }
+    }
+
+    toggleAboutModal() {
+        this.setState({showAboutModal: !this.state.showAboutModal});
     }
 
     render() {
@@ -109,6 +119,10 @@ class NavigationBar extends React.Component {
                         </MenuItem>
                     </DropdownButton>
                 </ButtonToolbar>
+                <AboutModal
+                    show = {this.state.showAboutModal}
+                    close = {this.toggleAboutModal}
+                />
             </Navbar>
         );
     }
@@ -116,8 +130,7 @@ class NavigationBar extends React.Component {
 
 NavigationBar.propTypes = {
     notificationCenter : React.PropTypes.func.isRequired,
-    account            : React.PropTypes.object.isRequired,
-    showAbout          : React.PropTypes.func.isRequired
+    account            : React.PropTypes.object.isRequired
 };
 
 

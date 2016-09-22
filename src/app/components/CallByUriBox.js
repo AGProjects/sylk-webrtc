@@ -13,10 +13,17 @@ class CallByUriBox extends React.Component {
         this.state = {
             displayName: ''
         };
+
+        this._notificationCenter = null;
+
         // ES6 classes no longer autobind
         this.handleDisplayNameChange = this.handleDisplayNameChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.callStateChanged = this.callStateChanged.bind(this);
+    }
+
+    componentDidMount() {
+        this._notificationCenter = this.props.notificationCenter();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -27,7 +34,7 @@ class CallByUriBox extends React.Component {
 
     callStateChanged(oldState, newState, data) {
         if (newState === 'terminated') {
-            this.props.notifications.postSystemNotification('Thanks for calling with Sylk!', {timeout: 10});
+            this._notificationCenter.postSystemNotification('Thanks for calling with Sylk!', {timeout: 10});
         }
     }
 
@@ -97,12 +104,12 @@ class CallByUriBox extends React.Component {
 }
 
 CallByUriBox.propTypes = {
-    handleCallByUri : React.PropTypes.func.isRequired,
-    notifications   : React.PropTypes.object.isRequired,
-    targetUri       : React.PropTypes.string,
-    localMedia      : React.PropTypes.object,
-    account         : React.PropTypes.object,
-    currentCall     : React.PropTypes.object
+    handleCallByUri    : React.PropTypes.func.isRequired,
+    notificationCenter : React.PropTypes.func.isRequired,
+    targetUri          : React.PropTypes.string,
+    localMedia         : React.PropTypes.object,
+    account            : React.PropTypes.object,
+    currentCall        : React.PropTypes.object
 };
 
 

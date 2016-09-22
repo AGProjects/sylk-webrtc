@@ -38,6 +38,7 @@ class ConferenceBox extends React.Component {
             showInviteModal: false
         };
 
+        this._notificationCenter = null;
         this.rotateTimer = null;
         this.callDuration = null;
         this.callTimer = null;
@@ -68,6 +69,8 @@ class ConferenceBox extends React.Component {
     }
 
     componentDidMount() {
+        this._notificationCenter = this.props.notificationCenter();
+
         for (let p of this.state.participants) {
             p.on('stateChanged', this.onParticipantStateChanged);
             p.attach();
@@ -206,7 +209,7 @@ class ConferenceBox extends React.Component {
     }
 
     handleClipboardButton() {
-        this.props.notifications.postSystemNotification('Join me, maybe?', {body: 'Link copied to the clipboard'});
+        this._notificationCenter.postSystemNotification('Join me, maybe?', {body: 'Link copied to the clipboard'});
         this.refs.shareOverlay.hide();
     }
 
@@ -475,9 +478,9 @@ class ConferenceBox extends React.Component {
 }
 
 ConferenceBox.propTypes = {
-    notifications: React.PropTypes.object.isRequired,
-    call: React.PropTypes.object,
-    hangup: React.PropTypes.func
+    notificationCenter : React.PropTypes.func.isRequired,
+    call               : React.PropTypes.object,
+    hangup             : React.PropTypes.func
 };
 
 ReactMixin(ConferenceBox.prototype, FullscreenMixin);

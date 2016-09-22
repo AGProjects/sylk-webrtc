@@ -70,7 +70,7 @@ class Conference extends React.Component {
             if (this.props.currentCall != null && this.props.currentCall.state === 'established') {
                 box = (
                     <ConferenceBox
-                        notifications = {this.props.notifications}
+                        notificationCenter = {this.props.notificationCenter}
                         call = {this.props.currentCall}
                         hangup = {this.hangup}
                     />
@@ -96,11 +96,11 @@ class Conference extends React.Component {
 }
 
 Conference.propTypes = {
-    notifications : React.PropTypes.object.isRequired,
-    account       : React.PropTypes.object.isRequired,
-    currentCall   : React.PropTypes.object,
-    localMedia    : React.PropTypes.object,
-    targetUri     : React.PropTypes.string
+    notificationCenter : React.PropTypes.func.isRequired,
+    account            : React.PropTypes.object.isRequired,
+    currentCall        : React.PropTypes.object,
+    localMedia         : React.PropTypes.object,
+    targetUri          : React.PropTypes.string
 };
 
 

@@ -23,6 +23,7 @@ class NavigationBar extends React.Component {
     constructor(props) {
         super(props);
 
+        this._notificationCenter = null;
         this.clipboard = new Clipboard('#shareBtn');
         if (window.location.origin.startsWith('file://')) {
             this.callUrl = `${config.publicUrl}/#!/call/${props.account.id}`;
@@ -39,13 +40,17 @@ class NavigationBar extends React.Component {
         });
     }
 
+    componentDidMount() {
+        this._notificationCenter = this.props.notificationCenter();
+    }
+
     componentWillUnmount() {
         this.clipboard.destroy();
         this.clipboard = null;
     }
 
     handleClipboardButton() {
-        this.props.notifications.postSystemNotification('Call me, maybe?', {body: 'URL copied to the clipboard'});
+        this._notificationCenter.postSystemNotification('Call me, maybe?', {body: 'URL copied to the clipboard'});
         this.refs.shareOverlay.hide();
     }
 
@@ -110,9 +115,9 @@ class NavigationBar extends React.Component {
 }
 
 NavigationBar.propTypes = {
-    notifications : React.PropTypes.object.isRequired,
-    account       : React.PropTypes.object.isRequired,
-    showAbout     : React.PropTypes.func.isRequired
+    notificationCenter : React.PropTypes.func.isRequired,
+    account            : React.PropTypes.object.isRequired,
+    showAbout          : React.PropTypes.func.isRequired
 };
 
 

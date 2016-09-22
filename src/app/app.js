@@ -25,7 +25,7 @@ const FooterBox            = require('./components/FooterBox');
 const StatusBox            = require('./components/StatusBox');
 const AboutModal           = require('./components/AboutModal');
 const IncomingCallModal    = require('./components/IncomingModal');
-const Notifications        = require('./components/NotificationCenter');
+const NotificationCenter   = require('./components/NotificationCenter');
 const LoadingScreen        = require('./components/LoadingScreen');
 const NavigationBar        = require('./components/NavigationBar');
 
@@ -80,6 +80,8 @@ class Blink extends React.Component {
         };
         this.state = Object.assign({}, this._initialSstate);
 
+        this._notificationCenter = null;
+
         // ES6 classes no longer autobind
         [
             'connectionStateChanged',
@@ -97,7 +99,8 @@ class Blink extends React.Component {
             'incomingCall',
             'missedCall',
             'conferenceInvite',
-            'toggleAboutModal'
+            'toggleAboutModal',
+            'notificationCenter'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -124,6 +127,7 @@ class Blink extends React.Component {
                 navigate('/not-supported');
             });
         }
+        this._notificationCenter = this.refs.notificationCenter;
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -183,6 +187,10 @@ class Blink extends React.Component {
         }
     }
 
+    notificationCenter() {
+        return this._notificationCenter;
+    }
+
     registrationStateChanged(oldState, newState, data) {
         DEBUG('Registration state changed! ' + newState);
         this.setState({registrationState: newState});
@@ -239,7 +247,7 @@ class Blink extends React.Component {
             } else {
                 reason = 'Connection failed';
             }
-            this.refs.notifications.postSystemNotification('Call Terminated', {body: reason, timeout: callSuccesfull ? 5 : 10});
+            this._notificationCenter.postSystemNotification('Call Terminated', {body: reason, timeout: callSuccesfull ? 5 : 10});
 
             this.setState({
                 currentCall         : null,
@@ -433,7 +441,7 @@ class Blink extends React.Component {
             (error) => {
                 DEBUG('Access to local media failed: %o', error);
                 clearTimeout(this.loadScreenTimer);
-                this.refs.notifications.postSystemNotification('Access to media failed', {timeout: 10});
+                this._notificationCenter.postSystemNotification('Access to media failed', {timeout: 10});
                 this.setState({
                     loading: null
                 });
@@ -506,13 +514,13 @@ class Blink extends React.Component {
             call.on('stateChanged', this.callStateChanged);
             this.setState({currentCall: call, inboundCall: call, showIncomingModal: true});
         }
-        this.refs.notifications.postSystemNotification('Incoming call', {body: `From ${call.remoteIdentity.displayName || call.remoteIdentity.uri}`, timeout: 15, silent: false});
+        this._notificationCenter.postSystemNotification('Incoming call', {body: `From ${call.remoteIdentity.displayName || call.remoteIdentity.uri}`, timeout: 15, silent: false});
     }
 
     missedCall(data) {
         DEBUG('Missed call from ' + data.originator);
-        this.refs.notifications.postSystemNotification('Missed call', {body: `From ${data.originator.displayName || data.originator.uri}`, timeout: 15, silent: false});
-        this.refs.notifications.postMissedCall(data.originator, () => {
+        this._notificationCenter.postSystemNotification('Missed call', {body: `From ${data.originator.displayName || data.originator.uri}`, timeout: 15, silent: false});
+        this._notificationCenter.postMissedCall(data.originator, () => {
             if (this.state.currentCall !== null) {
                 this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
                 this.setState({currentCall: null, targetUri: targetUri, showIncomingModal: false, localMedia: null});
@@ -526,8 +534,8 @@ class Blink extends React.Component {
 
     conferenceInvite(data) {
         DEBUG('Conference invite from %o to %s', data.originator, data.room);
-        this.refs.notifications.postSystemNotification('Conference invite', {body: `From ${data.originator.displayName || data.originator.uri} for room ${data.room}`, timeout: 15, silent: false});
-        this.refs.notifications.postConferenceInvite(data.originator, data.room, () => {
+        this._notificationCenter.postSystemNotification('Conference invite', {body: `From ${data.originator.displayName || data.originator.uri} for room ${data.room}`, timeout: 15, silent: false});
+        this._notificationCenter.postConferenceInvite(data.originator, data.room, () => {
             if (this.state.currentCall !== null) {
                 this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
                 this.state.currentCall.terminate();
@@ -584,7 +592,7 @@ class Blink extends React.Component {
                 <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav" />
                 <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav" />
                 <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
-                <Notifications ref="notifications" />
+                <NotificationCenter ref="notificationCenter" />
                 <ReactCSSTransitionGroup transitionName="incoming-modal" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {incomingCallModal}
                 </ReactCSSTransitionGroup>
@@ -627,7 +635,7 @@ class Blink extends React.Component {
         return (
             <div>
                 <NavigationBar
-                    notifications = {this.refs.notifications}
+                    notificationCenter = {this.notificationCenter}
                     account = {this.state.account}
                     showAbout = {this.toggleAboutModal}
                 />
@@ -657,7 +665,7 @@ class Blink extends React.Component {
         return (
             <CallByUriBox
                 handleCallByUri = {this.handleCallByUri}
-                notifications = {this.refs.notifications}
+                notificationCenter = {this.notificationCenter}
                 targetUri = {targetUri}
                 localMedia = {this.state.localMedia}
                 account = {this.state.account}
@@ -669,7 +677,7 @@ class Blink extends React.Component {
     conference() {
         return (
             <Conference
-                notifications = {this.refs.notifications}
+                notificationCenter = {this.notificationCenter}
                 localMedia = {this.state.localMedia}
                 account = {this.state.account}
                 targetUri = {this.state.targetUri}
@@ -704,7 +712,7 @@ class Blink extends React.Component {
 
         return (
             <ConferenceByUriBox
-                notifications = {this.refs.notifications}
+                notificationCenter = {this.notificationCenter}
                 handler = {this.handleConferenceByUri}
                 targetUri = {targetUri}
                 localMedia = {this.state.localMedia}

@@ -13,10 +13,17 @@ class ConferenceByUriBox extends React.Component {
         this.state = {
             displayName: ''
         };
+
+        this._notificationCenter = null;
+
         // ES6 classes no longer autobind
         this.handleDisplayNameChange = this.handleDisplayNameChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.callStateChanged = this.callStateChanged.bind(this);
+    }
+
+    componentDidMount() {
+        this._notificationCenter = this.props.notificationCenter();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -27,7 +34,7 @@ class ConferenceByUriBox extends React.Component {
 
     callStateChanged(oldState, newState, data) {
         if (newState === 'terminated') {
-            this.props.notifications.postSystemNotification('Thanks for calling with Sylk!', {timeout: 10});
+            this._notificationCenter.postSystemNotification('Thanks for calling with Sylk!', {timeout: 10});
         }
     }
 
@@ -47,6 +54,7 @@ class ConferenceByUriBox extends React.Component {
         if (this.props.localMedia !== null) {
             content = (
                 <Conference
+                    notificationCenter = {this.props.notificationCenter}
                     localMedia = {this.props.localMedia}
                     account = {this.props.account}
                     currentCall = {this.props.currentCall}
@@ -97,12 +105,12 @@ class ConferenceByUriBox extends React.Component {
 }
 
 ConferenceByUriBox.propTypes = {
-    notifications   : React.PropTypes.object.isRequired,
-    handler         : React.PropTypes.func.isRequired,
-    targetUri       : React.PropTypes.string,
-    localMedia      : React.PropTypes.object,
-    account         : React.PropTypes.object,
-    currentCall     : React.PropTypes.object
+    notificationCenter : React.PropTypes.func.isRequired,
+    handler            : React.PropTypes.func.isRequired,
+    targetUri          : React.PropTypes.string,
+    localMedia         : React.PropTypes.object,
+    account            : React.PropTypes.object,
+    currentCall        : React.PropTypes.object
 };
 
 

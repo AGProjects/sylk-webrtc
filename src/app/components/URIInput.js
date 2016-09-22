@@ -36,6 +36,10 @@ class URIInput extends React.Component {
         ]).on('autocomplete:selected', (event, suggestion, dataset) => {
             this.setValue(suggestion);
         });
+
+        if (this.props.autoFocus) {
+            this.refs.uri_input.focus();
+        }
     }
 
     componentWillReceiveProps(nextProps) {

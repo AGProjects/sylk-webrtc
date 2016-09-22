@@ -9,7 +9,7 @@ const AboutModal = (props) => {
     return (
         <Modal show={props.show} onHide={props.close} aria-labelledby="cmodal-title-sm">
             <Modal.Header closeButton>
-                <Modal.Title id="cmodal-title-sm">About Blink</Modal.Title>
+                <Modal.Title id="cmodal-title-sm">About Sylk</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <p>Copyright &copy; <a href="http://ag-projects.com" target="_blank" rel="noopener noreferrer">AG Projects</a></p>

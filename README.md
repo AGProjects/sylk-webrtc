@@ -1,10 +1,15 @@
 
-# Blink for Web
+# Sylk
 
-Blink for web is a simple web frontend for making audio / video calls from a
-web browser, using WebRTC technologies.
-
+Sylk is a WebRTC client, from the authors of [Blink](http://icanblink.com).
 It's built using HTML and JavaScript and uses the [SylkRTC](https://github.com/AGProjects/sylkrtc.js) API.
+
+## Features
+
+* Audio / video calling
+* SIP interoperability
+* Multi-party video conferencing
+* Guest mode (no account required if invited)
 
 
 ## Development
@@ -67,7 +72,7 @@ Then reload the page. Debug messages will be logged to the console now.
 
 ## License
 
-Blink for Web is available under the AGPLv3 license. See the LICENSE file.
+Sylk is available under the AGPLv3 license. See the LICENSE file.
 
 
 ## Authors

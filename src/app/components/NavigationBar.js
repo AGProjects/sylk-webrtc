@@ -76,7 +76,7 @@ class NavigationBar extends React.Component {
                 <Navbar.Header>
                     <div className="navbar-blink-logo pull-left"></div>
                     <Navbar.Brand>
-                        Blink
+                        Sylk
                     </Navbar.Brand>
                     <p className="navbar-text hidden-xs">
                         Signed in as: <strong>{this.props.account.id}</strong>

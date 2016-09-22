@@ -27,7 +27,7 @@ class ConferenceByUriBox extends React.Component {
 
     callStateChanged(oldState, newState, data) {
         if (newState === 'terminated') {
-            this.props.notifications.postSystemNotification('Thanks for calling with Blink!', {timeout: 10});
+            this.props.notifications.postSystemNotification('Thanks for calling with Sylk!', {timeout: 10});
         }
     }
 

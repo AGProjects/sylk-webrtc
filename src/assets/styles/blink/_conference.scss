@@ -45,8 +45,10 @@
     }
 
     .mute {
+        // height div - .5 * height-video - .5 * height-button
         margin-bottom: -80px;
         position: relative;
+        // Thumbnail-size - button-size, center is calculated width + button-size
         width: 105px;
         z-index: 2;
 

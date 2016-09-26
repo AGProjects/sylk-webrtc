@@ -61,7 +61,7 @@ Nodejs is needed for development. Version >= 4.2 is recommended. A convenience
 
 ## Debugging
 
-By default Blink for Web doesn't output a lot of information to the browser's JavaScript console.
+By default Sylk doesn't output a lot of information to the browser's JavaScript console.
 Console debug messages are namespaced by library, the two most important ones being 'sylkrtc' and 'blinkrtc'.
 In order to enable debugging for both open the browser's JavaScript console and type the following:
 
@@ -83,7 +83,7 @@ Sylk is available under the AGPLv3 license. See the LICENSE file.
 
 ## Credits
 
-The following organizations have helped the development of Blink for Web by providing funding:
+The following organizations have helped the development of Sylk by providing funding:
 
 * [NLnet Foundation](https://www.nlnet.nl)
 * [SIDNfonds](https://www.sidnfonds.nl)

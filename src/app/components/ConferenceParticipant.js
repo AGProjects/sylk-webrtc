@@ -13,14 +13,23 @@ class ConferenceParticipant extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            active: false
+            active: false,
+            overlayVisible: false,
+            audioMuted: false
         }
         this.speechEvents = null;
         this.speechActivityTimer = null;
 
         // ES6 classes no longer autobind
-        this.onParticipantStateChanged = this.onParticipantStateChanged.bind(this);
-        this.onVideoClicked = this.onVideoClicked.bind(this);
+        [
+            'onParticipantStateChanged',
+            'onVideoClicked',
+            'onMuteAudioClicked',
+            'showOverlay',
+            'hideOverlay'
+        ].forEach((name) => {
+            this[name] = this[name].bind(this);
+        });
 
         props.participant.on('stateChanged', this.onParticipantStateChanged);
     }
@@ -58,6 +67,21 @@ class ConferenceParticipant extends React.Component {
         this.props.selected(item);
     }
 
+    onMuteAudioClicked(event) {
+        event.preventDefault();
+        const streams = this.props.participant.streams;
+        if (streams[0].getAudioTracks().length > 0) {
+            const track = streams[0].getAudioTracks()[0];
+            if(this.state.audioMuted) {
+                track.enabled = true;
+                this.setState({audioMuted: false});
+            } else {
+                track.enabled = false;
+                this.setState({audioMuted: true});
+            }
+        }
+    }
+
     maybeAttachStream() {
         const streams = this.props.participant.streams;
         if (streams.length > 0) {
@@ -84,6 +108,17 @@ class ConferenceParticipant extends React.Component {
         }
     }
 
+
+    showOverlay() {
+        this.setState({overlayVisible: true});
+    }
+
+    hideOverlay() {
+        if (!this.state.audioMuted) {
+            this.setState({overlayVisible: false});
+        }
+    }
+
     render() {
         const tooltip = (
             <Tooltip id={this.props.participant.id}>{this.props.participant.identity.displayName || this.props.participant.identity.uri}</Tooltip>
@@ -97,10 +132,38 @@ class ConferenceParticipant extends React.Component {
             'conference-active' : this.state.active
         });
 
+        let muteButton;
+
+        if (this.state.overlayVisible) {
+            const muteButtonIcons = classNames({
+                'fa'                    : true,
+                'fa-microphone'         : !this.state.audioMuted,
+                'fa-microphone-slash'   : this.state.audioMuted
+            });
+
+            const muteButtonClasses = classNames({
+                'btn'         : true,
+                'btn-round'   : true,
+                'btn-default' : !this.state.audioMuted,
+                'btn-warning' : this.state.audioMuted
+            });
+
+            muteButton = (
+                <div className="mute">
+                    <button className={muteButtonClasses} onClick={this.onMuteAudioClicked}>
+                        <i className={muteButtonIcons}></i>
+                    </button>
+                </div>
+            );
+        }
+
         return (
-            <OverlayTrigger placement="top" overlay={tooltip}>
-                <video ref="videoElement" onClick={this.onVideoClicked} className={classes} poster="assets/images/transparent-1px.png" autoPlay />
-            </OverlayTrigger>
+            <div onMouseMove={this.showOverlay} onMouseLeave={this.hideOverlay}>
+                {muteButton}
+                <OverlayTrigger placement="top" overlay={tooltip}>
+                        <video ref="videoElement" onClick={this.onVideoClicked} className={classes} poster="assets/images/transparent-1px.png" autoPlay />
+                </OverlayTrigger>
+            </div>
         );
     }
 }

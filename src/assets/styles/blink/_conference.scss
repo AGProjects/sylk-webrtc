@@ -44,6 +44,17 @@
         box-shadow: 0 0 10px 2px $bootstrap-base;
     }
 
+    .mute {
+        margin-bottom: -80px;
+        position: relative;
+        width: 105px;
+        z-index: 2;
+
+        button {
+            transform: translateX(50%);
+        }
+    }
+
     .carousel {
         margin-left: 30px !important;
         margin-right: 30px !important;

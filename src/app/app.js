@@ -586,13 +586,13 @@ class Blink extends React.Component {
 
         return (
             <div>
+                <NotificationCenter ref="notificationCenter" />
                 {this.renderCurrentRoute()}
                 {loadingScreen}
                 {footerBox}
                 <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav" />
                 <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav" />
                 <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
-                <NotificationCenter ref="notificationCenter" />
                 <ReactCSSTransitionGroup transitionName="incoming-modal" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {incomingCallModal}
                 </ReactCSSTransitionGroup>

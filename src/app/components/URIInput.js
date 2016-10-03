@@ -46,7 +46,9 @@ class URIInput extends React.Component {
         this.setState({
             value: nextProps.defaultValue
         });
-        this.refs.uri_input.focus();
+        if (nextProps.autoFocus) {
+            this.refs.uri_input.focus();
+        }
     }
 
     setValue(value) {

@@ -57,9 +57,23 @@
         }
     }
 
+    .left-arrow {
+        color: $light-gray;
+        float: left;
+        margin-left: 15px;
+        transform: translateY(50%);
+    }
+
+    .right-arrow {
+        color: $light-gray;
+        float: right;
+        margin-right: 15px;
+        transform: translateY(50%);
+    }
+
     .carousel {
-        margin-left: 30px !important;
-        margin-right: 30px !important;
+        margin-left: 50px !important;
+        margin-right: 50px !important;
         overflow: hidden;
     }
 

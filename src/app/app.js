@@ -78,7 +78,7 @@ class Blink extends React.Component {
         };
         this.state = Object.assign({}, this._initialSstate);
 
-        this._notificationCenter = null;
+        this.__notificationCenter = null;
 
         // ES6 classes no longer autobind
         [
@@ -103,6 +103,14 @@ class Blink extends React.Component {
         });
     }
 
+    get _notificationCenter() {
+        // getter to lazy-load the NotificationCenter ref
+        if (!this.__notificationCenter) {
+            this.__notificationCenter = this.refs.notificationCenter;
+        }
+        return this.__notificationCenter;
+    }
+
     componentWillMount() {
         storage.initialize();
 
@@ -124,7 +132,8 @@ class Blink extends React.Component {
                 navigate('/not-supported');
             });
         }
-        this._notificationCenter = this.refs.notificationCenter;
+        // prime the ref
+        DEBUG('NotificationCenter ref: %o', this._notificationCenter);
     }
 
     shouldComponentUpdate(nextProps, nextState) {

@@ -225,7 +225,7 @@ class Blink extends React.Component {
     }
 
     callStateChanged(oldState, newState, data) {
-        DEBUG('Call state changed! ' + newState);
+        DEBUG(`Call state changed! ${oldState} -> ${newState}`);
 
         if (newState === 'terminated') {
             let callSuccesfull = false;

@@ -44,7 +44,6 @@ class ConferenceBox extends React.Component {
             this.callUrl = `${window.location.origin}/#!/conference/${this.props.call.remoteIdentity.uri}`;
         }
 
-        this._notificationCenter = null;
         this.rotateTimer = null;
         this.callDuration = null;
         this.callTimer = null;
@@ -74,8 +73,6 @@ class ConferenceBox extends React.Component {
     }
 
     componentDidMount() {
-        this._notificationCenter = this.props.notificationCenter();
-
         for (let p of this.state.participants) {
             p.on('stateChanged', this.onParticipantStateChanged);
             p.attach();
@@ -212,7 +209,7 @@ class ConferenceBox extends React.Component {
 
     handleClipboardButton() {
         utils.copyToClipboard(this.callUrl);
-        this._notificationCenter.postSystemNotification('Join me, maybe?', {body: 'Link copied to the clipboard'});
+        this.props.notificationCenter().postSystemNotification('Join me, maybe?', {body: 'Link copied to the clipboard'});
         this.refs.shareOverlay.hide();
     }
 

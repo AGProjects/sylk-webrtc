@@ -11,9 +11,9 @@ const classNames                = require('classnames');
 const debug                     = require('debug');
 const moment                    = require('moment');
 const momentFormat              = require('moment-duration-format');
-const Clipboard                 = require('clipboard');
 
 const config                    = require('../config');
+const utils                     = require('../utils');
 const FullscreenMixin           = require('../mixins/FullScreen');
 const AudioPlayer               = require('./AudioPlayer');
 const ConferenceCarousel        = require('./ConferenceCarousel');
@@ -49,7 +49,6 @@ class ConferenceBox extends React.Component {
         this.callDuration = null;
         this.callTimer = null;
         this.overlayTimer = null;
-        this.clipboard = new Clipboard('#shareBtn');
 
         // ES6 classes no longer autobind
         [
@@ -106,9 +105,6 @@ class ConferenceBox extends React.Component {
         this.exitFullscreen();
 
         this.refs.largeVideo.src = '';
-
-        this.clipboard.destroy();
-        this.clipboard = null;
     }
 
     onParticipantJoined(p) {
@@ -215,6 +211,7 @@ class ConferenceBox extends React.Component {
     }
 
     handleClipboardButton() {
+        utils.copyToClipboard(this.callUrl);
         this._notificationCenter.postSystemNotification('Join me, maybe?', {body: 'Link copied to the clipboard'});
         this.refs.shareOverlay.hide();
     }
@@ -396,7 +393,7 @@ class ConferenceBox extends React.Component {
                         Share <strong><a href={this.callUrl} target="_blank" rel="noopener noreferrer">this link</a></strong> with others so they can easily join this conference.
                     </p>
                     <div className="text-center">
-                        <button id="shareBtn" className="btn btn-primary" onClick={this.handleClipboardButton} data-clipboard-text={this.callUrl}>
+                        <button className="btn btn-primary" onClick={this.handleClipboardButton} >
                             <i className="fa fa-clipboard"></i> Copy link
                         </button>
                     </div>

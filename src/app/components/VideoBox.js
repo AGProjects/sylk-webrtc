@@ -30,11 +30,15 @@ class VideoBox extends React.Component {
         this.overlayTimer = null;
 
         // ES6 classes no longer autobind
-        this.showCallOverlay = this.showCallOverlay.bind(this);
-        this.handleFullscreen = this.handleFullscreen.bind(this);
-        this.muteAudio = this.muteAudio.bind(this);
-        this.muteVideo = this.muteVideo.bind(this);
-        this.hangupCall = this.hangupCall.bind(this);
+        [
+            'showCallOverlay',
+            'handleFullscreen',
+            'muteAudio',
+            'muteVideo',
+            'hangupCall'
+        ].forEach((name) => {
+            this[name] = this[name].bind(this);
+        });
     }
 
     componentDidMount() {

@@ -352,7 +352,7 @@ class ConferenceBox extends React.Component {
                 'btn-primary'   : this.state.autoRotate
             });
 
-            const remoteIdentity = this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri;
+            const remoteIdentity = this.props.call.remoteIdentity.uri.split('@')[0];
 
             let callDetail;
             if (this.state.callDetail !== null) {

@@ -78,7 +78,7 @@ class Conference extends React.Component {
             } else {
                 box = (
                     <LocalMedia
-                        remoteIdentity = {this.props.targetUri}
+                        remoteIdentity = {this.props.targetUri.split('@')[0]}
                         localMedia = {this.props.localMedia}
                         mediaPlaying = {this.mediaPlaying}
                         hangupCall = {this.hangup}

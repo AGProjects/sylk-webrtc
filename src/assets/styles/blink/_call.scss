@@ -9,20 +9,25 @@
     z-index: 1;
 }
 
-.call-header {
-    background: $white-less-transparent;
-    color: $black;
+.top-overlay {
     left: 0;
-    padding-top: 4px;
     position: absolute;
     right: 0;
     top: 0;
     z-index: 2;
+}
+
+.call-header {
+    background: $white-less-transparent;
+    color: $black;
+    padding: 4px 0;
 
     p {
         font-size: 18px !important;
         line-height: 1.2 !important;
         margin-bottom: 4px !important;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 }
 

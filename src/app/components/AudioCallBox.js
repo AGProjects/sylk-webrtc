@@ -150,9 +150,11 @@ class AudioCallBox extends React.Component {
 
         return (
             <div>
-                <div key="header" className="call-header">
-                    <p className={headerTextClasses}><strong>Call with</strong> {this.props.remoteIdentity}</p>
-                    <p className={headerTextClasses}>{callDuration}</p>
+                <div className="top-overlay">
+                    <div key="header" className="call-header">
+                        <p className={headerTextClasses}><strong>Call with</strong> {this.props.remoteIdentity}</p>
+                        <p className={headerTextClasses}>{callDuration}</p>
+                    </div>
                 </div>
                 <audio id="remoteAudio" ref="remoteAudio" autoPlay />
                 <span className="fa-stack fa-4">

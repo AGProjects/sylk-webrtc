@@ -231,9 +231,11 @@ class VideoBox extends React.Component {
 
         return (
             <div className="video-container" onMouseMove={this.showCallOverlay}>
-                <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                    {videoHeader}
-                </ReactCSSTransitionGroup>
+                <div className="top-overlay">
+                    <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                        {videoHeader}
+                    </ReactCSSTransitionGroup>
+                </div>
                 <ReactCSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
                     {watermark}
                 </ReactCSSTransitionGroup>

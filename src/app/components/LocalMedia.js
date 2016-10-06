@@ -55,12 +55,14 @@ class LocalMedia extends React.Component {
 
         return (
             <div className="video-container" ref="videoContainer">
-                <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                    <div key="header" className="call-header">
-                        <p className={headerTextClasses}><strong>Call with</strong> {this.props.remoteIdentity}</p>
-                        <p className={headerTextClasses}>Connecting...</p>
-                    </div>
-                </ReactCSSTransitionGroup>
+                <div className="top-overlay">
+                    <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                        <div key="header" className="call-header">
+                            <p className={headerTextClasses}><strong>Call with</strong> {this.props.remoteIdentity}</p>
+                            <p className={headerTextClasses}>Connecting...</p>
+                        </div>
+                    </ReactCSSTransitionGroup>
+                </div>
                 <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted/>
                 <div className="call-buttons">
                     <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>

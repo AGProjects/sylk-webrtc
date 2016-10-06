@@ -1,12 +1,7 @@
 .conference-buttons {
-    top: 0 !important;
-    left: 0;
     margin: auto;
     overflow: hidden;
-    padding-top: $navbar-height + 10px;
-    position: absolute;
-    right: 0;
-    z-index: 1;
+    padding-top: 10px;
 }
 
 .conference {

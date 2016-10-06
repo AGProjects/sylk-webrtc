@@ -11,6 +11,7 @@
     @include background-image-retina($navbar-logo-image, $navbar-height, $navbar-height);
     height: $navbar-height;
     margin: 0 auto;
+    margin-left: 15px;
     width: $navbar-height;
 }
 
@@ -29,6 +30,8 @@
 .navbar-brand {
     height: $navbar-height;
     padding: ($navbar-height - 20) / 2 15px;
+    padding-left: 0;
+    margin-left: 0 !important;
 }
 
 .navbar-text {

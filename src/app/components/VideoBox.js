@@ -179,10 +179,6 @@ class VideoBox extends React.Component {
                 'fa-compress'   : this.isFullScreen()
             });
 
-            const buttonBarClasses = classNames({
-                'video-started' : !this.state.audioOnly
-            });
-
             const videoHeaderTextClasses = classNames({
                 'lead'          : true,
                 'text-success'  : true

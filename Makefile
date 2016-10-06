@@ -28,7 +28,7 @@ clean:
 	rm -rf dist
 
 distclean: clean
-	rm -rf node_modules bower_components
+	rm -rf node_modules
 
 watch:
 	$(GULP) watch --type dev

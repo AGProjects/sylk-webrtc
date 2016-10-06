@@ -445,7 +445,7 @@ class ConferenceBox extends React.Component {
         });
 
         return (
-            <div className="video-container conference">
+            <div className="video-container conference" onMouseMove={this.showOverlay}>
                 <div className="top-overlay">
                     <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                             {videoHeader}
@@ -455,7 +455,7 @@ class ConferenceBox extends React.Component {
                 <ReactCSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
                     {watermark}
                 </ReactCSSTransitionGroup>
-                <video ref="largeVideo" className={largeVideoClasses} onMouseMove={this.showOverlay} poster="assets/images/transparent-1px.png" autoPlay muted />
+                <video ref="largeVideo" className={largeVideoClasses} poster="assets/images/transparent-1px.png" autoPlay muted />
                 <div className="conference-thumbnails">
                     <ConferenceCarousel>
                         {participants}

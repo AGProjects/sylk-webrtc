@@ -14,8 +14,15 @@ It's built using HTML and JavaScript and uses the [SylkRTC](https://github.com/A
 
 ## Development
 
-Nodejs is needed for development. Version >= 4.2 is recommended. A convenience
-`configure` script and `Makefile` are provided.
+Nodejs is needed for development.  Version >= 4.2 is recommended.  A
+convenience `configure` script and `Makefile` are provided.
+
+Nodejs can be downloaded from https://nodejs.org
+
+After installation upgrade npm to version 3.0:
+
+sudo npm install -g npm
+
 
 * Install all dependencies
 

@@ -6,9 +6,8 @@ It's built using HTML and JavaScript and uses the [SylkRTC](https://github.com/A
 
 ## Features
 
-* Audio / video calling
-* SIP interoperability
-* Multi-party video conferencing
+* Audio / video calling with SIP interoperability
+* Multi-party video conferencing (WebRTC only)
 * Guest mode (no account required if invited)
 
 

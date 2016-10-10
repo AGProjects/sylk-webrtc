@@ -23,51 +23,51 @@ Nodejs can be downloaded from https://nodejs.org
 
 After installation upgrade npm to version 3.0:
 
-````
+```
 sudo npm install -g npm
-````
+```
 
 * Install all dependencies
 
-````
+```
     ./configure
-````
+```
 
 * Build the ready to be deployed distribution (available in dist/)
 
-````
+```
     make
-````
+```
 
 * Development build, starts a test webserver which auto-reloads as the code changes
 
-````
+```
     make watch
-````
+```
 
 * Clean the distribution
 
-````
+```
     make clean
-````
+```
 
 * Clean all installed packages and generated files
 
-````
+```
     make distclean
-````
+```
 
 * Deploy the built website to the server
 
-````
+```
     make deploy
-````
+```
 
 * Deploy the built website to the staging server
 
-````
+```
     make deploy-test
-````
+```
 
 ## Debugging
 
@@ -75,9 +75,9 @@ By default Sylk doesn't output a lot of information to the browser's JavaScript 
 Console debug messages are namespaced by library, the two most important ones being 'sylkrtc' and 'blinkrtc'.
 In order to enable debugging for both open the browser's JavaScript console and type the following:
 
-````
+```
     window.blinkDebugger.enable('sylkrtc*,blinkrtc*');
-````
+```
 
 Then reload the page. Debug messages will be logged to the console now.
 

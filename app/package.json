@@ -1,0 +1,12 @@
+{
+  "name": "sylk-electron",
+  "version": "0.0.1",
+  "productName": "Sylk",
+  "description": "Sylk, a WebRTC client",
+  "author": "AG Projects <support@ag-projects.com>",
+  "license": "GPLv3",
+  "private": true,
+  "dependencies": {
+    "titlebar": "git+https://github.com/saghul/titlebar.git"
+  }
+}

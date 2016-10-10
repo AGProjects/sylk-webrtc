@@ -6,3 +6,5 @@
 (^|/)src/js($|/)
 (^|/).DS_Store($|/)
 (^|/)dist($|/)
+(^|/)dist-electron($|/)
+(^|/)app/www($|/)

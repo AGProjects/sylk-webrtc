@@ -3,7 +3,7 @@ GULP = node_modules/.bin/gulp
 ESLINT = node_modules/.bin/eslint
 SASSLINT = node_modules/.bin/sass-lint
 
-.PHONY: all clean deploy deploy-test dist dist-dev distclean watch lint
+.PHONY: all clean deploy deploy-test dist dist-dev distclean watch lint pkg-osx pkg-win pkg-linux app-run
 
 all: dist
 
@@ -25,10 +25,10 @@ dist-dev:
 	$(GULP) build --type dev
 
 clean:
-	rm -rf dist
+	rm -rf dist dist-electron app/www
 
 distclean: clean
-	rm -rf node_modules
+	rm -rf node_modules app/node_modules
 
 watch:
 	$(GULP) watch --type dev
@@ -36,3 +36,19 @@ watch:
 lint:
 	$(SASSLINT) -v -q
 	$(ESLINT) src/app
+
+electron: dist
+	rm -rf app/www
+	cp -r dist app/www
+
+pkg-osx: electron
+	npm run build-osx
+
+pkg-win: electron
+	npm run build-win
+
+pkg-linux: electron
+	npm run build-linux
+
+app-run: electron
+	npm start

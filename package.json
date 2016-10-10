@@ -17,6 +17,8 @@
     "browserify": "13.0.1",
     "classnames": "^2.2.5",
     "debug": "*",
+    "electron": "^1.4.3",
+    "electron-builder": "^7.11.4",
     "envify": "^3.4.1",
     "eslint": "^2.13.1",
     "eslint-plugin-react": "^5.2.2",
@@ -59,5 +61,39 @@
   },
   "engines": {
     "node": ">=4.0.0"
+  },
+  "scripts": {
+    "postinstall": "install-app-deps",
+    "start": "electron ./app",
+    "build-osx": "build --osx --x64",
+    "build-win": "build --win --ia32 --x64",
+    "build-linux": "build --linux --ia32 --x64"
+  },
+  "directories": {
+    "output": "dist-electron"
+  },
+  "build": {
+    "appId": "com.agprojects.Sylk",
+    "productName": "Sylk",
+    "mac": {
+      "category": "public.app-category.video",
+      "target": [
+        "dmg"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "signingHashAlgorithms": []
+    },
+    "nsis": {
+      "oneClick": false
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ]
+    }
   }
 }

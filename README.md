@@ -4,6 +4,9 @@
 Sylk is a WebRTC client, from the authors of [Blink](http://icanblink.com).
 It's built using HTML and JavaScript and uses the [SylkRTC](https://github.com/AGProjects/sylkrtc.js) API.
 
+This repository contains the code to build the website and a companion [Electron](http://electron.atom.io)
+app.
+
 ## Features
 
 * Audio / video calling with SIP interoperability
@@ -21,17 +24,21 @@ convenience `configure` script and `Makefile` are provided.
 
 Nodejs can be downloaded from https://nodejs.org
 
-After installation upgrade npm to version 3.0:
+After installation upgrade npm to version > 3.0:
 
 ```
-sudo npm install -g npm
+npm install -g npm
 ```
+
+NOTE: depending on your Node installation you might need to use `sudo`.
 
 * Install all dependencies
 
 ```
     ./configure
 ```
+
+### Website
 
 * Build the ready to be deployed distribution (available in dist/)
 
@@ -45,18 +52,6 @@ sudo npm install -g npm
     make watch
 ```
 
-* Clean the distribution
-
-```
-    make clean
-```
-
-* Clean all installed packages and generated files
-
-```
-    make distclean
-```
-
 * Deploy the built website to the server
 
 ```
@@ -67,6 +62,57 @@ sudo npm install -g npm
 
 ```
     make deploy-test
+```
+
+### Electron application
+
+* Build the Electron application
+
+```
+    make electron
+```
+
+* Build and run Electron application:
+
+```
+    make app-run
+```
+
+* Build macOS DMG package
+
+```
+    make pkg-osx
+```
+
+* Build Windows NSIS based installer (universal: 32 and 64 bits)
+
+```
+    make pkg-win
+```
+
+NOTE: If building on macOS Wine must be installed with `brew install wine`.
+
+* Build Linux AppImage (both 32 and 64 bit builds)
+
+```
+    make pkg-linux
+```
+
+NOTE: Requires a GNU/Linux system.
+
+
+### Common
+
+* Clean the distribution
+
+```
+    make clean
+```
+
+* Clean all installed packages and generated files
+
+```
+    make distclean
 ```
 
 ## Debugging

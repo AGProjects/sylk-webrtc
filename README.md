@@ -10,6 +10,9 @@ It's built using HTML and JavaScript and uses the [SylkRTC](https://github.com/A
 * Multi-party video conferencing (WebRTC only)
 * Guest mode (no account required if invited)
 
+## Customization
+
+The default settings of the app are found in src/app/config.js
 
 ## Development
 

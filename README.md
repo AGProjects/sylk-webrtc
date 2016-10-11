@@ -1,11 +1,15 @@
 
 # Sylk
 
-Sylk is a WebRTC client, from the authors of [Blink](http://icanblink.com).
-It's built using HTML and JavaScript and uses the [SylkRTC](https://github.com/AGProjects/sylkrtc.js) API.
+Sylk is a WebRTC client focused on multiparty video conferencing.  Sylk is
+the companion client for SylkServer video conferencing application.
 
-This repository contains the code to build the website and a companion [Electron](http://electron.atom.io)
-app.
+Sylk is built using HTML and JavaScript and uses the
+[SylkRTC](https://github.com/AGProjects/sylkrtc.js) API to talk to
+SylkServer.  It can be served as a web page using the web server of your
+choice, or it can be packaged as a stand alone desktop application using
+Electron.  This repository contains the code to build the website and a
+companion [Electron](http://electron.atom.io) app.
 
 ## Features
 

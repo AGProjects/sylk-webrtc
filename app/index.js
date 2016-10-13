@@ -1,6 +1,7 @@
 
 const electron = require('electron');
 const fs = require('fs');
+const openAboutWindow = require('about-window').default;
 
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
@@ -23,10 +24,19 @@ const isLinux = process.platform === 'linux';
 let quitting = false;
 
 
+// options for about window
+const aboutOptions = {
+    icon_path: `${__dirname}/www/assets/images/blink.ico`,
+    copyright: 'Copyright (c) AG Projects',
+    homepage: 'http://sylkserver.com'
+};
+
+
 // Application menu
 const appMenu = Menu.buildFromTemplate([{
     label: 'Sylk',
     submenu: [
+        { label: 'About', click: () => { openAboutWindow(aboutOptions); }},
         { label: 'Quit', accelerator: 'Command+Q', click: () => { app.quit(); }}
     ]}, {
     label: 'Edit',

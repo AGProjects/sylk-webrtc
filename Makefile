@@ -37,8 +37,10 @@ lint:
 	$(SASSLINT) -v -q
 	$(ESLINT) src/app
 
-electron: dist
+electron:
+	# TODO: use a different gulp task which doesn't browserify
 	rm -rf app/www
+	$(GULP) build --type production
 	cp -r dist app/www
 
 pkg-osx: electron

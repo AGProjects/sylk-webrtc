@@ -1,6 +1,6 @@
 {
   "name": "sylk-electron",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "productName": "Sylk",
   "description": "Sylk, a WebRTC client",
   "author": "AG Projects <support@ag-projects.com>",

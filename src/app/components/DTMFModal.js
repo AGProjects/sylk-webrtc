@@ -4,6 +4,7 @@ const debug          = require('debug');
 const React          = require('react');
 const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
+const classNames     = require('classnames');
 
 const AudioPlayer    = require('./AudioPlayer');
 
@@ -64,27 +65,33 @@ class DTMFModal extends React.Component {
     }
 
     render() {
+        const buttonClasses = classNames({
+            'btn'            : true,
+            'btn-round-xxl'  : true,
+            'btn-dtmf'       : true
+        });
+
         return (
             <Modal show={this.props.show} onHide={this.props.hide} aria-labelledby="dmodal-title-sm">
                 <Modal.Header closeButton>
                     <Modal.Title id="modal-title-sm">DTMF</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                        <button key="dtmfButton1" type="button" className="btn btn-round-xxl btn-dtmf" onClick={this.sendDtmf.bind(this, '1')}>1</button>
-                        <button key="dtmfButton2" type="button" className="btn btn-round-xxl btn-dtmf" onClick={this.sendDtmf.bind(this, '2')}>2</button>
-                        <button key="dtmfButton3" type="button" className="btn btn-round-xxl btn-dtmf" onClick={this.sendDtmf.bind(this, '3')}>3</button>
+                        <button key="dtmfButton1" type="button" className={buttonClasses} onClick={this.sendDtmf.bind(this, '1')}>1</button>
+                        <button key="dtmfButton2" type="button" className={buttonClasses} onClick={this.sendDtmf.bind(this, '2')}>2</button>
+                        <button key="dtmfButton3" type="button" className={buttonClasses} onClick={this.sendDtmf.bind(this, '3')}>3</button>
                         <br />
-                        <button key="dtmfButton4" type="button" className="btn btn-round-xxl btn-dtmf" onClick={this.sendDtmf.bind(this, '4')}>4</button>
-                        <button key="dtmfButton5" type="button" className="btn btn-round-xxl btn-dtmf" onClick={this.sendDtmf.bind(this, '5')}>5</button>
-                        <button key="dtmfButton6" type="button" className="btn btn-round-xxl btn-dtmf" onClick={this.sendDtmf.bind(this, '6')}>6</button>
+                        <button key="dtmfButton4" type="button" className={buttonClasses} onClick={this.sendDtmf.bind(this, '4')}>4</button>
+                        <button key="dtmfButton5" type="button" className={buttonClasses} onClick={this.sendDtmf.bind(this, '5')}>5</button>
+                        <button key="dtmfButton6" type="button" className={buttonClasses} onClick={this.sendDtmf.bind(this, '6')}>6</button>
                         <br />
-                        <button key="dtmfButton7" type="button" className="btn btn-round-xxl btn-dtmf" onClick={this.sendDtmf.bind(this, '7')}>7</button>
-                        <button key="dtmfButton8" type="button" className="btn btn-round-xxl btn-dtmf" onClick={this.sendDtmf.bind(this, '8')}>8</button>
-                        <button key="dtmfButton9" type="button" className="btn btn-round-xxl btn-dtmf" onClick={this.sendDtmf.bind(this, '9')}>9</button>
+                        <button key="dtmfButton7" type="button" className={buttonClasses} onClick={this.sendDtmf.bind(this, '7')}>7</button>
+                        <button key="dtmfButton8" type="button" className={buttonClasses} onClick={this.sendDtmf.bind(this, '8')}>8</button>
+                        <button key="dtmfButton9" type="button" className={buttonClasses} onClick={this.sendDtmf.bind(this, '9')}>9</button>
                         <br />
-                        <button key="dtmfButtonStar" type="button" className="btn btn-round-xxl btn-dtmf" onClick={this.sendDtmf.bind(this, '*')}>*</button>
-                        <button key="dtmfButton0" type="button" className="btn btn-round-xxl btn-dtmf" onClick={this.sendDtmf.bind(this, '0')}>0</button>
-                        <button key="dtmfButtonHash" type="button" className="btn btn-round-xxl btn-dtmf" onClick={this.sendDtmf.bind(this, '#')}>#</button>
+                        <button key="dtmfButtonStar" type="button" className={buttonClasses} onClick={this.sendDtmf.bind(this, '*')}>*</button>
+                        <button key="dtmfButton0"    type="button" className={buttonClasses} onClick={this.sendDtmf.bind(this, '0')}>0</button>
+                        <button key="dtmfButtonHash" type="button" className={buttonClasses} onClick={this.sendDtmf.bind(this, '#')}>#</button>
                     <AudioPlayer ref="audioPlayerDtmf1" sourceFile="assets/sounds/dtmf/1.wav" />
                     <AudioPlayer ref="audioPlayerDtmf2" sourceFile="assets/sounds/dtmf/2.wav" />
                     <AudioPlayer ref="audioPlayerDtmf3" sourceFile="assets/sounds/dtmf/3.wav" />

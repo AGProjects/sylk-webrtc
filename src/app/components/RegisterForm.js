@@ -19,11 +19,15 @@ class RegisterForm extends React.Component {
         };
 
         // ES6 classes no longer autobind
-        this.handleAccountIdChange = this.handleAccountIdChange.bind(this);
-        this.handlePasswordChange = this.handlePasswordChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleEnrollment = this.handleEnrollment.bind(this);
-        this.createAccount = this.createAccount.bind(this);
+        [
+            'handleAccountIdChange',
+            'handlePasswordChange',
+            'handleSubmit',
+            'handleEnrollment',
+            'createAccount'
+        ].forEach((name) => {
+            this[name] = this[name].bind(this);
+        });
     }
 
     componentWillMount() {

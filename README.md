@@ -102,7 +102,7 @@ NOTE: If building on macOS Wine must be installed with `brew install wine`.
     make pkg-linux
 ```
 
-NOTE: Requires a GNU/Linux system.
+NOTE: Requires a GNU/Linux system with the following packages installed: icnsutils, graphicsmagick
 
 
 ### Common

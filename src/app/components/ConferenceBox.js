@@ -34,7 +34,11 @@ class ConferenceBox extends React.Component {
             videoMuted: false,
             autoRotate: true,
             participants: props.call.participants.slice(),
-            currentLargeVideo: null,
+            currentLargeVideo: {
+                stream: null,
+                isLocal: false,
+                hasVideo: false
+            },
             showInviteModal: false
         };
 
@@ -142,12 +146,14 @@ class ConferenceBox extends React.Component {
     selectVideo(item) {
         DEBUG('Switching video to: %o', item);
         if (item.stream) {
-            if (item.stream !== this.state.currentLargeVideo) {
-                this.setState({currentLargeVideo: item.stream});
+            if (item.stream !== this.state.currentLargeVideo.stream) {
+                const isLocal = item.stream === this.props.call.getLocalStreams()[0];
+                const hasVideo = item.stream.getVideoTracks().length > 0;
+                this.setState({currentLargeVideo: {stream: item.stream, isLocal: isLocal, hasVideo: hasVideo}});
                 rtcninja.attachMediaStream(this.refs.largeVideo, item.stream);
             }
         } else {
-            this.setState({currentLargeVideo: null});
+            this.setState({currentLargeVideo: {stream: null, isLocal: false, hasVideo: false}});
             this.refs.largeVideo.src = '';
         }
     }
@@ -166,9 +172,9 @@ class ConferenceBox extends React.Component {
 
     maybeSwitchLargeVideo() {
         // Switch the large video to another source, maybe.
-        if (this.state.currentLargeVideo == null ||
-            !this.state.currentLargeVideo.active ||
-            this.state.currentLargeVideo === this.props.call.getLocalStreams()[0]) {
+        if (this.state.currentLargeVideo.stream == null ||
+            !this.state.currentLargeVideo.stream.active ||
+            this.state.currentLargeVideo.isLocal) {
 
             let done = false;
             for (let p of this.state.participants) {
@@ -304,15 +310,12 @@ class ConferenceBox extends React.Component {
         let callButtons;
         let watermark;
 
-        const isLocalStream = this.state.currentLargeVideo === this.props.call.getLocalStreams()[0];
-        const hasVideo = this.state.currentLargeVideo !== null ? this.state.currentLargeVideo.getVideoTracks().length > 0 : false;
-
         const largeVideoClasses = classNames({
             'animated'      : true,
             'fadeIn'        : true,
             'large'         : true,
-            'mirror'        : isLocalStream && hasVideo,
-            'poster'        : !hasVideo
+            'mirror'        : this.state.currentLargeVideo.isLocal && this.state.currentLargeVideo.hasVideo,
+            'poster'        : !this.state.currentLargeVideo.hasVideo
         });
 
         if (this.state.callOverlayVisible) {

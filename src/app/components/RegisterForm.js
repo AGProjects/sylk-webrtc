@@ -98,7 +98,7 @@ class RegisterForm extends React.Component {
                         </div>
                         <div className="btn-group">
                             <button className="btn btn-lg btn-primary" onClick={this.createAccount} disabled={this.props.registrationInProgress}>
-                                <i className="fa fa-plus"></i>&nbsp;Register
+                                <i className="fa fa-plus"></i>&nbsp; Sign up
                             </button>
                         </div>
                     </div>

@@ -98,7 +98,7 @@ class EnrollmentModal extends React.Component {
         return (
             <Modal show={this.props.show} onHide={this.onHide} aria-labelledby="emodal-title-sm">
                 <Modal.Header closeButton>
-                    <Modal.Title id="emodal-title-sm">Create SIP account</Modal.Title>
+                    <Modal.Title id="emodal-title-sm">Create account</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <form id="enrollmentForm" onSubmit={this.enrollmentFormSubmitted} className="form-horizontal" role="form">

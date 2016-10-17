@@ -14,6 +14,7 @@ class ConferenceParticipant extends React.Component {
         super(props);
         this.state = {
             active: false,
+            hasVideo: false,
             overlayVisible: false,
             audioMuted: false
         }
@@ -86,6 +87,7 @@ class ConferenceParticipant extends React.Component {
         const streams = this.props.participant.streams;
         if (streams.length > 0) {
             rtcninja.attachMediaStream(this.refs.videoElement, streams[0]);
+            this.setState({hasVideo: streams[0].getVideoTracks().length > 0});
             const options = {
                 interval: 150,
                 play: false
@@ -124,11 +126,8 @@ class ConferenceParticipant extends React.Component {
             <Tooltip id={this.props.participant.id}>{this.props.participant.identity.displayName || this.props.participant.identity.uri}</Tooltip>
         );
 
-        const streams = this.props.participant.streams;
-        const hasVideo = streams.length > 0 ? streams[0].getVideoTracks().length > 0 : false;
-
         const classes = classNames({
-            'poster' : !hasVideo,
+            'poster' : !this.state.hasVideo,
             'conference-active' : this.state.active
         });
 

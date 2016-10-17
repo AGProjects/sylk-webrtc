@@ -13,7 +13,8 @@ class ConferenceParticipantSelf extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            active: false
+            active: false,
+            hasVideo: false
         }
         this.speechEvents = null;
         this.speechActivityTimer = null;
@@ -41,6 +42,8 @@ class ConferenceParticipantSelf extends React.Component {
     }
 
     attachSpeechEvents() {
+        this.setState({hasVideo: this.props.stream.getVideoTracks().length > 0});
+
         const options = {
             interval: 150,
             play: false
@@ -71,11 +74,9 @@ class ConferenceParticipantSelf extends React.Component {
             <Tooltip id="t-myself">{this.props.identity.displayName || this.props.identity.uri}</Tooltip>
         );
 
-        const hasVideo = this.props.stream.getVideoTracks().length > 0;
-
         const classes = classNames({
-            'mirror' : hasVideo,
-            'poster' : !hasVideo,
+            'mirror' : this.state.hasVideo,
+            'poster' : !this.state.hasVideo,
             'conference-active' : this.state.active
         });
 

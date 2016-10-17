@@ -2,7 +2,7 @@
   "name": "sylk-electron",
   "version": "1.0.1",
   "productName": "Sylk",
-  "description": "Sylk, a WebRTC client",
+  "description": "WebRTC client",
   "author": "AG Projects <support@ag-projects.com>",
   "license": "GPLv3",
   "private": true,

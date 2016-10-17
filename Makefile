@@ -11,16 +11,20 @@ deploy: dist
 	echo `date +"%Y-%m-%d_%H:%M:%S"` > dist/.timestamp
 	rm -f dist/js/*.map
 	rm -f dist/assets/styles/*.map
-	rsync -av --delete dist/ agp@node10.dns-hosting.info:/var/www/download/Sylk/
-	ssh agp@node10.dns-hosting.info 'sudo scp /var/www/download/Sylk/*.dmg node08:/var/www/download/Sylk/'
-
-deploy-osx: 
-	rsync -avz --progress dist-electron/mac/Sylk*.dmg agp@node10.dns-hosting.info:/var/www/webrtc/
+        rsync -av --delete dist/ agp@node10.dns-hosting.info:/var/www/webrtc/
 	ssh agp@node10.dns-hosting.info 'sudo /root/sync-webrtc.sh'
 
 deploy-test: dist-dev
 	echo `date +"%Y-%m-%d_%H:%M:%S"` > dist/.timestamp
 	rsync -av --exclude .htaccess --delete dist/ agp@node10.dns-hosting.info:/var/www/webrtc-test/
+
+deploy-osx: 
+	rsync -avz --progress dist-electron/mac/Sylk*.dmg agp@node10.dns-hosting.info:/var/www/download/Sylk/
+	ssh agp@node10.dns-hosting.info 'sudo scp /var/www/download/Sylk/*.dmg node08:/var/www/download/Sylk/'
+
+deploy-win: 
+	rsync -avz --progress dist-electron/Sylk*.exe agp@node10.dns-hosting.info:/var/www/webrtc/Sylk/
+	ssh agp@node10.dns-hosting.info 'sudo scp /var/www/download/Sylk/*.exe node08:/var/www/download/Sylk/'
 
 dist:
 	$(GULP) build --type production

@@ -402,14 +402,14 @@ class ConferenceBox extends React.Component {
 
             const buttons = [];
 
+            buttons.push(<OverlayTrigger ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
+                            <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-share"></i> </button>
+                         </OverlayTrigger>);
             buttons.push(<button key="muteVideo" type="button" title="Mute/unmute video" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>);
             buttons.push(<button key="muteAudio" type="button" title="Mute/unmute audio" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>);
             if (this.isFullscreenSupported()) {
                 buttons.push(<button key="fsButton" type="button" title="Go full-screen" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
             }
-            buttons.push(<OverlayTrigger ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
-                            <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-share"></i> </button>
-                         </OverlayTrigger>);
             if (this.state.participants.length > 0) {
                 buttons.push(<button key="autoRotate" type="button" title="Automatically switch to active speaker" className={rotateButtonClasses} onClick={this.toggleAutoRotate}> <i className="fa fa-street-view"></i> </button>);
             }

@@ -160,7 +160,9 @@ class ConferenceParticipant extends React.Component {
             <div onMouseMove={this.showOverlay} onMouseLeave={this.hideOverlay}>
                 {muteButton}
                 <OverlayTrigger placement="top" overlay={tooltip}>
-                    <video ref="videoElement" onClick={this.onVideoClicked} className={classes} poster="assets/images/transparent-1px.png" autoPlay />
+                    <div className="participant-container" onClick={this.onVideoClicked}>
+                        <video ref="videoElement" className={classes} poster="assets/images/transparent-1px.png" autoPlay />
+                    </div>
                 </OverlayTrigger>
             </div>
         );

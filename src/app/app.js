@@ -227,45 +227,6 @@ class Blink extends React.Component {
     callStateChanged(oldState, newState, data) {
         DEBUG(`Call state changed! ${oldState} -> ${newState}`);
 
-        if (newState === 'terminated') {
-            let callSuccesfull = false;
-            let reason = data.reason;
-            if (!reason || reason.match(/200/)) {
-                reason = 'Hangup';
-                callSuccesfull = true;
-            } else if (reason.match(/404/)) {
-                reason = 'User not found';
-            } else if (reason.match(/408/)) {
-                reason = 'Timeout';
-            } else if (reason.match(/480/)) {
-                reason = 'User not online';
-            } else if (reason.match(/486/) || reason.match(/60[036]/)) {
-                reason = 'Busy';
-            } else if (reason.match(/487/)) {
-                reason = 'Cancelled';
-            } else if (reason.match(/488/)) {
-                reason = 'Unacceptable media';
-            } else if (reason.match(/5\d\d/)) {
-                reason = 'Server failure';
-            } else if (reason.match(/904/)) {
-                // Sofia SIP: WAT
-                reason = 'Bad account or password';
-            } else {
-                reason = 'Connection failed';
-            }
-            this._notificationCenter.postSystemNotification('Call Terminated', {body: reason, timeout: callSuccesfull ? 5 : 10});
-
-            this.setState({
-                currentCall         : null,
-                targetUri           : callSuccesfull ? '' : this.state.targetUri,
-                showIncomingModal   : false,
-                inboundCall         : null,
-                localMedia          : null
-            });
-
-            navigate('/ready');
-        }
-
         switch (newState) {
             case 'progress':
                 this.refs.audioPlayerOutbound.play(true);
@@ -278,6 +239,44 @@ class Blink extends React.Component {
                 this.refs.audioPlayerOutbound.stop();
                 this.refs.audioPlayerInbound.stop();
                 this.refs.audioPlayerHangup.play();
+
+                let callSuccesfull = false;
+                let reason = data.reason;
+                if (!reason || reason.match(/200/)) {
+                    reason = 'Hangup';
+                    callSuccesfull = true;
+                } else if (reason.match(/404/)) {
+                    reason = 'User not found';
+                } else if (reason.match(/408/)) {
+                    reason = 'Timeout';
+                } else if (reason.match(/480/)) {
+                    reason = 'User not online';
+                } else if (reason.match(/486/) || reason.match(/60[036]/)) {
+                    reason = 'Busy';
+                } else if (reason.match(/487/)) {
+                    reason = 'Cancelled';
+                } else if (reason.match(/488/)) {
+                    reason = 'Unacceptable media';
+                } else if (reason.match(/5\d\d/)) {
+                    reason = 'Server failure';
+                } else if (reason.match(/904/)) {
+                    // Sofia SIP: WAT
+                    reason = 'Bad account or password';
+                } else {
+                    reason = 'Connection failed';
+                }
+                this._notificationCenter.postSystemNotification('Call Terminated', {body: reason, timeout: callSuccesfull ? 5 : 10});
+
+                this.setState({
+                    currentCall         : null,
+                    targetUri           : callSuccesfull ? '' : this.state.targetUri,
+                    showIncomingModal   : false,
+                    inboundCall         : null,
+                    localMedia          : null
+                });
+
+                navigate('/ready');
+
                 break;
             default:
                 break;

@@ -451,8 +451,8 @@ class ConferenceBox extends React.Component {
             <div className="video-container conference" onMouseMove={this.showOverlay}>
                 <div className="top-overlay">
                     <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                            {videoHeader}
-                            {callButtons}
+                        {videoHeader}
+                        {callButtons}
                     </ReactCSSTransitionGroup>
                 </div>
                 <ReactCSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>

@@ -23,11 +23,15 @@
     padding: 4px 0;
 
     p {
-        font-size: 18px !important;
+        font-size: 17px !important;
         line-height: 1.2 !important;
-        margin-bottom: 4px !important;
+        margin-bottom: 2px !important;
         text-overflow: ellipsis;
         overflow: hidden;
+    }
+
+    p + p {
+        margin-bottom: 0 !important;
     }
 }
 

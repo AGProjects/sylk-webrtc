@@ -6,10 +6,10 @@ const ReactMixin                = require('react-mixin');
 const rtcninja                  = require('rtcninja');
 const classNames                = require('classnames');
 const debug                     = require('debug');
-const moment                    = require('moment');
-const momentFormat              = require('moment-duration-format');
 
 const FullscreenMixin           = require('../mixins/FullScreen');
+const CallOverlay               = require('./CallOverlay');
+
 
 const DEBUG = debug('blinkrtc:Video');
 
@@ -25,8 +25,6 @@ class VideoBox extends React.Component {
             remoteVideoShow: false
         };
 
-        this.callDuration = null;
-        this.callTimer = null;
         this.overlayTimer = null;
 
         // ES6 classes no longer autobind
@@ -61,12 +59,10 @@ class VideoBox extends React.Component {
         rtcninja.attachMediaStream(this.refs.remoteVideo, this.props.call.getRemoteStreams()[0]);
 
         this.armOverlayTimer();
-        this.startCallTimer();
     }
 
     componentWillUnmount() {
         clearTimeout(this.overlayTimer);
-        clearTimeout(this.callTimer);
 
         this.exitFullscreen();
     }
@@ -115,16 +111,6 @@ class VideoBox extends React.Component {
         this.props.hangupCall();
     }
 
-    startCallTimer() {
-        const startTime = new Date();
-        this.callTimer = setInterval(() => {
-            this.callDuration = moment.duration(new Date() - startTime).format('hh:mm:ss', {trim: false});
-            if (this.state.callOverlayVisible) {
-                this.forceUpdate();
-            }
-        }, 300);
-    }
-
     armOverlayTimer() {
         clearTimeout(this.overlayTimer);
         this.overlayTimer = setTimeout(() => {
@@ -140,7 +126,7 @@ class VideoBox extends React.Component {
     }
 
     render() {
-        if (this.props.call === null) {
+        if (this.props.call == null) {
             return (<div></div>);
         }
 
@@ -160,7 +146,6 @@ class VideoBox extends React.Component {
             'large'         : true
         });
 
-        let videoHeader;
         let callButtons;
         let watermark;
 
@@ -183,32 +168,11 @@ class VideoBox extends React.Component {
                 'fa-compress'   : this.isFullScreen()
             });
 
-            const videoHeaderTextClasses = classNames({
-                'lead'          : true,
-                'text-success'  : true
-            });
-
             const commonButtonClasses = classNames({
                 'btn'           : true,
                 'btn-round'     : true,
                 'btn-default'   : true
             });
-
-            const remoteIdentity = this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri;
-
-            let callDetail;
-            if (this.callDuration !== null) {
-                callDetail = <span><i className="fa fa-clock-o"></i> {this.callDuration}</span>;
-            } else {
-                callDetail = 'Connecting...'
-            }
-
-            videoHeader = (
-                <div key="header" className="call-header">
-                    <p className={videoHeaderTextClasses}><strong>Call with</strong> {remoteIdentity}</p>
-                    <p className={videoHeaderTextClasses}>{callDetail}</p>
-                </div>
-            );
 
             const buttons = [];
 
@@ -231,11 +195,11 @@ class VideoBox extends React.Component {
 
         return (
             <div className="video-container" onMouseMove={this.showCallOverlay}>
-                <div className="top-overlay">
-                    <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                        {videoHeader}
-                    </ReactCSSTransitionGroup>
-                </div>
+                <CallOverlay
+                    show = {this.state.callOverlayVisible}
+                    remoteIdentity = {this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri}
+                    call = {this.props.call}
+                />
                 <ReactCSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
                     {watermark}
                 </ReactCSSTransitionGroup>

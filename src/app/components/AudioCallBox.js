@@ -3,10 +3,9 @@
 const React         = require('react');
 const classNames    = require('classnames');
 const debug         = require('debug');
-const moment        = require('moment');
-const momentFormat  = require('moment-duration-format');
 const rtcninja      = require('rtcninja');
 
+const CallOverlay   = require('./CallOverlay');
 const DTMFModal     = require('./DTMFModal');
 
 const DEBUG = debug('blinkrtc:AudioCallBox');
@@ -16,7 +15,6 @@ class AudioCallBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            callDuration : null,
             audioMuted   : false,
             showDtmfModal: false
         };
@@ -41,7 +39,7 @@ class AudioCallBox extends React.Component {
         if (this.props.call != null) {
             switch (this.props.call.state) {
                 case 'established':
-                    this.startCall(this.props.call);
+                    this.attachStream(this.props.call);
                     break;
                 case 'incoming':
                     this.props.mediaPlaying();
@@ -58,7 +56,7 @@ class AudioCallBox extends React.Component {
     componentWillReceiveProps(nextProps) {
         if (this.props.call == null && nextProps.call) {
             if (nextProps.call.state === 'established') {
-                this.startCall(nextProps.call);
+                this.attachStream(nextProps.call);
             } else {
                 nextProps.call.on('stateChanged', this.callStateChanged);
             }
@@ -67,22 +65,17 @@ class AudioCallBox extends React.Component {
 
     componentWillUnmount() {
         clearTimeout(this.callTimer);
-        if (this.props.call != null) {
-            this.props.call.removeListener('stateChanged', this.callStateChanged);
-        }
     }
 
     callStateChanged(oldState, newState, data) {
         if (newState === 'established') {
-            this.startCall(this.props.call);
-            this.props.call.removeListener('stateChanged', this.callStateChanged);
+            this.attachStream(this.props.call);
         }
     }
 
-    startCall(call) {
-        let remoteStream = call.getRemoteStreams()[0];
+    attachStream(call) {
+        const remoteStream = call.getRemoteStreams()[0];
         rtcninja.attachMediaStream(this.refs.remoteAudio, remoteStream);
-        this.startCallTimer();
     }
 
     hangupCall(event) {
@@ -114,14 +107,6 @@ class AudioCallBox extends React.Component {
         this.setState({showDtmfModal: false});
     }
 
-    startCallTimer() {
-        const startTime = new Date();
-        this.callTimer = setInterval(() => {
-            const duration = moment.duration(new Date() - startTime).format('hh:mm:ss', {trim: false});
-            this.setState({callDuration: duration});
-        }, 300);
-    }
-
     render() {
         const commonButtonClasses = classNames({
             'btn'           : true,
@@ -135,27 +120,13 @@ class AudioCallBox extends React.Component {
             'fa-microphone-slash'   : this.state.audioMuted
         });
 
-        const headerTextClasses = classNames({
-            'lead'          : true,
-            'text-success'  : this.state.callDuration !== null,
-            'text-info'     : this.state.callDuration === null
-        });
-
-        let callDuration;
-        if (this.state.callDuration !== null) {
-            callDuration = <span><i className="fa fa-clock-o"></i> {this.state.callDuration}</span>;
-        } else {
-            callDuration = 'Connecting...';
-        }
-
         return (
             <div>
-                <div className="top-overlay">
-                    <div key="header" className="call-header">
-                        <p className={headerTextClasses}><strong>Call with</strong> {this.props.remoteIdentity}</p>
-                        <p className={headerTextClasses}>{callDuration}</p>
-                    </div>
-                </div>
+                <CallOverlay
+                    show = {true}
+                    remoteIdentity = {this.props.remoteIdentity}
+                    call = {this.props.call}
+                />
                 <audio id="remoteAudio" ref="remoteAudio" autoPlay />
                 <span className="fa-stack fa-4">
                     <i className="fa fa-volume-off move-icon fa-stack-2x"></i>

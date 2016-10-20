@@ -1,9 +1,10 @@
 'use strict';
 
 const React                   = require('react');
-const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 const rtcninja                = require('rtcninja');
 const classNames              = require('classnames');
+
+const CallOverlay             = require('./CallOverlay');
 
 
 class LocalMedia extends React.Component {
@@ -13,7 +14,6 @@ class LocalMedia extends React.Component {
         // ES6 classes no longer autobind
         this.hangupCall = this.hangupCall.bind(this);
         this.localVideoElementPlaying = this.localVideoElementPlaying.bind(this);
-
     }
 
     componentDidMount() {
@@ -48,21 +48,13 @@ class LocalMedia extends React.Component {
             'mirror'   : true
         });
 
-        const headerTextClasses = classNames({
-            'lead'          : true,
-            'text-info'     : true
-        });
-
         return (
             <div className="video-container" ref="videoContainer">
-                <div className="top-overlay">
-                    <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                        <div key="header" className="call-header">
-                            <p className={headerTextClasses}><strong>Call with</strong> {this.props.remoteIdentity}</p>
-                            <p className={headerTextClasses}>Connecting...</p>
-                        </div>
-                    </ReactCSSTransitionGroup>
-                </div>
+                <CallOverlay
+                    show = {true}
+                    remoteIdentity = {this.props.remoteIdentity}
+                    call = {null}
+                />
                 <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted/>
                 <div className="call-buttons">
                     <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>

@@ -16,7 +16,11 @@ class CallMeMaybeModal extends React.Component {
     }
 
     handleClipboardButton(event) {
-        utils.copyToClipboard(this.props.callUrl);
+        const sipUri = this.props.callUrl.split('/').slice(-1)[0];    // hack!
+        const message = `You can call me using a Web browser at ${this.props.callUrl} or a SIP client at ${sipUri} ` +
+                  `or by using the freely available Sylk WebRTC client app at http://sylkserver.com`
+
+        utils.copyToClipboard(message);
         this.props.notificationCenter().postSystemNotification('Call me, maybe?', {body: 'URL copied to the clipboard'});
         this.props.close();
     }

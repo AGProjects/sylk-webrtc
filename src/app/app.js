@@ -602,7 +602,7 @@ class Blink extends React.Component {
     }
 
     notSupported() {
-        let errorMsg = 'This app works only in a WebRTC browser (e.g. Chrome or Firefox)';
+        let errorMsg = 'This app works in a WebRTC browser or with Sylk client';
         return (
             <div>
                 <ErrorPanel errorMsg={errorMsg} />

@@ -26,8 +26,8 @@
             bottom: 10px;
             left: 30px;
             position: absolute;
-            width: 150px !important;
-            height: 100px !important;
+            width: $video-thumbnail-width !important;
+            height: $video-thumbnail-height !important;
             z-index: 3;
         }
     }

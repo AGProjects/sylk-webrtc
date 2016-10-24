@@ -28,8 +28,8 @@
     z-index: 2;
 
     .participant-container {
-        width: 150px !important;
-        height: 100px !important;
+        width: $video-thumbnail-width !important;
+        height: $video-thumbnail-height !important;
         margin: 5px;
 
         video {

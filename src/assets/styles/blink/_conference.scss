@@ -4,20 +4,6 @@
     padding-top: 10px;
 }
 
-.conference {
-    .poster {
-        @include background-image-retina($video-poster-image, 75px, 75px);
-        background-blend-mode: luminosity;
-        background-position: center;
-        background-repeat: no-repeat;
-
-        &.large {
-            @include background-image-retina($video-big-poster-image, 350px, 350px);
-            background-color: $black-transparent;
-        }
-    }
-}
-
 .conference-thumbnails {
     position: absolute;
     bottom: 0;

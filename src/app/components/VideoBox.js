@@ -31,6 +31,7 @@ class VideoBox extends React.Component {
         [
             'showCallOverlay',
             'handleFullscreen',
+            'handleRemoteVideoPlaying',
             'muteAudio',
             'muteVideo',
             'hangupCall'
@@ -49,27 +50,29 @@ class VideoBox extends React.Component {
         };
         rtcninja.attachMediaStream(this.refs.localVideo, this.props.localMedia);
 
-        this.refs.remoteVideo.addEventListener('playing', () => {
-            this.setState({remoteVideoShow: true});    // eslint-disable-line react/no-did-mount-set-state
-        });
+        this.refs.remoteVideo.addEventListener('playing', this.handleRemoteVideoPlaying);
+
         this.refs.remoteVideo.oncontextmenu = (e) => {
             // disable right click for video elements
             e.preventDefault();
         };
         rtcninja.attachMediaStream(this.refs.remoteVideo, this.props.call.getRemoteStreams()[0]);
-
-        this.armOverlayTimer();
     }
 
     componentWillUnmount() {
         clearTimeout(this.overlayTimer);
-
+        this.refs.remoteVideo.removeEventListener('playing', this.handleRemoteVideoPlaying);
         this.exitFullscreen();
     }
 
     handleFullscreen(event) {
         event.preventDefault();
         this.toggleFullscreen(document.body);
+    }
+
+    handleRemoteVideoPlaying() {
+        this.setState({remoteVideoShow: true});
+        this.armOverlayTimer();
     }
 
     muteAudio(event) {
@@ -140,7 +143,7 @@ class VideoBox extends React.Component {
         });
 
         const remoteVideoClasses = classNames({
-            'hidden'        : !this.state.remoteVideoShow,
+            'poster'        : !this.state.remoteVideoShow,
             'animated'      : true,
             'fadeIn'        : this.state.remoteVideoShow,
             'large'         : true
@@ -203,7 +206,7 @@ class VideoBox extends React.Component {
                 <ReactCSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
                     {watermark}
                 </ReactCSSTransitionGroup>
-                <video id="remoteVideo" className={remoteVideoClasses} ref="remoteVideo" autoPlay />
+                <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref="remoteVideo" autoPlay />
                 <video id="localVideo" className={localVideoClasses} ref="localVideo" autoPlay muted/>
                 <ReactCSSTransitionGroup transitionName="videobuttons" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {callButtons}

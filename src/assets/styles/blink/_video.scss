@@ -30,6 +30,18 @@
             height: $video-thumbnail-height !important;
             z-index: 3;
         }
+
+        &.poster {
+            @include background-image-retina($video-poster-image, 75px, 75px);
+            background-blend-mode: luminosity;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            &.large {
+                @include background-image-retina($video-big-poster-image, 350px, 350px);
+                background-color: $black-transparent;
+            }
+        }
     }
 
     .watermark {

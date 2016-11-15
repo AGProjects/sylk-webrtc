@@ -32,7 +32,7 @@ class CallOverlay extends React.Component {
         if (this.props.call == null && nextProps.call) {
             if (nextProps.call.state === 'established') {
                 this.startTimer();
-            } else if (this.props.call.state !== 'terminated') {
+            } else if (nextProps.call.state !== 'terminated') {
                 nextProps.call.on('stateChanged', this.callStateChanged);
             }
         }

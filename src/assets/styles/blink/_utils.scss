@@ -5,8 +5,6 @@
 // Rotate 135 degrees
 
 .rotate-135 {
-    -webkit-transform: rotate(135deg);
-    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1.5);
     transform: rotate(135deg);
 }
 

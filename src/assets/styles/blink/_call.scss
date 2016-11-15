@@ -38,39 +38,33 @@
 // Buttons Animation
 
 .videobuttons-enter {
-    -webkit-animation: fadeInUp linear .3s;
     animation: fadeInUp linear .3s;
 }
 
 .videobuttons-leave {
     &.videobuttons-leave-active {
-        -webkit-animation: fadeOutDown linear .3s;
         animation: fadeOutDown linear .3s;
     }
 }
 
 // Video header animation
 .videoheader-enter {
-    -webkit-animation: fadeInDown linear .3s;
     animation: fadeInDown linear .3s;
 }
 
 .videoheader-leave {
     &.videoheader-leave-active {
-        -webkit-animation: fadeOutUp linear .3s;
         animation: fadeOutUp linear .3s;
     }
 }
 
 // Watermark animation
 .watermark-enter {
-    -webkit-animation: fadeIn linear .6s;
     animation: fadeIn linear .6s;
 }
 
 .watermark-leave {
     &.watermark-leave-active {
-        -webkit-animation: fadeOut linear .3s;
         animation: fadeOut linear .3s;
     }
 }

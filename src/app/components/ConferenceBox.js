@@ -215,7 +215,7 @@ class ConferenceBox extends React.Component {
 
     handleClipboardButton() {
         const message = `You can join me in the conference using a Web browser at ${this.callUrl} ` +
-                        `or by using the freely available Sylk WebRTC client app at http://sylkserver.com `;
+                        'or by using the freely available Sylk WebRTC client app at http://sylkserver.com';
         utils.copyToClipboard(message);
         this.props.notificationCenter().postSystemNotification('Join me, maybe?', {body: 'Link copied to the clipboard'});
         this.refs.shareOverlay.hide();

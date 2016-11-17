@@ -3,7 +3,6 @@
 const React          = require('react');
 const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
-const classNames     = require('classnames');
 
 const config          = require('../config');
 

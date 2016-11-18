@@ -36,7 +36,7 @@ clean:
 	rm -rf dist dist-electron app/www
 
 distclean: clean
-	rm -rf node_modules app/node_modules
+	rm -rf node_modules app/node_modules yarn.lock
 
 watch:
 	$(GULP) watch --type dev

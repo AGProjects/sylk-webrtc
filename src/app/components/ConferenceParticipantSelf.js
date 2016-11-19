@@ -1,12 +1,12 @@
 'use strict';
 
-const React           = require('react');
-const ReactBootstrap  = require('react-bootstrap');
-const Tooltip         = ReactBootstrap.Tooltip;
-const OverlayTrigger  = ReactBootstrap.OverlayTrigger;
-const rtcninja        = require('rtcninja');
-const hark            = require('hark');
-const classNames      = require('classnames');
+const React             = require('react');
+const ReactBootstrap    = require('react-bootstrap');
+const Tooltip           = ReactBootstrap.Tooltip;
+const OverlayTrigger    = ReactBootstrap.OverlayTrigger;
+const attachMediaStream = require('attachmediastream');
+const hark              = require('hark');
+const classNames        = require('classnames');
 
 
 class ConferenceParticipantSelf extends React.Component {
@@ -24,11 +24,8 @@ class ConferenceParticipantSelf extends React.Component {
     }
 
     componentDidMount() {
-        rtcninja.attachMediaStream(this.refs.videoElement, this.props.stream);
-        this.refs.videoElement.oncontextmenu = (e) => {
-            // disable right click for video elements
-            e.preventDefault();
-        };
+        attachMediaStream(this.props.stream, this.refs.videoElement, {disableContextMenu: true});
+
         // factor it out to a function to avoid lint warning about calling setState here
         this.attachSpeechEvents();
     }

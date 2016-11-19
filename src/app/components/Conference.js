@@ -2,7 +2,6 @@
 
 const React      = require('react');
 const classNames = require('classnames');
-const rtcninja   = require('rtcninja');
 const assert     = require('assert');
 const Router     = require('react-mini-router');
 const navigate   = Router.navigate;
@@ -11,6 +10,7 @@ const debug      = require('debug');
 const ConferenceBox = require('./ConferenceBox');
 const LocalMedia    = require('./LocalMedia');
 const config        = require('../config');
+const utils         = require('../utils');
 
 const DEBUG = debug('blinkrtc:Conference');
 
@@ -53,7 +53,7 @@ class Conference extends React.Component {
             this.props.currentCall.terminate();
         } else {
             // We have no call but we still want to cancel
-            rtcninja.closeMediaStream(this.props.localMedia);
+            utils.closeMediaStream(this.props.localMedia);
             navigate('/ready');
         }
     }

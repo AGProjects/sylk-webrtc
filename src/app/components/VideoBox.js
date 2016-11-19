@@ -3,7 +3,7 @@
 const React                     = require('react');
 const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
 const ReactMixin                = require('react-mixin');
-const rtcninja                  = require('rtcninja');
+const attachMediaStream         = require('attachmediastream');
 const classNames                = require('classnames');
 const debug                     = require('debug');
 
@@ -44,19 +44,10 @@ class VideoBox extends React.Component {
         this.refs.localVideo.addEventListener('playing', () => {
             this.setState({localVideoShow: true});    // eslint-disable-line react/no-did-mount-set-state
         });
-        this.refs.localVideo.oncontextmenu = (e) => {
-            // disable right click for video elements
-            e.preventDefault();
-        };
-        rtcninja.attachMediaStream(this.refs.localVideo, this.props.localMedia);
+        attachMediaStream(this.props.localMedia, this.refs.localVideo, {disableContextMenu: true});
 
         this.refs.remoteVideo.addEventListener('playing', this.handleRemoteVideoPlaying);
-
-        this.refs.remoteVideo.oncontextmenu = (e) => {
-            // disable right click for video elements
-            e.preventDefault();
-        };
-        rtcninja.attachMediaStream(this.refs.remoteVideo, this.props.call.getRemoteStreams()[0]);
+        attachMediaStream(this.props.call.getRemoteStreams()[0], this.refs.remoteVideo, {disableContextMenu: true});
     }
 
     componentWillUnmount() {

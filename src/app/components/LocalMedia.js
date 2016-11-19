@@ -1,10 +1,10 @@
 'use strict';
 
-const React                   = require('react');
-const rtcninja                = require('rtcninja');
-const classNames              = require('classnames');
+const React             = require('react');
+const attachMediaStream = require('attachmediastream');
+const classNames        = require('classnames');
 
-const CallOverlay             = require('./CallOverlay');
+const CallOverlay      = require('./CallOverlay');
 
 
 class LocalMedia extends React.Component {
@@ -18,12 +18,7 @@ class LocalMedia extends React.Component {
 
     componentDidMount() {
         this.refs.localVideo.addEventListener('playing', this.localVideoElementPlaying);
-        this.refs.localVideo.oncontextmenu = function(e) {
-            // disable right click for video elements
-            e.preventDefault();
-        };
-        rtcninja.attachMediaStream(this.refs.localVideo, this.props.localMedia);
-
+        attachMediaStream(this.props.localMedia, this.refs.localVideo, {disableContextMenu: true});
     }
 
     componentWillUnmount() {

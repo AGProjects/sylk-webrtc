@@ -58,6 +58,36 @@ function copyToClipboard(text) {
     return success;
 }
 
+// TODO: DRY this (it's also present in sylkrtc)
+//
+function closeMediaStream(stream) {
+    if (!stream) {
+        return;
+    }
+
+    // Latest spec states that MediaStream has no stop() method and instead must
+    // call stop() on every MediaStreamTrack.
+    if (MediaStreamTrack && MediaStreamTrack.prototype && MediaStreamTrack.prototype.stop) {
+        if (stream.getTracks) {
+            for (let track of stream.getTracks()) {
+                track.stop();
+            }
+        } else {
+            for (let track of stream.getAudioTracks()) {
+                track.stop();
+            }
+
+            for (let track of stream.getVideoTracks()) {
+                track.stop();
+            }
+        }
+    // Deprecated by the spec, but still in use.
+    } else if (typeof stream.stop === 'function') {
+        stream.stop();
+    }
+}
+
 
 exports.copyToClipboard = copyToClipboard;
 exports.normalizeUri = normalizeUri;
+exports.closeMediaStream = closeMediaStream;

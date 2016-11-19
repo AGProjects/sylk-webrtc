@@ -6,7 +6,7 @@ const ReactMixin                = require('react-mixin');
 const ReactBootstrap            = require('react-bootstrap');
 const Popover                   = ReactBootstrap.Popover;
 const OverlayTrigger            = ReactBootstrap.OverlayTrigger;
-const rtcninja                  = require('rtcninja');
+const attachMediaStream         = require('attachmediastream');
 const classNames                = require('classnames');
 const debug                     = require('debug');
 const moment                    = require('moment');
@@ -150,7 +150,7 @@ class ConferenceBox extends React.Component {
                 const isLocal = item.stream === this.props.call.getLocalStreams()[0];
                 const hasVideo = item.stream.getVideoTracks().length > 0;
                 this.setState({currentLargeVideo: {stream: item.stream, isLocal: isLocal, hasVideo: hasVideo}});
-                rtcninja.attachMediaStream(this.refs.largeVideo, item.stream);
+                attachMediaStream(item.stream, this.refs.largeVideo);
             }
         } else {
             this.setState({currentLargeVideo: {stream: null, isLocal: false, hasVideo: false}});

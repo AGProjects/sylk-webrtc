@@ -5,6 +5,7 @@
   "private": true,
   "devDependencies": {
     "animate.css": "^3.5.2",
+    "attachmediastream": "^1.4.2",
     "autocomplete.js": "^0.20.1",
     "babel-eslint": "^6.1.2",
     "babel-plugin-transform-class-properties": "^6.10.2",
@@ -12,7 +13,6 @@
     "babel-preset-react": "^6.5.0",
     "babelify": "^7.3.0",
     "bootstrap-css-only": "^3.3.6",
-    "bowser": "^1.4.5",
     "browser-sync": "^2.13.0",
     "browserify": "13.0.1",
     "classnames": "^2.2.5",
@@ -51,7 +51,6 @@
     "react-mixin": "^3.0.5",
     "react-notification-system": "^0.2.7",
     "require-dir": "^0.3.0",
-    "rtcninja": "^0.6.8",
     "sass-lint": "^1.8.2",
     "screenfull": "^3.0.0",
     "superagent": "^2.0.0",
@@ -59,7 +58,8 @@
     "underscore": "1.8.3",
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.1.0",
-    "watchify": "~3.7.0"
+    "watchify": "~3.7.0",
+    "webrtc-adapter": "^2.0.7"
   },
   "engines": {
     "node": ">=4.0.0"

@@ -7,10 +7,9 @@ const Router                    = require('react-mini-router');
 const navigate                  = Router.navigate
 const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
 const uuid                      = require('node-uuid');
+const adapter                   = require('webrtc-adapter');
 const sylkrtc                   = require('sylkrtc');
-const rtcninja                  = require('rtcninja');
 const debug                     = require('debug');
-const bowser                    = require('bowser');
 
 const AutobindMixinFactory = require('./mixins/Autobind');
 const RegisterBox          = require('./components/RegisterBox');
@@ -127,7 +126,7 @@ class Blink extends React.Component {
     }
 
     componentDidMount() {
-        if (!rtcninja.hasWebRTC()) {
+        if (!window.RTCPeerConnection) {
             setTimeout(() => {
                 navigate('/not-supported');
             });
@@ -139,7 +138,7 @@ class Blink extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
         // This is used to catch location bar modifications, we only switch on nextProps
         if (this.state.path !== nextState.path) {
-            if (!rtcninja.hasWebRTC()) {
+            if (!window.RTCPeerConnection) {
                 setTimeout(() => {
                     navigate('/not-supported');
                 });
@@ -410,48 +409,41 @@ class Blink extends React.Component {
     getLocalMedia(mediaConstraints={audio: true, video: true}, nextRoute=null) {    // eslint-disable-line space-infix-ops
         DEBUG('getLocalMedia(), mediaConstraints=%o', mediaConstraints);
 
-        const constranints = Object.assign({}, mediaConstraints);
-        if (constranints.video === true) {
+        const constraints = Object.assign({}, mediaConstraints);
+        if (constraints.video === true) {
             // ask for 720p video
-            // "standards", they said!
-            constranints.video = {};
-            if (bowser.chrome) {
-                constranints.video.optional = [
-                    { minWidth: 1280 },
-                    { maxWidth: 1280 },
-                    { minHeight: 720 },
-                    { maxHeight: 720 }
-                ];
-            } else {
-                constranints.video.width = { ideal: 1280 };
-                constranints.video.height = { ideal: 720 };
-            }
+            constraints.video = {
+                'width': {
+                    'ideal': 1280
+                },
+                'height': {
+                    'ideal': 720
+                }
+            };
         }
 
-        DEBUG('getLocalMedia(), (modified) mediaConstraints=%o', constranints);
+        DEBUG('getLocalMedia(), (modified) mediaConstraints=%o', constraints);
 
         this.loadScreenTimer = setTimeout(() => {
             this.setState({loading: 'Please allow access to your media devices'});
         }, 150);
 
-        rtcninja.getUserMedia(
-            constranints,
-            (localStream) => {
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then((localStream) => {
                 clearTimeout(this.loadScreenTimer);
                 this.setState({status: null, loading: null, localMedia: localStream});
                 if (nextRoute !== null) {
                     navigate(nextRoute);
                 }
-            },
-            (error) => {
+            })
+            .catch((error) => {
                 DEBUG('Access to local media failed: %o', error);
                 clearTimeout(this.loadScreenTimer);
                 this._notificationCenter.postSystemNotification('Access to media failed', {timeout: 10});
                 this.setState({
                     loading: null
                 });
-            }
-        );
+            });
     }
 
     startCall(targetUri, options) {

@@ -1,9 +1,9 @@
 'use strict';
 
-const React         = require('react');
-const classNames    = require('classnames');
-const debug         = require('debug');
-const rtcninja      = require('rtcninja');
+const React             = require('react');
+const classNames        = require('classnames');
+const debug             = require('debug');
+const attachMediaStream = require('attachmediastream');
 
 const CallOverlay   = require('./CallOverlay');
 const DTMFModal     = require('./DTMFModal');
@@ -75,7 +75,7 @@ class AudioCallBox extends React.Component {
 
     attachStream(call) {
         const remoteStream = call.getRemoteStreams()[0];
-        rtcninja.attachMediaStream(this.refs.remoteAudio, remoteStream);
+        attachMediaStream(remoteStream, this.refs.remoteAudio);
     }
 
     hangupCall(event) {

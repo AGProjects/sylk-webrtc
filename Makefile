@@ -45,8 +45,8 @@ serve:
 	$(GULP) serve
 
 lint:
-	$(SASSLINT) -v -q
-	$(ESLINT) src/app
+	-$(SASSLINT) -v -q
+	-$(ESLINT) src/app
 
 electron:
 	# TODO: use a different gulp task which doesn't browserify

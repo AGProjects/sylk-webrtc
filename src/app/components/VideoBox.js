@@ -3,7 +3,7 @@
 const React                     = require('react');
 const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
 const ReactMixin                = require('react-mixin');
-const attachMediaStream         = require('attachmediastream');
+const sylkrtc                   = require('sylkrtc');
 const classNames                = require('classnames');
 const debug                     = require('debug');
 
@@ -44,10 +44,10 @@ class VideoBox extends React.Component {
         this.refs.localVideo.addEventListener('playing', () => {
             this.setState({localVideoShow: true});    // eslint-disable-line react/no-did-mount-set-state
         });
-        attachMediaStream(this.props.localMedia, this.refs.localVideo, {disableContextMenu: true});
+        sylkrtc.utils.attachMediaStream(this.props.localMedia, this.refs.localVideo, {disableContextMenu: true});
 
         this.refs.remoteVideo.addEventListener('playing', this.handleRemoteVideoPlaying);
-        attachMediaStream(this.props.call.getRemoteStreams()[0], this.refs.remoteVideo, {disableContextMenu: true});
+        sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.refs.remoteVideo, {disableContextMenu: true});
     }
 
     componentWillUnmount() {

@@ -6,12 +6,12 @@ const assert     = require('assert');
 const Router     = require('react-mini-router');
 const navigate   = Router.navigate;
 const debug      = require('debug');
+const sylkrtc    = require('sylkrtc');
 
 const AudioCallBox = require('./AudioCallBox');
 const LocalMedia   = require('./LocalMedia');
 const VideoBox     = require('./VideoBox');
 const config       = require('../config');
-const utils        = require('../utils');
 
 const DEBUG = debug('blinkrtc:Call');
 
@@ -82,7 +82,7 @@ class Call extends React.Component {
             this.props.currentCall.terminate();
         } else {
             // We have no call but we still want to cancel
-            utils.closeMediaStream(this.props.localMedia);
+            sylkrtc.utils.closeMediaStream(this.props.localMedia);
             navigate('/ready');
         }
     }

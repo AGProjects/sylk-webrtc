@@ -4,7 +4,7 @@ const React             = require('react');
 const ReactBootstrap    = require('react-bootstrap');
 const Tooltip           = ReactBootstrap.Tooltip;
 const OverlayTrigger    = ReactBootstrap.OverlayTrigger;
-const attachMediaStream = require('attachmediastream');
+const sylkrtc           = require('sylkrtc');
 const hark              = require('hark');
 const classNames        = require('classnames');
 
@@ -86,7 +86,7 @@ class ConferenceParticipant extends React.Component {
     maybeAttachStream() {
         const streams = this.props.participant.streams;
         if (streams.length > 0) {
-            attachMediaStream(streams[0], this.refs.videoElement);
+            sylkrtc.utils.attachMediaStream(streams[0], this.refs.videoElement);
             this.setState({hasVideo: streams[0].getVideoTracks().length > 0});
             const options = {
                 interval: 150,

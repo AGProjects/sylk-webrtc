@@ -1,8 +1,8 @@
 'use strict';
 
-const React             = require('react');
-const attachMediaStream = require('attachmediastream');
-const classNames        = require('classnames');
+const React       = require('react');
+const sylkrtc    = require('sylkrtc');
+const classNames = require('classnames');
 
 const CallOverlay      = require('./CallOverlay');
 
@@ -18,7 +18,7 @@ class LocalMedia extends React.Component {
 
     componentDidMount() {
         this.refs.localVideo.addEventListener('playing', this.localVideoElementPlaying);
-        attachMediaStream(this.props.localMedia, this.refs.localVideo, {disableContextMenu: true});
+        sylkrtc.utils.attachMediaStream(this.props.localMedia, this.refs.localVideo, {disableContextMenu: true});
     }
 
     componentWillUnmount() {

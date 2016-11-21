@@ -3,7 +3,7 @@
 const React             = require('react');
 const classNames        = require('classnames');
 const debug             = require('debug');
-const attachMediaStream = require('attachmediastream');
+const sylkrtc           = require('sylkrtc');
 
 const CallOverlay   = require('./CallOverlay');
 const DTMFModal     = require('./DTMFModal');
@@ -75,7 +75,7 @@ class AudioCallBox extends React.Component {
 
     attachStream(call) {
         const remoteStream = call.getRemoteStreams()[0];
-        attachMediaStream(remoteStream, this.refs.remoteAudio);
+        sylkrtc.utils.attachMediaStream(remoteStream, this.refs.remoteAudio);
     }
 
     hangupCall(event) {

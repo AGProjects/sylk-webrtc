@@ -4,7 +4,7 @@ const React             = require('react');
 const ReactBootstrap    = require('react-bootstrap');
 const Tooltip           = ReactBootstrap.Tooltip;
 const OverlayTrigger    = ReactBootstrap.OverlayTrigger;
-const attachMediaStream = require('attachmediastream');
+const sylkrtc           = require('sylkrtc');
 const hark              = require('hark');
 const classNames        = require('classnames');
 
@@ -24,7 +24,7 @@ class ConferenceParticipantSelf extends React.Component {
     }
 
     componentDidMount() {
-        attachMediaStream(this.props.stream, this.refs.videoElement, {disableContextMenu: true});
+        sylkrtc.utils.attachMediaStream(this.props.stream, this.refs.videoElement, {disableContextMenu: true});
 
         // factor it out to a function to avoid lint warning about calling setState here
         this.attachSpeechEvents();

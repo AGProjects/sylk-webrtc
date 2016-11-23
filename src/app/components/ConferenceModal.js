@@ -12,7 +12,7 @@ class ConferenceModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            conferenceTargetUri: props.targetUri
+            conferenceTargetUri: props.targetUri.split('@')[0]
         };
         this.handleConferenceTargetChange = this.handleConferenceTargetChange.bind(this);
         this.onHide = this.onHide.bind(this);
@@ -20,7 +20,7 @@ class ConferenceModal extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({conferenceTargetUri: nextProps.targetUri});
+        this.setState({conferenceTargetUri: nextProps.targetUri.split('@')[0]});
     }
 
     handleConferenceTargetChange(event) {

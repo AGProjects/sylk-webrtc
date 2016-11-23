@@ -2,7 +2,6 @@
 (^|/)\.tmp($|/)
 (^|/)\.sass-cache($|/)
 (^|/)node_modules($|/)
-(^|/)bower_components($|/)
 (^|/)src/js($|/)
 (^|/).DS_Store($|/)
 (^|/)dist($|/)

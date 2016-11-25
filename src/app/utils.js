@@ -1,5 +1,6 @@
 'use strict';
 
+const SillyNames = require('./SillyNames');
 
 function normalizeUri(uri, defaultDomain) {
     let targetUri = uri;
@@ -58,6 +59,15 @@ function copyToClipboard(text) {
     return success;
 }
 
+function generateSillyName() {
+    const adjective = SillyNames.randomAdjective();
+    const number = Math.floor(Math.random() * Math.pow(10, length));
+    const noun1 =  SillyNames.randomNoun();
+    const noun2 = SillyNames.randomNoun();
+    return adjective + noun1 + noun2 + number;
+}
+
 
 exports.copyToClipboard = copyToClipboard;
 exports.normalizeUri = normalizeUri;
+exports.generateSillyName = generateSillyName;

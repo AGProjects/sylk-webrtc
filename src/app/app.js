@@ -96,10 +96,12 @@ class Blink extends React.Component {
             'incomingCall',
             'missedCall',
             'conferenceInvite',
-            'notificationCenter'
+            'notificationCenter',
+            'escalateToConference'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
+        this.participantsToInvite = null;
     }
 
     get _notificationCenter() {
@@ -273,6 +275,7 @@ class Blink extends React.Component {
                     inboundCall         : null,
                     localMedia          : null
                 });
+                this.participantsToInvite = null;
 
                 navigate('/ready');
 
@@ -475,6 +478,15 @@ class Blink extends React.Component {
         this.state.inboundCall.terminate();
     }
 
+    escalateToConference(participants) {
+        this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
+        this.setState({currentCall: null, localMedia: null});
+        this.participantsToInvite = participants;
+        this.state.currentCall.terminate();
+        const uri = `${utils.generateSillyName()}@${config.defaultConferenceDomain}`;
+        this.startConference(uri);
+    }
+
     startConference(targetUri) {
         this.setState({targetUri: targetUri});
         this.getLocalMedia({audio: true, video: true}, '/conference');
@@ -645,6 +657,7 @@ class Blink extends React.Component {
                 account = {this.state.account}
                 targetUri = {this.state.targetUri}
                 currentCall = {this.state.currentCall}
+                escalateToConference = {this.escalateToConference}
             />
         )
     }
@@ -670,6 +683,7 @@ class Blink extends React.Component {
                 account = {this.state.account}
                 targetUri = {this.state.targetUri}
                 currentCall = {this.state.currentCall}
+                participantsToInvite = {this.participantsToInvite}
             />
         )
     }

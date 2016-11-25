@@ -9,6 +9,7 @@ const debug                     = require('debug');
 
 const FullscreenMixin           = require('../mixins/FullScreen');
 const CallOverlay               = require('./CallOverlay');
+const EscalateConferenceModal   = require('./EscalateConferenceModal');
 
 
 const DEBUG = debug('blinkrtc:Video');
@@ -22,7 +23,8 @@ class VideoBox extends React.Component {
             audioMuted: false,
             videoMuted: false,
             localVideoShow: false,
-            remoteVideoShow: false
+            remoteVideoShow: false,
+            showEscalateConferenceModal: false
         };
 
         this.overlayTimer = null;
@@ -34,7 +36,9 @@ class VideoBox extends React.Component {
             'handleRemoteVideoPlaying',
             'muteAudio',
             'muteVideo',
-            'hangupCall'
+            'hangupCall',
+            'toggleEscalateConferenceModal',
+            'escalateToConference'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -105,6 +109,10 @@ class VideoBox extends React.Component {
         this.props.hangupCall();
     }
 
+    escalateToConference(participants) {
+        this.props.escalateToConference(participants);
+    }
+
     armOverlayTimer() {
         clearTimeout(this.overlayTimer);
         this.overlayTimer = setTimeout(() => {
@@ -117,6 +125,13 @@ class VideoBox extends React.Component {
             this.setState({callOverlayVisible: true});
             this.armOverlayTimer();
         }
+    }
+
+    toggleEscalateConferenceModal() {
+        this.setState({
+            callOverlayVisible          : false,
+            showEscalateConferenceModal : !this.state.showEscalateConferenceModal
+        });
     }
 
     render() {
@@ -175,6 +190,7 @@ class VideoBox extends React.Component {
             if (this.isFullscreenSupported()) {
                 buttons.push(<button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
             }
+            buttons.push(<button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}> <i className="fa fa-plus"></i> </button>);
             buttons.push(<br />);
             buttons.push(<button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>);
 
@@ -202,6 +218,12 @@ class VideoBox extends React.Component {
                 <ReactCSSTransitionGroup transitionName="videobuttons" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {callButtons}
                 </ReactCSSTransitionGroup>
+                <EscalateConferenceModal
+                    show={this.state.showEscalateConferenceModal}
+                    call={this.props.call}
+                    close={this.toggleEscalateConferenceModal}
+                    escalateToConference={this.escalateToConference}
+                />
             </div>
         );
     }
@@ -210,7 +232,8 @@ class VideoBox extends React.Component {
 VideoBox.propTypes = {
     call: React.PropTypes.object,
     localMedia: React.PropTypes.object,
-    hangupCall: React.PropTypes.func
+    hangupCall: React.PropTypes.func,
+    escalateToConference: React.PropTypes.func
 };
 
 ReactMixin(VideoBox.prototype, FullscreenMixin);

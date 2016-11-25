@@ -7,6 +7,7 @@ const sylkrtc           = require('sylkrtc');
 
 const CallOverlay   = require('./CallOverlay');
 const DTMFModal     = require('./DTMFModal');
+const EscalateConferenceModal = require('./EscalateConferenceModal');
 
 const DEBUG = debug('blinkrtc:AudioCallBox');
 
@@ -15,8 +16,9 @@ class AudioCallBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            audioMuted   : false,
-            showDtmfModal: false
+            audioMuted                  : false,
+            showDtmfModal               : false,
+            showEscalateConferenceModal : false
         };
 
         // ES6 classes no longer autobind
@@ -25,7 +27,8 @@ class AudioCallBox extends React.Component {
             'hangupCall',
             'muteAudio',
             'showDtmfModal',
-            'hideDtmfModal'
+            'hideDtmfModal',
+            'toggleEscalateConferenceModal'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -78,6 +81,10 @@ class AudioCallBox extends React.Component {
         sylkrtc.utils.attachMediaStream(remoteStream, this.refs.remoteAudio);
     }
 
+    escalateToConference(participants) {
+        this.props.escalateToConference(participants);
+    }
+
     hangupCall(event) {
         event.preventDefault();
         this.props.hangupCall();
@@ -107,6 +114,12 @@ class AudioCallBox extends React.Component {
         this.setState({showDtmfModal: false});
     }
 
+    toggleEscalateConferenceModal() {
+        this.setState({
+            callOverlayVisible: false,
+            showEscalateConferenceModal: !this.state.showEscalateConferenceModal
+        });
+    }
     render() {
         const commonButtonClasses = classNames({
             'btn'           : true,
@@ -139,6 +152,9 @@ class AudioCallBox extends React.Component {
                     <button key="dtmfButton" type="button" disabled={this.state.callDuration === null} className={commonButtonClasses} onClick={this.showDtmfModal}>
                         <i className="fa fa-fax"></i>
                     </button>
+                    <button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}>
+                        <i className="fa fa-plus"></i>
+                    </button>
                     <br />
                     <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}>
                         <i className="fa fa-phone rotate-135"></i>
@@ -149,16 +165,23 @@ class AudioCallBox extends React.Component {
                     hide={this.hideDtmfModal}
                     call={this.props.call}
                 />
+                <EscalateConferenceModal
+                    show={this.state.showEscalateConferenceModal}
+                    call={this.props.call}
+                    close={this.toggleEscalateConferenceModal}
+                    escalateToConference={this.escalateToConference}
+                />
             </div>
         );
     }
 }
 
 AudioCallBox.propTypes = {
-    call: React.PropTypes.object,
-    remoteIdentity: React.PropTypes.string,
-    hangupCall: React.PropTypes.func,
-    mediaPlaying: React.PropTypes.func
+    call                    : React.PropTypes.object,
+    escalateToConference    : React.PropTypes.func,
+    hangupCall              : React.PropTypes.func,
+    mediaPlaying            : React.PropTypes.func,
+    remoteIdentity          : React.PropTypes.string
 };
 
 module.exports = AudioCallBox;

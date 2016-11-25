@@ -113,6 +113,7 @@ class Call extends React.Component {
                         hangupCall = {this.hangupCall}
                         call = {this.props.currentCall}
                         mediaPlaying = {this.mediaPlaying}
+                        escalateToConference = {this.props.escalateToConference}
                     />
                 );
             } else {
@@ -122,6 +123,7 @@ class Call extends React.Component {
                             call = {this.props.currentCall}
                             localMedia = {this.props.localMedia}
                             hangupCall = {this.hangupCall}
+                            escalateToConference = {this.props.escalateToConference}
                         />
                     );
                 } else {
@@ -145,10 +147,11 @@ class Call extends React.Component {
 }
 
 Call.propTypes = {
-    account     : React.PropTypes.object.isRequired,
-    currentCall : React.PropTypes.object,
-    localMedia  : React.PropTypes.object,
-    targetUri   : React.PropTypes.string
+    account                 : React.PropTypes.object.isRequired,
+    currentCall             : React.PropTypes.object,
+    escalateToConference    : React.PropTypes.func,
+    localMedia              : React.PropTypes.object,
+    targetUri               : React.PropTypes.string
 };
 
 

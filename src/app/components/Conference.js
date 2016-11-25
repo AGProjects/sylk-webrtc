@@ -42,7 +42,8 @@ class Conference extends React.Component {
             offerOptions: {
                 offerToReceiveAudio: false,
                 offerToReceiveVideo: false
-            }
+            },
+            initialParticipants: this.props.participantsToInvite
         };
         const confCall = this.props.account.joinConference(this.props.targetUri, options);
         confCall.on('stateChanged', this.confStateChanged);
@@ -96,11 +97,12 @@ class Conference extends React.Component {
 }
 
 Conference.propTypes = {
-    notificationCenter : React.PropTypes.func.isRequired,
-    account            : React.PropTypes.object.isRequired,
-    currentCall        : React.PropTypes.object,
-    localMedia         : React.PropTypes.object,
-    targetUri          : React.PropTypes.string
+    notificationCenter      : React.PropTypes.func.isRequired,
+    account                 : React.PropTypes.object.isRequired,
+    currentCall             : React.PropTypes.object,
+    localMedia              : React.PropTypes.object,
+    targetUri               : React.PropTypes.string,
+    participantsToInvite    : React.PropTypes.array
 };
 
 

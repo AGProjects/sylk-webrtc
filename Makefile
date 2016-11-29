@@ -20,11 +20,11 @@ deploy-test: dist-dev
 
 deploy-osx:
 	rsync -avz --progress dist-electron/mac/Sylk*.dmg agp@node10.dns-hosting.info:/var/www/download/Sylk/
-	ssh agp@node10.dns-hosting.info 'sudo scp /var/www/download/Sylk/*.dmg node08:/var/www/download/Sylk/'
+	ssh agp@node10.dns-hosting.info 'sudo /root/sync-symlink-sylk.sh'
 
 deploy-win:
 	rsync -avz --progress dist-electron/Sylk*.exe agp@node10.dns-hosting.info:/var/www/webrtc/Sylk/
-	ssh agp@node10.dns-hosting.info 'sudo scp /var/www/download/Sylk/*.exe node08:/var/www/download/Sylk/'
+	ssh agp@node10.dns-hosting.info 'sudo /root/sync-symlink-sylk.sh'
 
 dist:
 	$(GULP) build --type production

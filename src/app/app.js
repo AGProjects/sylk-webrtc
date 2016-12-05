@@ -186,7 +186,32 @@ class Blink extends React.Component {
                 this.processRegistration(this.state.accountId, this.state.password, this.state.displayName);
                 break;
             case 'disconnected':
-                this.setState({account:null, registrationState: null, loading: 'Disconnected, reconnecting...', currentCall: null});
+                this.refs.audioPlayerOutbound.stop();
+                this.refs.audioPlayerInbound.stop();
+
+                if (this.state.localMedia) {
+                    sylkrtc.utils.closeMediaStream(this.state.localMedia);
+                }
+
+                if (this.state.currentCall) {
+                    this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
+                    this.state.currentCall.terminate();
+                }
+
+                if (this.state.inboundCall && this.state.inboundCall !== this.state.currentCall) {
+                    this.state.inboundCall.removeListener('stateChanged', this.inboundCallStateChanged);
+                    this.state.inboundCall.terminate();
+                }
+
+                this.setState({
+                    account:null,
+                    registrationState: null,
+                    loading: 'Disconnected, reconnecting...',
+                    showIncomingModal: false,
+                    currentCall: null,
+                    inboundCall: null,
+                    localMedia: null
+                });
                 break;
             default:
                 this.setState({loading: 'Connecting...'});

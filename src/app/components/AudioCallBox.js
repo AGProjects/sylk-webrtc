@@ -153,7 +153,7 @@ class AudioCallBox extends React.Component {
                         <i className="fa fa-fax"></i>
                     </button>
                     <button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}>
-                        <i className="fa fa-plus"></i>
+                        <i className="fa fa-user-plus"></i>
                     </button>
                     <br />
                     <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}>

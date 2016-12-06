@@ -133,7 +133,7 @@ class ConferenceBox extends React.Component {
     }
 
     onParticipantStateChanged(oldState, newState) {
-        if (oldState === 'established' || newState === 'established' || newState === null) {
+        if (newState === 'established') {
             this.maybeSwitchLargeVideo();
         }
     }
@@ -151,6 +151,13 @@ class ConferenceBox extends React.Component {
                 const hasVideo = item.stream.getVideoTracks().length > 0;
                 this.setState({currentLargeVideo: {stream: item.stream, isLocal: isLocal, hasVideo: hasVideo}});
                 sylkrtc.utils.attachMediaStream(item.stream, this.refs.largeVideo);
+                if (!isLocal) {
+                    const onStreamInactive = () => {
+                        this.maybeSwitchLargeVideo();
+                        item.stream.removeEventListener('inactive', onStreamInactive);
+                    };
+                    item.stream.addEventListener('inactive', onStreamInactive);
+                }
             }
         } else {
             this.setState({currentLargeVideo: {stream: null, isLocal: false, hasVideo: false}});

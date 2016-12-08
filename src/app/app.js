@@ -345,7 +345,7 @@ class Blink extends React.Component {
             password       : '',
             displayName    : displayName,
             mode           : MODE_GUEST_CONFERENCE,
-            targetUri      : utils.normalizeUri(targetUri, config.defaultDomain),
+            targetUri      : targetUri,
             loading        : 'Connecting...'
         });
 
@@ -715,15 +715,14 @@ class Blink extends React.Component {
 
     conferenceByUri(targetUri) {
         targetUri = targetUri.toLowerCase();
-
-        // check if the targetUri is valid
+        targetUri = utils.normalizeUri(targetUri, config.defaultConferenceDomain);
         const idx = targetUri.indexOf('@');
         const uri = {};
-        if (idx !== -1) {
-            uri.user = targetUri.substring(0, idx);
-            uri.domain = targetUri.substring(idx + 1);
-        }
-        if (uri.user == null || uri.domain !== config.defaultConferenceDomain) {
+        const pattern = /^[a-z0-9\-\_]+$/g;
+        uri.user = targetUri.substring(0, idx);
+
+        // check if the uri.user is valid
+        if (!pattern.test(uri.user)) {
             const status = {
                 title   : 'Invalid conference',
                 message : `Oops, the conference ID is invalid: ${targetUri}`,

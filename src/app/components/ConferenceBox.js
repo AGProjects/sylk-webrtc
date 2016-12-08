@@ -42,10 +42,11 @@ class ConferenceBox extends React.Component {
             showInviteModal: false
         };
 
+        const friendlyName = this.props.call.remoteIdentity.uri.split('@')[0];
         if (window.location.origin.startsWith('file://')) {
-            this.callUrl = `${config.publicUrl}/#!/conference/${this.props.call.remoteIdentity.uri}`;
+            this.callUrl = `${config.publicUrl}/#!/conference/${friendlyName}`;
         } else {
-            this.callUrl = `${window.location.origin}/#!/conference/${this.props.call.remoteIdentity.uri}`;
+            this.callUrl = `${window.location.origin}/#!/conference/${friendlyName}`;
         }
 
         this.rotateTimer = null;

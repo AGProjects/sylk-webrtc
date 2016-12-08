@@ -49,6 +49,12 @@ class ConferenceBox extends React.Component {
             this.callUrl = `${window.location.origin}/#!/conference/${friendlyName}`;
         }
 
+        const emailMessage  = `You can join me in the conference using a Web browser at ${this.callUrl} ` +
+                             'or by using the freely available Sylk WebRTC client app at http://sylkserver.com';
+        const subject       = 'Join me, maybe?';
+
+        this.emailLink = `mailto:?subject=${encodeURI(subject)}&body=${encodeURI(emailMessage)}`;
+
         this.rotateTimer = null;
         this.callDuration = null;
         this.callTimer = null;
@@ -222,9 +228,7 @@ class ConferenceBox extends React.Component {
     }
 
     handleClipboardButton() {
-        const message = `You can join me in the conference using a Web browser at ${this.callUrl} ` +
-                        'or by using the freely available Sylk WebRTC client app at http://sylkserver.com';
-        utils.copyToClipboard(message);
+        utils.copyToClipboard(this.callUrl);
         this.props.notificationCenter().postSystemNotification('Join me, maybe?', {body: 'Link copied to the clipboard'});
         this.refs.shareOverlay.hide();
     }
@@ -391,21 +395,20 @@ class ConferenceBox extends React.Component {
             const shareOverlay = (
                 <Popover id="shareOverlay" title="Join me, maybe?">
                     <p>
-                        Invite other online users of this service.
+                        Invite other online users of this service, share <strong><a href={this.callUrl} target="_blank" rel="noopener noreferrer">this link</a></strong> with others or email, so they can easily join this conference.
                     </p>
                     <div className="text-center">
-                        <button className="btn btn-primary" onClick={this.toggleInviteModal}>
-                            <i className="fa fa-user-plus"></i> Invite users
-                        </button>
-                    </div>
-                    <hr />
-                    <p>
-                        Share <strong><a href={this.callUrl} target="_blank" rel="noopener noreferrer">this link</a></strong> with others so they can easily join this conference.
-                    </p>
-                    <div className="text-center">
-                        <button className="btn btn-primary" onClick={this.handleClipboardButton} >
-                            <i className="fa fa-clipboard"></i> Copy link
-                        </button>
+                        <div className="btn-group">
+                            <button className="btn btn-primary" onClick={this.toggleInviteModal} alt="Invite users">
+                                <i className="fa fa-user-plus"></i>
+                            </button>
+                            <button className="btn btn-primary" onClick={this.handleClipboardButton} alt="Copy to clipboard">
+                                <i className="fa fa-clipboard"></i>
+                            </button>
+                            <a className="btn btn-primary" href={this.emailLink} alt="Send email">
+                                <i className="fa fa-envelope-o"></i>
+                            </a>
+                        </div>
                     </div>
                 </Popover>
             );

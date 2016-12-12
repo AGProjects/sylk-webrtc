@@ -45,7 +45,7 @@ class Conference extends React.Component {
             },
             initialParticipants: this.props.participantsToInvite
         };
-        const confCall = this.props.account.joinConference(this.props.targetUri, options);
+        const confCall = this.props.account.joinConference(this.props.targetUri.toLowerCase(), options);
         confCall.on('stateChanged', this.confStateChanged);
     }
 
@@ -74,6 +74,7 @@ class Conference extends React.Component {
                         notificationCenter = {this.props.notificationCenter}
                         call = {this.props.currentCall}
                         hangup = {this.hangup}
+                        remoteIdentity = {this.props.targetUri}
                     />
                 );
             } else {

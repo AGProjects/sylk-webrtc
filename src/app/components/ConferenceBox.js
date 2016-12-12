@@ -42,7 +42,7 @@ class ConferenceBox extends React.Component {
             showInviteModal: false
         };
 
-        const friendlyName = this.props.call.remoteIdentity.uri.split('@')[0];
+        const friendlyName = this.props.remoteIdentity.split('@')[0];
         if (window.location.origin.startsWith('file://')) {
             this.callUrl = `${config.publicUrl}/#!/conference/${friendlyName}`;
         } else {
@@ -369,7 +369,7 @@ class ConferenceBox extends React.Component {
                 'btn-primary'   : this.state.autoRotate
             });
 
-            const remoteIdentity = this.props.call.remoteIdentity.uri.split('@')[0];
+            const remoteIdentity = this.props.remoteIdentity.split('@')[0];
 
             let callDetail;
             if (this.state.callDetail !== null) {
@@ -492,7 +492,8 @@ class ConferenceBox extends React.Component {
 ConferenceBox.propTypes = {
     notificationCenter : React.PropTypes.func.isRequired,
     call               : React.PropTypes.object,
-    hangup             : React.PropTypes.func
+    hangup             : React.PropTypes.func,
+    remoteIdentity     : React.PropTypes.string
 };
 
 ReactMixin(ConferenceBox.prototype, FullscreenMixin);

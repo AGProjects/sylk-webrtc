@@ -157,8 +157,11 @@ class Blink extends React.Component {
             } else if ((nextState.path === '/call' || nextState.path === '/conference') && this.state.localMedia === null && this.state.registrationState === 'registered') {
                 navigate('/ready')
                 return false;
-            } else if ((nextState.path === '/' || nextState.path === '/call' || nextState.path === '/conference' || nextState.path.startsWith('/ready')) && this.state.registrationState !== 'registered') {
+            } else if ((nextState.path === '/' || nextState.path === '/call' || nextState.path.startsWith('/ready')) && this.state.registrationState !== 'registered') {
                 navigate('/login');
+                return false;
+            } else if (/^\/conference\/?$/g.test(nextState.path)  && this.state.registrationState !== 'registered') {
+                navigate(`/conference/${utils.generateSillyName()}`);
                 return false;
 
             // Terminate call if we modify url from call -> ready, allow the transition
@@ -609,11 +612,15 @@ class Blink extends React.Component {
 
         // Prevent call/ready screen when not registered
 
-        if ((this.state.path.startsWith('/ready') || this.state.path === '/call' || this.state.path === '/conference') && this.state.registrationState !== 'registered') {
+        if ((this.state.path.startsWith('/ready') || this.state.path === '/call') && this.state.registrationState !== 'registered') {
             navigate('/login');
             return (<div></div>);
         }
 
+        if (/^\/conference\/?$/g.test(this.state.path) && this.state.registrationState !== 'registered') {
+            navigate(`/conference/${utils.generateSillyName()}`);
+            return (<div></div>);
+        }
         return (
             <div>
                 <NotificationCenter ref="notificationCenter" />

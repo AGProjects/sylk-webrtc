@@ -6,6 +6,9 @@
         &:hover {
             color: $bootstrap-primary;
         }
+        &.btn-primary {
+            color: $white;
+        }
     }
 }
 

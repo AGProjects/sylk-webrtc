@@ -7,7 +7,7 @@
   "license": "GPLv3",
   "private": true,
   "dependencies": {
-    "about-window": "^1.4.0",
+    "about-window": "^1.6.1",
     "titlebar": "git+https://github.com/saghul/titlebar.git"
   }
 }

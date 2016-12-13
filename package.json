@@ -67,7 +67,7 @@
   "scripts": {
     "postinstall": "install-app-deps",
     "start": "electron ./app",
-    "build-osx": "build --osx --x64",
+    "build-osx": "build --mac --x64",
     "build-win": "build --win --ia32 --x64",
     "build-linux": "build --linux --ia32 --x64"
   },

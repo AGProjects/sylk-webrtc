@@ -7,12 +7,15 @@
             },
     },
     "plugins": [
+        "import",
         "react"
     ],
     "env": {
         "node": true
     },
     "rules": {
+         "import/extensions": 2,
+
          "react/display-name": [2, { "ignoreTranspilerName": false }],
          "react/jsx-no-duplicate-props": 2,
          "react/jsx-no-undef": 2,
@@ -26,9 +29,8 @@
          "react/no-unknown-property": 2,
          "react/prop-types": 1,
          "react/react-in-jsx-scope": 2,
-         "react/require-extension": 2,
          "react/self-closing-comp": 0,
-         "react/wrap-multilines": 2,
+         "react/jsx-wrap-multilines": 2,
          "react/sort-comp": 0,
 
          "quotes": [1, "single", "avoid-escape"],

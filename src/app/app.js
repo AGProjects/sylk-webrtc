@@ -98,7 +98,8 @@ class Blink extends React.Component {
             'missedCall',
             'conferenceInvite',
             'notificationCenter',
-            'escalateToConference'
+            'escalateToConference',
+            'logout'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });

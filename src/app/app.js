@@ -513,8 +513,10 @@ class Blink extends React.Component {
             this.state.currentCall.terminate();
         } else {
             // We have no call but we still want to cancel
-            sylkrtc.utils.closeMediaStream(this.state.localMedia);
-            navigate('/ready');
+            if (this.state.localMedia != null) {
+                sylkrtc.utils.closeMediaStream(this.state.localMedia);
+            }
+            this.refs.router.navigate('/ready');
         }
     }
 

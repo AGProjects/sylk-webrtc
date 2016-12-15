@@ -695,6 +695,21 @@ class Blink extends React.Component {
     }
 
     callByUri(targetUri) {
+
+        // check if the uri contains a domain
+        if (targetUri.indexOf('@') === -1) {
+            const status = {
+                title   : 'Invalid user',
+                message : `Oops, the domain of the user is not set in '${targetUri}'`,
+                level   : 'danger',
+                width   : 'large'
+            }
+            return (
+                <StatusBox
+                    {...status}
+                />
+            );
+        }
         return (
             <CallByUriBox
                 handleCallByUri = {this.handleCallByUri}

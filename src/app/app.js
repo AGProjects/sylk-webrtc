@@ -92,6 +92,7 @@ class Blink extends React.Component {
             'startConference',
             'answerCall',
             'rejectCall',
+            'hangupCall',
             'outgoingCall',
             'incomingCall',
             'missedCall',
@@ -506,6 +507,16 @@ class Blink extends React.Component {
         this.state.inboundCall.terminate();
     }
 
+    hangupCall() {
+        if (this.state.currentCall != null) {
+            this.state.currentCall.terminate();
+        } else {
+            // We have no call but we still want to cancel
+            sylkrtc.utils.closeMediaStream(this.state.localMedia);
+            navigate('/ready');
+        }
+    }
+
     escalateToConference(participants) {
         this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
         this.setState({currentCall: null, localMedia: null});
@@ -670,6 +681,7 @@ class Blink extends React.Component {
                 <NavigationBar
                     notificationCenter = {this.notificationCenter}
                     account = {this.state.account}
+                    logout = {this.logout}
                 />
                 <ReadyBox
                     account   = {this.state.account}
@@ -690,6 +702,7 @@ class Blink extends React.Component {
                 targetUri = {this.state.targetUri}
                 currentCall = {this.state.currentCall}
                 escalateToConference = {this.escalateToConference}
+                hangupCall = {this.hangupCall}
             />
         )
     }
@@ -718,6 +731,7 @@ class Blink extends React.Component {
                 localMedia = {this.state.localMedia}
                 account = {this.state.account}
                 currentCall = {this.state.currentCall}
+                hangupCall = {this.hangupCall}
             />
         );
     }
@@ -731,6 +745,7 @@ class Blink extends React.Component {
                 targetUri = {this.state.targetUri}
                 currentCall = {this.state.currentCall}
                 participantsToInvite = {this.participantsToInvite}
+                hangupCall = {this.hangupCall}
             />
         )
     }
@@ -765,6 +780,7 @@ class Blink extends React.Component {
                 localMedia = {this.state.localMedia}
                 account = {this.state.account}
                 currentCall = {this.state.currentCall}
+                hangupCall = {this.hangupCall}
             />
         );
     }

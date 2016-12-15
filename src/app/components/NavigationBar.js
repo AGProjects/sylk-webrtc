@@ -52,9 +52,7 @@ class NavigationBar extends React.Component {
                 this.toggleCallMeMaybeModal();
                 break;
             case 'logOut':
-                setTimeout(() => {
-                    navigate('/logout');
-                });
+                this.props.logout();
                 break;
             case 'settings':
                 window.open('https://mdns.sipthor.net/sip_settings.phtml', '_blank');
@@ -122,7 +120,8 @@ class NavigationBar extends React.Component {
 
 NavigationBar.propTypes = {
     notificationCenter : React.PropTypes.func.isRequired,
-    account            : React.PropTypes.object.isRequired
+    account            : React.PropTypes.object.isRequired,
+    logout             : React.PropTypes.func.isRequired
 };
 
 

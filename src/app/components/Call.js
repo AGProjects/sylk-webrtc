@@ -3,10 +3,7 @@
 const React      = require('react');
 const classNames = require('classnames');
 const assert     = require('assert');
-const Router     = require('react-mini-router');
-const navigate   = Router.navigate;
 const debug      = require('debug');
-const sylkrtc    = require('sylkrtc');
 
 const AudioCallBox = require('./AudioCallBox');
 const LocalMedia   = require('./LocalMedia');
@@ -78,13 +75,7 @@ class Call extends React.Component {
     }
 
     hangupCall() {
-        if (this.props.currentCall != null) {
-            this.props.currentCall.terminate();
-        } else {
-            // We have no call but we still want to cancel
-            sylkrtc.utils.closeMediaStream(this.props.localMedia);
-            navigate('/ready');
-        }
+        this.props.hangupCall();
     }
 
     mediaPlaying() {
@@ -148,6 +139,7 @@ class Call extends React.Component {
 
 Call.propTypes = {
     account                 : React.PropTypes.object.isRequired,
+    hangupCall              : React.PropTypes.func.isRequired,
     currentCall             : React.PropTypes.object,
     escalateToConference    : React.PropTypes.func,
     localMedia              : React.PropTypes.object,

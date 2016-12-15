@@ -572,10 +572,10 @@ class Blink extends React.Component {
         this._notificationCenter.postMissedCall(data.originator, () => {
             if (this.state.currentCall !== null) {
                 this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
-                this.setState({currentCall: null, targetUri: targetUri, showIncomingModal: false, localMedia: null});
+                this.setState({currentCall: null, targetUri: data.originator.uri, showIncomingModal: false, localMedia: null});
                 this.state.currentCall.terminate();
             } else {
-                this.setState({targetUri: targetUri});
+                this.setState({targetUri: data.originator.uri});
             }
             navigate('/ready');
         });

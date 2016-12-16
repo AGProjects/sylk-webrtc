@@ -28,11 +28,11 @@ convenience `configure` script and `Makefile` are provided.
 
 Nodejs can be downloaded from https://nodejs.org
 
-npm or yarn can be used for installing dependencies. If using npm,
-after installation upgrade it to version > 3.0:
+yarn must be used to install dependencies, it can be installed as
+follows:
 
 ```
-npm install -g npm
+npm install -g yarn
 ```
 
 NOTE: depending on your Node installation you might need to use `sudo`.

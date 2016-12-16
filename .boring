@@ -7,4 +7,3 @@
 (^|/)dist($|/)
 (^|/)dist-electron($|/)
 (^|/)app/www($|/)
-(^|/)yarn.lock($|/)

@@ -20,7 +20,6 @@ var babelify     = require('babelify');
 var notify       = require('gulp-notify');
 var sourcemaps   = require('gulp-sourcemaps');
 
-
 var browserifyTask = function(callback) {
 
     var bundleQueue = config.bundleConfigs.length;

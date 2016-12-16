@@ -3,8 +3,10 @@
 const React                     = require('react');
 const ReactDOM                  = require('react-dom');
 const ReactMixin                = require('react-mixin');
-const Router                    = require('react-mini-router');
-const navigate                  = Router.navigate
+const Router                    = require('react-router-component');
+const Locations                 = Router.Locations;
+const Location                  = Router.Location;
+const NotFound                  = Router.NotFound;
 const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
 const uuid                      = require('node-uuid');
 const adapter                   = require('webrtc-adapter');
@@ -44,18 +46,6 @@ const MODE_GUEST_CONFERENCE = Symbol('mode-guest-conference');
 
 
 class Blink extends React.Component {
-    routes = {
-        '/': 'main',
-        '/login': 'login',
-        '/logout': 'logout',
-        '/ready': 'ready',
-        '/call': 'call',
-        '/call/:targetUri' : 'callByUri',
-        '/conference': 'conference',
-        '/conference/:targetUri' : 'conferenceByUri',
-        '/not-supported': 'notSupported'
-    };
-
     constructor() {
         super();
         this._initialSstate = {
@@ -99,11 +89,22 @@ class Blink extends React.Component {
             'conferenceInvite',
             'notificationCenter',
             'escalateToConference',
-            'logout'
+            'login',
+            'logout',
+            'ready',
+            'call',
+            'callByUri',
+            'conference',
+            'conferenceByUri',
+            'notSupported',
+            'checkRoute',
+            'main'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
         this.participantsToInvite = null;
+        this.redirectTo = null;
+        this.prevPath = null;
     }
 
     get _notificationCenter() {
@@ -117,9 +118,19 @@ class Blink extends React.Component {
     componentWillMount() {
         storage.initialize();
 
-        // We wont hit any other path here, since other paths are handled by the webserver
-        if(this.state.path === '/') {
-            window.location.hash = '#!/login';
+        if (window.location.hash.startsWith('#!/')) {
+            this.redirectTo = window.location.hash.replace('#!', '');
+        } else {
+            // Disallowed routes, they will rendirect to /login
+            const disallowedRoutes = new Set(['/', '/ready','/call']);
+
+            if (disallowedRoutes.has(window.location.pathname)) {
+                this.redirectTo = '/login';
+            }
+
+            if (/^\/conference\/?$/g.test(window.location.pathname)) {
+                this.redirectTo = `/conference/${utils.generateSillyName()}`;
+            }
         }
 
         history.load().then((entries) => {
@@ -132,53 +143,12 @@ class Blink extends React.Component {
     componentDidMount() {
         if (!window.RTCPeerConnection) {
             setTimeout(() => {
-                navigate('/not-supported');
+                this.refs.router.navigate('/not-supported');
             });
         }
+
         // prime the ref
         DEBUG('NotificationCenter ref: %o', this._notificationCenter);
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        // This is used to catch location bar modifications, we only switch on nextProps
-        if (this.state.path !== nextState.path) {
-            if (!window.RTCPeerConnection) {
-                setTimeout(() => {
-                    navigate('/not-supported');
-                });
-                return true;
-            }
-
-            if ((nextState.path === '/login' || nextState.path === '/') && this.state.registrationState === 'registered') {
-                // Terminate the call if you modify the url you can only be in a call if you are registered
-                if (this.state.currentCall !== null) {
-                    this.state.currentCall.terminate();
-                }
-                navigate('/ready');
-                return false ;
-            } else if ((nextState.path === '/call' || nextState.path === '/conference') && this.state.localMedia === null && this.state.registrationState === 'registered') {
-                navigate('/ready')
-                return false;
-            } else if ((nextState.path === '/' || nextState.path === '/call' || nextState.path.startsWith('/ready')) && this.state.registrationState !== 'registered') {
-                navigate('/login');
-                return false;
-            } else if (/^\/conference\/?$/g.test(nextState.path)  && this.state.registrationState !== 'registered') {
-                navigate(`/conference/${utils.generateSillyName()}`);
-                return false;
-
-            // Terminate call if we modify url from call -> ready, allow the transition
-            } else if (nextState.path === '/ready' && this.state.registrationState === 'registered' && this.state.currentCall !== null) {
-                this.state.currentCall.terminate();
-            }
-        }
-
-        // Redirect to /logout if a guest goes to /ready
-        if (nextState.path === '/ready' && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
-            navigate('/logout');
-            return false;
-        }
-
-        return true;
     }
 
     connectionStateChanged(oldState, newState) {
@@ -248,7 +218,7 @@ class Blink extends React.Component {
             });
         } else if (newState === 'registered') {
             this.setState({loading: null});
-            navigate('/ready');
+            this.refs.router.navigate('/ready');
             return;
         } else {
             this.setState({status: null });
@@ -307,7 +277,7 @@ class Blink extends React.Component {
                 });
                 this.participantsToInvite = null;
 
-                navigate('/ready');
+                this.refs.router.navigate('/ready');
 
                 break;
             default:
@@ -466,7 +436,7 @@ class Blink extends React.Component {
                 clearTimeout(this.loadScreenTimer);
                 this.setState({status: null, loading: null, localMedia: localStream});
                 if (nextRoute !== null) {
-                    navigate(nextRoute);
+                    this.refs.router.navigate(nextRoute);
                 }
             })
             .catch((error) => {
@@ -579,7 +549,7 @@ class Blink extends React.Component {
             } else {
                 this.setState({targetUri: data.originator.uri});
             }
-            navigate('/ready');
+            this.refs.router.navigate('/ready');
         });
     }
 
@@ -597,13 +567,36 @@ class Blink extends React.Component {
             });
         });
     }
+
     addCallHistoryEntry(uri) {
         history.add(uri).then((entries) => {
             this.setState({history: entries});
         });
     }
 
+    checkRoute(nextPath, navigation, match) {
+        if (nextPath !== this.prevPath) {
+            DEBUG(`Transition from ${this.prevPath} to ${nextPath}`);
+            if (this.prevPath === '/ready' && nextPath === '/login') {
+                DEBUG('Transition denied redirecting to /logout');
+                this.refs.router.navigate('/logout');
+                this.forceUpdate();
+            } else if (nextPath === '/ready' && this.state.registrationState === 'registered' && this.state.currentCall !== null) {
+                this.state.currentCall.terminate();
+            } else if (nextPath === '/ready' && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
+                this.refs.router.navigate('/logout');
+                this.forceUpdate();
+            }
+        }
+        this.prevPath = nextPath;
+    }
+
     render() {
+        if (this.redirectTo !== null) {
+            window.location.href = this.redirectTo;
+            return false;
+        }
+
         let loadingScreen;
         let incomingCallModal;
         let footerBox = <FooterBox />;
@@ -623,22 +616,10 @@ class Blink extends React.Component {
         if (this.state.localMedia) {
             footerBox = '';
         }
-
-        // Prevent call/ready screen when not registered
-
-        if ((this.state.path.startsWith('/ready') || this.state.path === '/call') && this.state.registrationState !== 'registered') {
-            navigate('/login');
-            return (<div></div>);
-        }
-
-        if (/^\/conference\/?$/g.test(this.state.path) && this.state.registrationState !== 'registered') {
-            navigate(`/conference/${utils.generateSillyName()}`);
-            return (<div></div>);
-        }
         return (
             <div>
                 <NotificationCenter ref="notificationCenter" />
-                {this.renderCurrentRoute()}
+
                 {loadingScreen}
                 {footerBox}
                 <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav" />
@@ -647,6 +628,18 @@ class Blink extends React.Component {
                 <ReactCSSTransitionGroup transitionName="incoming-modal" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {incomingCallModal}
                 </ReactCSSTransitionGroup>
+                <Locations ref="router" onBeforeNavigation={this.checkRoute}>
+                    <Location path="/"  handler={this.main} />
+                    <Location path="/login" handler={this.login} />
+                    <Location path="/logout" handler={this.logout} />
+                    <Location path="/ready" handler={this.ready} />
+                    <Location path="/call" handler={this.call} />
+                    <Location path="/call/:targetUri" urlPatternOptions={{segmentValueCharset: 'a-zA-Z0-9-_ \.@'}} handler={this.callByUri} />
+                    <Location path="/conference" handler={this.conference} />
+                    <Location path="/conference/:targetUri" urlPatternOptions={{segmentValueCharset: 'a-zA-Z0-9-_~ %\.@'}}  handler={this.conferenceByUri} />
+                    <Location path="/not-supported" handler={this.notSupported} />
+                    <NotFound handler={this.notFound} />
+                </Locations>
             </div>
         );
     }
@@ -664,10 +657,10 @@ class Blink extends React.Component {
         );
     }
 
-    notFound(path) {
+    notFound() {
         const status = {
             title   : '404',
-            message : 'Oops, the page your looking for can\'t found: ' + path,
+            message : 'Oops, the page your looking for can\'t found: ' + window.location.pathname,
             level   : 'danger',
             width   : 'large'
         }
@@ -710,13 +703,13 @@ class Blink extends React.Component {
         )
     }
 
-    callByUri(targetUri) {
+    callByUri(urlParameters) {
 
         // check if the uri contains a domain
-        if (targetUri.indexOf('@') === -1) {
+        if (urlParameters.targetUri.indexOf('@') === -1) {
             const status = {
                 title   : 'Invalid user',
-                message : `Oops, the domain of the user is not set in '${targetUri}'`,
+                message : `Oops, the domain of the user is not set in '${urlParameters.targetUri}'`,
                 level   : 'danger',
                 width   : 'large'
             }
@@ -730,7 +723,7 @@ class Blink extends React.Component {
             <CallByUriBox
                 handleCallByUri = {this.handleCallByUri}
                 notificationCenter = {this.notificationCenter}
-                targetUri = {targetUri}
+                targetUri = {urlParameters.targetUri}
                 localMedia = {this.state.localMedia}
                 account = {this.state.account}
                 currentCall = {this.state.currentCall}
@@ -753,8 +746,8 @@ class Blink extends React.Component {
         )
     }
 
-    conferenceByUri(targetUri) {
-        targetUri = utils.normalizeUri(targetUri, config.defaultConferenceDomain);
+    conferenceByUri(urlParameters) {
+        const targetUri = utils.normalizeUri(urlParameters.targetUri, config.defaultConferenceDomain);
         const idx = targetUri.indexOf('@');
         const uri = {};
         const pattern = /^[A-Za-z0-9\-\_]+$/g;
@@ -824,7 +817,7 @@ class Blink extends React.Component {
                 this.state.account.unregister();
             }
             this.setState({registrationState: null, status: null});
-            navigate('/login');
+            this.refs.router.navigate('/login');
         });
         return <div></div>;
     }
@@ -835,10 +828,6 @@ class Blink extends React.Component {
         );
     }
 }
-
-
-ReactMixin.onClass(Blink, Router.RouterMixin);
-ReactMixin.onClass(Blink, AutobindMixinFactory(Object.keys(Router.RouterMixin)));
 
 
 ReactDOM.render((<Blink />), document.getElementById('app'));

@@ -44,9 +44,9 @@ class ConferenceBox extends React.Component {
 
         const friendlyName = this.props.remoteIdentity.split('@')[0];
         if (window.location.origin.startsWith('file://')) {
-            this.callUrl = `${config.publicUrl}/#!/conference/${friendlyName}`;
+            this.callUrl = `${config.publicUrl}/conference/${friendlyName}`;
         } else {
-            this.callUrl = `${window.location.origin}/#!/conference/${friendlyName}`;
+            this.callUrl = `${window.location.origin}/conference/${friendlyName}`;
         }
 
         const emailMessage  = `You can join me in the conference using a Web browser at ${this.callUrl} ` +

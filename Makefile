@@ -11,7 +11,7 @@ deploy: dist
 	echo `date +"%Y-%m-%d_%H:%M:%S"` > dist/.timestamp
 	rm -f dist/js/*.map
 	rm -f dist/assets/styles/*.map
-	rsync -av --delete dist/ agp@node10.dns-hosting.info:/var/www/webrtc/
+	rsync -av --exclude .htaccess --delete dist/ agp@node10.dns-hosting.info:/var/www/webrtc/
 	ssh agp@node10.dns-hosting.info 'sudo /root/sync-webrtc.sh'
 
 deploy-test: dist-dev

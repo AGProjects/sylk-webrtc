@@ -1,5 +1,6 @@
 var dest 	= './dist';
 var src 	= './src';
+var modRewrite = require('connect-modrewrite');
 
 module.exports = {
     sass: {
@@ -10,8 +11,14 @@ module.exports = {
     browserSync: {
         server: {
             // Serve up our build folder
-            baseDir: dest
-        },
+            baseDir: dest,
+            middleware:  [
+                modRewrite([
+                    '!^/assets|^/js /index.html [L]'
+                ])
+            ]
+
+        }
     },
 
     browserify: {

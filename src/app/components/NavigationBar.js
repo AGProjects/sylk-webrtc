@@ -9,8 +9,6 @@ const MenuItem       = ReactBootstrap.MenuItem;
 const Popover        = ReactBootstrap.Popover;
 const Button         = ReactBootstrap.Button;
 const ButtonToolbar  = ReactBootstrap.ButtonToolbar;
-const Router         = require('react-mini-router');
-const navigate       = Router.navigate;
 
 const config = require('../config');
 const utils  = require('../utils');
@@ -28,9 +26,9 @@ class NavigationBar extends React.Component {
         }
 
         if (window.location.origin.startsWith('file://')) {
-            this.callUrl = `${config.publicUrl}/#!/call/${props.account.id}`;
+            this.callUrl = `${config.publicUrl}/call/${props.account.id}`;
         } else {
-            this.callUrl = `${window.location.origin}/#!/call/${props.account.id}`;
+            this.callUrl = `${window.location.origin}/call/${props.account.id}`;
         }
 
         // ES6 classes no longer autobind

@@ -577,12 +577,31 @@ class Blink extends React.Component {
     checkRoute(nextPath, navigation, match) {
         if (nextPath !== this.prevPath) {
             DEBUG(`Transition from ${this.prevPath} to ${nextPath}`);
+
+            // Don't navigate if the app is not supported
+            if (!window.RTCPeerConnection && nextPath !== '/not-supported') {
+                this.refs.router.navigate('/not-supported');
+                this.forceUpdate();
+                return false;
+            }
+
+            // Press back in ready after a login, prevent initial navigation
             if (this.prevPath === '/ready' && nextPath === '/login') {
                 DEBUG('Transition denied redirecting to /logout');
                 this.refs.router.navigate('/logout');
-                this.forceUpdate();
+                return false;
+
+            // Press back in ready after a call
+            } else if ((nextPath === '/call' || nextPath === '/conference') && this.state.localMedia === null && this.state.registrationState === 'registered') {
+                return false;
+
+            // Press back from within a call/conference, don't navigate terminate the call and
+            // let termination take care of navigating
             } else if (nextPath === '/ready' && this.state.registrationState === 'registered' && this.state.currentCall !== null) {
                 this.state.currentCall.terminate();
+                return false;
+
+            // Guest call ended, needed to logout and display msg and logout
             } else if (nextPath === '/ready' && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
                 this.refs.router.navigate('/logout');
                 this.forceUpdate();

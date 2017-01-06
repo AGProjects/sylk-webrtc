@@ -105,6 +105,7 @@ class Blink extends React.Component {
         this.participantsToInvite = null;
         this.redirectTo = null;
         this.prevPath = null;
+        this.shouldUseHashRouting = false;
     }
 
     get _notificationCenter() {
@@ -131,8 +132,15 @@ class Blink extends React.Component {
             if (/^\/conference\/?$/g.test(window.location.pathname)) {
                 this.redirectTo = `/conference/${utils.generateSillyName()}`;
             }
+
         }
 
+        // Check if we should use hash routing
+        if (typeof window.process !== 'undefined') {
+            if (window.process.versions.electron !== '') {
+                this.shouldUseHashRouting = true;
+            }
+        }
         history.load().then((entries) => {
             if (entries) {
                 this.setState({history: entries});
@@ -147,6 +155,11 @@ class Blink extends React.Component {
             });
         }
 
+        if (this.shouldUseHashRouting) {
+            setTimeout(() => {
+                this.refs.router.navigate('/login');
+            });
+        }
         // prime the ref
         DEBUG('NotificationCenter ref: %o', this._notificationCenter);
     }
@@ -586,7 +599,8 @@ class Blink extends React.Component {
             }
 
             // Press back in ready after a login, prevent initial navigation
-            if (this.prevPath === '/ready' && nextPath === '/login') {
+            // don't deny if there is no registrationState (connection fail)
+            if (this.prevPath === '/ready' && nextPath === '/login' && this.state.registrationState !== null) {
                 DEBUG('Transition denied redirecting to /logout');
                 this.refs.router.navigate('/logout');
                 return false;
@@ -638,7 +652,6 @@ class Blink extends React.Component {
         return (
             <div>
                 <NotificationCenter ref="notificationCenter" />
-
                 {loadingScreen}
                 {footerBox}
                 <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav" />
@@ -647,7 +660,7 @@ class Blink extends React.Component {
                 <ReactCSSTransitionGroup transitionName="incoming-modal" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {incomingCallModal}
                 </ReactCSSTransitionGroup>
-                <Locations ref="router" onBeforeNavigation={this.checkRoute}>
+                <Locations hash={this.shouldUseHashRouting} ref="router" onBeforeNavigation={this.checkRoute}>
                     <Location path="/"  handler={this.main} />
                     <Location path="/login" handler={this.login} />
                     <Location path="/logout" handler={this.logout} />
@@ -691,6 +704,12 @@ class Blink extends React.Component {
     }
 
     ready() {
+        if (this.state.registrationState !== 'registered') {
+            setTimeout(() => {
+                this.refs.router.navigate('/login');
+            });
+            return false;
+        };
         return (
             <div>
                 <NavigationBar
@@ -710,6 +729,12 @@ class Blink extends React.Component {
     }
 
     call() {
+        if (this.state.registrationState !== 'registered') {
+            setTimeout(() => {
+                this.refs.router.navigate('/login');
+            });
+            return false;
+        };
         return (
             <Call
                 localMedia = {this.state.localMedia}
@@ -752,6 +777,12 @@ class Blink extends React.Component {
     }
 
     conference() {
+        if (this.state.registrationState !== 'registered') {
+            setTimeout(() => {
+                this.refs.router.navigate('/login');
+            });
+            return false;
+        };
         return (
             <Conference
                 notificationCenter = {this.notificationCenter}

@@ -1,6 +1,7 @@
 var gulp         = require('gulp');
 var concat       = require('gulp-concat');
 var useref       = require('gulp-useref');
+var htmlreplace  = require('gulp-html-replace');
 var browserSync  = require('browser-sync');
 var sourcemaps   = require('gulp-sourcemaps');
 var lazypipe     = require('lazypipe');
@@ -13,6 +14,11 @@ gulp.task('vendorCSS', function() {
     //concatenate CSS files
 
     return gulp.src('./src/*.html')
+        .pipe(
+            htmlreplace({
+                'base': '<base href="/">'
+            })
+        )
         .pipe(
             useref(
                 {},

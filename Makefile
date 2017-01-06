@@ -51,7 +51,7 @@ lint:
 electron:
 	# TODO: use a different gulp task which doesn't browserify
 	rm -rf app/www
-	$(GULP) build --type production
+	$(GULP) build-electron --type production
 	cp -r dist app/www
 
 pkg-osx: electron

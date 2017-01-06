@@ -29,6 +29,7 @@
     "gulp-clean-css": "^2.2.2",
     "gulp-concat": "*",
     "gulp-eslint": "^3.0.1",
+    "gulp-html-replace": "^1.6.2",
     "gulp-if": "*",
     "gulp-notify": "^2.2.0",
     "gulp-sass": "^3.0.0",

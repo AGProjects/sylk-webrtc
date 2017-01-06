@@ -39,7 +39,8 @@ class ConferenceBox extends React.Component {
                 isLocal: false,
                 hasVideo: false
             },
-            showInviteModal: false
+            showInviteModal: false,
+            shareOverlayVisible: false
         };
 
         const friendlyName = this.props.remoteIdentity.split('@')[0];
@@ -77,7 +78,8 @@ class ConferenceBox extends React.Component {
             'handleShareOverlayEntered',
             'handleShareOverlayExited',
             'toggleAutoRotate',
-            'toggleInviteModal'
+            'toggleInviteModal',
+            'preventOverlay'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -236,11 +238,18 @@ class ConferenceBox extends React.Component {
     handleShareOverlayEntered() {
         // keep the buttons and overlay visible
         clearTimeout(this.overlayTimer);
+        this.setState({shareOverlayVisible: true});
     }
 
     handleShareOverlayExited() {
         // re-arm the buttons and overlay timeout
         this.armOverlayTimer();
+        this.setState({shareOverlayVisible: false});
+    }
+
+    preventOverlay(event) {
+        // Stop the overlay when we are the thumbnail bar
+        event.stopPropagation();
     }
 
     muteAudio(event) {
@@ -303,10 +312,11 @@ class ConferenceBox extends React.Component {
     }
 
     showOverlay() {
-        this.setState({callOverlayVisible: true});
-        this.armOverlayTimer();
+        if (!this.state.shareOverlayVisible) {
+            this.setState({callOverlayVisible: true});
+            this.armOverlayTimer();
+        }
     }
-
 
     toggleInviteModal() {
         this.setState({showInviteModal: !this.state.showInviteModal});
@@ -472,7 +482,7 @@ class ConferenceBox extends React.Component {
                     {watermark}
                 </ReactCSSTransitionGroup>
                 <video ref="largeVideo" className={largeVideoClasses} poster="assets/images/transparent-1px.png" autoPlay muted />
-                <div className="conference-thumbnails">
+                <div className="conference-thumbnails" onMouseMove={this.preventOverlay}>
                     <ConferenceCarousel>
                         {participants}
                     </ConferenceCarousel>

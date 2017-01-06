@@ -15,10 +15,11 @@ class URIInput extends React.Component {
         this.onInputBlur = this.onInputBlur.bind(this);
         this.onInputChange = this.onInputChange.bind(this);
         this.onInputKeyDown = this.onInputKeyDown.bind(this);
+        this.autoComplete;
     }
 
     componentDidMount() {
-        autocomplete('#uri-input', { hint: false }, [
+        this.autoComplete = autocomplete('#uri-input', { hint: false }, [
             {
                 source: (query, cb) => {
                     let data = this.props.data.filter((item) => {
@@ -46,6 +47,7 @@ class URIInput extends React.Component {
         this.setState({
             value: nextProps.defaultValue
         });
+        this.auto.autocomplete.setVal(nextProps.defaultValue);
         if (nextProps.autoFocus) {
             this.refs.uri_input.focus();
         }

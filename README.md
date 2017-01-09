@@ -71,6 +71,8 @@ NOTE: depending on your Node installation you might need to use `sudo`.
 
 ### Electron application
 
+The version number is set in app/package.json
+
 * Build the Electron application
 
 ```

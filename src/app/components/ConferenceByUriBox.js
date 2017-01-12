@@ -11,7 +11,7 @@ class ConferenceByUriBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            displayName: ''
+            displayName: 'Guest'
         };
 
         this._notificationCenter = null;
@@ -68,8 +68,7 @@ class ConferenceByUriBox extends React.Component {
                 'btn'        : true,
                 'btn-lg'     : true,
                 'btn-block'  : true,
-                'btn-default': !validInput,
-                'btn-primary': validInput
+                'btn-primary': true
             });
 
             const friendlyName = this.props.targetUri.split('@')[0];
@@ -83,15 +82,13 @@ class ConferenceByUriBox extends React.Component {
                             <span className="input-group-addon"><i className="fa fa-globe fa-fw"></i></span>
                             <input id="inputName"
                                 className="form-control"
-                                placeholder="Enter your name"
+                                placeholder="Enter your name (optional)"
                                 value={this.state.displayName}
                                 onChange={this.handleDisplayNameChange}
-                                required
-                                autoFocus
                             />
                         </div>
                         <br />
-                        <button type="submit" className={classes} disabled={!validInput}><i className="fa fa-sign-in"></i> Join</button>
+                        <button type="submit" className={classes}><i className="fa fa-sign-in"></i> Join</button>
                     </form>
                 </div>
             );

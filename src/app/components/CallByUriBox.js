@@ -3,7 +3,6 @@
 const React      = require('react');
 const classNames = require('classnames');
 
-const Logo       = require('./Logo');
 const Call       = require('./Call');
 
 

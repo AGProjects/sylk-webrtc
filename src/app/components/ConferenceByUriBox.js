@@ -3,7 +3,6 @@
 const React      = require('react');
 const classNames = require('classnames');
 
-const Logo       = require('./Logo');
 const Conference = require('./Conference');
 
 
@@ -11,7 +10,7 @@ class ConferenceByUriBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            displayName: 'Guest'
+            displayName: ''
         };
 
         this._notificationCenter = null;
@@ -44,6 +43,9 @@ class ConferenceByUriBox extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
+        if (this.state.displayName === '') {
+            this.setState({displayName: 'Guest'});
+        }
         this.props.handler(this.state.displayName, this.props.targetUri);
     }
 

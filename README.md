@@ -43,6 +43,14 @@ NOTE: depending on your Node installation you might need to use `sudo`.
     ./configure
 ```
 
+For Windows build:
+
+```
+    brew cask install xquartz
+    brew install wine
+```
+
+
 ### Website
 
 * Build the ready to be deployed distribution (available in dist/)

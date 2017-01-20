@@ -26,6 +26,10 @@ deploy-win:
 	rsync -avz --progress dist-electron/Sylk*.exe agp@node10.dns-hosting.info:/var/www/download/Sylk/
 	ssh agp@node10.dns-hosting.info 'sudo /root/sync-symlink-sylk.sh'
 
+deploy-linux:
+	rsync -avz --progress dist-electron/sylk-electron*.AppImage agp@node10.dns-hosting.info:/var/www/download/Sylk/
+	ssh agp@node10.dns-hosting.info 'sudo /root/sync-symlink-sylk.sh'
+
 dist:
 	$(GULP) build --type production
 

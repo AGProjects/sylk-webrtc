@@ -61,7 +61,6 @@ function copyToClipboard(text) {
 
 function generateSillyName() {
     const adjective = SillyNames.randomAdjective();
-
     const number = Math.floor(Math.random() * 10);
     const noun1 =  SillyNames.randomNoun();
     const noun2 = SillyNames.randomNoun();

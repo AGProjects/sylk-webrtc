@@ -1,6 +1,14 @@
 'use strict';
-
+const uuid = require('node-uuid');
 const SillyNames = require('./SillyNames');
+
+function generateUniqueId() {
+    const buffer = new Buffer(uuid.v4('binary'))
+    let uniqueId = buffer.toString('base64');
+    uniqueId = uniqueId.replace(/\//g,'.');
+    uniqueId = uniqueId.replace(/=/g,'');
+    return uniqueId;
+}
 
 function normalizeUri(uri, defaultDomain) {
     let targetUri = uri;
@@ -71,3 +79,4 @@ function generateSillyName() {
 exports.copyToClipboard = copyToClipboard;
 exports.normalizeUri = normalizeUri;
 exports.generateSillyName = generateSillyName;
+exports.generateUniqueId = generateUniqueId;

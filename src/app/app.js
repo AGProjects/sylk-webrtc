@@ -8,7 +8,6 @@ const Locations                 = Router.Locations;
 const Location                  = Router.Location;
 const NotFound                  = Router.NotFound;
 const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
-const uuid                      = require('node-uuid');
 const adapter                   = require('webrtc-adapter');
 const sylkrtc                   = require('sylkrtc');
 const debug                     = require('debug');
@@ -306,7 +305,7 @@ class Blink extends React.Component {
     }
 
     handleCallByUri(displayName, targetUri) {
-        const accountId = `${uuid.v4()}@${config.defaultGuestDomain}`;
+        const accountId = `${utils.generateUniqueId()}@${config.defaultGuestDomain}`;
         this.setState({
             accountId      : accountId,
             password       : '',
@@ -327,7 +326,7 @@ class Blink extends React.Component {
     }
 
     handleConferenceByUri(displayName, targetUri) {
-        const accountId = `${uuid.v4()}@${config.defaultGuestDomain}`;
+        const accountId = `${utils.generateUniqueId()}@${config.defaultGuestDomain}`;
         this.setState({
             accountId      : accountId,
             password       : '',

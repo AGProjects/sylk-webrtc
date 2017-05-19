@@ -866,15 +866,17 @@ class Blink extends React.Component {
             if (this.state.registrationState !== null && this.state.mode === MODE_NORMAL) {
                 this.state.account.unregister();
             }
-            this.state.connection.removeAccount(this.state.account,
-                (error) => {
-                    if (error) {
-                        DEBUG(error);
+
+            if (this.state.account !== null) {
+                this.state.connection.removeAccount(this.state.account,
+                    (error) => {
+                        if (error) {
+                            DEBUG(error);
+                        }
                     }
-                    this.setState({account: null});
-                }
-            );
-            this.setState({registrationState: null, status: null});
+                );
+            }
+            this.setState({account: null, registrationState: null, status: null});
             this.refs.router.navigate('/login');
         });
         return <div></div>;

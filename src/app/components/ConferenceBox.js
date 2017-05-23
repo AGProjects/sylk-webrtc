@@ -274,7 +274,7 @@ class ConferenceBox extends React.Component {
         const localStream = this.props.call.getLocalStreams()[0];
         if (localStream.getVideoTracks().length > 0) {
             const track = localStream.getVideoTracks()[0];
-            if(this.state.videoMuted) {
+            if (this.state.videoMuted) {
                 DEBUG('Unmute camera');
                 track.enabled = true;
                 this.setState({videoMuted: false});

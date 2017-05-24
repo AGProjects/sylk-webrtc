@@ -28,7 +28,8 @@ class AudioCallBox extends React.Component {
             'muteAudio',
             'showDtmfModal',
             'hideDtmfModal',
-            'toggleEscalateConferenceModal'
+            'toggleEscalateConferenceModal',
+            'escalateToConference'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });

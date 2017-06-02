@@ -43,10 +43,14 @@ class ConferenceByUriBox extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
+        let displayName;
         if (this.state.displayName === '') {
             this.setState({displayName: 'Guest'});
+            displayName = 'Guest';
+        } else {
+            displayName = this.state.displayName;
         }
-        this.props.handler(this.state.displayName, this.props.targetUri);
+        this.props.handler(displayName, this.props.targetUri);
     }
 
     render() {

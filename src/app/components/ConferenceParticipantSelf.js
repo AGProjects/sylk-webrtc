@@ -77,12 +77,23 @@ class ConferenceParticipantSelf extends React.Component {
             'conference-active' : this.state.active
         });
 
+        let muteIcon
+        if (this.props.audioMuted) {
+            muteIcon = (
+                <div className="mute-self">
+                    <i className="fa fa-2x fa-microphone-slash"></i>
+                </div>);
+        }
+
         return (
-            <OverlayTrigger placement="top" overlay={tooltip}>
-                <div className="participant-container" onClick={this.onVideoClicked}>
-                    <video ref="videoElement" className={classes}  poster="assets/images/transparent-1px.png" autoPlay muted />
-                </div>
-            </OverlayTrigger>
+            <div>
+                {muteIcon}
+                <OverlayTrigger placement="top" overlay={tooltip}>
+                    <div className="participant-container" onClick={this.onVideoClicked}>
+                        <video ref="videoElement" className={classes}  poster="assets/images/transparent-1px.png" autoPlay muted />
+                    </div>
+                </OverlayTrigger>
+            </div>
         );
     }
 }
@@ -91,7 +102,8 @@ ConferenceParticipantSelf.propTypes = {
     stream: React.PropTypes.object.isRequired,
     identity: React.PropTypes.object.isRequired,
     selected: React.PropTypes.func.isRequired,
-    active: React.PropTypes.func.isRequired
+    active: React.PropTypes.func.isRequired,
+    audioMuted: React.PropTypes.bool.isRequired
 };
 
 

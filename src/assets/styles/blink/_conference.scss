@@ -44,6 +44,18 @@
         }
     }
 
+
+    .mute-self {
+        position: absolute;
+        top: 39px;
+        width: 136px;
+        z-index: 2;
+
+        i {
+            transform: translateX(50%);
+        }
+    }
+
     .left-arrow {
         color: $light-gray;
         float: left;

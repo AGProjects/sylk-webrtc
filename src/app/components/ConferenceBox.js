@@ -449,6 +449,7 @@ class ConferenceBox extends React.Component {
                                     identity={this.props.call.localIdentity}
                                     selected={this.onVideoSelected}
                                     active={this.onParticipantActive}
+                                    audioMuted={this.state.audioMuted}
                               />
             );
         }

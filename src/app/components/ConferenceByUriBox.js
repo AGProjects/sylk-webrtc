@@ -50,7 +50,6 @@ class ConferenceByUriBox extends React.Component {
     }
 
     render() {
-        const validInput = this.state.displayName !== '';
         let content;
 
         if (this.props.localMedia !== null) {

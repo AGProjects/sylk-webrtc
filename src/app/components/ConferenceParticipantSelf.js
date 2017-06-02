@@ -82,7 +82,8 @@ class ConferenceParticipantSelf extends React.Component {
             muteIcon = (
                 <div className="mute-self">
                     <i className="fa fa-2x fa-microphone-slash"></i>
-                </div>);
+                </div>
+            );
         }
 
         return (

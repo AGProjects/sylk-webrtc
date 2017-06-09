@@ -18,9 +18,9 @@
 }
 
 .call-header {
-    background: $white-less-transparent;
-    color: $black;
     padding: 4px 0;
+    color: $white;
+    background-color: $darker-gray-transparent;
 
     p {
         font-size: 17px !important;

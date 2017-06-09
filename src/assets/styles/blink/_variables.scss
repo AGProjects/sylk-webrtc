@@ -1,10 +1,13 @@
 $black:         #000;
 $gray:          #333;
+$darker-gray:   #222;
 $lighter-gray:  #999;
 $light-gray:    #ccc;
 $white:         #fff;
 
 $black-transparent:      rgba($black, .5);
+$black-less-transparent: rgba($black, .7);
+$darker-gray-transparent: rgba($darker-gray, .7);
 $white-transparent:      rgba($white, .5);
 $white-less-transparent: rgba($white, .8);
 

@@ -70,9 +70,7 @@ class CallOverlay extends React.Component {
 
         if (this.props.show) {
             const textClasses = classNames({
-                'lead'          : true,
-                'text-success'  : this.duration !== null,
-                'text-info'     : this.duration === null
+                'lead'          : true
             });
 
             let callDetail;

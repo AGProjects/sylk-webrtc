@@ -355,8 +355,7 @@ class ConferenceBox extends React.Component {
             });
 
             const videoHeaderTextClasses = classNames({
-                'lead'          : true,
-                'text-success'  : true
+                'lead'          : true
             });
 
             const commonButtonClasses = classNames({

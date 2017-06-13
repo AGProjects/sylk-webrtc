@@ -1,7 +1,7 @@
 'use strict';
 
-const React = require('react');
-
+const React     = require('react');
+const PropTypes = require('prop-types');
 
 class AudioPlayer extends React.Component {
     constructor(props) {
@@ -55,7 +55,7 @@ class AudioPlayer extends React.Component {
 }
 
 AudioPlayer.propTypes = {
-    sourceFile: React.PropTypes.string.isRequired
+    sourceFile: PropTypes.string.isRequired
 };
 
 

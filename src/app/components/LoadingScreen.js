@@ -1,6 +1,7 @@
 'use strict';
 
 const React = require('react');
+const PropTypes  = require('prop-types');
 const classNames = require('classnames');
 
 
@@ -24,7 +25,7 @@ const LoadingScreen = (props) => {
     );
 }
 LoadingScreen.propTypes = {
-    text: React.PropTypes.string
+    text: PropTypes.string
 };
 
 module.exports = LoadingScreen;

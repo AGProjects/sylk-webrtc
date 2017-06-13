@@ -1,6 +1,7 @@
 'use strict';
 
 const React          = require('react');
+const PropTypes      = require('prop-types');
 const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
 
@@ -20,8 +21,8 @@ const AboutModal = (props) => {
 }
 
 AboutModal.propTypes = {
-    show: React.PropTypes.bool.isRequired,
-    close: React.PropTypes.func.isRequired
+    show: PropTypes.bool.isRequired,
+    close: PropTypes.func.isRequired
 };
 
 

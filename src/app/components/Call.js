@@ -1,6 +1,7 @@
 'use strict';
 
 const React      = require('react');
+const PropTypes  = require('prop-types');
 const classNames = require('classnames');
 const assert     = require('assert');
 const debug      = require('debug');
@@ -138,12 +139,12 @@ class Call extends React.Component {
 }
 
 Call.propTypes = {
-    account                 : React.PropTypes.object.isRequired,
-    hangupCall              : React.PropTypes.func.isRequired,
-    currentCall             : React.PropTypes.object,
-    escalateToConference    : React.PropTypes.func,
-    localMedia              : React.PropTypes.object,
-    targetUri               : React.PropTypes.string
+    account                 : PropTypes.object.isRequired,
+    hangupCall              : PropTypes.func.isRequired,
+    currentCall             : PropTypes.object,
+    escalateToConference    : PropTypes.func,
+    localMedia              : PropTypes.object,
+    targetUri               : PropTypes.string
 };
 
 

@@ -1,6 +1,7 @@
 'use strict';
 
 const React          = require('react');
+const PropTypes      = require('prop-types');
 const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
 const classNames     = require('classnames');
@@ -148,8 +149,8 @@ class EnrollmentModal extends React.Component {
 }
 
 EnrollmentModal.propTypes = {
-    handleEnrollment: React.PropTypes.func.isRequired,
-    show: React.PropTypes.bool.isRequired
+    handleEnrollment: PropTypes.func.isRequired,
+    show: PropTypes.bool.isRequired
 };
 
 

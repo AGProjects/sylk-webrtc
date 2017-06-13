@@ -1,6 +1,7 @@
 'use strict';
 
 const React      = require('react');
+const PropTypes  = require('prop-types');
 const classNames = require('classnames');
 const assert     = require('assert');
 const debug      = require('debug');
@@ -89,13 +90,15 @@ class Conference extends React.Component {
 }
 
 Conference.propTypes = {
-    notificationCenter      : React.PropTypes.func.isRequired,
-    account                 : React.PropTypes.object.isRequired,
-    hangupCall              : React.PropTypes.func.isRequired,
-    currentCall             : React.PropTypes.object,
-    localMedia              : React.PropTypes.object,
-    targetUri               : React.PropTypes.string,
-    participantsToInvite    : React.PropTypes.array
+    notificationCenter      : PropTypes.func.isRequired,
+    account                 : PropTypes.object.isRequired,
+    hangupCall              : PropTypes.func.isRequired,
+    currentCall             : PropTypes.object,
+    localMedia              : PropTypes.object,
+    targetUri               : PropTypes.string,
+    participantsToInvite    : PropTypes.array,
+    managed                 : PropTypes.bool,
+    changeVideoResolution   : PropTypes.func.isRequired
 };
 
 

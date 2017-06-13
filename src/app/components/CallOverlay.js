@@ -1,6 +1,7 @@
 'use strict';
 
 const React                   = require('react');
+const PropTypes               = require('prop-types');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 const classNames              = require('classnames');
 const moment                  = require('moment');
@@ -99,9 +100,9 @@ class CallOverlay extends React.Component {
 }
 
 CallOverlay.propTypes = {
-    show: React.PropTypes.bool.isRequired,
-    remoteIdentity: React.PropTypes.string.isRequired,
-    call: React.PropTypes.object
+    show: PropTypes.bool.isRequired,
+    remoteIdentity: PropTypes.string.isRequired,
+    call: PropTypes.object
 };
 
 

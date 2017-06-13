@@ -1,6 +1,7 @@
 'use strict';
 
 const React          = require('react');
+const PropTypes      = require('prop-types');
 const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
 
@@ -53,10 +54,10 @@ class EscalateConferenceModal extends React.Component {
 }
 
 EscalateConferenceModal.propTypes = {
-    show: React.PropTypes.bool.isRequired,
-    close: React.PropTypes.func.isRequired,
-    call: React.PropTypes.object,
-    escalateToConference: React.PropTypes.func
+    show: PropTypes.bool.isRequired,
+    close: PropTypes.func.isRequired,
+    call: PropTypes.object,
+    escalateToConference: PropTypes.func
 };
 
 

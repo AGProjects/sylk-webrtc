@@ -1,6 +1,7 @@
 'use strict';
 
 const React      = require('react');
+const PropTypes  = require('prop-types');
 const classNames = require('classnames');
 
 
@@ -35,10 +36,10 @@ const StatusBox = (props) => {
 };
 
 StatusBox.propTypes = {
-    level: React.PropTypes.string,
-    message: React.PropTypes.string.isRequired,
-    title: React.PropTypes.string,
-    width: React.PropTypes.oneOf(['small', 'medium','large'])
+    level: PropTypes.string,
+    message: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    width: PropTypes.oneOf(['small', 'medium','large'])
 };
 
 

@@ -1,6 +1,7 @@
 'use strict';
 
-const React                   = require('react');
+const React     = require('react');
+const PropTypes = require('prop-types');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 
@@ -126,7 +127,7 @@ class ConferenceCarousel extends React.Component {
 }
 
 ConferenceCarousel.propTypes = {
-    children: React.PropTypes.node
+    children: PropTypes.node
 };
 
 

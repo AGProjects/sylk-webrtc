@@ -1,6 +1,7 @@
 'use strict';
 
 const React      = require('react');
+const PropTypes  = require('prop-types');
 const sylkrtc    = require('sylkrtc');
 const classNames = require('classnames');
 
@@ -110,8 +111,8 @@ class RegisterForm extends React.Component {
 }
 
 RegisterForm.propTypes = {
-    handleRegistration     : React.PropTypes.func.isRequired,
-    registrationInProgress : React.PropTypes.bool.isRequired
+    handleRegistration     : PropTypes.func.isRequired,
+    registrationInProgress : PropTypes.bool.isRequired
 };
 
 

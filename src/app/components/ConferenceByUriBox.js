@@ -1,6 +1,7 @@
 'use strict';
 
 const React      = require('react');
+const PropTypes  = require('prop-types');
 const classNames = require('classnames');
 
 const Conference = require('./Conference');
@@ -110,13 +111,13 @@ class ConferenceByUriBox extends React.Component {
 }
 
 ConferenceByUriBox.propTypes = {
-    notificationCenter : React.PropTypes.func.isRequired,
-    handler            : React.PropTypes.func.isRequired,
-    hangupCall         : React.PropTypes.func.isRequired,
-    targetUri          : React.PropTypes.string,
-    localMedia         : React.PropTypes.object,
-    account            : React.PropTypes.object,
-    currentCall        : React.PropTypes.object
+    notificationCenter : PropTypes.func.isRequired,
+    handler            : PropTypes.func.isRequired,
+    hangupCall         : PropTypes.func.isRequired,
+    targetUri          : PropTypes.string,
+    localMedia         : PropTypes.object,
+    account            : PropTypes.object,
+    currentCall        : PropTypes.object
 };
 
 

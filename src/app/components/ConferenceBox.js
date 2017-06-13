@@ -1,6 +1,7 @@
 'use strict';
 
 const React                     = require('react');
+const PropTypes                 = require('prop-types');
 const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
 const ReactMixin                = require('react-mixin');
 const ReactBootstrap            = require('react-bootstrap');
@@ -493,10 +494,10 @@ class ConferenceBox extends React.Component {
 }
 
 ConferenceBox.propTypes = {
-    notificationCenter : React.PropTypes.func.isRequired,
-    call               : React.PropTypes.object,
-    hangup             : React.PropTypes.func,
-    remoteIdentity     : React.PropTypes.string
+    notificationCenter : PropTypes.func.isRequired,
+    call               : PropTypes.object,
+    hangup             : PropTypes.func,
+    remoteIdentity     : PropTypes.string
 };
 
 ReactMixin(ConferenceBox.prototype, FullscreenMixin);

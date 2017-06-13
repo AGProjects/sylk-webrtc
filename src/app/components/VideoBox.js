@@ -1,6 +1,7 @@
 'use strict';
 
 const React                     = require('react');
+const PropTypes                 = require('prop-types');
 const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
 const ReactMixin                = require('react-mixin');
 const sylkrtc                   = require('sylkrtc');
@@ -230,10 +231,10 @@ class VideoBox extends React.Component {
 }
 
 VideoBox.propTypes = {
-    call: React.PropTypes.object,
-    localMedia: React.PropTypes.object,
-    hangupCall: React.PropTypes.func,
-    escalateToConference: React.PropTypes.func
+    call: PropTypes.object,
+    localMedia: PropTypes.object,
+    hangupCall: PropTypes.func,
+    escalateToConference: PropTypes.func
 };
 
 ReactMixin(VideoBox.prototype, FullscreenMixin);

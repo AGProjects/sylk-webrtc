@@ -1,6 +1,7 @@
 'use strict';
 
 const React             = require('react');
+const PropTypes         = require('prop-types');
 const ReactBootstrap    = require('react-bootstrap');
 const Tooltip           = ReactBootstrap.Tooltip;
 const OverlayTrigger    = ReactBootstrap.OverlayTrigger;
@@ -170,9 +171,9 @@ class ConferenceParticipant extends React.Component {
 }
 
 ConferenceParticipant.propTypes = {
-    participant: React.PropTypes.object.isRequired,
-    selected: React.PropTypes.func.isRequired,
-    active: React.PropTypes.func.isRequired
+    participant: PropTypes.object.isRequired,
+    selected: PropTypes.func.isRequired,
+    active: PropTypes.func.isRequired
 };
 
 

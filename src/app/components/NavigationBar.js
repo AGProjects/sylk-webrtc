@@ -1,6 +1,7 @@
 'use strict';
 
 const React          = require('react');
+const PropTypes      = require('prop-types');
 const classNames     = require('classnames');
 const ReactBootstrap = require('react-bootstrap');
 const Navbar         = ReactBootstrap.Navbar;
@@ -117,9 +118,9 @@ class NavigationBar extends React.Component {
 }
 
 NavigationBar.propTypes = {
-    notificationCenter : React.PropTypes.func.isRequired,
-    account            : React.PropTypes.object.isRequired,
-    logout             : React.PropTypes.func.isRequired
+    notificationCenter : PropTypes.func.isRequired,
+    account            : PropTypes.object.isRequired,
+    logout             : PropTypes.func.isRequired
 };
 
 

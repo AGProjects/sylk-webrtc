@@ -1,6 +1,7 @@
 'use strict';
 
 const React          = require('react');
+const PropTypes      = require('prop-types');
 const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
 
@@ -19,7 +20,7 @@ const ErrorPanel = (props) => {
 }
 
 ErrorPanel.propTypes = {
-    errorMsg: React.PropTypes.string.isRequired
+    errorMsg: PropTypes.string.isRequired
 };
 
 

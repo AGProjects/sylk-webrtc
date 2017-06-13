@@ -2,6 +2,7 @@
 
 const debug          = require('debug');
 const React          = require('react');
+const PropTypes      = require('prop-types');
 const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
 const classNames     = require('classnames');
@@ -111,9 +112,9 @@ class DTMFModal extends React.Component {
 }
 
 DTMFModal.propTypes = {
-    show: React.PropTypes.bool.isRequired,
-    hide: React.PropTypes.func.isRequired,
-    call: React.PropTypes.object
+    show: PropTypes.bool.isRequired,
+    hide: PropTypes.func.isRequired,
+    call: PropTypes.object
 };
 
 

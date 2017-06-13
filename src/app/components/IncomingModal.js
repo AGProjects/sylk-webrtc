@@ -1,6 +1,7 @@
 'use strict';
 
 const React          = require('react');
+const PropTypes      = require('prop-types');
 const ReactBootstrap = require('react-bootstrap');
 const Popover        = ReactBootstrap.Popover;
 const OverlayTrigger = ReactBootstrap.OverlayTrigger;
@@ -79,9 +80,9 @@ class IncomingCallModal extends React.Component {
 }
 
 IncomingCallModal.propTypes = {
-    call     : React.PropTypes.object,
-    onAnswer : React.PropTypes.func.isRequired,
-    onHangup : React.PropTypes.func.isRequired
+    call     : PropTypes.object,
+    onAnswer : PropTypes.func.isRequired,
+    onHangup : PropTypes.func.isRequired
 };
 
 

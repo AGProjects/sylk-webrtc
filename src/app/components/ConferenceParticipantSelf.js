@@ -1,6 +1,7 @@
 'use strict';
 
 const React             = require('react');
+const PropTypes         = require('prop-types');
 const ReactBootstrap    = require('react-bootstrap');
 const Tooltip           = ReactBootstrap.Tooltip;
 const OverlayTrigger    = ReactBootstrap.OverlayTrigger;
@@ -100,11 +101,11 @@ class ConferenceParticipantSelf extends React.Component {
 }
 
 ConferenceParticipantSelf.propTypes = {
-    stream: React.PropTypes.object.isRequired,
-    identity: React.PropTypes.object.isRequired,
-    selected: React.PropTypes.func.isRequired,
-    active: React.PropTypes.func.isRequired,
-    audioMuted: React.PropTypes.bool.isRequired
+    stream: PropTypes.object.isRequired,
+    identity: PropTypes.object.isRequired,
+    selected: PropTypes.func.isRequired,
+    active: PropTypes.func.isRequired,
+    audioMuted: PropTypes.bool.isRequired
 };
 
 

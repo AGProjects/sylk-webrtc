@@ -1,6 +1,7 @@
 'use strict';
 
 const React        = require('react');
+const PropTypes    = require('prop-types');
 const autocomplete = require('autocomplete.js');
 
 
@@ -112,12 +113,12 @@ class URIInput extends React.Component {
 }
 
 URIInput.propTypes = {
-    defaultValue: React.PropTypes.string.isRequired,
-    data: React.PropTypes.array.isRequired,
-    autoFocus: React.PropTypes.bool.isRequired,
-    onChange: React.PropTypes.func.isRequired,
-    onSelect: React.PropTypes.func.isRequired,
-    placeholder : React.PropTypes.string
+    defaultValue: PropTypes.string.isRequired,
+    data: PropTypes.array.isRequired,
+    autoFocus: PropTypes.bool.isRequired,
+    onChange: PropTypes.func.isRequired,
+    onSelect: PropTypes.func.isRequired,
+    placeholder : PropTypes.string
 };
 
 

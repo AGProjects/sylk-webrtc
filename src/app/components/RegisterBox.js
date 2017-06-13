@@ -1,6 +1,7 @@
 'use strict';
 
-const React  = require('react');
+const React     = require('react');
+const PropTypes = require('prop-types');
 
 const RegisterForm      = require('./RegisterForm');
 const Logo              = require('./Logo');
@@ -21,8 +22,8 @@ const RegisterBox = (props) => {
 };
 
 RegisterBox.propTypes = {
-    handleRegistration     : React.PropTypes.func.isRequired,
-    registrationInProgress : React.PropTypes.bool
+    handleRegistration     : PropTypes.func.isRequired,
+    registrationInProgress : PropTypes.bool
 };
 
 

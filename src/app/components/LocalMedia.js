@@ -1,6 +1,7 @@
 'use strict';
 
-const React       = require('react');
+const React      = require('react');
+const PropTypes  = require('prop-types');
 const sylkrtc    = require('sylkrtc');
 const classNames = require('classnames');
 
@@ -60,10 +61,10 @@ class LocalMedia extends React.Component {
 }
 
 LocalMedia.propTypes = {
-    hangupCall: React.PropTypes.func,
-    localMedia: React.PropTypes.object.isRequired,
-    mediaPlaying: React.PropTypes.func.isRequired,
-    remoteIdentity: React.PropTypes.string
+    hangupCall: PropTypes.func,
+    localMedia: PropTypes.object.isRequired,
+    mediaPlaying: PropTypes.func.isRequired,
+    remoteIdentity: PropTypes.string
 };
 
 

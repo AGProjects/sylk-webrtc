@@ -1,6 +1,7 @@
 'use strict';
 
 const React             = require('react');
+const PropTypes         = require('prop-types');
 const classNames        = require('classnames');
 const debug             = require('debug');
 const sylkrtc           = require('sylkrtc');
@@ -178,11 +179,11 @@ class AudioCallBox extends React.Component {
 }
 
 AudioCallBox.propTypes = {
-    call                    : React.PropTypes.object,
-    escalateToConference    : React.PropTypes.func,
-    hangupCall              : React.PropTypes.func,
-    mediaPlaying            : React.PropTypes.func,
-    remoteIdentity          : React.PropTypes.string
+    call                    : PropTypes.object,
+    escalateToConference    : PropTypes.func,
+    hangupCall              : PropTypes.func,
+    mediaPlaying            : PropTypes.func,
+    remoteIdentity          : PropTypes.string
 };
 
 module.exports = AudioCallBox;

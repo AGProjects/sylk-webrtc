@@ -2,8 +2,8 @@
     background-image: url($file + '.' + $type);
     background-size: $width $height;
     @media only screen and (min-resolution: 1.5dppx) {
-            & {
-                background-image: url($file + '@2x.' + $type);
+        & {
+            background-image: url($file + '@2x.' + $type);
         }
     }
 }

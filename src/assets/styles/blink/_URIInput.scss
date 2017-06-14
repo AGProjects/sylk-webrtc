@@ -19,14 +19,15 @@ div {
                 width: 100%;
 
                 .aa-suggestion {
-                    &.aa-cursor {
-                        background-color: $boostrap-link-hover-bg;
-                        color: darken($gray, 5%);
-                    }
                     color: $gray;
                     cursor: pointer;
                     padding: 5px 4px;
                     text-align: left;
+
+                    &.aa-cursor {
+                        background-color: $boostrap-link-hover-bg;
+                        color: darken($gray, 5%);
+                    }
                 }
             }
         }

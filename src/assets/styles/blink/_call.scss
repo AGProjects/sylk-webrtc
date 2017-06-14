@@ -1,19 +1,19 @@
 .call-buttons {
-    bottom: 0 !important;
-    left: 0;
-    margin: auto;
-    overflow: hidden;
-    padding-bottom: 35px;
     position: absolute;
     right: 0;
+    bottom: 0 !important;
+    left: 0;
     z-index: 1;
+    padding-bottom: 35px;
+    margin: auto;
+    overflow: hidden;
 }
 
 .top-overlay {
-    left: 0;
     position: absolute;
-    right: 0;
     top: 0;
+    right: 0;
+    left: 0;
     z-index: 2;
 }
 
@@ -23,11 +23,11 @@
     background-color: $darker-gray-transparent;
 
     p {
+        margin-bottom: 2px !important;
+        overflow: hidden;
         font-size: 17px !important;
         line-height: 1.2 !important;
-        margin-bottom: 2px !important;
         text-overflow: ellipsis;
-        overflow: hidden;
     }
 
     p + p {

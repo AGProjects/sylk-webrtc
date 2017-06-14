@@ -1,17 +1,17 @@
 .conference-buttons {
+    padding-top: 10px;
     margin: auto;
     overflow: hidden;
-    padding-top: 10px;
 }
 
 .conference-thumbnails {
     position: absolute;
+    right: 0;
     bottom: 0;
     left: 0;
-    right: 0;
+    z-index: 2;
     max-height: 114px;
     min-height: 114px;
-    z-index: 2;
 
     .participant-container {
         width: $video-thumbnail-width !important;
@@ -32,12 +32,12 @@
     }
 
     .mute {
-        // height div - .5 * height-video - .5 * height-button
-        margin-bottom: -80px;
         position: relative;
+        z-index: 2;
         // Thumbnail-size - button-size, center is calculated width + button-size
         width: 105px;
-        z-index: 2;
+        // height div - .5 * height-video - .5 * height-button
+        margin-bottom: -80px;
 
         button {
             transform: translateX(50%);
@@ -48,8 +48,8 @@
     .mute-self {
         position: absolute;
         top: 39px;
-        width: 136px;
         z-index: 2;
+        width: 136px;
 
         i {
             transform: translateX(50%);
@@ -57,31 +57,31 @@
     }
 
     .left-arrow {
-        color: $light-gray;
         float: left;
         margin-left: 15px;
+        color: $light-gray;
         transform: translateY(50%);
     }
 
     .right-arrow {
-        color: $light-gray;
         float: right;
         margin-right: 15px;
+        color: $light-gray;
         transform: translateY(50%);
     }
 
     .carousel {
-        margin-left: 50px !important;
         margin-right: 50px !important;
+        margin-left: 50px !important;
         overflow: hidden;
     }
 
     .carousel-list {
+        padding-bottom: 17px;
         margin: auto !important;
-        white-space: nowrap;
         overflow-x: auto;
         overflow-y: hidden;
-        padding-bottom: 17px;
+        white-space: nowrap;
     }
 }
 

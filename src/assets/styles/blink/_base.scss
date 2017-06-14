@@ -8,9 +8,9 @@ body {
 
 body {
     @include background-image-retina($base-background-image, 512px, 512px);
-    background-color: $base-background-color;
     color: $base-foreground-color;
     text-align: center;
+    background-color: $base-background-color;
 }
 
 h1,
@@ -30,9 +30,9 @@ h6,
 // This will get the negative margin when >768px
 %site-wrapper {
     display: table;
+    width: 100%;
     height: 100%; // For at least Firefox
     min-height: 100%;
-    width: 100%;
 }
 
 .site-wrapper {
@@ -51,8 +51,8 @@ h6,
 }
 
 .cover-container {
+    margin-right: auto
     margin-left: auto;
-    margin-right: auto;
 }
 
 
@@ -67,9 +67,9 @@ h6,
 
 .blink-logo {
     @include background-image-retina($base-logo-image, 125px, 125px);
+    width: 125px;
     height: 125px;
     margin: 0 auto;
-    width: 125px;
 }
 
 // Cover
@@ -78,18 +78,18 @@ h6,
     padding: 0 20px;
 
     .btn-lg {
-        font-weight: bold;
         padding: 10px 20px;
+        font-weight: bold;
     }
 }
 
 // Footer
 
 .footer {
-    bottom: 0;
-    color: $white-transparent;
-    font-size: 11px;
     position: fixed;
+    bottom: 0;
+    font-size: 11px;
+    color: $white-transparent;
     text-shadow: 0 1px 3px $black-transparent;
 }
 
@@ -103,7 +103,6 @@ h6,
 
 @media (min-width: 992px) {
     .half-width {
-        margin: auto;
         width: 500px;
     }
 }

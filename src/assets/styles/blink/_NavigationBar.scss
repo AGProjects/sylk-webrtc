@@ -9,10 +9,10 @@
 
 .navbar-blink-logo {
     @include background-image-retina($navbar-logo-image, $navbar-height, $navbar-height);
+    width: $navbar-height;
     height: $navbar-height;
     margin: 0 auto;
     margin-left: 15px;
-    width: $navbar-height;
 }
 
 .navbar-btn-toolbar {

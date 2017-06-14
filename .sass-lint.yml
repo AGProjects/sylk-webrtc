@@ -21,3 +21,7 @@ rules:
         - 1
         -
             'max-depth': 3
+    property-sort-order:
+        - 1
+        -
+            order: 'recess'

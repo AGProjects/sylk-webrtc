@@ -13,20 +13,20 @@ div {
             }
 
             .aa-dropdown-menu {
+                width: 100%;
                 background-color: $white;
                 border: 1px solid $lighter-gray;
                 border-top: 0;
-                width: 100%;
 
                 .aa-suggestion {
-                    color: $gray;
-                    cursor: pointer;
                     padding: 5px 4px;
+                    color: $gray;
                     text-align: left;
+                    cursor: pointer;
 
                     &.aa-cursor {
-                        background-color: $boostrap-link-hover-bg;
                         color: darken($gray, 5%);
+                        background-color: $boostrap-link-hover-bg;
                     }
                 }
             }

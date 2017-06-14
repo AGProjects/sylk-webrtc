@@ -4,9 +4,9 @@
     &,
     &:hover,
     &:focus {
-        background-color: $white;
-        border: 1px solid $gray;
         color: $gray;
         text-shadow: none; // Prevent inheritence from `body`
+        background-color: $white;
+        border: 1px solid $gray;
     }
 }

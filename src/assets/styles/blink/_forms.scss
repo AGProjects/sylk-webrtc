@@ -5,9 +5,9 @@
 .form-dial,
 .form-guest,
 .form-signin {
-    margin: 0 auto;
     max-width: 330px;
     padding: 15px;
+    margin: 0 auto;
 }
 
 .form-dial {
@@ -26,17 +26,17 @@
 
     input {
         &[type='password'] {
-            border-top-left-radius: 0;
             border-top-right-radius: 0;
+            border-top-left-radius: 0;
         }
     }
 
     .input-group {
         &:first-of-type {
             input {
-                border-bottom-left-radius: 0;
-                border-bottom-right-radius: 0;
                 margin-bottom: -1px;
+                border-bottom-right-radius: 0;
+                border-bottom-left-radius: 0;
 
                 // Needed to display blue border over next input group
                 &:focus {
@@ -46,13 +46,13 @@
 
             .input-group-addon {
                 &:first-child {
-                    border: 0;
-                    border-bottom-left-radius: 0;
-                    border-bottom-right-radius: 0;
-                    font-size: 16px;
-                    margin-bottom: -1px;
                     padding: 10px;
                     padding-top: 11px;
+                    margin-bottom: -1px;
+                    font-size: 16px;
+                    border: 0;
+                    border-bottom-right-radius: 0;
+                    border-bottom-left-radius: 0;
                 }
             }
         }
@@ -60,14 +60,14 @@
         ~.input-group {
             .input-group-addon {
                 &:first-child  {
+                    padding: 10px;
+                    padding-top: 12px;
+                    padding-bottom: 11px;
+                    font-size: 16px;
                     border: 0;
                     border-top: 1px solid $light-gray;
-                    border-top-left-radius: 0;
                     border-top-right-radius: 0;
-                    font-size: 16px;
-                    padding: 10px;
-                    padding-bottom: 11px;
-                    padding-top: 12px;
+                    border-top-left-radius: 0;
                 }
             }
         }
@@ -83,10 +83,10 @@
     }
 
     .form-control {
-        box-sizing: border-box;
-        font-size: 16px;
+        position: relative;
         height: auto;
         padding: 10px;
-        position: relative;
+        font-size: 16px;
+        box-sizing: border-box;
     }
 }

@@ -33,11 +33,11 @@
 }
 
 .modal-danger > .modal-content > .modal-header {
+    padding: 10px;
+    color: $bootstrap-danger !important;
     background-color: $bootstrap-danger-bg;
     border-color: $boostrap-danger-border;
     border-radius: 6px 6px 0 0;
-    color: $bootstrap-danger !important;
-    padding: 10px;
 }
 
 .modal-danger > .modal-content {

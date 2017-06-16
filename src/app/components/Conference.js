@@ -96,9 +96,7 @@ Conference.propTypes = {
     currentCall             : PropTypes.object,
     localMedia              : PropTypes.object,
     targetUri               : PropTypes.string,
-    participantsToInvite    : PropTypes.array,
-    managed                 : PropTypes.bool,
-    changeVideoResolution   : PropTypes.func.isRequired
+    participantsToInvite    : PropTypes.array
 };
 
 

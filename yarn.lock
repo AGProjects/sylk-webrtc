@@ -5563,9 +5563,9 @@ sass-lint@^1.10.2:
     path-is-absolute "^1.0.0"
     util "^0.10.3"
 
-screenfull@^3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/screenfull/-/screenfull-3.2.1.tgz#02a9b61a0abc53adeb2bc9d6a1150eb774a2b959"
+screenfull@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/screenfull/-/screenfull-3.2.2.tgz#ddd0c2c66a799640a566d95672d79abac4d627aa"
 
 sdp-transform@^1.6.2:
   version "1.7.0"

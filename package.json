@@ -56,7 +56,7 @@
     "react-router-component": "^0.37.0",
     "require-dir": "^0.3.2",
     "sass-lint": "^1.10.2",
-    "screenfull": "^3.2.1",
+    "screenfull": "^3.2.2",
     "superagent": "^3.5.2",
     "sylkrtc": "AGProjects/sylkrtc.js",
     "underscore": "1.8.3",

@@ -71,7 +71,7 @@ class ReadyBox extends React.Component {
     showConferenceModal(event) {
         event.preventDefault();
         if (this.state.targetUri.length !== 0) {
-            const uri = `${this.state.targetUri.replace(/[\s()-]/g, '')}@${config.defaultConferenceDomain}`;
+            const uri = `${this.state.targetUri.split('@')[0].replace(/[\s()-]/g, '')}@${config.defaultConferenceDomain}`;
             this.handleConferenceCall(uri.toLowerCase());
         } else {
             this.setState({showConferenceModal: true});

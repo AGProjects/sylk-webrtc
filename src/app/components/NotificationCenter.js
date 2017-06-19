@@ -3,7 +3,7 @@
 const React              = require('react');
 const NotificationSystem = require('react-notification-system');
 const moment             = require('moment');
-const Notify             = require('notifyjs').default;
+const Notify             = require('notifyjs');
 
 const config = require('../config');
 

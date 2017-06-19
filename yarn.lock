@@ -1509,11 +1509,11 @@ connect-inject@~0.3.2:
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/connect-inject/-/connect-inject-0.3.2.tgz#d96b516a5b6bb24c2191e622b5e82cdd62844ba3"
 
-connect-modrewrite@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/connect-modrewrite/-/connect-modrewrite-0.9.0.tgz#747b2ab65c44aa51b76a1e2c1168a1900063901c"
+connect-modrewrite@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/connect-modrewrite/-/connect-modrewrite-0.10.1.tgz#f9f86dc0978a83c6e7cc49dde8b7c356dacb3c49"
   dependencies:
-    qs "^1.2.2"
+    qs "^6.3.1"
 
 connect@1.x:
   version "1.9.2"
@@ -5064,9 +5064,9 @@ qs@6.2.1, qs@^6.1.0, qs@^6.2.0:
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.3.0.tgz#f403b264f23bc01228c74131b407f18d5ea5d442"
 
-qs@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/qs/-/qs-1.2.2.tgz#19b57ff24dc2a99ce1f8bdf6afcda59f8ef61f88"
+qs@^6.3.1:
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.4.0.tgz#13e26d28ad6b0ffaa91312cd3bf708ed351e7233"
 
 querystring-es3@~0.2.0:
   version "0.2.1"

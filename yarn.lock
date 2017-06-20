@@ -335,9 +335,11 @@ attachmediastream@^1.4.2:
   dependencies:
     webrtc-adapter "^2.0.0"
 
-autocomplete.js@^0.22.1:
-  version "0.22.1"
-  resolved "https://registry.yarnpkg.com/autocomplete.js/-/autocomplete.js-0.22.1.tgz#113d2b7e4c808f7779cbcb58bb2db4e80d271d1d"
+autocomplete.js@^0.28.1:
+  version "0.28.1"
+  resolved "https://registry.yarnpkg.com/autocomplete.js/-/autocomplete.js-0.28.1.tgz#da9a0ae5919061d6e3927f20994a94214844b84a"
+  dependencies:
+    immediate "^3.2.3"
 
 autoprefixer@^7.0.0:
   version "7.1.1"
@@ -3348,6 +3350,10 @@ ieee754@^1.1.4:
 ignore@^3.1.2, ignore@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-3.2.0.tgz#8d88f03c3002a0ac52114db25d2c673b0bf1e435"
+
+immediate@^3.2.3:
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/immediate/-/immediate-3.2.3.tgz#d140fa8f614659bd6541233097ddaac25cdd991c"
 
 immediate@~3.0.5:
   version "3.0.6"

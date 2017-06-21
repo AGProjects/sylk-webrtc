@@ -1,9 +1,9 @@
 'use strict';
-const uuid = require('node-uuid');
+const uuidv4 = require('uuid/v4');
 const SillyNames = require('./SillyNames');
 
 function generateUniqueId() {
-    const buffer = new Buffer(uuid.v4('binary'))
+    const buffer = new Buffer(uuidv4('binary'));
     let uniqueId = buffer.toString('base64');
     uniqueId = uniqueId.replace(/\//g,'.');
     uniqueId = uniqueId.replace(/=/g,'');

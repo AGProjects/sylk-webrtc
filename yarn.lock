@@ -335,9 +335,9 @@ attachmediastream@^1.4.2:
   dependencies:
     webrtc-adapter "^2.0.0"
 
-autocomplete.js@^0.28.1:
-  version "0.28.1"
-  resolved "https://registry.yarnpkg.com/autocomplete.js/-/autocomplete.js-0.28.1.tgz#da9a0ae5919061d6e3927f20994a94214844b84a"
+autocomplete.js@^0.28.2:
+  version "0.28.2"
+  resolved "https://registry.yarnpkg.com/autocomplete.js/-/autocomplete.js-0.28.2.tgz#ec45c34db8f381d4732bdf45a0a1ef7aed1ec220"
   dependencies:
     immediate "^3.2.3"
 
@@ -954,9 +954,9 @@ bootstrap-css-only@^3.3.7:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/bootstrap-css-only/-/bootstrap-css-only-3.3.7.tgz#68a15925aa7b9b0fc0feb73ff85d8b8c3989c16d"
 
-bowser@^1.4.1:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/bowser/-/bowser-1.6.0.tgz#37fc387b616cb6aef370dab4d6bd402b74c5c54d"
+bowser@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/bowser/-/bowser-1.7.0.tgz#169de4018711f994242bff9a8009e77a1f35e003"
 
 boxen@^0.6.0:
   version "0.6.0"
@@ -1713,6 +1713,12 @@ debug@2.6.4, debug@^2.1.3:
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.4.tgz#7586a9b3c39741c0282ae33445c4e8ac74734fe0"
   dependencies:
     ms "0.7.3"
+
+debug@^2.6.8:
+  version "2.6.8"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.8.tgz#e731531ca2ede27d188222427da17821d68ff4fc"
+  dependencies:
+    ms "2.0.0"
 
 debuglog@^1.0.1:
   version "1.0.1"
@@ -4356,6 +4362,10 @@ ms@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-1.0.0.tgz#59adcd22edc543f7b5381862d31387b1f4bc9473"
 
+ms@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
+
 multipipe@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/multipipe/-/multipipe-0.1.2.tgz#2a8f2ddf70eed564dff2d57f1e1a137d9f05078b"
@@ -4468,7 +4478,7 @@ node-status-codes@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/node-status-codes/-/node-status-codes-1.0.0.tgz#5ae5541d024645d32a58fcddc9ceecea7ae3ac2f"
 
-node-uuid@^1.4.7, node-uuid@~1.4.7:
+node-uuid@~1.4.7:
   version "1.4.8"
   resolved "https://registry.yarnpkg.com/node-uuid/-/node-uuid-1.4.8.tgz#b040eb0923968afabf8d32fb1f17f1167fdab907"
 

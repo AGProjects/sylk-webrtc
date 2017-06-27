@@ -2,7 +2,7 @@
 
 const React                     = require('react');
 const PropTypes                 = require('prop-types');
-const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
+const CSSTransitionGroup        = require('react-transition-group/CSSTransitionGroup');
 const ReactMixin                = require('react-mixin');
 const sylkrtc                   = require('sylkrtc');
 const classNames                = require('classnames');
@@ -211,14 +211,14 @@ class VideoBox extends React.Component {
                     remoteIdentity = {this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri}
                     call = {this.props.call}
                 />
-                <ReactCSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
+                <CSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
                     {watermark}
-                </ReactCSSTransitionGroup>
+                </CSSTransitionGroup>
                 <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref="remoteVideo" autoPlay />
                 <video id="localVideo" className={localVideoClasses} ref="localVideo" autoPlay muted/>
-                <ReactCSSTransitionGroup transitionName="videobuttons" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                <CSSTransitionGroup transitionName="videobuttons" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {callButtons}
-                </ReactCSSTransitionGroup>
+                </CSSTransitionGroup>
                 <EscalateConferenceModal
                     show={this.state.showEscalateConferenceModal}
                     call={this.props.call}

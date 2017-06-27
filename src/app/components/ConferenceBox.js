@@ -2,7 +2,7 @@
 
 const React                     = require('react');
 const PropTypes                 = require('prop-types');
-const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
+const CSSTransitionGroup        = require('react-transition-group/CSSTransitionGroup');
 const ReactMixin                = require('react-mixin');
 const ReactBootstrap            = require('react-bootstrap');
 const Popover                   = ReactBootstrap.Popover;
@@ -467,14 +467,14 @@ class ConferenceBox extends React.Component {
         return (
             <div className="video-container conference" onMouseMove={this.showOverlay}>
                 <div className="top-overlay">
-                    <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                    <CSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                         {videoHeader}
                         {callButtons}
-                    </ReactCSSTransitionGroup>
+                    </CSSTransitionGroup>
                 </div>
-                <ReactCSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
+                <CSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
                     {watermark}
-                </ReactCSSTransitionGroup>
+                </CSSTransitionGroup>
                 <video ref="largeVideo" className={largeVideoClasses} poster="assets/images/transparent-1px.png" autoPlay muted />
                 <div className="conference-thumbnails" onMouseMove={this.preventOverlay}>
                     <ConferenceCarousel>

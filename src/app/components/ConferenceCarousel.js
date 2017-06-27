@@ -1,9 +1,8 @@
 'use strict';
 
-const React     = require('react');
-const PropTypes = require('prop-types');
-const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
-
+const React              = require('react');
+const PropTypes          = require('prop-types');
+const CSSTransitionGroup = require('react-transition-group/CSSTransitionGroup');
 
 class ConferenceCarousel extends React.Component {
     constructor(props) {
@@ -117,9 +116,9 @@ class ConferenceCarousel extends React.Component {
             <div>
                 {arrows}
                 <div className="carousel" ref="carousel">
-                    <ReactCSSTransitionGroup component="ul" onScroll={this.handleScroll} className="carousel-list list-inline" transitionName="carousel" transitionEnterTimeout={500} transitionLeaveTimeout={300}>
+                    <CSSTransitionGroup component="ul" onScroll={this.handleScroll} className="carousel-list list-inline" transitionName="carousel" transitionEnterTimeout={500} transitionLeaveTimeout={300}>
                         {items}
-                    </ReactCSSTransitionGroup>
+                    </CSSTransitionGroup>
                 </div>
             </div>
         );

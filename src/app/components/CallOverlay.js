@@ -2,7 +2,7 @@
 
 const React                   = require('react');
 const PropTypes               = require('prop-types');
-const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
+const CSSTransitionGroup      = require('react-transition-group/CSSTransitionGroup');
 const classNames              = require('classnames');
 const moment                  = require('moment');
 const momentFormat            = require('moment-duration-format');
@@ -91,9 +91,9 @@ class CallOverlay extends React.Component {
 
         return (
             <div className="top-overlay">
-                <ReactCSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                <CSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {header}
-                </ReactCSSTransitionGroup>
+                </CSSTransitionGroup>
             </div>
         );
     }

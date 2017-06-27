@@ -7,7 +7,7 @@ const Router                    = require('react-router-component');
 const Locations                 = Router.Locations;
 const Location                  = Router.Location;
 const NotFound                  = Router.NotFound;
-const ReactCSSTransitionGroup   = require('react-addons-css-transition-group');
+const CSSTransitionGroup        = require('react-transition-group/CSSTransitionGroup');
 const adapter                   = require('webrtc-adapter');
 const sylkrtc                   = require('sylkrtc');
 const debug                     = require('debug');
@@ -656,9 +656,9 @@ class Blink extends React.Component {
                 <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav" />
                 <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav" />
                 <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
-                <ReactCSSTransitionGroup transitionName="incoming-modal" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                <CSSTransitionGroup transitionName="incoming-modal" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                     {incomingCallModal}
-                </ReactCSSTransitionGroup>
+                </CSSTransitionGroup>
                 <Locations hash={this.shouldUseHashRouting} ref="router" onBeforeNavigation={this.checkRoute}>
                     <Location path="/"  handler={this.main} />
                     <Location path="/login" handler={this.login} />

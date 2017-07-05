@@ -2586,9 +2586,9 @@ flat-cache@^1.2.1:
     graceful-fs "^4.1.2"
     write "^0.2.1"
 
-fontawesome-actions@^0.15.0:
-  version "0.15.0"
-  resolved "https://registry.yarnpkg.com/fontawesome-actions/-/fontawesome-actions-0.15.0.tgz#70bd1db71160e788f134a3f642c6e196fb9a9cc4"
+fontawesome-actions@^0.17.0:
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/fontawesome-actions/-/fontawesome-actions-0.17.0.tgz#dde55e148ddf36c4465b707bc54e17eb169b3f91"
 
 for-in@^0.1.5:
   version "0.1.6"

@@ -63,7 +63,7 @@
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.1.0",
     "watchify": "^3.9.0",
-    "webrtc-adapter": "^4.0.2"
+    "webrtc-adapter": "^4.1.0"
   },
   "engines": {
     "node": ">=4.0.0"

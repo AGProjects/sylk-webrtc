@@ -3,6 +3,7 @@
 const React              = require('react');
 const PropTypes          = require('prop-types');
 const CSSTransitionGroup = require('react-transition-group/CSSTransitionGroup');
+const classNames         = require('classnames');
 
 class ConferenceCarousel extends React.Component {
     constructor(props) {
@@ -111,12 +112,16 @@ class ConferenceCarousel extends React.Component {
         if (this.state.displayRightArrow) {
             arrows.push(<div className="right-arrow" onClick={this.scrollToRight}><i className="fa fa-caret-right fa-4x"></i></div>);
         }
-
+        const classes = classNames({
+            'carousel-list' : true,
+            'list-inline'   : true,
+            'text-right'    : this.props.align === 'right'
+        });
         return (
             <div>
                 {arrows}
                 <div className="carousel" ref="carousel">
-                    <CSSTransitionGroup component="ul" onScroll={this.handleScroll} className="carousel-list list-inline" transitionName="carousel" transitionEnterTimeout={500} transitionLeaveTimeout={300}>
+                    <CSSTransitionGroup component="ul" onScroll={this.handleScroll} className={classes} transitionName="carousel" transitionEnterTimeout={500} transitionLeaveTimeout={300}>
                         {items}
                     </CSSTransitionGroup>
                 </div>
@@ -126,7 +131,8 @@ class ConferenceCarousel extends React.Component {
 }
 
 ConferenceCarousel.propTypes = {
-    children: PropTypes.node
+    children: PropTypes.node,
+    align: PropTypes.string
 };
 
 

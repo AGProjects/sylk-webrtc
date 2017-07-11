@@ -426,15 +426,26 @@ class Blink extends React.Component {
 
         const constraints = Object.assign({}, mediaConstraints);
         if (constraints.video === true) {
-            // ask for 720p video
-            constraints.video = {
-                'width': {
-                    'ideal': 1280
-                },
-                'height': {
-                    'ideal': 720
-                }
-            };
+            if (nextRoute === '/conference' && navigator.userAgent.indexOf('Firefox') > 0) {
+                constraints.video = {
+                    'width': {
+                        'ideal': 640
+                    },
+                    'height': {
+                        'ideal': 480
+                    }
+                };
+            } else {
+                // ask for 720p video
+                constraints.video = {
+                    'width': {
+                        'ideal': 1280
+                    },
+                    'height': {
+                        'ideal': 720
+                    }
+                };
+            }
         }
 
         DEBUG('getLocalMedia(), (modified) mediaConstraints=%o', constraints);

@@ -426,7 +426,7 @@ class Blink extends React.Component {
 
         const constraints = Object.assign({}, mediaConstraints);
         if (constraints.video === true) {
-            if (nextRoute === '/conference' && navigator.userAgent.indexOf('Firefox') > 0) {
+            if ((nextRoute === '/conference' ||  this.state.mode === MODE_GUEST_CONFERENCE) && navigator.userAgent.indexOf('Firefox') > 0) {
                 constraints.video = {
                     'width': {
                         'ideal': 640

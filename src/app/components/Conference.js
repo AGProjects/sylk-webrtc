@@ -109,7 +109,8 @@ Conference.propTypes = {
     currentCall             : PropTypes.object,
     localMedia              : PropTypes.object,
     targetUri               : PropTypes.string,
-    participantsToInvite    : PropTypes.array
+    participantsToInvite    : PropTypes.array,
+    managed                 : PropTypes.bool
 };
 
 

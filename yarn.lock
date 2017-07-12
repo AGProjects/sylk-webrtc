@@ -6092,8 +6092,8 @@ supports-color@^3.2.3:
     has-flag "^1.0.0"
 
 sylkrtc@AGProjects/sylkrtc.js:
-  version "0.9.0"
-  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/cdd9c23fb33231878542a3ed7794da4cd9238118"
+  version "0.9.5"
+  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/3d878296c5f0ba2363eb4bb6aad62b3fa7ca0969"
   dependencies:
     attachmediastream "^2.0.0"
     blueimp-md5 "^2.3.0"

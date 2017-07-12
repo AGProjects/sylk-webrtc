@@ -105,6 +105,7 @@ class Blink extends React.Component {
         this.redirectTo = null;
         this.prevPath = null;
         this.shouldUseHashRouting = false;
+        this.managedConference = false;
     }
 
     get _notificationCenter() {
@@ -423,8 +424,8 @@ class Blink extends React.Component {
 
     getLocalMedia(mediaConstraints={audio: true, video: true}, nextRoute=null) {    // eslint-disable-line space-infix-ops
         DEBUG('getLocalMedia(), mediaConstraints=%o', mediaConstraints);
-
         const constraints = Object.assign({}, mediaConstraints);
+
         if (constraints.video === true) {
             if ((nextRoute === '/conference' ||  this.state.mode === MODE_GUEST_CONFERENCE) && navigator.userAgent.indexOf('Firefox') > 0) {
                 constraints.video = {
@@ -522,8 +523,9 @@ class Blink extends React.Component {
         this.startConference(uri);
     }
 
-    startConference(targetUri) {
+    startConference(targetUri, managed=false) { // eslint-disable-line space-infix-ops
         this.setState({targetUri: targetUri});
+        this.managedConference = managed;
         this.getLocalMedia({audio: true, video: true}, '/conference');
     }
 
@@ -802,6 +804,7 @@ class Blink extends React.Component {
                 currentCall = {this.state.currentCall}
                 participantsToInvite = {this.participantsToInvite}
                 hangupCall = {this.hangupCall}
+                managed = {this.managedConference}
             />
         )
     }
@@ -844,7 +847,6 @@ class Blink extends React.Component {
     login() {
         let registerBox;
         let statusBox;
-
         if (this.state.status !== null) {
             statusBox = (
                 <StatusBox

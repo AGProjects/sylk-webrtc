@@ -13,7 +13,8 @@ class ConferenceModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            conferenceTargetUri: props.targetUri.split('@')[0]
+            conferenceTargetUri: props.targetUri.split('@')[0],
+            managed: false
         };
         this.handleConferenceTargetChange = this.handleConferenceTargetChange.bind(this);
         this.onHide = this.onHide.bind(this);
@@ -32,7 +33,7 @@ class ConferenceModal extends React.Component {
     join(event) {
         event.preventDefault();
         const uri = `${this.state.conferenceTargetUri.replace(/[\s()-]/g, '')}@${config.defaultConferenceDomain}`;
-        this.props.handleConferenceCall(uri.toLowerCase());
+        this.props.handleConferenceCall(uri.toLowerCase(), this.state.managed);
     }
 
     onHide() {

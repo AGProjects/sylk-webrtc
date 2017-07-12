@@ -20,8 +20,6 @@ class ConferenceParticipantSelf extends React.Component {
         this.speechEvents = null;
         this.speechActivityTimer = null;
 
-        // ES6 classes no longer autobind
-        this.onVideoClicked = this.onVideoClicked.bind(this);
     }
 
     componentDidMount() {
@@ -55,14 +53,6 @@ class ConferenceParticipantSelf extends React.Component {
         });
     }
 
-    onVideoClicked() {
-        const item = {
-            stream: this.props.stream,
-            identity: this.props.identity
-        };
-        this.props.selected(item);
-    }
-
     render() {
         if (this.props.stream == null) {
             return false;
@@ -91,7 +81,7 @@ class ConferenceParticipantSelf extends React.Component {
             <div>
                 {muteIcon}
                 <OverlayTrigger placement="top" overlay={tooltip}>
-                    <div className="participant-container" onClick={this.onVideoClicked}>
+                    <div className="participant-container">
                         <video ref="videoElement" className={classes}  poster="assets/images/transparent-1px.png" autoPlay muted />
                     </div>
                 </OverlayTrigger>
@@ -103,7 +93,6 @@ class ConferenceParticipantSelf extends React.Component {
 ConferenceParticipantSelf.propTypes = {
     stream: PropTypes.object.isRequired,
     identity: PropTypes.object.isRequired,
-    selected: PropTypes.func.isRequired,
     active: PropTypes.func.isRequired,
     audioMuted: PropTypes.bool.isRequired
 };

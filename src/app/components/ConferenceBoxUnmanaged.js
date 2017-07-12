@@ -475,7 +475,7 @@ ConferenceBoxUnmanaged.propTypes = {
     notificationCenter : PropTypes.func.isRequired,
     call               : PropTypes.object,
     hangup             : PropTypes.func,
-    remoteIdentity     : PropTypes.string,
+    remoteIdentity     : PropTypes.string
 };
 
 ReactMixin(ConferenceBoxUnmanaged.prototype, FullscreenMixin);

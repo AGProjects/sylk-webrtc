@@ -2,7 +2,6 @@
 
 const React      = require('react');
 const PropTypes  = require('prop-types');
-const sylkrtc    = require('sylkrtc');
 const classNames = require('classnames');
 
 const EnrollmentModal = require('./EnrollmentModal');

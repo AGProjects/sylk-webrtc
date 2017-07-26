@@ -3,6 +3,7 @@
 const React      = require('react');
 const PropTypes  = require('prop-types');
 const classNames = require('classnames');
+const ipaddr     = require('ipaddr.js');
 
 const EnrollmentModal = require('./EnrollmentModal');
 const storage         = require('../storage');
@@ -65,7 +66,9 @@ class RegisterForm extends React.Component {
     }
 
     render() {
-        const validInput = this.state.accountId.indexOf('@') !== -1 && this.state.password !== 0;
+        const domain = this.state.accountId.substring(this.state.accountId.indexOf('@') + 1);
+        const validDomain = !ipaddr.IPv4.isValidFourPartDecimal(domain) && !ipaddr.IPv6.isValid(domain);
+        const validInput =  validDomain && this.state.accountId.indexOf('@') !== -1 && this.state.password !== 0;
         const classes = classNames({
             'btn'        : true,
             'btn-lg'     : true,

@@ -61,7 +61,7 @@ class IncomingCallModal extends React.Component {
                     <div className="loading">
                         <div className="loading-inner">
                             <OverlayTrigger placement="top" overlay={tooltip}>
-                                <i className="fa fa-user fa-5 fa-fw user-icon"></i>
+                                <i className="fa fa-user fa-5 fa-fw incoming-user-icon"></i>
                             </OverlayTrigger>
                             <h1>{remoteIdentityLine}</h1>
                             <h4>is calling with {callType}</h4>

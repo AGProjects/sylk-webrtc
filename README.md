@@ -160,4 +160,4 @@ The following organizations have helped the development of Sylk by providing fun
 
 * [NLnet Foundation](https://www.nlnet.nl)
 * [SIDNfonds](https://www.sidnfonds.nl)
-* [ISOC Nederland] (https://www.isoc.nl)
+* [ISOC Nederland](https://www.isoc.nl)

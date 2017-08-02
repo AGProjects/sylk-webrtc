@@ -12,7 +12,6 @@ const adapter                   = require('webrtc-adapter');
 const sylkrtc                   = require('sylkrtc');
 const debug                     = require('debug');
 
-const AutobindMixinFactory = require('./mixins/Autobind');
 const RegisterBox          = require('./components/RegisterBox');
 const ReadyBox             = require('./components/ReadyBox');
 const Call                 = require('./components/Call');

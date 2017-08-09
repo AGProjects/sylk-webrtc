@@ -51,7 +51,7 @@
     "react-bootstrap": "^0.31.1",
     "react-dom": "^15.6.1",
     "react-mixin": "^3.0.5",
-    "react-notification-system": "^0.2.14",
+    "react-notification-system": "^0.2.15",
     "react-router-component": "^0.37.0",
     "react-transition-group": "^1.2.0",
     "require-dir": "^0.3.2",

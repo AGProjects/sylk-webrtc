@@ -28,9 +28,6 @@ class ConferenceParticipantBig extends React.Component {
             this[name] = this[name].bind(this);
         });
 
-        if (!props.isLocal) {
-            props.participant.on('stateChanged', this.onParticipantStateChanged);
-        }
     }
 
     componentDidMount() {
@@ -42,9 +39,6 @@ class ConferenceParticipantBig extends React.Component {
     }
 
     componentWillUnmount() {
-        if (!this.props.isLocal) {
-            this.props.participant.removeListener('stateChanged', this.onParticipantStateChanged);
-        }
         if (this.speechEvents !== null) {
             this.speechEvents.stop();
             this.speechEvents = null;
@@ -86,8 +80,7 @@ class ConferenceParticipantBig extends React.Component {
 
     render() {
         const classes = classNames({
-            'poster' : !this.state.hasVideo,
-            'mirror' : this.props.isLocal
+            'poster' : !this.state.hasVideo
         });
 
         let participantInfo;
@@ -104,7 +97,7 @@ class ConferenceParticipantBig extends React.Component {
             <div className={remoteVideoClasses}>
                 {participantInfo}
                 <div className="video">
-                    <video poster="assets/images/transparent-1px.png" className={classes} ref="videoElement" autoPlay muted={this.props.isLocal} />
+                    <video poster="assets/images/transparent-1px.png" className={classes} ref="videoElement" autoPlay />
                 </div>
             </div>
         );
@@ -113,8 +106,7 @@ class ConferenceParticipantBig extends React.Component {
 
 ConferenceParticipantBig.propTypes = {
     participant: PropTypes.object.isRequired,
-    large: PropTypes.bool,
-    isLocal: PropTypes.bool
+    large: PropTypes.bool
 };
 
 

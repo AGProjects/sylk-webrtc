@@ -434,7 +434,6 @@ class ConferenceBoxUnmanaged extends React.Component {
                         key={p.id}
                         participant = {p}
                         large = {this.state.participants.length <= 1}
-                        isLocal = {false}
                     />
                 );
             });

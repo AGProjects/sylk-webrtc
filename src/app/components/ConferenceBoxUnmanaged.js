@@ -32,7 +32,6 @@ class ConferenceBoxUnmanaged extends React.Component {
             callOverlayVisible: true,
             audioMuted: false,
             videoMuted: false,
-            autoRotate: true,
             participants: props.call.participants.slice(),
             showInviteModal: false,
             shareOverlayVisible: false

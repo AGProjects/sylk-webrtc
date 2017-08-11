@@ -28,6 +28,8 @@ class ConferenceParticipantBig extends React.Component {
             this[name] = this[name].bind(this);
         });
 
+        props.participant.on('stateChanged', this.onParticipantStateChanged);
+
     }
 
     componentDidMount() {
@@ -39,6 +41,7 @@ class ConferenceParticipantBig extends React.Component {
     }
 
     componentWillUnmount() {
+        this.props.participant.removeListener('stateChanged', this.onParticipantStateChanged);
         if (this.speechEvents !== null) {
             this.speechEvents.stop();
             this.speechEvents = null;

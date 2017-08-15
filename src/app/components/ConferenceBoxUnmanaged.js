@@ -64,7 +64,6 @@ class ConferenceBoxUnmanaged extends React.Component {
             'onParticipantJoined',
             'onParticipantLeft',
             'onParticipantStateChanged',
-            'onParticipantActive',
             'maybeSwitchLargeVideo',
             'handleClipboardButton',
             'handleShareOverlayEntered',
@@ -157,10 +156,6 @@ class ConferenceBoxUnmanaged extends React.Component {
         if (item.stream) {
             sylkrtc.utils.attachMediaStream(item.stream, this.refs.largeVideo);
         }
-    }
-
-    onParticipantActive(item) {
-        DEBUG('Participant is active: %o', item);
     }
 
     maybeSwitchLargeVideo() {
@@ -415,7 +410,6 @@ class ConferenceBoxUnmanaged extends React.Component {
                     key="myself"
                     stream={this.props.call.getLocalStreams()[0]}
                     identity={this.props.call.localIdentity}
-                    active={this.onParticipantActive}
                     audioMuted={this.state.audioMuted}
                 />
             );

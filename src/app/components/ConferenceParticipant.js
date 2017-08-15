@@ -24,7 +24,6 @@ class ConferenceParticipant extends React.Component {
         // ES6 classes no longer autobind
         [
             'onParticipantStateChanged',
-            'onVideoClicked',
             'onMuteAudioClicked',
             'showOverlay',
             'hideOverlay'
@@ -56,15 +55,6 @@ class ConferenceParticipant extends React.Component {
         if (newState === 'established') {
             this.maybeAttachStream();
         }
-    }
-
-    onVideoClicked() {
-        const streams = this.props.participant.streams;
-        const item = {
-            stream: streams.length > 0 ? streams[0] : null,
-            identity: this.props.participant.identity
-        };
-        this.props.selected(item);
     }
 
     onMuteAudioClicked(event) {
@@ -100,7 +90,6 @@ class ConferenceParticipant extends React.Component {
             });
         }
     }
-
 
     showOverlay() {
         this.setState({overlayVisible: true});
@@ -151,7 +140,7 @@ class ConferenceParticipant extends React.Component {
             <div onMouseMove={this.showOverlay} onMouseLeave={this.hideOverlay}>
                 {muteButton}
                 <OverlayTrigger placement="top" overlay={tooltip}>
-                    <div className="participant-container" onClick={this.onVideoClicked}>
+                    <div className="participant-container">
                         <video ref="videoElement" className={classes} poster="assets/images/transparent-1px.png" autoPlay />
                     </div>
                 </OverlayTrigger>
@@ -161,8 +150,7 @@ class ConferenceParticipant extends React.Component {
 }
 
 ConferenceParticipant.propTypes = {
-    participant: PropTypes.object.isRequired,
-    selected: PropTypes.func.isRequired,
+    participant: PropTypes.object.isRequired
 };
 
 

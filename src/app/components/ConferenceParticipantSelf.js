@@ -18,8 +18,6 @@ class ConferenceParticipantSelf extends React.Component {
             hasVideo: false
         }
         this.speechEvents = null;
-        this.speechActivityTimer = null;
-
     }
 
     componentDidMount() {
@@ -34,7 +32,6 @@ class ConferenceParticipantSelf extends React.Component {
             this.speechEvents.stop();
             this.speechEvents = null;
         }
-        clearInterval(this.speechActivityTimer);
     }
 
     attachSpeechEvents() {
@@ -93,7 +90,6 @@ class ConferenceParticipantSelf extends React.Component {
 ConferenceParticipantSelf.propTypes = {
     stream: PropTypes.object.isRequired,
     identity: PropTypes.object.isRequired,
-    active: PropTypes.func.isRequired,
     audioMuted: PropTypes.bool.isRequired
 };
 

@@ -2,7 +2,6 @@
 
 const React                     = require('react');
 const ReactDOM                  = require('react-dom');
-const ReactMixin                = require('react-mixin');
 const Router                    = require('react-router-component');
 const Locations                 = Router.Locations;
 const Location                  = Router.Location;

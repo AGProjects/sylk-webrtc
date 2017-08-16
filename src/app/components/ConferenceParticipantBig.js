@@ -19,7 +19,6 @@ class ConferenceParticipantBig extends React.Component {
             audioMuted: false
         }
         this.speechEvents = null;
-        this.speechActivityTimer = null;
 
         // ES6 classes no longer autobind
         [
@@ -46,7 +45,6 @@ class ConferenceParticipantBig extends React.Component {
             this.speechEvents.stop();
             this.speechEvents = null;
         }
-        clearInterval(this.speechActivityTimer);
     }
 
     onParticipantStateChanged(oldState, newState) {
@@ -66,16 +64,9 @@ class ConferenceParticipantBig extends React.Component {
             };
             this.speechEvents = hark(streams[0], options);
             this.speechEvents.on('speaking', () => {
-                this.speechActivityTimer = setInterval(() => {
-                    const item = {
-                        stream: streams[0],
-                        identity: this.props.participant.identity
-                    };
-                }, 500);
                 this.setState({active: true});
             });
             this.speechEvents.on('stopped_speaking', () => {
-                clearInterval(this.speechActivityTimer);
                 this.setState({active: false});
             });
         }

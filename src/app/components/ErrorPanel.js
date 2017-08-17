@@ -20,7 +20,7 @@ const ErrorPanel = (props) => {
 }
 
 ErrorPanel.propTypes = {
-    errorMsg: PropTypes.string.isRequired
+    errorMsg: PropTypes.object.isRequired
 };
 
 

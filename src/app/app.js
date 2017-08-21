@@ -690,7 +690,7 @@ class Blink extends React.Component {
         const errorMsg = (
             <span>
                 This application works in a browser that supports WebRTC (like recent versions
-                of <a href="https://www.google.com/chrome/browser/desktop/" target="_blank">Chrome</a> or <a href="https://www.mozilla.org/nl/firefox/new/" target="_blank">Firefox</a>)
+                of <a href="https://www.google.com/chrome/browser/desktop/" target="_blank">Chrome</a> or <a href="https://www.mozilla.org/firefox/new/" target="_blank">Firefox</a>)
                 or in the standalone <a href="http://sylkserver.com/download/" target="_blank">Sylk application.</a>
             </span>
         );

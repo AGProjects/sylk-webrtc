@@ -237,6 +237,9 @@ class ConferenceBoxUnmanaged extends React.Component {
         for (let participant of this.state.participants) {
             participant.detach();
         }
+        if (typeof this.refs.largeVideo !== 'undefined') {
+            this.refs.largeVideo.pause();
+        }
         this.props.hangup();
     }
 

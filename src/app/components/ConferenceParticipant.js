@@ -43,7 +43,7 @@ class ConferenceParticipant extends React.Component {
     }
 
     componentWillUnmount() {
-        this.refs.videoElement.src = '';
+        this.refs.videoElement.pause();
         this.props.participant.removeListener('stateChanged', this.onParticipantStateChanged);
         if (this.speechEvents !== null) {
             this.speechEvents.stop();

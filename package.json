@@ -50,7 +50,7 @@
     "react": "^15.6.1",
     "react-bootstrap": "^0.31.3",
     "react-dom": "^15.6.1",
-    "react-mixin": "^3.0.5",
+    "react-mixin": "^4.0.0",
     "react-notification-system": "^0.2.15",
     "react-router-component": "^0.38.0",
     "react-transition-group": "^1.2.0",

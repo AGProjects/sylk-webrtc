@@ -31,7 +31,7 @@ const UserIcon = (props) => {
 
 UserIcon.propTypes = {
     classes: PropTypes.object.isRequired,
-    identity: PropTypes.object
+    identity: PropTypes.object.isRequired
 };
 
 

@@ -5163,9 +5163,9 @@ react-prop-types@^0.4.0:
   dependencies:
     warning "^3.0.0"
 
-react-router-component@^0.37.0:
-  version "0.37.0"
-  resolved "https://registry.yarnpkg.com/react-router-component/-/react-router-component-0.37.0.tgz#e80f34a32b3f903a0758cf84b02127001ac9dd33"
+react-router-component@^0.38.0:
+  version "0.38.0"
+  resolved "https://registry.yarnpkg.com/react-router-component/-/react-router-component-0.38.0.tgz#ac741e3da0e7ca14526cc6799e6169df97b0cc1b"
   dependencies:
     create-react-class "^15.5.2"
     is-equal-shallow "^0.1.3"

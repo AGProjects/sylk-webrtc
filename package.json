@@ -17,8 +17,8 @@
     "classnames": "^2.2.5",
     "connect-modrewrite": "^0.10.1",
     "debug": "*",
-    "electron": "^1.4.12",
-    "electron-builder": "^10.7.0",
+    "electron": "^1.7.6",
+    "electron-builder": "^19.27.7",
     "envify": "^4.1.0",
     "eslint": "^3.12.1",
     "eslint-plugin-import": "^2.2.0",
@@ -101,6 +101,7 @@
       "perMachine": false
     },
     "linux": {
+      "category": "Audio;Video;AudioVideo",
       "target": [
         "AppImage"
       ]

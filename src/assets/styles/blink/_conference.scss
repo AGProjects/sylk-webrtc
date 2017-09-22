@@ -121,7 +121,14 @@
     justify-content: center;
     width: 100% !important;
     height: 100% !important;
+    margin-right: 0;
     overflow: hidden;
+    transition: margin 225ms cubic-bezier(0, 0, .2, 1) 0ms, width 225ms cubic-bezier(0, 0, .2, 1) 0ms;
+
+    &.drawer-visible {
+        width: calc(100% - 350px) !important;
+        margin-right: 350px;
+    }
 
     .matrix {
         display: flex;

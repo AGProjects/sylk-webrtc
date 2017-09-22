@@ -59,9 +59,9 @@ const appMenu = Menu.buildFromTemplate([{
 function createMainWindow() {
     // Options for BrowserWindow
     const windowOptions = {
-        width: 860,
+        width: 1067,
         height: 600,
-        minWidth: 860,
+        minWidth: 1067,
         minHeight: 600,
         title: 'Sylk',
     };

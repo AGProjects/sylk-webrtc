@@ -18,6 +18,7 @@ const utils                             = require('../utils');
 const FullscreenMixin                   = require('../mixins/FullScreen');
 const AudioPlayer                       = require('./AudioPlayer');
 const ConferenceDrawer                  = require('./ConferenceDrawer');
+const ConferenceDrawerLog               = require('./ConferenceDrawerLog');
 const ConferenceDrawerParticipant       = require('./ConferenceDrawerParticipant');
 const ConferenceDrawerParticipantList   = require('./ConferenceDrawerParticipantList');
 const ConferenceCarousel                = require('./ConferenceCarousel');
@@ -38,7 +39,8 @@ class ConferenceBoxUnmanaged extends React.Component {
             participants: props.call.participants.slice(),
             showInviteModal: false,
             showDrawer: false,
-            shareOverlayVisible: false
+            shareOverlayVisible: false,
+            eventLog: []
         };
 
         const friendlyName = this.props.remoteIdentity.split('@')[0];
@@ -57,6 +59,22 @@ class ConferenceBoxUnmanaged extends React.Component {
         this.callDuration = null;
         this.callTimer = null;
         this.overlayTimer = null;
+        this.logEvent = {};
+
+        [
+            'error',
+            'warning',
+            'info',
+            'debug'
+        ].forEach((level) => {
+            this.logEvent[level] = (
+                (action, messages, originator) => {
+                    const log = this.state.eventLog.slice();
+                    log.unshift({originator, originator, level: level, action: action, messages: messages});
+                    this.setState({eventLog: log});
+                }
+            );
+        });
 
         // ES6 classes no longer autobind
         [
@@ -506,6 +524,7 @@ class ConferenceBoxUnmanaged extends React.Component {
                     <ConferenceDrawerParticipantList>
                         {drawerParticipants}
                     </ConferenceDrawerParticipantList>
+                    <ConferenceDrawerLog log={this.state.eventLog} />
                 </ConferenceDrawer>
             </div>
         );

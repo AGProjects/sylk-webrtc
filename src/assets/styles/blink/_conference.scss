@@ -241,6 +241,23 @@
             }
         }
 
+        .controls-top {
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            max-height: 50px;
+            min-height: 50px;
+            padding-left: 20px;
+
+            .lead {
+                margin-bottom: 10px;
+            }
+        }
     }
 
     .video {

@@ -18,6 +18,8 @@ const utils                             = require('../utils');
 const FullscreenMixin                   = require('../mixins/FullScreen');
 const AudioPlayer                       = require('./AudioPlayer');
 const ConferenceDrawer                  = require('./ConferenceDrawer');
+const ConferenceDrawerParticipant       = require('./ConferenceDrawerParticipant');
+const ConferenceDrawerParticipantList   = require('./ConferenceDrawerParticipantList');
 const ConferenceCarousel                = require('./ConferenceCarousel');
 const ConferenceParticipantBig          = require('./ConferenceParticipantBig');
 const ConferenceParticipantSelf         = require('./ConferenceParticipantSelf');
@@ -439,6 +441,15 @@ class ConferenceBoxUnmanaged extends React.Component {
             );
         }
 
+        const drawerParticipants = [];
+
+        drawerParticipants.push(
+            <ConferenceDrawerParticipant
+                key="myself"
+                participant={{identity: this.props.call.localIdentity}}
+                isLocal={true}
+            />
+        );
         let videos = [];
         if (this.state.participants.length === 0) {
             videos.push(
@@ -453,6 +464,13 @@ class ConferenceBoxUnmanaged extends React.Component {
                         large = {this.state.participants.length <= 1}
                     />
                 );
+
+				drawerParticipants.push(
+					<ConferenceDrawerParticipant
+						key={p.id}
+						participant={p}
+					/>
+				);
             });
         }
 
@@ -485,6 +503,9 @@ class ConferenceBoxUnmanaged extends React.Component {
                     />
                 </div>
                 <ConferenceDrawer show={this.state.showDrawer} close={this.toggleDrawer}>
+                    <ConferenceDrawerParticipantList>
+                        {drawerParticipants}
+                    </ConferenceDrawerParticipantList>
                 </ConferenceDrawer>
             </div>
         );

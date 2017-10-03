@@ -103,7 +103,6 @@ class Blink extends React.Component {
         this.redirectTo = null;
         this.prevPath = null;
         this.shouldUseHashRouting = false;
-        this.managedConference = false;
     }
 
     get _notificationCenter() {
@@ -523,9 +522,8 @@ class Blink extends React.Component {
         this.startConference(uri);
     }
 
-    startConference(targetUri, managed=false) { // eslint-disable-line space-infix-ops
+    startConference(targetUri) {
         this.setState({targetUri: targetUri});
-        this.managedConference = managed;
         this.getLocalMedia({audio: true, video: true}, '/conference');
     }
 
@@ -810,7 +808,6 @@ class Blink extends React.Component {
                 currentCall = {this.state.currentCall}
                 participantsToInvite = {this.participantsToInvite}
                 hangupCall = {this.hangupCall}
-                managed = {this.managedConference}
             />
         )
     }

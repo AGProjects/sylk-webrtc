@@ -6,7 +6,6 @@ const classNames = require('classnames');
 const assert     = require('assert');
 const debug      = require('debug');
 
-const ConferenceBox             = require('./ConferenceBox');
 const ConferenceBoxUnmanaged    = require('./ConferenceBoxUnmanaged');
 const LocalMedia                = require('./LocalMedia');
 const config                    = require('../config');
@@ -42,7 +41,6 @@ class Conference extends React.Component {
                 offerToReceiveAudio: false,
                 offerToReceiveVideo: false
             },
-            managed: this.props.managed,
             initialParticipants: this.props.participantsToInvite
         };
         const confCall = this.props.account.joinConference(this.props.targetUri.toLowerCase(), options);
@@ -63,25 +61,14 @@ class Conference extends React.Component {
 
         if (this.props.localMedia !== null) {
             if (this.props.currentCall != null && this.props.currentCall.state === 'established') {
-                if (this.props.managed) {
-                    box = (
-                        <ConferenceBox
-                            notificationCenter = {this.props.notificationCenter}
-                            call = {this.props.currentCall}
-                            hangup = {this.hangup}
-                            remoteIdentity = {this.props.targetUri}
-                        />
-                    );
-                } else {
-                    box = (
-                        <ConferenceBoxUnmanaged
-                            notificationCenter = {this.props.notificationCenter}
-                            call = {this.props.currentCall}
-                            hangup = {this.hangup}
-                            remoteIdentity = {this.props.targetUri}
-                        />
-                    );
-                }
+                box = (
+                    <ConferenceBoxUnmanaged
+                        notificationCenter = {this.props.notificationCenter}
+                        call = {this.props.currentCall}
+                        hangup = {this.hangup}
+                        remoteIdentity = {this.props.targetUri}
+                    />
+                );
             } else {
                 box = (
                     <LocalMedia
@@ -109,8 +96,7 @@ Conference.propTypes = {
     currentCall             : PropTypes.object,
     localMedia              : PropTypes.object,
     targetUri               : PropTypes.string,
-    participantsToInvite    : PropTypes.array,
-    managed                 : PropTypes.bool
+    participantsToInvite    : PropTypes.array
 };
 
 

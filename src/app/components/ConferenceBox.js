@@ -28,7 +28,7 @@ const ConferenceMatrixParticipant       = require('./ConferenceMatrixParticipant
 const ConferenceParticipantSelf         = require('./ConferenceParticipantSelf');
 const InviteParticipantsModal           = require('./InviteParticipantsModal');
 
-const DEBUG = debug('blinkrtc:ConferenceBoxUnmanaged');
+const DEBUG = debug('blinkrtc:ConferenceBox');
 
 
 class ConferenceBox extends React.Component {

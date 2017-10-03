@@ -27,7 +27,9 @@ class ConferenceParticipantBig extends React.Component {
             this[name] = this[name].bind(this);
         });
 
-        props.participant.on('stateChanged', this.onParticipantStateChanged);
+        if (!props.isLocal) {
+            props.participant.on('stateChanged', this.onParticipantStateChanged);
+        }
 
     }
 
@@ -41,7 +43,9 @@ class ConferenceParticipantBig extends React.Component {
 
     componentWillUnmount() {
         this.refs.videoElement.pause();
-        this.props.participant.removeListener('stateChanged', this.onParticipantStateChanged);
+        if (!this.props.isLocal) {
+            this.props.participant.removeListener('stateChanged', this.onParticipantStateChanged);
+        }
         if (this.speechEvents !== null) {
             this.speechEvents.stop();
             this.speechEvents = null;
@@ -77,22 +81,33 @@ class ConferenceParticipantBig extends React.Component {
         const classes = classNames({
             'poster' : !this.state.hasVideo
         });
-
-        let participantInfo;
-
         const remoteVideoClasses = classNames({
             'remote-video'      : true,
             'large'             : this.props.large,
             'conference-active' : this.state.active
         });
+        const participantInfo = (
+            <div className="controls">
+                <p className="lead">{this.props.participant.identity.displayName || this.props.participant.identity.uri}</p>
+            </div>
+        );
 
-        participantInfo = (<div className="controls"><p className="lead">{this.props.participant.identity.displayName || this.props.participant.identity.uri}</p></div>);
+        let activeIcon;
+
+        if (this.props.isLocal) {
+            activeIcon = (
+                <div className="controls-top">
+                    <p className="lead"><span className="label label-success">Speaker</span></p>
+                </div>
+            );
+        }
 
         return (
             <div className={remoteVideoClasses}>
+                {activeIcon}
                 {participantInfo}
                 <div className="video">
-                    <video poster="assets/images/transparent-1px.png" className={classes} ref="videoElement" autoPlay />
+                    <video poster="assets/images/transparent-1px.png" className={classes} ref="videoElement" autoPlay muted={this.props.isLocal}/>
                 </div>
             </div>
         );
@@ -101,7 +116,8 @@ class ConferenceParticipantBig extends React.Component {
 
 ConferenceParticipantBig.propTypes = {
     participant: PropTypes.object.isRequired,
-    large: PropTypes.bool
+    large: PropTypes.bool,
+    isLocal: PropTypes.bool
 };
 
 

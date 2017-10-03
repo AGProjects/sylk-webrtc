@@ -1,29 +1,34 @@
 'use strict';
 
-const React                     = require('react');
-const PropTypes                 = require('prop-types');
-const CSSTransitionGroup        = require('react-transition-group/CSSTransitionGroup');
-const ReactMixin                = require('react-mixin');
-const ReactBootstrap            = require('react-bootstrap');
-const Popover                   = ReactBootstrap.Popover;
-const OverlayTrigger            = ReactBootstrap.OverlayTrigger;
-const sylkrtc                   = require('sylkrtc');
-const classNames                = require('classnames');
-const debug                     = require('debug');
-const moment                    = require('moment');
-const momentFormat              = require('moment-duration-format');
+const React                 = require('react');
+const PropTypes             = require('prop-types');
+const CSSTransitionGroup    = require('react-transition-group/CSSTransitionGroup');
+const ReactMixin            = require('react-mixin');
+const ReactBootstrap        = require('react-bootstrap');
+const Popover               = ReactBootstrap.Popover;
+const OverlayTrigger        = ReactBootstrap.OverlayTrigger;
+const sylkrtc               = require('sylkrtc');
+const classNames            = require('classnames');
+const debug                 = require('debug');
+const moment                = require('moment');
+const momentFormat          = require('moment-duration-format');
 
-const config                    = require('../config');
-const utils                     = require('../utils');
-const FullscreenMixin           = require('../mixins/FullScreen');
-const AudioPlayer               = require('./AudioPlayer');
-const ConferenceCarousel        = require('./ConferenceCarousel');
-const ConferenceParticipant     = require('./ConferenceParticipant');
-const ConferenceParticipantSelf = require('./ConferenceParticipantSelf');
-const InviteParticipantsModal   = require('./InviteParticipantsModal');
+const config                            = require('../config');
+const utils                             = require('../utils');
+const FullscreenMixin                   = require('../mixins/FullScreen');
+const AudioPlayer                       = require('./AudioPlayer');
+const ConferenceDrawer                  = require('./ConferenceDrawer');
+const ConferenceDrawerLog               = require('./ConferenceDrawerLog');
+const ConferenceDrawerParticipant       = require('./ConferenceDrawerParticipant');
+const ConferenceDrawerParticipantList   = require('./ConferenceDrawerParticipantList');
+const ConferenceDrawerSpeakerSelection  = require('./ConferenceDrawerSpeakerSelection');
+const ConferenceCarousel                = require('./ConferenceCarousel');
+const ConferenceParticipant             = require('./ConferenceParticipant');
+const ConferenceMatrixParticipant       = require('./ConferenceMatrixParticipant');
+const ConferenceParticipantSelf         = require('./ConferenceParticipantSelf');
+const InviteParticipantsModal           = require('./InviteParticipantsModal');
 
-
-const DEBUG = debug('blinkrtc:ConferenceBox');
+const DEBUG = debug('blinkrtc:ConferenceBoxUnmanaged');
 
 
 class ConferenceBox extends React.Component {
@@ -33,15 +38,13 @@ class ConferenceBox extends React.Component {
             callOverlayVisible: true,
             audioMuted: false,
             videoMuted: false,
-            autoRotate: true,
             participants: props.call.participants.slice(),
-            currentLargeVideo: {
-                stream: null,
-                isLocal: false,
-                hasVideo: false
-            },
             showInviteModal: false,
-            shareOverlayVisible: false
+            showDrawer: false,
+            shareOverlayVisible: false,
+            activeSpeakers: props.call.activeParticipants.slice(),
+            selfDisplayedLarge: false,
+            eventLog: []
         };
 
         const friendlyName = this.props.remoteIdentity.split('@')[0];
@@ -57,10 +60,25 @@ class ConferenceBox extends React.Component {
 
         this.emailLink = `mailto:?subject=${encodeURI(subject)}&body=${encodeURI(emailMessage)}`;
 
-        this.rotateTimer = null;
         this.callDuration = null;
         this.callTimer = null;
         this.overlayTimer = null;
+        this.logEvent = {};
+
+        [
+            'error',
+            'warning',
+            'info',
+            'debug'
+        ].forEach((level) => {
+            this.logEvent[level] = (
+                (action, messages, originator) => {
+                    const log = this.state.eventLog.slice();
+                    log.unshift({originator, originator, level: level, action: action, messages: messages});
+                    this.setState({eventLog: log});
+                }
+            );
+        });
 
         // ES6 classes no longer autobind
         [
@@ -72,14 +90,14 @@ class ConferenceBox extends React.Component {
             'onParticipantJoined',
             'onParticipantLeft',
             'onParticipantStateChanged',
-            'onParticipantActive',
-            'onVideoSelected',
+            'onConfigureRoom',
             'maybeSwitchLargeVideo',
             'handleClipboardButton',
             'handleShareOverlayEntered',
             'handleShareOverlayExited',
-            'toggleAutoRotate',
+            'handleActiveSpeakerSelected',
             'toggleInviteModal',
+            'toggleDrawer',
             'preventOverlay'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
@@ -93,6 +111,7 @@ class ConferenceBox extends React.Component {
         }
         this.props.call.on('participantJoined', this.onParticipantJoined);
         this.props.call.on('participantLeft', this.onParticipantLeft);
+        this.props.call.on('roomConfigured', this.onConfigureRoom);
 
         this.armOverlayTimer();
         this.startCallTimer();
@@ -106,6 +125,8 @@ class ConferenceBox extends React.Component {
                 };
                 this.selectVideo(item);
             });
+        } else {
+            // this.changeResolution();
         }
     }
 
@@ -114,8 +135,6 @@ class ConferenceBox extends React.Component {
         clearTimeout(this.callTimer);
 
         this.exitFullscreen();
-
-        this.refs.largeVideo.src = '';
     }
 
     onParticipantJoined(p) {
@@ -126,6 +145,7 @@ class ConferenceBox extends React.Component {
         this.setState({
             participants: this.state.participants.concat([p])
         });
+        // this.changeResolution();
     }
 
     onParticipantLeft(p) {
@@ -140,6 +160,7 @@ class ConferenceBox extends React.Component {
                 participants: participants
             });
         }
+        // this.changeResolution();
     }
 
     onParticipantStateChanged(oldState, newState) {
@@ -148,74 +169,51 @@ class ConferenceBox extends React.Component {
         }
     }
 
-    onVideoSelected(item) {
-        this.setState({autoRotate: false});
-        this.selectVideo(item);
+    onConfigureRoom(config) {
+        const newState = {};
+        newState.activeSpeakers = config.activeParticipants;
+        this.setState(newState);
+
+        if (config.activeParticipants.length === 0) {
+            this.logEvent.info('set speakers to', ['Nobody'], config.originator);
+        } else {
+            const speakers = config.activeParticipants.map((p) => {return p.identity.displayName || p.identity.uri});
+            this.logEvent.info('set speakers to', speakers, config.originator);
+        }
+        this.maybeSwitchLargeVideo();
+    }
+
+    changeResolution() {
+        let stream = this.props.call.getLocalStreams()[0];
+        if (this.state.participants.length < 2) {
+            this.props.call.scaleLocalTrack(stream, 1.5);
+        } else if (this.state.participants.length < 5) {
+            this.props.call.scaleLocalTrack(stream, 2);
+        } else {
+            this.props.call.scaleLocalTrack(stream, 1);
+        }
     }
 
     selectVideo(item) {
         DEBUG('Switching video to: %o', item);
         if (item.stream) {
-            if (item.stream !== this.state.currentLargeVideo.stream) {
-                const isLocal = item.stream === this.props.call.getLocalStreams()[0];
-                const hasVideo = item.stream.getVideoTracks().length > 0;
-                this.setState({currentLargeVideo: {stream: item.stream, isLocal: isLocal, hasVideo: hasVideo}});
-                sylkrtc.utils.attachMediaStream(item.stream, this.refs.largeVideo);
-            }
-        } else {
-            this.setState({currentLargeVideo: {stream: null, isLocal: false, hasVideo: false}});
-            this.refs.largeVideo.src = '';
-        }
-    }
-
-    onParticipantActive(item) {
-        DEBUG('Participant is active: %o', item);
-        if (this.state.autoRotate) {
-            if (this.rotateTimer === null) {
-                this.selectVideo(item);
-                this.rotateTimer = setTimeout(() => {
-                    this.rotateTimer = null;
-                }, 5000);
-            }
+            sylkrtc.utils.attachMediaStream(item.stream, this.refs.largeVideo);
+            this.setState({selfDisplayedLarge: true});
         }
     }
 
     maybeSwitchLargeVideo() {
         // Switch the large video to another source, maybe.
-        if (this.state.currentLargeVideo.stream == null ||
-            !this.state.currentLargeVideo.stream.active ||
-            this.state.currentLargeVideo.isLocal) {
-
-            let done = false;
-            for (let p of this.state.participants) {
-                if (p.state !== 'established') {
-                    continue;
-                }
-                const streams = p.streams;
-                if (streams.length > 0 && streams[0].active && streams[0].getVideoTracks().length > 0) {
-                    const item = {
-                        stream: streams[0],
-                        identity: p.identity
-                    };
-                    this.selectVideo(item);
-                    done = true;
-                    break;
-                }
-            }
-            if (!done) {
-                // none of the participants are eligible, show ourselves
-                const item = {
-                    stream: this.props.call.getLocalStreams()[0],
-                    identity: this.props.call.localIdentity
-                };
-                this.selectVideo(item);
-            }
+        if (this.state.participants.length === 0 && !this.state.selfDisplayedLarge) {
+            // none of the participants are eligible, show ourselves
+            const item = {
+                stream: this.props.call.getLocalStreams()[0],
+                identity: this.props.call.localIdentity
+            };
+            this.selectVideo(item);
+        } else if (this.state.selfDisplayedLarge) {
+            this.setState({selfDisplayedLarge: false});
         }
-    }
-
-    toggleAutoRotate(event) {
-        event.preventDefault();
-        this.setState({autoRotate: !this.state.autoRotate});
     }
 
     handleFullscreen(event) {
@@ -237,10 +235,38 @@ class ConferenceBox extends React.Component {
 
     handleShareOverlayExited() {
         // re-arm the buttons and overlay timeout
-        this.armOverlayTimer();
+        if (!this.state.showDrawer) {
+            this.armOverlayTimer();
+        }
         this.setState({shareOverlayVisible: false});
     }
 
+    handleActiveSpeakerSelected(participant, secondVideo=false) {      // eslint-disable-line space-infix-ops
+        let newActiveSpeakers = this.state.activeSpeakers.slice();
+        if (secondVideo) {
+            if (participant.id !== 'none') {
+                if (newActiveSpeakers.length >= 1) {
+                    newActiveSpeakers[1] = participant;
+                } else {
+                    newActiveSpeakers[0] = participant;
+                }
+            } else {
+                newActiveSpeakers.splice(1,1);
+            }
+        } else {
+            if (participant.id !== 'none') {
+                newActiveSpeakers[0] = participant;
+            } else {
+                newActiveSpeakers.shift();
+            }
+        }
+        this.props.call.configureRoom(newActiveSpeakers.map((element) => element.publisherId), (error) => {
+            if (error) {
+                // This causes a state update, hence the drawer lists update
+                this.logEvent.error('set speakers failed', [], this.localIdentity);
+            }
+        });
+    }
     preventOverlay(event) {
         // Stop the overlay when we are the thumbnail bar
         event.stopPropagation();
@@ -285,6 +311,9 @@ class ConferenceBox extends React.Component {
         for (let participant of this.state.participants) {
             participant.detach();
         }
+        if (typeof this.refs.largeVideo !== 'undefined') {
+            this.refs.largeVideo.pause();
+        }
         this.props.hangup();
     }
 
@@ -306,7 +335,7 @@ class ConferenceBox extends React.Component {
     }
 
     showOverlay() {
-        if (!this.state.shareOverlayVisible) {
+        if (!this.state.shareOverlayVisible && !this.state.showDrawer) {
             this.setState({callOverlayVisible: true});
             this.armOverlayTimer();
         }
@@ -317,6 +346,11 @@ class ConferenceBox extends React.Component {
         if (this.refs.showOverlay) {
             this.refs.shareOverlay.hide();
         }
+    }
+
+    toggleDrawer() {
+        this.setState({callOverlayVisible: true, showDrawer: !this.state.showDrawer});
+        clearTimeout(this.overlayTimer);
     }
 
     render() {
@@ -332,9 +366,20 @@ class ConferenceBox extends React.Component {
             'animated'      : true,
             'fadeIn'        : true,
             'large'         : true,
-            'mirror'        : this.state.currentLargeVideo.isLocal && this.state.currentLargeVideo.hasVideo,
-            'poster'        : !this.state.currentLargeVideo.hasVideo
+            'mirror'        : true
         });
+
+        let matrixClasses = classNames({
+            'matrix'        : true
+        });
+
+        const containerClasses = classNames({
+            'video-container': true,
+            'conference': true,
+            'drawer-visible': this.state.showDrawer
+        })
+
+        const remoteIdentity = this.props.remoteIdentity.split('@')[0];
 
         if (this.state.callOverlayVisible) {
             const muteButtonIcons = classNames({
@@ -351,6 +396,7 @@ class ConferenceBox extends React.Component {
 
             const fullScreenButtonIcons = classNames({
                 'fa'            : true,
+                'fa-2x'         : true,
                 'fa-expand'     : !this.isFullScreen(),
                 'fa-compress'   : this.isFullScreen()
             });
@@ -365,14 +411,10 @@ class ConferenceBox extends React.Component {
                 'btn-default'   : true
             });
 
-            const rotateButtonClasses = classNames({
+            const commonButtonTopClasses = classNames({
                 'btn'           : true,
-                'btn-round'     : true,
-                'btn-default'   : !this.state.autoRotate,
-                'btn-primary'   : this.state.autoRotate
+                'btn-link'      : true
             });
-
-            const remoteIdentity = this.props.remoteIdentity.split('@')[0];
 
             let callDetail;
             if (this.state.callDetail !== null) {
@@ -388,10 +430,25 @@ class ConferenceBox extends React.Component {
                 callDetail = 'Connecting...'
             }
 
+            const topButtons = [];
+            if (this.isFullscreenSupported()) {
+                topButtons.push(<button key="fsButton" type="button" title="Go full-screen" className={commonButtonTopClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
+            }
+
+            if (!this.state.showDrawer) {
+                topButtons.push(<button key="sbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleDrawer}> <i className="fa fa-bars fa-2x"></i> </button>);
+            }
+
             videoHeader = (
                     <div key="header" className="call-header">
-                        <p className={videoHeaderTextClasses}><strong>Conference:</strong> {remoteIdentity}</p>
-                        <p className={videoHeaderTextClasses}>{callDetail}</p>
+                        <div className="container-fluid">
+                            <p className={videoHeaderTextClasses}><strong>Conference:</strong> {remoteIdentity}</p>
+                            <p className={videoHeaderTextClasses}>{callDetail}</p>
+                            <div className="conference-top-buttons">
+                                {topButtons}
+                            </div>
+
+                        </div>
                     </div>
             );
 
@@ -423,12 +480,6 @@ class ConferenceBox extends React.Component {
             buttons.push(<OverlayTrigger key="shareOverlay" ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
                             <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-plus"></i> </button>
                          </OverlayTrigger>);
-            if (this.isFullscreenSupported()) {
-                buttons.push(<button key="fsButton" type="button" title="Go full-screen" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
-            }
-            if (this.state.participants.length > 0) {
-                buttons.push(<button key="autoRotate" type="button" title="Automatically switch to active speaker" className={rotateButtonClasses} onClick={this.toggleAutoRotate}> <i className="fa fa-street-view"></i> </button>);
-            }
             buttons.push(<button key="hangupButton" type="button" title="Leave conference" className="btn btn-round btn-danger" onClick={this.hangup}> <i className="fa fa-phone rotate-135"></i> </button>);
 
             callButtons = (
@@ -443,51 +494,138 @@ class ConferenceBox extends React.Component {
         const participants = [];
 
         if (this.state.participants.length > 0) {
-            participants.push(<ConferenceParticipantSelf
-                                    key="myself"
-                                    stream={this.props.call.getLocalStreams()[0]}
-                                    identity={this.props.call.localIdentity}
-                                    selected={this.onVideoSelected}
-                                    active={this.onParticipantActive}
-                                    audioMuted={this.state.audioMuted}
-                              />
-            );
+            if (this.state.activeSpeakers.findIndex((element) => {return element.id === this.props.call.id}) === -1) {
+                participants.push(
+                    <ConferenceParticipantSelf
+                        key="myself"
+                        stream={this.props.call.getLocalStreams()[0]}
+                        identity={this.props.call.localIdentity}
+                        audioMuted={this.state.audioMuted}
+                    />
+                );
+            }
         }
 
-        this.state.participants.forEach((p) => {
-            participants.push(<ConferenceParticipant
-                                    key={p.id}
-                                    participant={p}
-                                    selected={this.onVideoSelected}
-                                    active={this.onParticipantActive}
-                              />
+        const drawerParticipants = [];
+        drawerParticipants.push(
+            <ConferenceDrawerParticipant
+                key="myself"
+                participant={{identity: this.props.call.localIdentity}}
+                isLocal={true}
+            />
+        );
+
+        let videos = [];
+        if (this.state.participants.length === 0) {
+            videos.push(
+                <video ref="largeVideo" key="largeVideo" className={largeVideoClasses} poster="assets/images/transparent-1px.png" autoPlay muted />
             );
-        });
+        } else {
+            const activeSpeakers = this.state.activeSpeakers;
+            const activeSpeakersCount = activeSpeakers.length;
+            matrixClasses = classNames({
+                'matrix'        : true,
+                'one-row'       : activeSpeakersCount === 2,
+                'two-columns'   : activeSpeakersCount === 2
+            });
+
+            if (activeSpeakersCount > 0) {
+                activeSpeakers.forEach((p) => {
+                    videos.push(
+                        <ConferenceMatrixParticipant
+                            key={p.id}
+                            participant={p}
+                            large={activeSpeakers.length <= 1}
+                            isLocal={p.id === this.props.call.id}
+                        />
+                    );
+                });
+
+                this.state.participants.forEach((p) => {
+                    if (this.state.activeSpeakers.indexOf(p) === -1) {
+                        participants.push(
+                            <ConferenceParticipant
+                                key={p.id}
+                                participant={p}
+                                selected={this.onVideoSelected}
+                            />
+                        );
+                    }
+
+                    drawerParticipants.push(
+                        <ConferenceDrawerParticipant
+                            key={p.id}
+                            participant={p}
+                        />
+                    );
+                });
+            } else {
+                matrixClasses = classNames({
+                    'matrix'        : true,
+                    'one-row'       : this.state.participants.length === 2 ,
+                    'two-row'       : this.state.participants.length >= 3 && this.state.participants.length < 7,
+                    'three-row'     : this.state.participants.length >= 7,
+                    'two-columns'   : this.state.participants.length >= 2 || this.state.participants.length <= 4,
+                    'three-columns' : this.state.participants.length > 4
+                });
+                this.state.participants.forEach((p) => {
+                    videos.push(
+                        <ConferenceMatrixParticipant
+                            key = {p.id}
+                            participant = {p}
+                            large = {this.state.participants.length <= 1}
+                        />
+                    );
+
+                    drawerParticipants.push(
+                        <ConferenceDrawerParticipant
+                            key={p.id}
+                            participant={p}
+                        />
+                    );
+                });
+            }
+        }
 
         return (
-            <div className="video-container conference" onMouseMove={this.showOverlay}>
-                <div className="top-overlay">
-                    <CSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                        {videoHeader}
-                        {callButtons}
+            <div>
+                <div className={containerClasses} onMouseMove={this.showOverlay}>
+                    <div className="top-overlay">
+                        <CSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                            {videoHeader}
+                            {callButtons}
+                        </CSSTransitionGroup>
+                    </div>
+                    <CSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
+                        {watermark}
                     </CSSTransitionGroup>
+                    <div className={matrixClasses}>
+                        {videos}
+                    </div>
+                    <div className="conference-thumbnails" onMouseMove={this.preventOverlay}>
+                        <ConferenceCarousel align={'right'}>
+                            {participants}
+                        </ConferenceCarousel>
+                    </div>
+                    <AudioPlayer ref="audioPlayerParticipantJoined" sourceFile="assets/sounds/participant_joined.wav" />
+                    <AudioPlayer ref="audioPlayerParticipantLeft" sourceFile="assets/sounds/participant_left.wav" />
+                    <InviteParticipantsModal
+                        show={this.state.showInviteModal}
+                        call={this.props.call}
+                        close={this.toggleInviteModal}
+                    />
                 </div>
-                <CSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
-                    {watermark}
-                </CSSTransitionGroup>
-                <video ref="largeVideo" className={largeVideoClasses} poster="assets/images/transparent-1px.png" autoPlay muted />
-                <div className="conference-thumbnails" onMouseMove={this.preventOverlay}>
-                    <ConferenceCarousel>
-                        {participants}
-                    </ConferenceCarousel>
-                </div>
-                <AudioPlayer ref="audioPlayerParticipantJoined" sourceFile="assets/sounds/participant_joined.wav" />
-                <AudioPlayer ref="audioPlayerParticipantLeft" sourceFile="assets/sounds/participant_left.wav" />
-                <InviteParticipantsModal
-                    show={this.state.showInviteModal}
-                    call={this.props.call}
-                    close={this.toggleInviteModal}
-                />
+                <ConferenceDrawer show={this.state.showDrawer} close={this.toggleDrawer}>
+                    <ConferenceDrawerSpeakerSelection
+                        participants={this.state.participants.concat([{id: this.props.call.id, publisherId: this.props.call.id, identity: this.props.call.localIdentity, streams: this.props.call.getLocalStreams()}])}
+                        selected={this.handleActiveSpeakerSelected}
+                        activeSpeakers={this.state.activeSpeakers}
+                    />
+                    <ConferenceDrawerParticipantList>
+                        {drawerParticipants}
+                    </ConferenceDrawerParticipantList>
+                    <ConferenceDrawerLog log={this.state.eventLog} />
+                </ConferenceDrawer>
             </div>
         );
     }

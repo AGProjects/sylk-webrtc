@@ -6,9 +6,9 @@ const classNames = require('classnames');
 const assert     = require('assert');
 const debug      = require('debug');
 
-const ConferenceBoxUnmanaged    = require('./ConferenceBoxUnmanaged');
-const LocalMedia                = require('./LocalMedia');
-const config                    = require('../config');
+const ConferenceBox = require('./ConferenceBox');
+const LocalMedia    = require('./LocalMedia');
+const config        = require('../config');
 
 const DEBUG = debug('blinkrtc:Conference');
 
@@ -62,7 +62,7 @@ class Conference extends React.Component {
         if (this.props.localMedia !== null) {
             if (this.props.currentCall != null && this.props.currentCall.state === 'established') {
                 box = (
-                    <ConferenceBoxUnmanaged
+                    <ConferenceBox
                         notificationCenter = {this.props.notificationCenter}
                         call = {this.props.currentCall}
                         hangup = {this.hangup}

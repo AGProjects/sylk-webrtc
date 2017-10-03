@@ -47,12 +47,10 @@
     }
 
     .mute {
-        position: relative;
+        position: absolute;
+        top: 25px;
         z-index: 2;
-        // Thumbnail-size - button-size, center is calculated width + button-size
-        width: 105px;
-        // height div - .5 * height-video - .5 * height-button
-        margin-bottom: -80px;
+        width: 87px;
 
         button {
             transform: translateX(50%);
@@ -144,7 +142,6 @@
         .container-fluid {
             position: relative;
         }
-
     }
 
     .two-columns {

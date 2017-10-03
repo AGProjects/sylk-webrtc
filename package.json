@@ -59,7 +59,7 @@
     "require-dir": "^0.3.2",
     "sass-lint": "^1.11.1",
     "screenfull": "^3.3.1",
-    "superagent": "^3.6.0",
+    "superagent": "^3.6.2",
     "sylkrtc": "AGProjects/sylkrtc.js",
     "underscore": "1.8.3",
     "uuid": "^3.1.0",

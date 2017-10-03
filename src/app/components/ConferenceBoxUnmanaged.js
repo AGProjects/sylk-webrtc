@@ -21,6 +21,7 @@ const ConferenceDrawer                  = require('./ConferenceDrawer');
 const ConferenceDrawerLog               = require('./ConferenceDrawerLog');
 const ConferenceDrawerParticipant       = require('./ConferenceDrawerParticipant');
 const ConferenceDrawerParticipantList   = require('./ConferenceDrawerParticipantList');
+const ConferenceDrawerSpeakerSelection  = require('./ConferenceDrawerSpeakerSelection');
 const ConferenceCarousel                = require('./ConferenceCarousel');
 const ConferenceParticipant             = require('./ConferenceParticipant');
 const ConferenceMatrixParticipant       = require('./ConferenceMatrixParticipant');
@@ -415,7 +416,6 @@ class ConferenceBoxUnmanaged extends React.Component {
                 'btn-link'      : true
             });
 
-
             let callDetail;
             if (this.state.callDetail !== null) {
                 const participantCount = this.state.participants.length + 1;
@@ -515,6 +515,7 @@ class ConferenceBoxUnmanaged extends React.Component {
                 isLocal={true}
             />
         );
+
         let videos = [];
         if (this.state.participants.length === 0) {
             videos.push(
@@ -616,6 +617,11 @@ class ConferenceBoxUnmanaged extends React.Component {
                     />
                 </div>
                 <ConferenceDrawer show={this.state.showDrawer} close={this.toggleDrawer}>
+                    <ConferenceDrawerSpeakerSelection
+                        participants={this.state.participants.concat([{id: this.props.call.id, publisherId: this.props.call.id, identity: this.props.call.localIdentity, streams: this.props.call.getLocalStreams()}])}
+                        selected={this.handleActiveSpeakerSelected}
+                        activeSpeakers={this.state.activeSpeakers}
+                    />
                     <ConferenceDrawerParticipantList>
                         {drawerParticipants}
                     </ConferenceDrawerParticipantList>

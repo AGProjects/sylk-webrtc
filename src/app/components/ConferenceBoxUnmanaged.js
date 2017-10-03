@@ -22,7 +22,7 @@ const ConferenceDrawerLog               = require('./ConferenceDrawerLog');
 const ConferenceDrawerParticipant       = require('./ConferenceDrawerParticipant');
 const ConferenceDrawerParticipantList   = require('./ConferenceDrawerParticipantList');
 const ConferenceCarousel                = require('./ConferenceCarousel');
-const ConferenceParticipantBig          = require('./ConferenceParticipantBig');
+const ConferenceMatrixParticipant       = require('./ConferenceMatrixParticipant');
 const ConferenceParticipantSelf         = require('./ConferenceParticipantSelf');
 const InviteParticipantsModal           = require('./InviteParticipantsModal');
 
@@ -476,7 +476,7 @@ class ConferenceBoxUnmanaged extends React.Component {
         } else {
             this.state.participants.forEach((p) => {
                 videos.push(
-                    <ConferenceParticipantBig
+                    <ConferenceMatrixParticipant
                         key={p.id}
                         participant = {p}
                         large = {this.state.participants.length <= 1}

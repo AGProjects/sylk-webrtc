@@ -10,7 +10,7 @@ const hark              = require('hark');
 const classNames        = require('classnames');
 
 
-class ConferenceParticipantBig extends React.Component {
+class ConferenceMatrixParticipant extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -114,11 +114,11 @@ class ConferenceParticipantBig extends React.Component {
     }
 }
 
-ConferenceParticipantBig.propTypes = {
+ConferenceMatrixParticipant.propTypes = {
     participant: PropTypes.object.isRequired,
     large: PropTypes.bool,
     isLocal: PropTypes.bool
 };
 
 
-module.exports = ConferenceParticipantBig;
+module.exports = ConferenceMatrixParticipant;

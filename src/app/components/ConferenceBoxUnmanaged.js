@@ -22,6 +22,7 @@ const ConferenceDrawerLog               = require('./ConferenceDrawerLog');
 const ConferenceDrawerParticipant       = require('./ConferenceDrawerParticipant');
 const ConferenceDrawerParticipantList   = require('./ConferenceDrawerParticipantList');
 const ConferenceCarousel                = require('./ConferenceCarousel');
+const ConferenceParticipant             = require('./ConferenceParticipant');
 const ConferenceMatrixParticipant       = require('./ConferenceMatrixParticipant');
 const ConferenceParticipantSelf         = require('./ConferenceParticipantSelf');
 const InviteParticipantsModal           = require('./InviteParticipantsModal');
@@ -40,6 +41,8 @@ class ConferenceBoxUnmanaged extends React.Component {
             showInviteModal: false,
             showDrawer: false,
             shareOverlayVisible: false,
+            activeSpeakers: props.call.activeParticipants.slice(),
+            selfDisplayedLarge: false,
             eventLog: []
         };
 
@@ -86,10 +89,12 @@ class ConferenceBoxUnmanaged extends React.Component {
             'onParticipantJoined',
             'onParticipantLeft',
             'onParticipantStateChanged',
+            'onConfigureRoom',
             'maybeSwitchLargeVideo',
             'handleClipboardButton',
             'handleShareOverlayEntered',
             'handleShareOverlayExited',
+            'handleActiveSpeakerSelected',
             'toggleInviteModal',
             'toggleDrawer',
             'preventOverlay'
@@ -105,6 +110,7 @@ class ConferenceBoxUnmanaged extends React.Component {
         }
         this.props.call.on('participantJoined', this.onParticipantJoined);
         this.props.call.on('participantLeft', this.onParticipantLeft);
+        this.props.call.on('roomConfigured', this.onConfigureRoom);
 
         this.armOverlayTimer();
         this.startCallTimer();
@@ -163,6 +169,20 @@ class ConferenceBoxUnmanaged extends React.Component {
         }
     }
 
+    onConfigureRoom(config) {
+        const newState = {};
+        newState.activeSpeakers = config.activeParticipants;
+        this.setState(newState);
+
+        if (config.activeParticipants.length === 0) {
+            this.logEvent.info('set speakers to', ['Nobody'], config.originator);
+        } else {
+            const speakers = config.activeParticipants.map((p) => {return p.identity.displayName || p.identity.uri});
+            this.logEvent.info('set speakers to', speakers, config.originator);
+        }
+        this.maybeSwitchLargeVideo();
+    }
+
     changeResolution() {
         let stream = this.props.call.getLocalStreams()[0];
         if (this.state.participants.length < 2) {
@@ -178,18 +198,21 @@ class ConferenceBoxUnmanaged extends React.Component {
         DEBUG('Switching video to: %o', item);
         if (item.stream) {
             sylkrtc.utils.attachMediaStream(item.stream, this.refs.largeVideo);
+            this.setState({selfDisplayedLarge: true});
         }
     }
 
     maybeSwitchLargeVideo() {
         // Switch the large video to another source, maybe.
-        if (this.state.participants.length === 0) {
+        if (this.state.participants.length === 0 && !this.state.selfDisplayedLarge) {
             // none of the participants are eligible, show ourselves
             const item = {
                 stream: this.props.call.getLocalStreams()[0],
                 identity: this.props.call.localIdentity
             };
             this.selectVideo(item);
+        } else if (this.state.selfDisplayedLarge) {
+            this.setState({selfDisplayedLarge: false});
         }
     }
 
@@ -218,6 +241,32 @@ class ConferenceBoxUnmanaged extends React.Component {
         this.setState({shareOverlayVisible: false});
     }
 
+    handleActiveSpeakerSelected(participant, secondVideo=false) {      // eslint-disable-line space-infix-ops
+        let newActiveSpeakers = this.state.activeSpeakers.slice();
+        if (secondVideo) {
+            if (participant.id !== 'none') {
+                if (newActiveSpeakers.length >= 1) {
+                    newActiveSpeakers[1] = participant;
+                } else {
+                    newActiveSpeakers[0] = participant;
+                }
+            } else {
+                newActiveSpeakers.splice(1,1);
+            }
+        } else {
+            if (participant.id !== 'none') {
+                newActiveSpeakers[0] = participant;
+            } else {
+                newActiveSpeakers.shift();
+            }
+        }
+        this.props.call.configureRoom(newActiveSpeakers.map((element) => element.publisherId), (error) => {
+            if (error) {
+                // This causes a state update, hence the drawer lists update
+                this.logEvent.error('set speakers failed', [], this.localIdentity);
+            }
+        });
+    }
     preventOverlay(event) {
         // Stop the overlay when we are the thumbnail bar
         event.stopPropagation();
@@ -319,13 +368,9 @@ class ConferenceBoxUnmanaged extends React.Component {
             'large'         : true,
             'mirror'        : true
         });
-        const matrixClasses = classNames({
-            'matrix'        : true,
-            'one-row'       : this.state.participants.length === 2,
-            'two-row'       : this.state.participants.length >= 3 && this.state.participants.length < 7,
-            'three-row'     : this.state.participants.length >= 7,
-            'two-columns'   : this.state.participants.length >= 2 || this.state.participants.length <= 4,
-            'three-columns' : this.state.participants.length > 4
+
+        let matrixClasses = classNames({
+            'matrix'        : true
         });
 
         const containerClasses = classNames({
@@ -333,6 +378,8 @@ class ConferenceBoxUnmanaged extends React.Component {
             'conference': true,
             'drawer-visible': this.state.showDrawer
         })
+
+        const remoteIdentity = this.props.remoteIdentity.split('@')[0];
 
         if (this.state.callOverlayVisible) {
             const muteButtonIcons = classNames({
@@ -369,7 +416,6 @@ class ConferenceBoxUnmanaged extends React.Component {
                 'btn-link'      : true
             });
 
-            const remoteIdentity = this.props.remoteIdentity.split('@')[0];
 
             let callDetail;
             if (this.state.callDetail !== null) {
@@ -449,14 +495,16 @@ class ConferenceBoxUnmanaged extends React.Component {
         const participants = [];
 
         if (this.state.participants.length > 0) {
-            participants.push(
-                <ConferenceParticipantSelf
-                    key="myself"
-                    stream={this.props.call.getLocalStreams()[0]}
-                    identity={this.props.call.localIdentity}
-                    audioMuted={this.state.audioMuted}
-                />
-            );
+            if (this.state.activeSpeakers.findIndex((element) => {return element.id === this.props.call.id}) === -1) {
+                participants.push(
+                    <ConferenceParticipantSelf
+                        key="myself"
+                        stream={this.props.call.getLocalStreams()[0]}
+                        identity={this.props.call.localIdentity}
+                        audioMuted={this.state.audioMuted}
+                    />
+                );
+            }
         }
 
         const drawerParticipants = [];
@@ -474,22 +522,70 @@ class ConferenceBoxUnmanaged extends React.Component {
                 <video ref="largeVideo" key="largeVideo" className={largeVideoClasses} poster="assets/images/transparent-1px.png" autoPlay muted />
             );
         } else {
-            this.state.participants.forEach((p) => {
-                videos.push(
-                    <ConferenceMatrixParticipant
-                        key={p.id}
-                        participant = {p}
-                        large = {this.state.participants.length <= 1}
-                    />
-                );
-
-				drawerParticipants.push(
-					<ConferenceDrawerParticipant
-						key={p.id}
-						participant={p}
-					/>
-				);
+            const activeSpeakers = this.state.activeSpeakers;
+            const activeSpeakersCount = activeSpeakers.length;
+            matrixClasses = classNames({
+                'matrix'        : true,
+                'one-row'       : activeSpeakersCount === 2,
+                'two-columns'   : activeSpeakersCount === 2
             });
+
+            if (activeSpeakersCount > 0) {
+                activeSpeakers.forEach((p) => {
+                    videos.push(
+                        <ConferenceMatrixParticipant
+                            key={p.id}
+                            participant={p}
+                            large={activeSpeakers.length <= 1}
+                            isLocal={p.id === this.props.call.id}
+                        />
+                    );
+                });
+
+                this.state.participants.forEach((p) => {
+                    if (this.state.activeSpeakers.indexOf(p) === -1) {
+                        participants.push(
+                            <ConferenceParticipant
+                                key={p.id}
+                                participant={p}
+                                selected={this.onVideoSelected}
+                            />
+                        );
+                    }
+
+                    drawerParticipants.push(
+                        <ConferenceDrawerParticipant
+                            key={p.id}
+                            participant={p}
+                        />
+                    );
+                });
+            } else {
+                matrixClasses = classNames({
+                    'matrix'        : true,
+                    'one-row'       : this.state.participants.length === 2 ,
+                    'two-row'       : this.state.participants.length >= 3 && this.state.participants.length < 7,
+                    'three-row'     : this.state.participants.length >= 7,
+                    'two-columns'   : this.state.participants.length >= 2 || this.state.participants.length <= 4,
+                    'three-columns' : this.state.participants.length > 4
+                });
+                this.state.participants.forEach((p) => {
+                    videos.push(
+                        <ConferenceMatrixParticipant
+                            key = {p.id}
+                            participant = {p}
+                            large = {this.state.participants.length <= 1}
+                        />
+                    );
+
+                    drawerParticipants.push(
+                        <ConferenceDrawerParticipant
+                            key={p.id}
+                            participant={p}
+                        />
+                    );
+                });
+            }
         }
 
         return (

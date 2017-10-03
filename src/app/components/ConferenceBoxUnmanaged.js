@@ -163,7 +163,6 @@ class ConferenceBoxUnmanaged extends React.Component {
     }
 
     onParticipantStateChanged(oldState, newState) {
-        DEBUG('State: %s', newState);
         if (newState === 'established' || newState === null) {
             this.maybeSwitchLargeVideo();
         }

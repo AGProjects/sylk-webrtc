@@ -1,17 +1,18 @@
 'use strict';
 
-const React                     = require('react');
-const PropTypes                 = require('prop-types');
-const CSSTransitionGroup        = require('react-transition-group/CSSTransitionGroup');
-const ReactMixin                = require('react-mixin');
-const ReactBootstrap            = require('react-bootstrap');
-const Popover                   = ReactBootstrap.Popover;
-const OverlayTrigger            = ReactBootstrap.OverlayTrigger;
-const sylkrtc                   = require('sylkrtc');
-const classNames                = require('classnames');
-const debug                     = require('debug');
-const moment                    = require('moment');
-const momentFormat              = require('moment-duration-format');
+const React                 = require('react');
+const PropTypes             = require('prop-types');
+const CSSTransitionGroup    = require('react-transition-group/CSSTransitionGroup');
+const ReactMixin            = require('react-mixin');
+const ReactBootstrap        = require('react-bootstrap');
+const Popover               = ReactBootstrap.Popover;
+const OverlayTrigger        = ReactBootstrap.OverlayTrigger;
+const sylkrtc               = require('sylkrtc');
+const classNames            = require('classnames');
+const debug                 = require('debug');
+const moment                = require('moment');
+const momentFormat          = require('moment-duration-format');
+
 
 const config                    = require('../config');
 const utils                     = require('../utils');

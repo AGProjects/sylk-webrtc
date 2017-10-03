@@ -13,15 +13,15 @@ const debug                 = require('debug');
 const moment                = require('moment');
 const momentFormat          = require('moment-duration-format');
 
-
-const config                    = require('../config');
-const utils                     = require('../utils');
-const FullscreenMixin           = require('../mixins/FullScreen');
-const AudioPlayer               = require('./AudioPlayer');
-const ConferenceCarousel        = require('./ConferenceCarousel');
-const ConferenceParticipantBig  = require('./ConferenceParticipantBig');
-const ConferenceParticipantSelf = require('./ConferenceParticipantSelf');
-const InviteParticipantsModal   = require('./InviteParticipantsModal');
+const config                            = require('../config');
+const utils                             = require('../utils');
+const FullscreenMixin                   = require('../mixins/FullScreen');
+const AudioPlayer                       = require('./AudioPlayer');
+const ConferenceDrawer                  = require('./ConferenceDrawer');
+const ConferenceCarousel                = require('./ConferenceCarousel');
+const ConferenceParticipantBig          = require('./ConferenceParticipantBig');
+const ConferenceParticipantSelf         = require('./ConferenceParticipantSelf');
+const InviteParticipantsModal           = require('./InviteParticipantsModal');
 
 const DEBUG = debug('blinkrtc:ConferenceBoxUnmanaged');
 
@@ -35,6 +35,7 @@ class ConferenceBoxUnmanaged extends React.Component {
             videoMuted: false,
             participants: props.call.participants.slice(),
             showInviteModal: false,
+            showDrawer: false,
             shareOverlayVisible: false
         };
 
@@ -70,6 +71,7 @@ class ConferenceBoxUnmanaged extends React.Component {
             'handleShareOverlayEntered',
             'handleShareOverlayExited',
             'toggleInviteModal',
+            'toggleDrawer',
             'preventOverlay'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
@@ -190,7 +192,9 @@ class ConferenceBoxUnmanaged extends React.Component {
 
     handleShareOverlayExited() {
         // re-arm the buttons and overlay timeout
-        this.armOverlayTimer();
+        if (!this.state.showDrawer) {
+            this.armOverlayTimer();
+        }
         this.setState({shareOverlayVisible: false});
     }
 
@@ -262,7 +266,7 @@ class ConferenceBoxUnmanaged extends React.Component {
     }
 
     showOverlay() {
-        if (!this.state.shareOverlayVisible) {
+        if (!this.state.shareOverlayVisible && !this.state.showDrawer) {
             this.setState({callOverlayVisible: true});
             this.armOverlayTimer();
         }
@@ -273,6 +277,11 @@ class ConferenceBoxUnmanaged extends React.Component {
         if (this.refs.showOverlay) {
             this.refs.shareOverlay.hide();
         }
+    }
+
+    toggleDrawer() {
+        this.setState({callOverlayVisible: true, showDrawer: !this.state.showDrawer});
+        clearTimeout(this.overlayTimer);
     }
 
     render() {
@@ -298,6 +307,12 @@ class ConferenceBoxUnmanaged extends React.Component {
             'two-columns'   : this.state.participants.length >= 2 || this.state.participants.length <= 4,
             'three-columns' : this.state.participants.length > 4
         });
+
+        const containerClasses = classNames({
+            'video-container': true,
+            'conference': true,
+            'drawer-visible': this.state.showDrawer
+        })
 
         if (this.state.callOverlayVisible) {
             const muteButtonIcons = classNames({
@@ -354,6 +369,11 @@ class ConferenceBoxUnmanaged extends React.Component {
             if (this.isFullscreenSupported()) {
                 topButtons.push(<button key="fsButton" type="button" title="Go full-screen" className={commonButtonTopClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
             }
+
+            if (!this.state.showDrawer) {
+                topButtons.push(<button key="sbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleDrawer}> <i className="fa fa-bars fa-2x"></i> </button>);
+            }
+
             videoHeader = (
                     <div key="header" className="call-header">
                         <div className="container-fluid">
@@ -437,31 +457,35 @@ class ConferenceBoxUnmanaged extends React.Component {
         }
 
         return (
-            <div className="video-container conference" onMouseMove={this.showOverlay}>
-                <div className="top-overlay">
-                    <CSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                        {videoHeader}
-                        {callButtons}
+            <div>
+                <div className={containerClasses} onMouseMove={this.showOverlay}>
+                    <div className="top-overlay">
+                        <CSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                            {videoHeader}
+                            {callButtons}
+                        </CSSTransitionGroup>
+                    </div>
+                    <CSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
+                        {watermark}
                     </CSSTransitionGroup>
+                    <div className={matrixClasses}>
+                        {videos}
+                    </div>
+                    <div className="conference-thumbnails" onMouseMove={this.preventOverlay}>
+                        <ConferenceCarousel align={'right'}>
+                            {participants}
+                        </ConferenceCarousel>
+                    </div>
+                    <AudioPlayer ref="audioPlayerParticipantJoined" sourceFile="assets/sounds/participant_joined.wav" />
+                    <AudioPlayer ref="audioPlayerParticipantLeft" sourceFile="assets/sounds/participant_left.wav" />
+                    <InviteParticipantsModal
+                        show={this.state.showInviteModal}
+                        call={this.props.call}
+                        close={this.toggleInviteModal}
+                    />
                 </div>
-                <CSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
-                    {watermark}
-                </CSSTransitionGroup>
-                <div className={matrixClasses}>
-                    {videos}
-                </div>
-                <div className="conference-thumbnails" onMouseMove={this.preventOverlay}>
-                    <ConferenceCarousel align={'right'}>
-                        {participants}
-                    </ConferenceCarousel>
-                </div>
-                <AudioPlayer ref="audioPlayerParticipantJoined" sourceFile="assets/sounds/participant_joined.wav" />
-                <AudioPlayer ref="audioPlayerParticipantLeft" sourceFile="assets/sounds/participant_left.wav" />
-                <InviteParticipantsModal
-                    show={this.state.showInviteModal}
-                    call={this.props.call}
-                    close={this.toggleInviteModal}
-                />
+                <ConferenceDrawer show={this.state.showDrawer} close={this.toggleDrawer}>
+                </ConferenceDrawer>
             </div>
         );
     }

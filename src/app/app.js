@@ -165,7 +165,7 @@ class Blink extends React.Component {
         DEBUG(`Connection state changed! ${oldState} -> ${newState}`);
         switch (newState) {
             case 'closed':
-                this.setState({connection: null});
+                this.setState({connection: null, loading: null});
                 break;
             case 'ready':
                 this.processRegistration(this.state.accountId, this.state.password, this.state.displayName);

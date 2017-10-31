@@ -118,7 +118,6 @@ class AudioCallBox extends React.Component {
 
     toggleEscalateConferenceModal() {
         this.setState({
-            callOverlayVisible: false,
             showEscalateConferenceModal: !this.state.showEscalateConferenceModal
         });
     }

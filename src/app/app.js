@@ -515,9 +515,9 @@ class Blink extends React.Component {
 
     escalateToConference(participants) {
         this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
+        this.state.currentCall.terminate();
         this.setState({currentCall: null, localMedia: null});
         this.participantsToInvite = participants;
-        this.state.currentCall.terminate();
         const uri = `${utils.generateSillyName()}@${config.defaultConferenceDomain}`;
         this.startConference(uri);
     }
@@ -567,8 +567,8 @@ class Blink extends React.Component {
         this._notificationCenter.postMissedCall(data.originator, () => {
             if (this.state.currentCall !== null) {
                 this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
-                this.setState({currentCall: null, targetUri: data.originator.uri, showIncomingModal: false, localMedia: null});
                 this.state.currentCall.terminate();
+                this.setState({currentCall: null, targetUri: data.originator.uri, showIncomingModal: false, localMedia: null});
             } else {
                 this.setState({targetUri: data.originator.uri});
             }

@@ -516,7 +516,7 @@ class Blink extends React.Component {
     escalateToConference(participants) {
         this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
         this.state.currentCall.terminate();
-        this.refs.router.navigate('/conference');
+        this.refs.router.navigate('/ready');
         this.setState({currentCall: null, localMedia: null});
         this.participantsToInvite = participants;
         const uri = `${utils.generateSillyName()}@${config.defaultConferenceDomain}`;

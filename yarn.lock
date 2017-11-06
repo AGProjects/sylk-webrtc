@@ -6690,8 +6690,8 @@ supports-color@^4.0.0:
     has-flag "^2.0.0"
 
 sylkrtc@AGProjects/sylkrtc.js:
-  version "0.9.9"
-  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/a8c25fb810163913ff55792f076bad0f53e7616f"
+  version "0.9.91"
+  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/54226ff8d69c74dc419dc2a5a8fe7f0093a86f8b"
   dependencies:
     attachmediastream "^2.0.0"
     blueimp-md5 "^2.10.0"
@@ -6699,7 +6699,7 @@ sylkrtc@AGProjects/sylkrtc.js:
     debug "^2.6.8"
     sdp-transform "^2.3.0"
     uuid "^3.1.0"
-    webrtc-adapter "^4.2.0"
+    webrtc-adapter "4.1.1"
     websocket "^1.0.23"
 
 symbol-observable@^1.0.4:
@@ -7247,9 +7247,9 @@ watchify@^3.9.0:
     through2 "^2.0.0"
     xtend "^4.0.0"
 
-webrtc-adapter@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-4.2.0.tgz#293e4870fca90414c332bd09410a27a812a18c50"
+webrtc-adapter@4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-4.1.1.tgz#bb815b6430b9c36dac9c3756d0c9ce438b34e336"
   dependencies:
     sdp "^2.1.0"
 

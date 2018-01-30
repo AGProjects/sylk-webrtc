@@ -463,11 +463,25 @@ class Blink extends React.Component {
                 }
             })
             .catch((error) => {
-                DEBUG('Access to local media failed: %o', error);
-                clearTimeout(this.loadScreenTimer);
-                this._notificationCenter.postSystemNotification('Access to media failed', {timeout: 10});
-                this.setState({
-                    loading: null
+                DEBUG('Access failed, trying audio only: %o', error);
+                navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                    video: false
+                })
+                .then((localStream) => {
+                    clearTimeout(this.loadScreenTimer);
+                    this.setState({status: null, loading: null, localMedia: localStream});
+                    if (nextRoute !== null) {
+                        this.refs.router.navigate(nextRoute);
+                    }
+                })
+                .catch((error) => {
+                    DEBUG('Access to local media failed: %o', error);
+                    clearTimeout(this.loadScreenTimer);
+                    this._notificationCenter.postSystemNotification("Can't access camera or microphone", {timeout: 10});
+                    this.setState({
+                        loading: null
+                    });
                 });
             });
     }

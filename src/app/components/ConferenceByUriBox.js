@@ -81,7 +81,7 @@ class ConferenceByUriBox extends React.Component {
 
             content = (
                 <div>
-                    <h2>You're about to join a video conference!<br/><strong>{friendlyName}</strong></h2>
+                    <h2>You're about to join a conference!<br/><strong>{friendlyName}</strong></h2>
                     <form className="form-guest" onSubmit={this.handleSubmit}>
                         <label className="sr-only">Name</label>
                         <div className="input-group">

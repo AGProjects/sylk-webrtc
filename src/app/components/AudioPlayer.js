@@ -32,7 +32,12 @@ class AudioPlayer extends React.Component {
         } else {
             this.refs.audio.addEventListener('ended', this.stop);
         }
-        this.refs.audio.play();
+
+        this.refs.audio.play().then(() => {
+
+        }).catch((error) => {
+            // some error
+        });
     }
 
     stop() {

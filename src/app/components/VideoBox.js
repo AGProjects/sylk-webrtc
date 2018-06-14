@@ -50,6 +50,20 @@ class VideoBox extends React.Component {
             this.setState({localVideoShow: true});    // eslint-disable-line react/no-did-mount-set-state
         });
         sylkrtc.utils.attachMediaStream(this.props.localMedia, this.refs.localVideo, {disableContextMenu: true});
+        let promise =  this.refs.localVideo.play()
+        if (promise !== undefined) {
+            promise.then(_ => {
+                this.setState({localVideoShow: true});    // eslint-disable-line react/no-did-mount-set-state
+                // Autoplay started!
+            }).catch(error => {
+                // Autoplay was prevented.
+                // Show a "Play" button so that user can start playback.
+            });
+        } else {
+            this.refs.localVideo.addEventListener('playing', () => {
+                this.setState({localVideoShow: true});    // eslint-disable-line react/no-did-mount-set-state
+            });
+        }
 
         this.refs.remoteVideo.addEventListener('playing', this.handleRemoteVideoPlaying);
         sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.refs.remoteVideo, {disableContextMenu: true});

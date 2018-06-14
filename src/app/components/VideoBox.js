@@ -46,9 +46,6 @@ class VideoBox extends React.Component {
     }
 
     componentDidMount() {
-        this.refs.localVideo.addEventListener('playing', () => {
-            this.setState({localVideoShow: true});    // eslint-disable-line react/no-did-mount-set-state
-        });
         sylkrtc.utils.attachMediaStream(this.props.localMedia, this.refs.localVideo, {disableContextMenu: true});
         let promise =  this.refs.localVideo.play()
         if (promise !== undefined) {

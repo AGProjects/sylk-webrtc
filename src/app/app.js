@@ -25,6 +25,7 @@ const IncomingCallModal    = require('./components/IncomingModal');
 const NotificationCenter   = require('./components/NotificationCenter');
 const LoadingScreen        = require('./components/LoadingScreen');
 const NavigationBar        = require('./components/NavigationBar');
+const Preview        = require('./components/Preview');
 
 const utils     = require('./utils');
 const config    = require('./config');
@@ -95,6 +96,8 @@ class Blink extends React.Component {
             'conferenceByUri',
             'notSupported',
             'checkRoute',
+            'startPreview',
+            'preview',
             'main'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
@@ -120,7 +123,7 @@ class Blink extends React.Component {
             this.redirectTo = window.location.hash.replace('#!', '');
         } else {
             // Disallowed routes, they will rendirect to /login
-            const disallowedRoutes = new Set(['/', '/ready','/call']);
+            const disallowedRoutes = new Set(['/', '/ready','/call','/preview']);
 
             if (disallowedRoutes.has(window.location.pathname)) {
                 this.redirectTo = '/login';
@@ -606,6 +609,10 @@ class Blink extends React.Component {
         });
     }
 
+    startPreview() {
+        this.getLocalMedia({audio: true, video: true}, '/preview');
+    }
+
     addCallHistoryEntry(uri) {
         history.add(uri).then((entries) => {
             this.setState({history: entries});
@@ -695,6 +702,7 @@ class Blink extends React.Component {
                     <Location path="/conference" handler={this.conference} />
                     <Location path="/conference/:targetUri" urlPatternOptions={{segmentValueCharset: 'a-zA-Z0-9-_~ %\.@'}}  handler={this.conferenceByUri} />
                     <Location path="/not-supported" handler={this.notSupported} />
+                    <Location path="/preview" handler={this.preview} />
                     <NotFound handler={this.notFound} />
                 </Locations>
             </div>
@@ -747,6 +755,7 @@ class Blink extends React.Component {
                     notificationCenter = {this.notificationCenter}
                     account = {this.state.account}
                     logout = {this.logout}
+                    preview = {this.startPreview}
                 />
                 <ReadyBox
                     account   = {this.state.account}
@@ -754,6 +763,23 @@ class Blink extends React.Component {
                     startConference = {this.startConference}
                     targetUri = {this.state.targetUri}
                     history = {this.state.history}
+                />
+            </div>
+        );
+    }
+
+    preview() {
+        if (this.state.registrationState !== 'registered') {
+            setTimeout(() => {
+                this.refs.router.navigate('/login');
+            });
+            return false;
+        };
+        return (
+            <div>
+                <Preview
+                    localMedia = {this.state.localMedia}
+                    hangupCall = {this.hangupCall}
                 />
             </div>
         );

@@ -53,6 +53,9 @@ class NavigationBar extends React.Component {
             case 'logOut':
                 this.props.logout();
                 break;
+            case 'preview':
+                this.props.preview();
+                break;
             case 'settings':
                 window.open('https://mdns.sipthor.net/sip_settings.phtml', '_blank');
                 break;
@@ -91,6 +94,9 @@ class NavigationBar extends React.Component {
                         <MenuItem eventKey="callMeMaybe">
                             <i className="fa fa-share"></i> Call me, maybe?
                         </MenuItem>
+                        <MenuItem eventKey="preview">
+                            <i className="fa fa-video-camera"></i> Audio/Video Preview
+                        </MenuItem>
                         <MenuItem eventKey="about">
                             <i className="fa fa-info-circle"></i> About
                         </MenuItem>
@@ -120,7 +126,8 @@ class NavigationBar extends React.Component {
 NavigationBar.propTypes = {
     notificationCenter : PropTypes.func.isRequired,
     account            : PropTypes.object.isRequired,
-    logout             : PropTypes.func.isRequired
+    logout             : PropTypes.func.isRequired,
+    preview            : PropTypes.func.isRequired
 };
 
 

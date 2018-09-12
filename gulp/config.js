@@ -16,8 +16,12 @@ module.exports = {
                 modRewrite([
                     '!^/assets|^/js /index.html [L]'
                 ])
-            ]
-
+            ],
+            port: 3000,
+            https: {
+                key: __dirname + '/../../test/tls/test.pem',
+                cert: __dirname + '/../..//test/tls/test.pem'
+            }
         }
     },
 

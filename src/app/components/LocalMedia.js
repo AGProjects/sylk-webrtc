@@ -51,7 +51,7 @@ class LocalMedia extends React.Component {
                     remoteIdentity = {this.props.remoteIdentity}
                     call = {null}
                 />
-                <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted/>
+                <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted />
                 <div className="call-buttons">
                     <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>
                 </div>

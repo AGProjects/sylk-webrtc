@@ -5,6 +5,8 @@
   "private": true,
   "devDependencies": {
     "animate.css": "^3.5.2",
+    "audio-context": "^1.0.3",
+    "audio-loader": "^1.0.3",
     "autocomplete.js": "^0.28.3",
     "babel-eslint": "^7.1.1",
     "babel-plugin-transform-class-properties": "^6.19.0",

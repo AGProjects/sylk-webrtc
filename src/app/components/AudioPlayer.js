@@ -2,60 +2,79 @@
 
 const React     = require('react');
 const PropTypes = require('prop-types');
+const load = require('audio-loader');
+const ac   = require("audio-context")();
 
 class AudioPlayer extends React.Component {
     constructor(props) {
         super(props);
         this.timeout = null;
 
+        this.buffer = null;
+        this.time = null;
+        this.src = null
+
         // ES6 classes no longer autobind
         this.audioEnded = this.audioEnded.bind(this);
         this.stop = this.stop.bind(this);
     }
 
+    componentDidMount() {
+        load(this.props.sourceFile).then(
+            (buffer, time) => {
+                this.buffer = buffer;
+                this.time = time;
+            }
+        );
+    }
+
     audioEnded() {
         this.timeout = setTimeout(() => {
-            this.refs.audio.play();
+            let source = ac.createBufferSource();
+            source.buffer = this.buffer;
+            source.addEventListener('ended', this.audioEnded);
+            source.connect(ac.destination);
+            source.start(this.time || ac.currentTime);
+            this.src = source;
         }, 3000);
     }
 
     componentWillUnmount() {
         clearTimeout(this.timeout);
         this.timeout = null;
-        this.refs.audio.removeEventListener('ended', this.audioEnded);
+        if (this.src !== null) {
+            this.src.removeEventListener('ended', this.audioEnded);
+            this.src = null;
+        }
     }
 
     play(repeat) {
+        let source = ac.createBufferSource();
+        source.buffer = this.buffer;
+
         if (repeat) {
             this.timeout = null;
-            this.refs.audio.addEventListener('ended', this.audioEnded);
+            source.addEventListener('ended', this.audioEnded);
         } else {
-            this.refs.audio.addEventListener('ended', this.stop);
+            source.addEventListener('ended', this.stop);
         }
-
-        this.refs.audio.play().then(() => {
-
-        }).catch((error) => {
-            // some error
-        });
+        source.connect(ac.destination);
+        source.start(this.time || ac.currentTime);
+        this.src = source;
     }
 
     stop() {
-        let audio = this.refs.audio;
+        if (this.src !== null) {
+            // this.src.stop();
+            this.src.removeEventListener('ended', this.audioEnded);
+            this.src = null;
+        }
         clearTimeout(this.timeout);
-        audio.pause();
-        audio.currentTime = 0;
         this.timeout = null;
-        this.file = null ;
-        audio.removeEventListener('ended', this.audioEnded);
     }
 
     render() {
-        return (
-            <audio ref="audio">
-                <source src={this.props.sourceFile} type="audio/wav" />
-            </audio>
-        );
+        return (<div></div>);
     }
 }
 

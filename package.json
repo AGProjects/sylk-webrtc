@@ -19,8 +19,8 @@
     "classnames": "^2.2.5",
     "connect-modrewrite": "^0.10.1",
     "debug": "*",
-    "electron": "^1.7.6",
-    "electron-builder": "^19.27.7",
+    "electron": "^3.0.0",
+    "electron-builder": "^20.28.4",
     "envify": "^4.1.0",
     "eslint": "^3.12.1",
     "eslint-plugin-import": "^2.2.0",
@@ -74,18 +74,18 @@
     "node": ">=4.0.0"
   },
   "scripts": {
-    "postinstall": "install-app-deps",
+    "postinstall": "electron-builder install-app-deps",
     "start": "electron ./app",
-    "build-osx": "build --mac --x64",
-    "build-win": "build --win --ia32 --x64",
-    "build-linux": "build --linux --ia32 --x64"
-  },
-  "directories": {
-    "output": "dist-electron"
+    "build-osx": "electron-builder --mac --x64",
+    "build-win": "electron-builder --win --ia32 --x64",
+    "build-linux": "electron-builder --linux --ia32 --x64"
   },
   "build": {
     "appId": "com.agprojects.Sylk",
     "productName": "Sylk",
+    "directories": {
+      "output": "dist-electron"
+    },
     "mac": {
       "category": "public.app-category.video",
       "target": [

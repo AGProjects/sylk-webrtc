@@ -19,7 +19,7 @@ deploy-test: dist-dev
 	rsync -av --exclude .htaccess --delete dist/ agp@node10.dns-hosting.info:/var/www/webrtc-test/
 
 deploy-osx:
-	rsync -avz --progress dist-electron/mac/Sylk*.dmg agp@node10.dns-hosting.info:/var/www/download/Sylk/
+	rsync -avz --progress dist-electron/Sylk*.dmg agp@node10.dns-hosting.info:/var/www/download/Sylk/
 	ssh agp@node10.dns-hosting.info 'sudo /root/sync-symlink-sylk.sh'
 
 deploy-win:

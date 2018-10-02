@@ -1,19 +1,83 @@
 
 const electron = require('electron');
+const Notification = electron.Notification
 const fs = require('fs');
 const openAboutWindow = require('about-window').default;
 
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
+const dialog = electron.dialog;
 const Menu = electron.Menu;
 const ipc = electron.ipcMain;
 const shell = electron.shell;
 
+const { autoUpdater } = require('electron-updater')
+const ProgressBar = require('electron-progressbar');
+const log = require('electron-log');
+
+let updater = null;
+log.transports.file.level = 'debug';
+autoUpdater.autoDownload = false;
+autoUpdater.logger = log;
+
+let progressBar;
+let notification;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
+autoUpdater.on('error', (error) => {
+    progressBar.close();
+    dialog.showErrorBox('There was an error updating Sylk')
+});
+
+autoUpdater.on('update-available', (info) => {
+    if (updater == null) {
+        notification = new Notification({ 
+            title: 'A new version is ready to download',
+            body: `${app.getName()} version ${info.version} can be downloaded and installed`
+        });
+        notification.on('click', () => {
+            createUpdateDialog(info);
+        });
+        notification.show();
+    } else {
+        createUpdateDialog(info);
+    }
+});
+
+// No update available
+autoUpdater.on('update-not-available', () => {
+    if (updater != null) {
+        dialog.showMessageBox({
+            title: 'You\'re up-to-date!',
+            message: 'Current version is up-to-date.'
+        });
+        updater.enabled = true;
+        updater = null;
+    }
+});
+
+// There is progress in the download
+autoUpdater.on('download-progress', (progressObj) => {
+    progressBar.value = progressObj.percent;
+    progressBar.detail =  `Downloading...  ${(progressObj.bytesPerSecond/1000).toFixed(2)} KB/s (${(progressObj.transferred/1000000).toFixed(2)} MB / ${(progressObj.total/1000000).toFixed(2)} MB)`;
+});
+
+// The update is downloaded
+autoUpdater.on('update-downloaded', () => {
+    progressBar.setCompleted();
+    progressBar.close();
+    
+    dialog.showMessageBox({
+        title: 'Ready to Install',
+        message: 'The update is downloaded, the application will be restarted for the update...',
+        buttons: ['Restart']
+    }, () => {
+        ensureSafeQuitAndInstall();
+    });
+});
 
 // for platform specific tricks
 const isDarwin = process.platform === 'darwin';
@@ -23,7 +87,6 @@ const isLinux = process.platform === 'linux';
 // Flag indicating if we are about to quit
 let quitting = false;
 
-
 // options for about window
 const aboutOptions = {
     icon_path: `${__dirname}/www/assets/images/blink.ico`,
@@ -31,11 +94,11 @@ const aboutOptions = {
     homepage: 'http://sylkserver.com'
 };
 
-
 // Application menu
 const appMenu = Menu.buildFromTemplate([{
     label: 'Sylk',
     submenu: [
+        { label: 'Check for updates...', click: (item, win, event) => { checkForUpdates(item, win, event); }},
         { label: 'About', click: () => { openAboutWindow(aboutOptions); }},
         { label: 'Quit', accelerator: 'Command+Q', click: () => { app.quit(); }}
     ]}, {
@@ -55,6 +118,65 @@ const appMenu = Menu.buildFromTemplate([{
     ]}
 ]);
 
+function ensureSafeQuitAndInstall() {
+    app.removeAllListeners('window-all-closed');
+    var browserWindows = BrowserWindow.getAllWindows();
+    browserWindows.forEach(function(browserWindow) {
+        browserWindow.removeAllListeners('close');
+    });
+    setImmediate(() => {autoUpdater.quitAndInstall();})
+}
+
+function startDownload() {
+    progressBar = new ProgressBar({
+        indeterminate: false,
+        text: "Downloading update...",
+        detail: "Downloading...",
+        browserWindow: {
+            backgroundColor: '#eee'
+        },
+        style: {
+            bar: {
+                'height': "10px",
+                'box-shadow': "none",
+                'border-radius': '2px'
+            }
+        }
+    });
+    autoUpdater.downloadUpdate();
+}
+
+function checkForUpdates(menuItem, focusedWindow, event) {
+    updater = menuItem;
+    updater.enabled = false;
+    autoUpdater.checkForUpdates();
+}
+
+function startUpdateTimer() {
+    setInterval(() => {
+        autoUpdater.checkForUpdates();
+    }, 43200000);
+    setTimeout(() => {
+        autoUpdater.checkForUpdates();
+    }, 5000);
+}
+
+function createUpdateDialog(info) {
+    dialog.showMessageBox({
+        type: 'info',
+        title: 'Software Update',
+        message: 'A new version of Sylk is available!',
+        detail: `Sylk ${info.version} is now available\u2014you have ${autoUpdater.currentVersion}. Would you like to download it now?`,
+        buttons: ['Yes', 'Remind me Later']
+    }, (buttonIndex) => {
+        if (buttonIndex === 0) {
+            startDownload();
+        } else {
+            updater.enabled = true;
+            updater = null;
+        }
+    });
+}
 
 function createMainWindow() {
     // Options for BrowserWindow
@@ -70,7 +192,7 @@ function createMainWindow() {
         windowOptions.frame = false;
     } else if (isLinux) {
         windowOptions.icon = `${__dirname}/www/assets/images/blink-48.png`;
-    }
+    } 
 
     // Create the browser window.
     mainWindow = new BrowserWindow(windowOptions);
@@ -127,6 +249,7 @@ function createMainWindow() {
 app.on('ready', function() {
     Menu.setApplicationMenu(appMenu);
     createMainWindow();
+    startUpdateTimer();
 });
 
 // Quit when all windows are closed.
@@ -142,7 +265,7 @@ app.on('activate', () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) {
-        createMainWindow();
+       createMainWindow();
     }
     mainWindow.show();
 });
@@ -150,3 +273,4 @@ app.on('activate', () => {
 app.on('before-quit', () => {
     quitting = true;
 });
+

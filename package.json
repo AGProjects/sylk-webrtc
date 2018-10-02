@@ -86,10 +86,17 @@
     "directories": {
       "output": "dist-electron"
     },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "http://download.ag-projects.com/Sylk"
+      }
+    ],
     "mac": {
       "category": "public.app-category.video",
       "target": [
-        "dmg"
+        "dmg",
+        "zip"
       ]
     },
     "win": {

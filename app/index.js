@@ -31,6 +31,8 @@ autoUpdater.on('error', (error) => {
     if (updater != null) {
         progressBar.close();
         dialog.showErrorBox('There was an error updating Sylk:', error == null ? "unknown" :error.toString());
+        updater.enabled = true;
+        updater = null;
     }
 });
 

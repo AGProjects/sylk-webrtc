@@ -28,8 +28,10 @@ let notification;
 let mainWindow;
 
 autoUpdater.on('error', (error) => {
-    progressBar.close();
-    dialog.showErrorBox('There was an error updating Sylk')
+    if (updater != null) {
+        progressBar.close();
+        dialog.showErrorBox('There was an error updating Sylk');
+    }
 });
 
 autoUpdater.on('update-available', (info) => {

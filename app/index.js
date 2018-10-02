@@ -134,6 +134,7 @@ function startDownload() {
         indeterminate: false,
         text: "Downloading update...",
         detail: "Downloading...",
+        title: "Sylk Auto Updater",
         browserWindow: {
             backgroundColor: '#eee'
         },

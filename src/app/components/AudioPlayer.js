@@ -3,7 +3,8 @@
 const React     = require('react');
 const PropTypes = require('prop-types');
 const load = require('audio-loader');
-const ac   = require("audio-context")();
+// const play = require('audio-play');
+const ac = require('audio-context')();
 
 class AudioPlayer extends React.Component {
     constructor(props) {

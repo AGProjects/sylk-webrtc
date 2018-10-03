@@ -22,6 +22,7 @@ autoUpdater.logger = log;
 
 let progressBar;
 let notification;
+let updateWindow = null;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -174,20 +175,26 @@ function startUpdateTimer() {
 }
 
 function createUpdateDialog(info) {
-    dialog.showMessageBox({
-        type: 'info',
-        title: 'Software Update',
-        message: 'A new version of Sylk is available!',
-        detail: `Sylk ${info.version} is now available\u2014you have ${autoUpdater.currentVersion}. Would you like to download it now?`,
-        buttons: ['Yes', 'Remind me Later']
-    }, (buttonIndex) => {
-        if (buttonIndex === 0) {
-            startDownload();
-        } else {
-            updater.enabled = true;
-            updater = null;
-        }
-    });
+    if (updateWindow == null) {
+        updateWindow = true;
+        dialog.showMessageBox({
+            type: 'info',
+            title: 'Software Update',
+            message: 'A new version of Sylk is available!',
+            detail: `Sylk ${info.version} is now available\u2014you have ${autoUpdater.currentVersion}. Would you like to download it now?`,
+            buttons: ['Yes', 'Remind me Later']
+        }, (buttonIndex) => {
+            if (buttonIndex === 0) {
+                startDownload();
+            } else {
+                if (updater != null) {
+                    updater.enabled = true;
+                    updater = null;
+                }
+            }
+            updateWindow = null;
+        });
+    }
 }
 
 function createMainWindow() {

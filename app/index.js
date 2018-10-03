@@ -64,7 +64,8 @@ autoUpdater.on('update-not-available', () => {
     if (updater != null) {
         dialog.showMessageBox({
             title: 'You\'re up-to-date!',
-            message: 'Current version is up-to-date.'
+            message: 'Current version is up-to-date.',
+            buttons: ['OK']
         });
         updater.enabled = true;
         updater = null;

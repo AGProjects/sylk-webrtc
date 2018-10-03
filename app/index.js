@@ -29,7 +29,14 @@ let mainWindow;
 
 autoUpdater.on('error', (error) => {
     if (updater != null) {
-        progressBar.close();
+        if (progressBar != null) {
+            progressBar.close();
+        }
+
+        if (error.code === 'ERR_UPDATER_CHANNEL_FILE_NOT_FOUND') {
+            error = 'Cannot find the channel file for the updates';
+        }
+
         dialog.showErrorBox('There was an error updating Sylk:', error == null ? 'unknown' :error.toString());
         updater.enabled = true;
         updater = null;

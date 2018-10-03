@@ -38,7 +38,7 @@ autoUpdater.on('error', (error) => {
             error = 'Cannot find the channel file for the updates';
         }
 
-        dialog.showErrorBox('There was an error updating Sylk:', error == null ? 'unknown' :error.toString());
+        dialog.showErrorBox('There was an error updating Sylk:', error == null ? 'unknown' : error.toString());
         updater.enabled = true;
         updater = null;
     }
@@ -74,7 +74,7 @@ autoUpdater.on('update-not-available', () => {
 // There is progress in the download
 autoUpdater.on('download-progress', (progressObj) => {
     progressBar.value = progressObj.percent;
-    progressBar.detail =  `Downloading...  ${(progressObj.bytesPerSecond/1000).toFixed(2)} KB/s (${(progressObj.transferred/1000000).toFixed(2)} MB / ${(progressObj.total/1000000).toFixed(2)} MB)`;
+    progressBar.detail =  `Downloading...  ${(progressObj.bytesPerSecond / 1000).toFixed(2)} KB/s (${(progressObj.transferred / 1000000).toFixed(2)} MB / ${(progressObj.total / 1000000).toFixed(2)} MB)`;
 });
 
 // The update is downloaded
@@ -142,16 +142,16 @@ function ensureSafeQuitAndInstall() {
 function startDownload() {
     progressBar = new ProgressBar({
         indeterminate: false,
-        text: "Downloading update...",
-        detail: "Downloading...",
-        title: "Sylk Auto Updater",
+        text: 'Downloading update...',
+        detail: 'Downloading...',
+        title: 'Sylk Auto Updater',
         browserWindow: {
             backgroundColor: '#eee'
         },
         style: {
             bar: {
-                'height': "10px",
-                'box-shadow': "none",
+                'height': '10px',
+                'box-shadow': 'none',
                 'border-radius': '2px'
             }
         }
@@ -204,7 +204,7 @@ function createMainWindow() {
         height: 600,
         minWidth: 1067,
         minHeight: 600,
-        title: 'Sylk',
+        title: 'Sylk'
     };
     if (isDarwin) {
         //windowOptions.titleBarStyle = 'hidden-inset';

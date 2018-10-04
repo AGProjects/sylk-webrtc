@@ -389,7 +389,7 @@ class ConferenceBox extends React.Component {
             'video-container': true,
             'conference': true,
             'drawer-visible': this.state.showDrawer
-        })
+        });
 
         const remoteIdentity = this.props.remoteIdentity.split('@')[0];
 

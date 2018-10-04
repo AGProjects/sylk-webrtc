@@ -85,7 +85,7 @@ autoUpdater.on('update-downloaded', () => {
     
     dialog.showMessageBox({
         title: 'Ready to Install',
-        message: 'The update is downloaded, the application will be restarted for the update...',
+        message: 'The software has been downloaded. Click Restart to relaunch the new version...',
         buttons: ['Restart']
     }, () => {
         ensureSafeQuitAndInstall();

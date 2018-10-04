@@ -5097,7 +5097,7 @@ mute-stream@0.0.5:
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.5.tgz#8fbfabb0a98a253d3184331f9e8deb7372fac6c0"
 
-nan@^2.10.0, nan@^2.3.2:
+nan@^2.10.0, nan@^2.11.0, nan@^2.3.2:
   version "2.11.1"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.11.1.tgz#90e22bccb8ca57ea4cd37cc83d3819b52eea6766"
 
@@ -7136,8 +7136,8 @@ supports-color@^5.3.0:
     has-flag "^3.0.0"
 
 sylkrtc@AGProjects/sylkrtc.js:
-  version "0.9.91"
-  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/54226ff8d69c74dc419dc2a5a8fe7f0093a86f8b"
+  version "0.9.92"
+  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/72b0d32b5226be2dc1abd0d1412d2edf919a2547"
   dependencies:
     attachmediastream "^2.0.0"
     blueimp-md5 "^2.10.0"
@@ -7146,7 +7146,7 @@ sylkrtc@AGProjects/sylkrtc.js:
     sdp-transform "^2.3.0"
     uuid "^3.1.0"
     webrtc-adapter "4.1.1"
-    websocket "^1.0.23"
+    websocket "^1.0.28"
 
 symbol-observable@^1.0.4:
   version "1.0.4"
@@ -7386,6 +7386,12 @@ type-check@~0.3.2:
 typedarray-to-buffer@^3.1.2:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/typedarray-to-buffer/-/typedarray-to-buffer-3.1.2.tgz#1017b32d984ff556eba100f501589aba1ace2e04"
+  dependencies:
+    is-typedarray "^1.0.0"
+
+typedarray-to-buffer@^3.1.5:
+  version "3.1.5"
+  resolved "https://registry.yarnpkg.com/typedarray-to-buffer/-/typedarray-to-buffer-3.1.5.tgz#a97ee7a9ff42691b9f783ff1bc5112fe3fca9080"
   dependencies:
     is-typedarray "^1.0.0"
 
@@ -7736,6 +7742,15 @@ websocket@^1.0.23:
     typedarray-to-buffer "^3.1.2"
     yaeti "^0.0.4"
 
+websocket@^1.0.28:
+  version "1.0.28"
+  resolved "https://registry.yarnpkg.com/websocket/-/websocket-1.0.28.tgz#9e5f6fdc8a3fe01d4422647ef93abdd8d45a78d3"
+  dependencies:
+    debug "^2.2.0"
+    nan "^2.11.0"
+    typedarray-to-buffer "^3.1.5"
+    yaeti "^0.0.6"
+
 weinre@^2.0.0-pre-I0Z7U9OV:
   version "2.0.0-pre-I0Z7U9OV"
   resolved "https://registry.yarnpkg.com/weinre/-/weinre-2.0.0-pre-I0Z7U9OV.tgz#fef8aa223921f7b40bbbbd4c3ed4302f6fd0a813"
@@ -7881,6 +7896,10 @@ y18n@^3.2.0, y18n@^3.2.1:
 yaeti@^0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/yaeti/-/yaeti-0.0.4.tgz#89fe739c45ac4491028973193262a837693a66b6"
+
+yaeti@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/yaeti/-/yaeti-0.0.6.tgz#f26f484d72684cf42bedfb76970aa1608fbf9577"
 
 yallist@^2.1.2:
   version "2.1.2"

@@ -39,6 +39,7 @@ class CallMeMaybeModal extends React.Component {
         } else {
             window.open(this.emailLink, '_self');
         }
+        this.props.close();
     }
 
     render() {

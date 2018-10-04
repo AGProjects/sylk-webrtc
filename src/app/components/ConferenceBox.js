@@ -237,6 +237,7 @@ class ConferenceBox extends React.Component {
         } else {
             window.open(this.emailLink, '_self');
         }
+        this.refs.shareOverlay.hide();
     }
 
     handleShareOverlayEntered() {

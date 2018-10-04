@@ -14,6 +14,7 @@ class CallMeMaybeModal extends React.Component {
 
         // ES6 classes no longer autobind
         this.handleClipboardButton = this.handleClipboardButton.bind(this);
+        this.handleEmailButton = this.handleEmailButton.bind(this);
 
         const sipUri = this.props.callUrl.split('/').slice(-1)[0];    // hack!
         const emailMessage = `You can call me using a Web browser at ${this.props.callUrl} or a SIP client at ${sipUri} ` +
@@ -27,6 +28,17 @@ class CallMeMaybeModal extends React.Component {
         utils.copyToClipboard(this.props.callUrl);
         this.props.notificationCenter().postSystemNotification('Call me, maybe?', {body: 'URL copied to the clipboard'});
         this.props.close();
+    }
+
+    handleEmailButton(event) {
+        if (navigator.userAgent.indexOf('Chrome') > 0) {
+            let emailWindow = window.open(this.emailLink, '_blank');
+            setTimeout(() => {
+                emailWindow.close();
+            }, 500);
+        } else {
+            window.open(this.emailLink, '_self');
+        }
     }
 
     render() {
@@ -47,9 +59,9 @@ class CallMeMaybeModal extends React.Component {
                             <button className="btn btn-lg btn-primary" onClick={this.handleClipboardButton} >
                                 <i className="fa fa-clipboard"></i>
                             </button>
-                            <a className="btn btn-lg btn-primary" href={this.emailLink} >
+                            <button className="btn btn-lg btn-primary" onClick={this.handleEmailButton} >
                                 <i className="fa fa-envelope-o"></i>
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </Modal.Body>

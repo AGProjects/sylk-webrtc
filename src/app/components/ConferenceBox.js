@@ -93,6 +93,7 @@ class ConferenceBox extends React.Component {
             'onConfigureRoom',
             'maybeSwitchLargeVideo',
             'handleClipboardButton',
+            'handleEmailButton',
             'handleShareOverlayEntered',
             'handleShareOverlayExited',
             'handleActiveSpeakerSelected',
@@ -225,6 +226,17 @@ class ConferenceBox extends React.Component {
         utils.copyToClipboard(this.callUrl);
         this.props.notificationCenter().postSystemNotification('Join me, maybe?', {body: 'Link copied to the clipboard'});
         this.refs.shareOverlay.hide();
+    }
+
+    handleEmailButton(event) {
+        if (navigator.userAgent.indexOf('Chrome') > 0) {
+            let emailWindow = window.open(this.emailLink, '_blank');
+            setTimeout(() => {
+                emailWindow.close();
+            }, 500);
+        } else {
+            window.open(this.emailLink, '_self');
+        }
     }
 
     handleShareOverlayEntered() {
@@ -465,9 +477,9 @@ class ConferenceBox extends React.Component {
                             <button className="btn btn-primary" onClick={this.handleClipboardButton} alt="Copy to clipboard">
                                 <i className="fa fa-clipboard"></i>
                             </button>
-                            <a className="btn btn-primary" href={this.emailLink} alt="Send email">
+                            <button className="btn btn-primary" onClick={this.handleEmailButton} alt="Send email">
                                 <i className="fa fa-envelope-o"></i>
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </Popover>

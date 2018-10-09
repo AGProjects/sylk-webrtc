@@ -1,4 +1,7 @@
  - Change camera support
+ - Bring window in front when incomming call arrives
+ - Add incoming ringtone mute button
+ - Align menu bar to the right
  - Call history
  - Share screen support (and/or second camera feed)
  - Local video recording
@@ -6,5 +9,3 @@
  - Text chat
  - Edit display name after join a conference without account 
  - Streaming to external video broadcast service
-
-

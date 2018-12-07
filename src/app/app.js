@@ -61,7 +61,8 @@ class Blink extends React.Component {
             loading: null,
             mode: MODE_NORMAL,
             localMedia: null,
-            history: []
+            history: [],
+            devices: {}
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -87,6 +88,8 @@ class Blink extends React.Component {
             'conferenceInvite',
             'notificationCenter',
             'escalateToConference',
+            'changeVideoResolution',
+            'setDevice',
             'login',
             'logout',
             'ready',
@@ -144,6 +147,13 @@ class Blink extends React.Component {
         history.load().then((entries) => {
             if (entries) {
                 this.setState({history: entries});
+            }
+        });
+
+        // Load camera/mic preferences
+        storage.get('devices').then((devices) => {
+            if (devices) {
+                this.setState({devices: devices});
             }
         });
     }
@@ -424,10 +434,28 @@ class Blink extends React.Component {
         });
     }
 
+    setDevice(device) {
+        const oldDevices = Object.assign({}, this.state.devices);
+
+        if (device.kind === 'videoinput') {
+            oldDevices['camera'] = device;
+        } else if (device.kind === 'audioinput') {
+            oldDevices['mic'] = device;
+        }
+
+        this.setState({devices: oldDevices});
+        storage.set('devices', oldDevices);
+        sylkrtc.utils.closeMediaStream(this.state.localMedia);
+        this.getLocalMedia();
+    } 
+
     getLocalMedia(mediaConstraints={audio: true, video: true}, nextRoute=null) {    // eslint-disable-line space-infix-ops
         DEBUG('getLocalMedia(), mediaConstraints=%o', mediaConstraints);
         const constraints = Object.assign({}, mediaConstraints);
-
+        constraints.audio = {
+            'echoCancellation': false
+        };
+        
         if (constraints.video === true) {
             if ((nextRoute === '/conference' ||  this.state.mode === MODE_GUEST_CONFERENCE) && navigator.userAgent.indexOf('Firefox') > 0) {
                 constraints.video = {
@@ -458,6 +486,30 @@ class Blink extends React.Component {
         }, 150);
 
         navigator.mediaDevices.getUserMedia(constraints)
+            .then((stream) => {
+                sylkrtc.utils.closeMediaStream(stream);
+                return navigator.mediaDevices.enumerateDevices()
+            })
+            .then((devices) => {
+                devices.forEach((device) => {
+                    if ('video' in constraints && 'camera' in this.state.devices) {
+                        if (constraints.video !== false && device.deviceId === this.state.devices.camera.deviceId || device.label === this.state.devices.camera.label) {
+                            constraints.video.deviceId = {};
+                            constraints.video.deviceId.exact = device.deviceId;
+                        } 
+                    }
+                    if ('mic' in this.state.devices) {
+                        if (device.deviceId === this.state.devices.mic.deviceId || device.label === this.state.devices.mic.Label) {
+                            constraints.audio.deviceId = {};
+                            constraints.audio.deviceId.exact = device.deviceId;
+                        } 
+                    }
+                });
+                return navigator.mediaDevices.getUserMedia(constraints)
+            })
+            .catch((error) => {
+                DEBUG('Device enumeration failed: %o', error);
+            })
             .then((localStream) => {
                 clearTimeout(this.loadScreenTimer);
                 this.setState({status: null, loading: null, localMedia: localStream});
@@ -780,6 +832,8 @@ class Blink extends React.Component {
                 <Preview
                     localMedia = {this.state.localMedia}
                     hangupCall = {this.hangupCall}
+                    setDevice = {this.setDevice}
+                    selectedDevices = {this.state.devices}
                 />
             </div>
         );

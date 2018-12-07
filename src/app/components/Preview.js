@@ -5,79 +5,105 @@ const PropTypes             = require('prop-types');
 const classNames            = require('classnames');
 const CSSTransitionGroup    = require('react-transition-group/CSSTransitionGroup');
 const sylkrtc               = require('sylkrtc');
-const hark                  = require('hark');
+const ConferenceDrawer      = require('./ConferenceDrawer');
+const VolumeBar             = require('./VolumeBar');
 
-const Styles        = require('material-ui/styles');
-const withStyles    = Styles.withStyles;
-const Colors        = require('material-ui/colors');
-const Green         = Colors.green;
-const Mui           = require('material-ui');
-const Progress      = Mui.LinearProgress;
+const ReactBootstrap    = require('react-bootstrap');
+const ListGroup         = ReactBootstrap.ListGroup;
+const ListGroupItem     = ReactBootstrap.ListGroupItem;
 
 const styleSheet = {
-    accentColor: {
-        backgroundColor: Green[100]
-    },
-    accentColorBar: {
-        backgroundColor: Green[500]
-    },
-    root: {
-        height: '10px',
-        opacity: '0.7'
-    },
-    determinateBar1: {
-        transition: 'transform 0.2s linear'
-    }
 };
 
 class Preview extends React.Component {
     constructor(props) {
         super(props);
-        this.speechEvents = null;
-        this.camera = '';
-        this.state = {
-            volume: 0
+
+        let mic = {label: 'No mic'};
+        let camera = {label: 'No Camera'};
+
+        if ('camera' in this.props.selectedDevices) {
+            camera = this.props.selectedDevices.camera;
+        } else if (this.props.localMedia.getVideoTracks().length !== 0) {
+            camera.label = this.props.localMedia.getVideoTracks()[0].label;
         }
+
+        if ('mic' in this.props.selectedDevices) {
+            mic = this.props.selectedDevices.mic;
+        } else if (this.props.localMedia.getAudioTracks().length !== 0) {
+            mic.label = this.props.localMedia.getAudioTracks()[0].label;
+        }
+
+        this.state = {
+            camera: camera,
+            showDrawer: false,
+            mic: mic
+        }
+        this.devices = [];
 
         // ES6 classes no longer autobind
         this.hangupCall = this.hangupCall.bind(this);
         this.localVideoElementPlaying = this.localVideoElementPlaying.bind(this);
+        this.toggleDrawer = this.toggleDrawer.bind(this);
+        this.setDevice = this.setDevice.bind(this);
     }
 
     componentDidMount() {
         this.refs.localVideo.addEventListener('playing', this.localVideoElementPlaying);
         sylkrtc.utils.attachMediaStream(this.props.localMedia, this.refs.localVideo, {disableContextMenu: true});
-        if (this.props.localMedia.getVideoTracks().length === 0) {
-            this.camera = 'No Camera';
-        } else {
-            this.camera = this.props.localMedia.getVideoTracks()[0].label;
+
+        this.cameras = [];
+        this.mics = [];
+        navigator.mediaDevices.enumerateDevices()
+            .then((devices) => {
+                this.devices = devices;
+            })
+            .catch(function(error) {
+                DEBUG('Device enumeration failed: %o', error);
+            });
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.localMedia !== this.props.localMedia) {
+            sylkrtc.utils.attachMediaStream(nextProps.localMedia, this.refs.localVideo, {disableContextMenu: true});
+        }
+
+        if (nextProps.selectedDevices !== this.props.selectedDevices) {
+            let camera = {label: 'No camera'};
+            let mic = {label: 'No Mic'};
+            if ('camera' in nextProps.selectedDevices) {
+                camera = nextProps.selectedDevices.camera;
+            }
+
+            if ('mic' in nextProps.selectedDevices) {
+                mic = nextProps.selectedDevices.mic;
+            }
+            this.setState({camera: camera, mic: mic});
         }
     }
 
     componentWillUnmount() {
-        clearTimeout(this.delayTimer);
         this.refs.localVideo.removeEventListener('playing', this.localVideoElementPlaying);
-        if (this.speechEvents !== null) {
-            this.speechEvents.stop();
-            this.speechEvents = null;
-        }
     }
 
+    setDevice = (device) => (e) => {
+        e.preventDefault();
+        if (device.label !== this.state.mic.label && device.label !== this.state.camera.label) {
+            this.props.setDevice(device);
+        }
+    }
+    
     localVideoElementPlaying() {
         this.refs.localVideo.removeEventListener('playing', this.localVideoElementPlaying);
-        const options = {
-            interval: 225,
-            play: false
-        };
-        this.speechEvents = hark(this.props.localMedia, options);
-        this.speechEvents.on('volume_change', (vol, threshold) => {
-            this.setState({volume: 2 * (vol + 75)});
-        });
     }
 
     hangupCall(event) {
         event.preventDefault();
         this.props.hangupCall();
+    }
+
+    toggleDrawer() {
+        this.setState({showDrawer: !this.state.showDrawer});
     }
 
     render() {
@@ -90,27 +116,59 @@ class Preview extends React.Component {
         const textClasses = classNames({
             'lead'          : true
         });
+        const commonButtonTopClasses = classNames({
+            'btn'           : true,
+            'btn-link'      : true
+        });
+        const containerClasses = classNames({
+            'video-container': true,
+            'drawer-visible': this.state.showDrawer
+        });
 
-        let color = 'primary';
-        if (this.state.volume > 20) {
-            color = 'accent';
+        let cameras = [];
+        let mics = [];
+
+        this.devices.forEach((device) => {
+            if (device.kind === 'videoinput') {
+                cameras.push(
+                    <ListGroupItem key={device.deviceId} style={{width: '350px'}} onClick={this.setDevice(device)} active={device.label === this.state.camera.label}>
+                    {device.label}
+                    </ListGroupItem>
+                );
+            } else if (device.kind === 'audioinput') {
+                mics.push(
+                    <ListGroupItem key={device.deviceId} style={{width: '350px'}} onClick={this.setDevice(device)} active={device.label === this.state.mic.label}>
+                    {device.label}
+                    </ListGroupItem>
+                );
+            }
+        });
+        const topButtons = [];
+
+        if (!this.state.showDrawer) {
+            topButtons.push(<button key="sbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleDrawer}> <i className="fa fa-bars fa-2x"></i> </button>);
         }
 
         let header = '';
-        if (this.camera !== '') {
+        if (this.state.camera !== '') {
             header = (
                 <div key="header-container">
                     <div key="header" className="call-header">
+                    <div className="container-fluid" style={{position: 'relative'}}>
                         <p className={textClasses}><strong>Preview</strong></p>
-                        <p className={textClasses}>{this.camera}</p>
+                        <p className={textClasses}>{this.state.camera.label}</p>
+                        <div className="conference-top-buttons">
+                        {topButtons}
+                        </div>
                     </div>
-                    <Progress classes={this.props.classes} mode="determinate" color={color} value={this.state.volume}></Progress>
+                    </div>
+                    <VolumeBar localMedia={this.props.localMedia} />
                 </div>
             );
         }
 
         let icon = '';
-        if (this.camera === 'No Camera') {
+        if (this.state.camera === 'No Camera') {
             icon = (
                 <div>
                     <p><i className="fa fa-video-camera-slash fa-5 fa-fw"></i></p>
@@ -122,7 +180,7 @@ class Preview extends React.Component {
         return (
             <div>
             {icon}
-            <div className="video-container" ref="videoContainer">
+            <div className={containerClasses} ref="videoContainer">
                 <div className="top-overlay">
                     <CSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                         {header}
@@ -133,6 +191,18 @@ class Preview extends React.Component {
                     <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-power-off"></i> </button>
                 </div>
             </div>
+            <ConferenceDrawer show={this.state.showDrawer} close={this.toggleDrawer}>
+            <div>
+                <h4 className="header">Video Camera</h4>
+                <ListGroup>
+                    {cameras}
+                </ListGroup>
+                <h4 className="header">Audio Input</h4>
+                <ListGroup>
+                    {mics}
+                </ListGroup>
+            </div>
+            </ConferenceDrawer>
             </div>
         );
     }
@@ -141,8 +211,8 @@ class Preview extends React.Component {
 Preview.propTypes = {
     hangupCall: PropTypes.func,
     localMedia: PropTypes.object.isRequired,
-    classes     : PropTypes.object.isRequired
+    setDevice: PropTypes.func.isRequired,
+    selectedDevices: PropTypes.object.isRequired
 };
 
-
-module.exports = withStyles(styleSheet)(Preview);
+module.exports = Preview;

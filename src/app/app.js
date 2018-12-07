@@ -88,7 +88,6 @@ class Blink extends React.Component {
             'conferenceInvite',
             'notificationCenter',
             'escalateToConference',
-            'changeVideoResolution',
             'setDevice',
             'login',
             'logout',

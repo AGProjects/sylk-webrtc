@@ -490,14 +490,18 @@ class Blink extends React.Component {
                 devices.forEach((device) => {
                     if ('video' in constraints && 'camera' in this.state.devices) {
                         if (constraints.video !== false && device.deviceId === this.state.devices.camera.deviceId || device.label === this.state.devices.camera.label) {
-                            constraints.video.deviceId = {};
-                            constraints.video.deviceId.exact = device.deviceId;
+                            constraints.video.deviceId = {
+                                exact: device.deviceId
+                            };
                         } 
                     }
                     if ('mic' in this.state.devices) {
                         if (device.deviceId === this.state.devices.mic.deviceId || device.label === this.state.devices.mic.Label) {
-                            constraints.audio.deviceId = {};
-                            constraints.audio.deviceId.exact = device.deviceId;
+                            constraints.audio = {
+                                deviceId: {
+                                    exact: device.deviceId
+                                }
+                            };
                         } 
                     }
                 });

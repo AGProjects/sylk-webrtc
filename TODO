@@ -1,11 +1,12 @@
- - Change camera support
+ - Better call history
+ - Auto login on start
+ - Auto answer for given addresses
  - Bring window in front when incomming call arrives
  - Add incoming ringtone mute button
- - Align menu bar to the right
- - Call history
- - Share screen support (and/or second camera feed)
- - Local video recording
+ - Text sessions
  - File transfer support
- - Text chat
+ - Align menu bar to the right
+ - Screen sharing support (and/or second camera feed)
+ - Local video recording
  - Edit display name after join a conference without account 
  - Streaming to external video broadcast service

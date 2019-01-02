@@ -56,23 +56,25 @@ class Preview extends React.Component {
         this.refs.localVideo.addEventListener('playing', this.localVideoElementPlaying);
         sylkrtc.utils.attachMediaStream(this.props.localMedia, this.refs.localVideo, {disableContextMenu: true});
 
-        this.cameras = [];
-        this.mics = [];
         navigator.mediaDevices.enumerateDevices()
             .then((devices) => {
                 this.devices = devices;
 
                 let newState = {};
-                if (!devices.find((device) => {return device.kind === 'videoinput'})) {
-                    newState.camera = {label: 'No camera'};
-                } else if (this.props.localMedia.getVideoTracks().length !== 0) {
-                    newState.camera = {label: this.props.localMedia.getVideoTracks()[0].label};
+                if (this.state.camera.label !== 'No Camera') {
+                    if (!devices.find((device) => {return device.kind === 'videoinput'})) {
+                        newState.camera = {label: 'No Camera'};
+                    } else if (this.props.localMedia.getVideoTracks().length !== 0) {
+                        newState.camera = {label: this.props.localMedia.getVideoTracks()[0].label};
+                    }
                 }
 
-                if (!devices.find((device) => {return device.kind === 'audioinput'})) {
-                    newState.mic = {label: 'No mic'};
-                } else if (this.props.localMedia.getAudioTracks().length !== 0) {
-                    newState.mic = { label: this.props.localMedia.getAudioTracks()[0].label};
+                if (this.state.mic.label !== 'No mic') {
+                    if (!devices.find((device) => {return device.kind === 'audioinput'})) {
+                        newState.mic = {label: 'No mic'};
+                    } else if (this.props.localMedia.getAudioTracks().length !== 0) {
+                        newState.mic = { label: this.props.localMedia.getAudioTracks()[0].label};
+                    }
                 }
 
                 if (Object.keys(newState).length != 0) {
@@ -90,7 +92,7 @@ class Preview extends React.Component {
         }
 
         if (nextProps.selectedDevices !== this.props.selectedDevices) {
-            let camera = {label: 'No camera'};
+            let camera = {label: 'No Camera'};
             let mic = {label: 'No Mic'};
             if ('camera' in nextProps.selectedDevices) {
                 camera = nextProps.selectedDevices.camera;

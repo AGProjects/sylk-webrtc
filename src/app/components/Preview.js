@@ -61,6 +61,23 @@ class Preview extends React.Component {
         navigator.mediaDevices.enumerateDevices()
             .then((devices) => {
                 this.devices = devices;
+
+                let newState = {};
+                if (!devices.find((device) => {return device.kind === 'videoinput'})) {
+                    newState.camera = {label: 'No camera'};
+                } else if (this.props.localMedia.getVideoTracks().length !== 0) {
+                    newState.camera = {label: this.props.localMedia.getVideoTracks()[0].label};
+                }
+
+                if (!devices.find((device) => {return device.kind === 'audioinput'})) {
+                    newState.mic = {label: 'No mic'};
+                } else if (this.props.localMedia.getAudioTracks().length !== 0) {
+                    newState.mic = { label: this.props.localMedia.getAudioTracks()[0].label};
+                }
+
+                if (Object.keys(newState).length != 0) {
+                    this.setState(Object.assign({},newState));
+                }
             })
             .catch(function(error) {
                 DEBUG('Device enumeration failed: %o', error);

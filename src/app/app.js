@@ -484,7 +484,12 @@ class Blink extends React.Component {
         navigator.mediaDevices.getUserMedia(constraints)
             .then((stream) => {
                 sylkrtc.utils.closeMediaStream(stream);
-                return navigator.mediaDevices.enumerateDevices()
+            })
+            .catch((error) => {
+                DEBUG('Intial access failed: %o', error);
+            })
+            .then(() => {
+                return navigator.mediaDevices.enumerateDevices();
             })
             .then((devices) => {
                 devices.forEach((device) => {
@@ -505,12 +510,11 @@ class Blink extends React.Component {
                         } 
                     }
                 });
-                return navigator.mediaDevices.getUserMedia(constraints);
             })
             .catch((error) => {
                 DEBUG('Device enumeration failed: %o', error);
-                return navigator.mediaDevices.getUserMedia(constraints);
             })
+            .then(() => {return navigator.mediaDevices.getUserMedia(constraints)})
             .then((localStream) => {
                 clearTimeout(this.loadScreenTimer);
                 this.setState({status: null, loading: null, localMedia: localStream});

@@ -505,10 +505,11 @@ class Blink extends React.Component {
                         } 
                     }
                 });
-                return navigator.mediaDevices.getUserMedia(constraints)
+                return navigator.mediaDevices.getUserMedia(constraints);
             })
             .catch((error) => {
                 DEBUG('Device enumeration failed: %o', error);
+                return navigator.mediaDevices.getUserMedia(constraints);
             })
             .then((localStream) => {
                 clearTimeout(this.loadScreenTimer);

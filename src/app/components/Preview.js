@@ -5,7 +5,7 @@ const PropTypes             = require('prop-types');
 const classNames            = require('classnames');
 const CSSTransitionGroup    = require('react-transition-group/CSSTransitionGroup');
 const sylkrtc               = require('sylkrtc');
-const debug                     = require('debug');
+const debug                 = require('debug');
 
 const ConferenceDrawer      = require('./ConferenceDrawer');
 const VolumeBar             = require('./VolumeBar');

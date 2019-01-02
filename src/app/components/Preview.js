@@ -187,30 +187,30 @@ class Preview extends React.Component {
 
         return (
             <div>
-            {icon}
-            <div className={containerClasses} ref="videoContainer">
-                <div className="top-overlay">
-                    <CSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                        {header}
-                    </CSSTransitionGroup>
+                {icon}
+                <div className={containerClasses} ref="videoContainer">
+                    <div className="top-overlay">
+                        <CSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                            {header}
+                        </CSSTransitionGroup>
+                    </div>
+                    <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted />
+                    <div className="call-buttons">
+                        <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-power-off"></i> </button>
+                    </div>
                 </div>
-                <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted />
-                <div className="call-buttons">
-                    <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-power-off"></i> </button>
-                </div>
-            </div>
-            <ConferenceDrawer show={this.state.showDrawer} close={this.toggleDrawer}>
-            <div>
-                <h4 className="header">Video Camera</h4>
-                <ListGroup>
-                    {cameras}
-                </ListGroup>
-                <h4 className="header">Audio Input</h4>
-                <ListGroup>
-                    {mics}
-                </ListGroup>
-            </div>
-            </ConferenceDrawer>
+                <ConferenceDrawer show={this.state.showDrawer} close={this.toggleDrawer}>
+                    <div>
+                        <h4 className="header">Video Camera</h4>
+                        <ListGroup>
+                            {cameras}
+                        </ListGroup>
+                        <h4 className="header">Audio Input</h4>
+                        <ListGroup>
+                            {mics}
+                        </ListGroup>
+                    </div>
+                </ConferenceDrawer>
             </div>
         );
     }

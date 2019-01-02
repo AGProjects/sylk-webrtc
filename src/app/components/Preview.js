@@ -128,6 +128,10 @@ class Preview extends React.Component {
             'video-container': true,
             'drawer-visible': this.state.showDrawer
         });
+        const iconClasses = classNames({
+            'video-icon': true,
+            'drawer-visible': this.state.showDrawer
+        })
 
         let cameras = [];
         let mics = [];
@@ -172,9 +176,9 @@ class Preview extends React.Component {
         }
 
         let icon = '';
-        if (this.state.camera === 'No Camera') {
+        if (this.state.camera.label === 'No Camera') {
             icon = (
-                <div>
+                <div className={iconClasses}>
                     <p><i className="fa fa-video-camera-slash fa-5 fa-fw"></i></p>
                     <p className="lead">No camera detected</p>
                 </div>

@@ -1,0 +1,6 @@
+.video-icon {
+    &.drawer-visible {
+        width: calc(100% - 350px) !important;
+        margin-right: 350px;
+    }
+}

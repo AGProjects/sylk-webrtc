@@ -5,12 +5,16 @@ const PropTypes             = require('prop-types');
 const classNames            = require('classnames');
 const CSSTransitionGroup    = require('react-transition-group/CSSTransitionGroup');
 const sylkrtc               = require('sylkrtc');
+const debug                     = require('debug');
+
 const ConferenceDrawer      = require('./ConferenceDrawer');
 const VolumeBar             = require('./VolumeBar');
 
 const ReactBootstrap    = require('react-bootstrap');
 const ListGroup         = ReactBootstrap.ListGroup;
 const ListGroupItem     = ReactBootstrap.ListGroupItem;
+
+const DEBUG = debug('blinkrtc:Preview');
 
 const styleSheet = {
 };

@@ -43,6 +43,11 @@ titleBar.on('minimize', function () {
   ipc.send('minimize')
 })
 
+const linkElement = document.createElement('link');
+linkElement.setAttribute('rel', 'stylesheet');
+linkElement.setAttribute('type', 'text/css');
+linkElement.setAttribute('href', 'data:text/css;charset=UTF-8,' + encodeURIComponent(".navbar-header { padding-left: 48.5px;}"));
+document.head.append(linkElement);
 
 // show / hide titlebar when going fullscreen
 

@@ -75,7 +75,7 @@ class NavigationBar extends React.Component {
 
     render() {
         return (
-            <Navbar inverse={true} fixedTop={true}>
+            <Navbar inverse={true} fixedTop={true} fluid={true}>
                 <Navbar.Header>
                     <div className="navbar-blink-logo pull-left"></div>
                     <Navbar.Brand>

@@ -2,17 +2,13 @@
 
 const React          = require('react');
 const PropTypes      = require('prop-types');
-const classNames     = require('classnames');
 const ReactBootstrap = require('react-bootstrap');
 const Navbar         = ReactBootstrap.Navbar;
 const DropdownButton = ReactBootstrap.DropdownButton;
 const MenuItem       = ReactBootstrap.MenuItem;
-const Popover        = ReactBootstrap.Popover;
-const Button         = ReactBootstrap.Button;
 const ButtonToolbar  = ReactBootstrap.ButtonToolbar;
 
 const config = require('../config');
-const utils  = require('../utils');
 
 const AboutModal       = require('./AboutModal');
 const CallMeMaybeModal = require('./CallMeMaybeModal');

@@ -2,7 +2,7 @@
 
 const React          = require('react');
 const PropTypes      = require('prop-types');
-const classNames            = require('classnames');
+const classNames     = require('classnames');
 const ReactBootstrap = require('react-bootstrap');
 const Navbar         = ReactBootstrap.Navbar;
 const DropdownButton = ReactBootstrap.DropdownButton;

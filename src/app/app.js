@@ -85,6 +85,7 @@ class Blink extends React.Component {
             'outgoingCall',
             'incomingCall',
             'missedCall',
+            'toggleMute',
             'conferenceInvite',
             'notificationCenter',
             'escalateToConference',
@@ -108,6 +109,7 @@ class Blink extends React.Component {
         this.redirectTo = null;
         this.prevPath = null;
         this.shouldUseHashRouting = false;
+        this.muteIncoming = false;
     }
 
     get _notificationCenter() {
@@ -607,6 +609,10 @@ class Blink extends React.Component {
         this.getLocalMedia({audio: true, video: true});
     }
 
+    toggleMute() {
+        this.muteIncoming = !this.muteIncoming;
+    }
+
     outgoingCall(call) {
         call.on('stateChanged', this.callStateChanged);
         this.setState({currentCall: call});
@@ -629,7 +635,9 @@ class Blink extends React.Component {
             this.setState({ showIncomingModal: true, inboundCall: call });
             call.on('stateChanged', this.inboundCallStateChanged);
         } else {
-            this.refs.audioPlayerInbound.play(true);
+            if (!this.muteIncoming) {
+                this.refs.audioPlayerInbound.play(true);
+            }
             call.on('stateChanged', this.callStateChanged);
             this.setState({currentCall: call, inboundCall: call, showIncomingModal: true});
         }
@@ -813,6 +821,7 @@ class Blink extends React.Component {
                     account = {this.state.account}
                     logout = {this.logout}
                     preview = {this.startPreview}
+                    toggleMute = {this.toggleMute}
                 />
                 <ReadyBox
                     account   = {this.state.account}

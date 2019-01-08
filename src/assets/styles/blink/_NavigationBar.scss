@@ -24,6 +24,11 @@
 
     button {
         padding: zero(($navbar-height - 38) / 2) 12px;
+
+        &.btn-fw {
+            width: 58px;
+            margin-right: -5px;
+        }
     }
 }
 

@@ -2,6 +2,7 @@
 
 const React          = require('react');
 const PropTypes      = require('prop-types');
+const classNames            = require('classnames');
 const ReactBootstrap = require('react-bootstrap');
 const Navbar         = ReactBootstrap.Navbar;
 const DropdownButton = ReactBootstrap.DropdownButton;
@@ -19,7 +20,8 @@ class NavigationBar extends React.Component {
         super(props);
         this.state = {
             showAboutModal: false,
-            showCallMeMaybeModal: false
+            showCallMeMaybeModal: false,
+            mute: false
         }
 
         if (window.location.origin.startsWith('file://')) {
@@ -32,7 +34,8 @@ class NavigationBar extends React.Component {
         [
             'handleMenu',
             'toggleAboutModal',
-            'toggleCallMeMaybeModal'
+            'toggleCallMeMaybeModal',
+            'toggleMute'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -61,6 +64,11 @@ class NavigationBar extends React.Component {
         document.activeElement.blur();
     }
 
+    toggleMute() {
+        this.setState(prevState => ({mute: !prevState.mute}));
+        this.props.toggleMute();
+    }
+
     toggleAboutModal() {
         this.setState({showAboutModal: !this.state.showAboutModal});
     }
@@ -70,6 +78,13 @@ class NavigationBar extends React.Component {
     }
 
     render() {
+        const muteClasses = classNames({
+            'fa'              : true,
+            'fa-2x'           : true,
+            'fa-bell-o'       : !this.state.mute,
+            'fa-bell-slash-o' : this.state.mute,
+            'text-warning'    : this.state.mute
+        })
         return (
             <Navbar inverse={true} fixedTop={true} fluid={true}>
                 <Navbar.Header>
@@ -82,6 +97,9 @@ class NavigationBar extends React.Component {
                     </p>
                 </Navbar.Header>
                 <ButtonToolbar bsClass="btn-toolbar navbar-btn-toolbar pull-right">
+                    <button title="Mute Incoming Ringtones" className="btn btn-link btn-fw" onClick={this.toggleMute}>
+                        <i className={muteClasses}></i>
+                    </button>
                     <DropdownButton id="blinkNavBar" pullRight bsStyle="link" onSelect={this.handleMenu} onClick={(e) => { e.preventDefault(); }} noCaret={true} title={<i className="fa fa-bars fa-2x"></i>}>
                         <MenuItem header>
                             <strong><i className="fa fa-user"></i> {this.props.account.id}</strong>
@@ -123,7 +141,8 @@ NavigationBar.propTypes = {
     notificationCenter : PropTypes.func.isRequired,
     account            : PropTypes.object.isRequired,
     logout             : PropTypes.func.isRequired,
-    preview            : PropTypes.func.isRequired
+    preview            : PropTypes.func.isRequired,
+    toggleMute         : PropTypes.func.isRequired
 };
 
 

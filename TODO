@@ -1,8 +1,8 @@
  - Bring window in front when incomming call arrives
- - Add incoming ringtone mute button
  - Auto login on start
  - Auto answer for given addresses
  - Better call history
+ - Most called numbers on main screen for easy visual redial 
  - Text sessions
  - File transfer support
  - Screen sharing support (and/or second camera feed)

@@ -496,7 +496,7 @@ class Blink extends React.Component {
             .then((devices) => {
                 devices.forEach((device) => {
                     if ('video' in constraints && 'camera' in this.state.devices) {
-                        if (constraints.video !== false && device.deviceId === this.state.devices.camera.deviceId || device.label === this.state.devices.camera.label) {
+                        if (constraints.video !== false && (device.deviceId === this.state.devices.camera.deviceId || device.label === this.state.devices.camera.label)) {
                             constraints.video.deviceId = {
                                 exact: device.deviceId
                             };

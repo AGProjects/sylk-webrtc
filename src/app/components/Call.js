@@ -50,7 +50,7 @@ class Call extends React.Component {
     callStateChanged(oldState, newState, data) {
         if (newState === 'established') {
             // Check the media type again, remote can choose to not accept all offered media types
-            if (this.props.currentCall.getRemoteStreams()[0].getVideoTracks().length === 0 && !this.state.audioOnly) {
+            if (this.props.currentCall.getRemoteStreams().length > 0  && this.props.currentCall.getRemoteStreams()[0].getVideoTracks().length === 0 && !this.state.audioOnly) {
                 DEBUG('Media type changed to audio');
                 this.setState({audioOnly:true});
             } else {

@@ -38,7 +38,7 @@ class AudioCallBox extends React.Component {
 
     componentDidMount() {
         // This component is used both for as 'local media' and as the in-call component.
-        // Thus, if the call is not null ite means we are beyond the 'local media' phase
+        // Thus, if the call is not null it means we are beyond the 'local media' phase
         // so don't call the mediaPlaying prop.
 
         if (this.props.call != null) {

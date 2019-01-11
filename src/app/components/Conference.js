@@ -2,7 +2,6 @@
 
 const React      = require('react');
 const PropTypes  = require('prop-types');
-const classNames = require('classnames');
 const assert     = require('assert');
 const debug      = require('debug');
 

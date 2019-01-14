@@ -153,7 +153,6 @@ class ConferenceBox extends React.Component {
     onParticipantLeft(p) {
         DEBUG(`Participant left: ${p.identity}`);
         this.refs.audioPlayerParticipantLeft.play();
-        p.detach();
         const participants = this.state.participants.slice();
         const idx = participants.indexOf(p);
         if (idx !== -1) {
@@ -162,6 +161,7 @@ class ConferenceBox extends React.Component {
                 participants: participants
             });
         }
+        p.detach(true);
         // this.changeResolution();
     }
 

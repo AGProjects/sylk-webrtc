@@ -1,4 +1,5 @@
  - Bring window in front when incomming call arrives
+ - Audio indication when the conference start (2nd party joins the conference the first time)
  - Auto login on start or after failure to register
  - Auto answer for given addresses after predefined delay and chosen media type
  - Call history menu

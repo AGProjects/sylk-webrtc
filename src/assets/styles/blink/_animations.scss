@@ -79,8 +79,8 @@
     animation: fadeIn ease .3s;
 }
 
-.incoming-modal-leave {
-    &.incoming-modal-leave-active {
+.incoming-modal-exit {
+    &.incoming-modal-exit-active {
         animation: fadeOut ease .3s;
     }
 }

@@ -41,8 +41,8 @@
     animation: fadeInUp linear .3s;
 }
 
-.videobuttons-leave {
-    &.videobuttons-leave-active {
+.videobuttons-exit {
+    &.videobuttons-exit-active {
         animation: fadeOutDown linear .3s;
     }
 }
@@ -52,8 +52,8 @@
     animation: fadeInDown linear .3s;
 }
 
-.videoheader-leave {
-    &.videoheader-leave-active {
+.videoheader-exit {
+    &.videoheader-exit-active {
         animation: fadeOutUp linear .3s;
     }
 }
@@ -63,8 +63,8 @@
     animation: fadeIn linear .6s;
 }
 
-.watermark-leave {
-    &.watermark-leave-active {
+.watermark-exit {
+    &.watermark-exit-active {
         animation: fadeOut linear .3s;
     }
 }

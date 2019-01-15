@@ -104,8 +104,8 @@
     animation: fadeIn ease .5s;
 }
 
-.carousel-leave {
-    &.carousel-leave-active {
+.carousel-exit {
+    &.carousel-exit-active {
         animation: fadeOutDown ease .3s;
     }
 }

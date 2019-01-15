@@ -449,7 +449,7 @@ class Blink extends React.Component {
         storage.set('devices', oldDevices);
         sylkrtc.utils.closeMediaStream(this.state.localMedia);
         this.getLocalMedia();
-    } 
+    }
 
     getLocalMedia(mediaConstraints={audio: true, video: true}, nextRoute=null) {    // eslint-disable-line space-infix-ops
         DEBUG('getLocalMedia(), mediaConstraints=%o', mediaConstraints);
@@ -501,7 +501,7 @@ class Blink extends React.Component {
                             constraints.video.deviceId = {
                                 exact: device.deviceId
                             };
-                        } 
+                        }
                     }
                     if ('mic' in this.state.devices) {
                         if (device.deviceId === this.state.devices.mic.deviceId || device.label === this.state.devices.mic.Label) {
@@ -510,7 +510,7 @@ class Blink extends React.Component {
                                     exact: device.deviceId
                                 }
                             };
-                        } 
+                        }
                     }
                 });
             })

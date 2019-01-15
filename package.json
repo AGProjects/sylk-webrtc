@@ -57,7 +57,7 @@
     "react-mixin": "^4.0.0",
     "react-notification-system": "^0.2.15",
     "react-router-component": "^0.38.0",
-    "react-transition-group": "^1.2.0",
+    "react-transition-group": "^2.5.3",
     "require-dir": "^0.3.2",
     "sass-lint": "^1.12.1",
     "screenfull": "^4.0.0",

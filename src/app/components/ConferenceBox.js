@@ -2,7 +2,8 @@
 
 const React                 = require('react');
 const PropTypes             = require('prop-types');
-const CSSTransitionGroup    = require('react-transition-group/CSSTransitionGroup');
+const TransitionGroup       = require('react-transition-group/TransitionGroup');
+const CSSTransition         = require('react-transition-group/CSSTransition');
 const ReactMixin            = require('react-mixin');
 const ReactBootstrap        = require('react-bootstrap');
 const Popover               = ReactBootstrap.Popover;
@@ -454,6 +455,11 @@ class ConferenceBox extends React.Component {
             }
 
             videoHeader = (
+                <CSSTransition
+                    key="header"
+                    classNames="videoheader"
+                    timeout={{ enter: 300, exit: 300}}
+                >
                     <div key="header" className="call-header">
                         <div className="container-fluid">
                             <p className={videoHeaderTextClasses}><strong>Conference:</strong> {remoteIdentity}</p>
@@ -464,6 +470,7 @@ class ConferenceBox extends React.Component {
 
                         </div>
                     </div>
+                </CSSTransition>
             );
 
             const shareOverlay = (
@@ -497,12 +504,26 @@ class ConferenceBox extends React.Component {
             buttons.push(<button key="hangupButton" type="button" title="Leave conference" className="btn btn-round btn-danger" onClick={this.hangup}> <i className="fa fa-phone rotate-135"></i> </button>);
 
             callButtons = (
+                <CSSTransition
+                    key="header2"
+                    classNames="videoheader"
+                    timeout={{ enter: 300, exit: 300}}
+                >
                 <div className="conference-buttons">
                     {buttons}
                 </div>
+                </CSSTransition>
             );
         } else {
-            watermark = <div className="watermark"></div>;
+            watermark = (
+                <CSSTransition
+                    key="watermark"
+                    classNames="watermark"
+                    timeout={{enter: 600, exit: 300}}
+                >
+                    <div className="watermark"></div>
+                </CSSTransition>
+            );
         }
 
         const participants = [];
@@ -605,14 +626,14 @@ class ConferenceBox extends React.Component {
             <div>
                 <div className={containerClasses} onMouseMove={this.showOverlay}>
                     <div className="top-overlay">
-                        <CSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                        <TransitionGroup>
                             {videoHeader}
                             {callButtons}
-                        </CSSTransitionGroup>
+                        </TransitionGroup>
                     </div>
-                    <CSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
+                    <TransitionGroup>
                         {watermark}
-                    </CSSTransitionGroup>
+                    </TransitionGroup>
                     <div className={matrixClasses}>
                         {videos}
                     </div>

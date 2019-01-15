@@ -6,7 +6,8 @@ const Router                    = require('react-router-component');
 const Locations                 = Router.Locations;
 const Location                  = Router.Location;
 const NotFound                  = Router.NotFound;
-const CSSTransitionGroup        = require('react-transition-group/CSSTransitionGroup');
+const TransitionGroup           = require('react-transition-group/TransitionGroup');
+const CSSTransition             = require('react-transition-group/CSSTransition');
 const adapter                   = require('webrtc-adapter');
 const sylkrtc                   = require('sylkrtc');
 const debug                     = require('debug');
@@ -736,11 +737,17 @@ class Blink extends React.Component {
         }
         if (this.state.showIncomingModal) {
             incomingCallModal = (
+                <CSSTransition
+                    key="incoming"
+                    classNames="incoming-modal"
+                    timeout= {{enter:300, exit:300}}
+                >
                     <IncomingCallModal
                         call = {this.state.inboundCall}
                         onAnswer = {this.answerCall}
                         onHangup = {this.rejectCall}
                     />
+                </CSSTransition>
             );
         }
         if (this.state.localMedia) {
@@ -754,9 +761,9 @@ class Blink extends React.Component {
                 <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav" />
                 <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav" />
                 <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
-                <CSSTransitionGroup transitionName="incoming-modal" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                <TransitionGroup>
                     {incomingCallModal}
-                </CSSTransitionGroup>
+                </TransitionGroup>
                 <Locations hash={this.shouldUseHashRouting} ref="router" onBeforeNavigation={this.checkRoute}>
                     <Location path="/"  handler={this.main} />
                     <Location path="/login" handler={this.login} />

@@ -3,7 +3,8 @@
 const React                 = require('react');
 const PropTypes             = require('prop-types');
 const classNames            = require('classnames');
-const CSSTransitionGroup    = require('react-transition-group/CSSTransitionGroup');
+const TransitionGroup       = require('react-transition-group/TransitionGroup');
+const CSSTransition         = require('react-transition-group/CSSTransition');
 const sylkrtc               = require('sylkrtc');
 const debug                 = require('debug');
 
@@ -179,18 +180,24 @@ class Preview extends React.Component {
         let header = '';
         if (this.state.camera !== '') {
             header = (
-                <div key="header-container">
-                    <div key="header" className="call-header">
-                    <div className="container-fluid" style={{position: 'relative'}}>
-                        <p className={textClasses}><strong>Preview</strong></p>
-                        <p className={textClasses}>{this.state.camera.label}</p>
-                        <div className="conference-top-buttons">
-                        {topButtons}
+                <CSSTransition
+                    key="header-container"
+                    classNames="videoheader"
+                    timeout={{ enter: 300, exit: 300}}
+                >
+                    <div key="header-container">
+                        <div key="header" className="call-header">
+                            <div className="container-fluid" style={{position: 'relative'}}>
+                                <p className={textClasses}><strong>Preview</strong></p>
+                                <p className={textClasses}>{this.state.camera.label}</p>
+                                <div className="conference-top-buttons">
+                                    {topButtons}
+                                </div>
+                            </div>
                         </div>
+                        <VolumeBar localMedia={this.props.localMedia} />
                     </div>
-                    </div>
-                    <VolumeBar localMedia={this.props.localMedia} />
-                </div>
+                </CSSTransition>
             );
         }
 
@@ -209,9 +216,9 @@ class Preview extends React.Component {
                 {icon}
                 <div className={containerClasses} ref="videoContainer">
                     <div className="top-overlay">
-                        <CSSTransitionGroup transitionName="videoheader" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                        <TransitionGroup>
                             {header}
-                        </CSSTransitionGroup>
+                        </TransitionGroup>
                     </div>
                     <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted />
                     <div className="call-buttons">

@@ -2,7 +2,8 @@
 
 const React                     = require('react');
 const PropTypes                 = require('prop-types');
-const CSSTransitionGroup        = require('react-transition-group/CSSTransitionGroup');
+const TransitionGroup           = require('react-transition-group/TransitionGroup');
+const CSSTransition             = require('react-transition-group/CSSTransition');
 const ReactMixin                = require('react-mixin');
 const sylkrtc                   = require('sylkrtc');
 const classNames                = require('classnames');
@@ -209,12 +210,26 @@ class VideoBox extends React.Component {
             buttons.push(<button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>);
 
             callButtons = (
-                <div className="call-buttons">
-                    {buttons}
-                </div>
+                <CSSTransition
+                    key="buttons"
+                    classNames="videobuttons"
+                    timeout={{ enter: 300, exit: 300}}
+                >
+                    <div className="call-buttons">
+                        {buttons}
+                    </div>
+                </CSSTransition>
             );
         } else {
-            watermark = <div className="watermark"></div>;
+            watermark = (
+                <CSSTransition
+                    key="watermark"
+                    classNames="watermark"
+                    timeout={{enter: 600, exit: 300}}
+                >
+                    <div className="watermark"></div>
+                </CSSTransition>
+            );
         }
 
         return (
@@ -224,14 +239,14 @@ class VideoBox extends React.Component {
                     remoteIdentity = {this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri}
                     call = {this.props.call}
                 />
-                <CSSTransitionGroup transitionName="watermark" transitionEnterTimeout={600} transitionLeaveTimeout={300}>
+                <TransitionGroup>
                     {watermark}
-                </CSSTransitionGroup>
+                </TransitionGroup>
                 <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref="remoteVideo" autoPlay />
-                <video id="localVideo" className={localVideoClasses} ref="localVideo" autoPlay muted/>
-                <CSSTransitionGroup transitionName="videobuttons" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                <video id="localVideo" className={localVideoClasses} ref="localVideo" autoPlay muted />
+                <TransitionGroup>
                     {callButtons}
-                </CSSTransitionGroup>
+                </TransitionGroup>
                 <EscalateConferenceModal
                     show={this.state.showEscalateConferenceModal}
                     call={this.props.call}

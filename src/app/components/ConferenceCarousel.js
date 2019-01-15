@@ -2,7 +2,8 @@
 
 const React              = require('react');
 const PropTypes          = require('prop-types');
-const CSSTransitionGroup = require('react-transition-group/CSSTransitionGroup');
+const TransitionGroup    = require('react-transition-group/TransitionGroup');
+const CSSTransition      = require('react-transition-group/CSSTransition');
 const classNames         = require('classnames');
 
 class ConferenceCarousel extends React.Component {
@@ -101,7 +102,7 @@ class ConferenceCarousel extends React.Component {
         const items = [];
         let idx = 0;
         React.Children.forEach(this.props.children, (child) => {
-            items.push(<li key={idx} className="carousel-item">{child}</li>);
+            items.push(<CSSTransition key={idx} classNames="carousel" timeout={{enter:500, exit:300}}><li className="carousel-item">{child}</li></CSSTransition>);
             idx++;
         });
 
@@ -121,9 +122,9 @@ class ConferenceCarousel extends React.Component {
             <div>
                 {arrows}
                 <div className="carousel" ref="carousel">
-                    <CSSTransitionGroup component="ul" onScroll={this.handleScroll} className={classes} transitionName="carousel" transitionEnterTimeout={500} transitionLeaveTimeout={300}>
+                    <TransitionGroup component="ul" onScroll={this.handleScroll} className={classes}>
                         {items}
-                    </CSSTransitionGroup>
+                    </TransitionGroup>
                 </div>
             </div>
         );

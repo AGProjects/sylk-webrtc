@@ -10,7 +10,7 @@ const configOptions = {
     defaultConferenceDomain : `videoconference.${defaultDomain}`,
     defaultGuestDomain      : `guest.${defaultDomain}`,
     wsServer                : 'wss://webrtc-gateway.sipthor.net:9999/webrtcgateway/ws',
-    iceServers              : [{urls: 'stun:stun.l.google.com:19302'}, {urls: 'turn:node15.sipthor.net', username: 'blink', credential: 'w3bRtC'}]
+    iceServers              : [{urls: 'stun:stun.l.google.com:19302'}]
 };
 
 

@@ -26,8 +26,11 @@ class NotificationCenter extends React.Component {
         let ua = window.navigator.userAgent;
         let iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i);
         let webkit = !!ua.match(/WebKit/i);
+        let android = !!ua.match(/Android/i);
+        let chrome = !!ua.match(/Chrome/i);
         let iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
-        if (!iOSSafari) {
+        let chromeAndroid = android && chrome;
+        if (!iOSSafari && !chromeAndroid) {
             if (Notify.needsPermission) {
                 Notify.requestPermission(() => {
                     this._postSystemNotification(title, Object.assign({}, defaultOptions, options));

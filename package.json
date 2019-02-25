@@ -60,7 +60,7 @@
     "react-transition-group": "^2.5.3",
     "require-dir": "^0.3.2",
     "sass-lint": "^1.12.1",
-    "screenfull": "^4.0.0",
+    "screenfull": "^4.0.1",
     "superagent": "^3.8.1",
     "sylkrtc": "AGProjects/sylkrtc.js",
     "underscore": "1.8.3",

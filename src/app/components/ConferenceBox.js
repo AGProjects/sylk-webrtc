@@ -135,9 +135,7 @@ class ConferenceBox extends React.Component {
     componentWillUnmount() {
         clearTimeout(this.overlayTimer);
         clearTimeout(this.callTimer);
-        if (this.isFullScreen()) {
-            this.exitFullscreen();
-        }
+        this.exitFullscreen();
     }
 
     onParticipantJoined(p) {

@@ -70,9 +70,7 @@ class VideoBox extends React.Component {
     componentWillUnmount() {
         clearTimeout(this.overlayTimer);
         this.refs.remoteVideo.removeEventListener('playing', this.handleRemoteVideoPlaying);
-        if (this.isFullScreen()) {
-            this.exitFullscreen();
-        }
+        this.exitFullscreen();
     }
 
     handleFullscreen(event) {

@@ -14,7 +14,7 @@
     "babel-preset-react": "^6.16.0",
     "babelify": "^7.3.0",
     "bootstrap-css-only": "^3.3.7",
-    "browser-sync": "^2.18.13",
+    "browser-sync": "^2.26.3",
     "browserify": "^14.4.0",
     "classnames": "^2.2.5",
     "connect-modrewrite": "^0.10.1",

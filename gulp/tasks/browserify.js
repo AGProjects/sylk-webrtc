@@ -71,6 +71,7 @@ var browserifyTask = function(callback) {
             .pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
             // Only uglify in dev mode
             .pipe(devMode ? gutil.noop() : uglify())
+            .on('error', function (err) { gutil.log(gutil.colors.red('[Error]'), err.toString()); })
             // writes .map file only if dev mode is enabled
             .pipe(devMode ? sourcemaps.write('./') : gutil.noop())
             // Specify the output destination

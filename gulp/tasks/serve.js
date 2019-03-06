@@ -1,17 +1,11 @@
 var gulp   = require('gulp');
-var server = require('gulp-server-livereload');
+var browserSync  = require('browser-sync');
+var config      = require('../config');
 
-var serverOptions = {
-    host: '0.0.0.0',
-    port: 3000,
-    https: {
-        key: __dirname + '/../../test/tls/test.pem',
-        cert: __dirname + '/../..//test/tls/test.pem'
-    },
-    fallback: 'index.html'
-};
+config.browserSync.host = '0.0.0.0';
+config.browserSync.open = false;
+config.browserSync.ghostMode = false;
 
 gulp.task('serve', [], function(callback) {
-    gulp.src('dist')
-        .pipe(server(serverOptions));
+    browserSync(config.browserSync);
 });

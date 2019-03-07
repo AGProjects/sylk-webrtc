@@ -17,7 +17,7 @@
     "browser-sync": "^2.26.3",
     "browserify": "16.2.3",
     "classnames": "^2.2.6",
-    "connect-modrewrite": "^0.10.1",
+    "connect-modrewrite": "^0.10.2",
     "debug": "^3.2.6",
     "electron": "^3.0.0",
     "electron-builder": "^20.39.0",

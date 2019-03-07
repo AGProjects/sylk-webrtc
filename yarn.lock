@@ -1856,9 +1856,9 @@ connect-history-api-fallback@^1:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/connect-history-api-fallback/-/connect-history-api-fallback-1.6.0.tgz#8b32089359308d111115d81cad3fceab888f97bc"
 
-connect-modrewrite@^0.10.1:
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/connect-modrewrite/-/connect-modrewrite-0.10.1.tgz#f9f86dc0978a83c6e7cc49dde8b7c356dacb3c49"
+connect-modrewrite@^0.10.2:
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/connect-modrewrite/-/connect-modrewrite-0.10.2.tgz#74048243d52100dfdbc7c16d5ec2b59d0dfc83f6"
   dependencies:
     qs "^6.3.1"
 
@@ -6248,9 +6248,13 @@ qs@6.2.3:
   version "6.2.3"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.2.3.tgz#1cfcb25c10a9b2b483053ff39f5dfc9233908cfe"
 
-qs@^6.2.0, qs@^6.3.1:
+qs@^6.2.0:
   version "6.4.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.4.0.tgz#13e26d28ad6b0ffaa91312cd3bf708ed351e7233"
+
+qs@^6.3.1:
+  version "6.6.0"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.6.0.tgz#a99c0f69a8d26bf7ef012f871cdabb0aee4424c2"
 
 qs@^6.5.1:
   version "6.5.1"

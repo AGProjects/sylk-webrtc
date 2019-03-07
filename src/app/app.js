@@ -376,7 +376,7 @@ class Blink extends React.Component {
             this.setState({connection: connection});
         } else {
             DEBUG('Connection Present, try to register');
-            this.processRegistration(accountId, password);
+            this.processRegistration(accountId, password, '');
         }
     }
 

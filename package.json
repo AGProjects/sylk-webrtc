@@ -41,7 +41,7 @@
     "gulp-util": "^3.0.8",
     "hark": "^1.1.6",
     "ipaddr.js": "^1.5.4",
-    "lazypipe": "^1.0.1",
+    "lazypipe": "^1.0.2",
     "localforage": "^1.5.3",
     "material-ui": "1.0.0-beta.11",
     "moment": "^2.24.0",

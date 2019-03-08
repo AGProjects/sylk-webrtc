@@ -23,7 +23,7 @@ The default settings of the app are found in src/app/config.js
 
 ## Development
 
-Nodejs is needed for development.  Version >= 4.2 is recommended.  A
+Nodejs is needed for development.  Version >= 8.0 is recommended.  A
 convenience `configure` script and `Makefile` are provided.
 
 Nodejs can be downloaded from https://nodejs.org

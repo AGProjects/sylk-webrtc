@@ -35,6 +35,13 @@ follows:
 npm install -g yarn
 ```
 
+gulp-cli must be installed globally for nodejs > 10. It can be
+installed as follows:
+
+```
+npm install -g gulp-cli
+```
+
 NOTE: depending on your Node installation you might need to use `sudo`.
 
 * Install all dependencies

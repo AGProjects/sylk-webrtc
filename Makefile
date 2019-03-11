@@ -27,7 +27,7 @@ deploy-win:
 	ssh agp@node10.dns-hosting.info 'sudo /root/sync-symlink-sylk.sh'
 
 deploy-linux:
-	rsync -avz --progress dist-electron/sylk-electron*.AppImage dist-electron/latest-linux*yml agp@node10.dns-hosting.info:/var/www/download/Sylk/
+	rsync -avz --progress dist-electron/Sylk*.AppImage dist-electron/latest-linux*yml agp@node10.dns-hosting.info:/var/www/download/Sylk/
 	ssh agp@node10.dns-hosting.info 'sudo /root/sync-symlink-sylk.sh'
 
 dist:

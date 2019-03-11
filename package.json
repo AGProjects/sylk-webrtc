@@ -110,6 +110,7 @@
     },
     "linux": {
       "category": "Audio;Video;AudioVideo",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
       "target": [
         "AppImage"
       ]

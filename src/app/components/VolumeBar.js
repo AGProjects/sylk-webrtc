@@ -13,17 +13,17 @@ const Progress      = Mui.LinearProgress;
 
 
 const styleSheet = {
-    accentColor: {
+    colorSecondary: {
         backgroundColor: Green[100]
     },
-    accentColorBar: {
+    barColorSecondary: {
         backgroundColor: Green[500]
     },
     root: {
         height: '10px',
         opacity: '0.7'
     },
-    determinateBar1: {
+    bar1Determinate: {
         transition: 'transform 0.2s linear'
     }
 };
@@ -76,10 +76,10 @@ class VolumeBar extends React.Component {
     render() {
         let color = 'primary';
         if (this.state.volume > 20) {
-            color = 'accent';
+            color = 'secondary';
         }
         return (
-            <Progress classes={this.props.classes} mode="determinate" color={color} value={this.state.volume}></Progress>
+            <Progress classes={this.props.classes} variant="determinate" color={color} value={this.state.volume}></Progress>
         );
     }
 }

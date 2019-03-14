@@ -42,10 +42,10 @@ const ConferenceDrawer = (props) => {
             classes={{
                 paper: props.classes.paper
             }}
-            type="persistent"
+            variant="persistent"
             open={props.show}
             SlideProps={{ unmountOnExit: true }}
-            onRequestClose={props.close}
+            onClose={props.close}
         >
             <div className="conference-drawer">
                 <Toolbar className={props.classes.toolbar}>

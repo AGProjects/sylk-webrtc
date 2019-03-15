@@ -17,7 +17,7 @@ class IncomingCallModal extends React.Component {
         this.onKeyUp = this.onKeyUp.bind(this);
     }
 
-    componentWillMount() {
+    componentDidMount() {
         document.addEventListener('keyup', this.onKeyUp);
     }
 

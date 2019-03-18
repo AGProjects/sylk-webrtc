@@ -8,7 +8,8 @@
     },
     "plugins": [
         "import",
-        "react"
+        "react",
+        "react-hooks"
     ],
     "env": {
         "node": true
@@ -32,6 +33,9 @@
          "react/self-closing-comp": 0,
          "react/jsx-wrap-multilines": 2,
          "react/sort-comp": 0,
+
+         "react-hooks/rules-of-hooks": "error",
+         "react-hooks/exhaustive-deps": "warn",
 
          "quotes": [1, "single", "avoid-escape"],
          "jsx-quotes": 1,

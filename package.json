@@ -25,6 +25,7 @@
     "eslint": "^3.19.0",
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-react": "^6.10.3",
+    "eslint-plugin-react-hooks": "^1.5.1",
     "fontawesome-actions": "^0.17.0",
     "gulp": "~3.9.1",
     "gulp-autoprefixer": "^4.0.0",

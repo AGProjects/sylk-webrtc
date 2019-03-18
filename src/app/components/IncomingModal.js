@@ -6,7 +6,6 @@ const ReactBootstrap = require('react-bootstrap');
 const Popover        = ReactBootstrap.Popover;
 const OverlayTrigger = ReactBootstrap.OverlayTrigger;
 
-const classNames = require('classnames');
 
 
 class IncomingCallModal extends React.Component {

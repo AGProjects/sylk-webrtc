@@ -53,7 +53,9 @@ class Call extends React.Component {
             if (this.props.currentCall.getRemoteStreams().length > 0  && this.props.currentCall.getRemoteStreams()[0].getVideoTracks().length === 0 && !this.state.audioOnly) {
                 DEBUG('Media type changed to audio');
                 // Stop local video
-                this.props.currentCall.getLocalStreams()[0].getVideoTracks()[0].stop();
+                if (this.props.localMedia.getVideoTracks().length !== 0) {
+                    this.props.currentCall.getLocalStreams()[0].getVideoTracks()[0].stop();
+                }
                 this.setState({audioOnly:true});
             } else {
                 this.forceUpdate();

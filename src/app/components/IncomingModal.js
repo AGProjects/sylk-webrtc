@@ -60,7 +60,7 @@ const IncomingCallModal = (props) => {
                         <br />
                         <button className="btn btn-danger btn-round-xxl" onClick={props.onHangup}><i className="fa fa-phone rotate-135"></i></button>
                         &nbsp;&nbsp;&nbsp;
-                        <button className="btn btn-success btn-round-xxl" onClick={this.props.onAnswer} autoFocus><i className="fa fa-phone"></i></button>
+                        <button className="btn btn-success btn-round-xxl" onClick={props.onAnswer} autoFocus><i className="fa fa-phone"></i></button>
                     </div>
                 </div>
             </div>

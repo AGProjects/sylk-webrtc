@@ -9,7 +9,7 @@ var browserify   = require('browserify');
 var browserSync  = require('browser-sync');
 var watchify     = require('watchify');
 var gulp         = require('gulp');
-var uglify       = require('gulp-uglify');
+var terser       = require('gulp-terser');
 var envify       = require('envify/custom');
 var gutil        = require('gulp-util');
 var source       = require('vinyl-source-stream');
@@ -70,7 +70,7 @@ var browserifyTask = function(callback) {
             .pipe(buffer())
             .pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
             // Only uglify in dev mode
-            .pipe(devMode ? gutil.noop() : uglify())
+            .pipe(devMode ? gutil.noop() : terser())
             .on('error', function (err) { gutil.log(gutil.colors.red('[Error]'), err.toString()); })
             // writes .map file only if dev mode is enabled
             .pipe(devMode ? sourcemaps.write('./') : gutil.noop())

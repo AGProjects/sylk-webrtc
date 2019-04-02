@@ -26,12 +26,16 @@ const styleSheet = {
 
 const UserIcon = (props) => {
     const name = props.identity.displayName || props.identity.uri;
-    const initials = name.split(' ', 2).map(x => x[0]).join('');
+    let initials = name.split(' ', 2).map(x => x[0]).join('');
     const color = utils.generateMaterialColor(props.identity.uri)['300'];
     const classes = classNames(
         props.classes.drawerAvatar,
         {[`${props.classes.large}`]: props.large}
     );
+
+    if (props.identity.uri === "anonymous@anonymous.invalid") {
+        initials = <i className="fa fa-user fa-2x fa-fw"></i>;
+    }
 
     return (
         <Avatar className={classes} style={{backgroundColor: color}}>

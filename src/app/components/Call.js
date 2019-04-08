@@ -50,17 +50,22 @@ class Call extends React.Component {
     callStateChanged(oldState, newState, data) {
         if (newState === 'established') {
             // Check the media type again, remote can choose to not accept all offered media types
-            if (this.props.currentCall.getRemoteStreams().length > 0  && this.props.currentCall.getRemoteStreams()[0].getVideoTracks().length === 0 && !this.state.audioOnly) {
+            const currentCall = this.props.currentCall;
+            const remoteHasStreams = currentCall.getRemoteStreams().length > 0;
+            const remoteHasNoVideoTracks = currentCall.getRemoteStreams()[0].getVideoTracks().length === 0;
+            const remoteIsRecvOnly = currentCall.remoteMediaDirections.video[0] === 'recvonly';
+
+            if (remoteHasStreams && (remoteHasNoVideoTracks || remoteIsRecvOnly) && !this.state.audioOnly) {
                 DEBUG('Media type changed to audio');
                 // Stop local video
                 if (this.props.localMedia.getVideoTracks().length !== 0) {
-                    this.props.currentCall.getLocalStreams()[0].getVideoTracks()[0].stop();
+                    currentCall.getLocalStreams()[0].getVideoTracks()[0].stop();
                 }
                 this.setState({audioOnly:true});
             } else {
                 this.forceUpdate();
             }
-            this.props.currentCall.removeListener('stateChanged', this.callStateChanged);
+            currentCall.removeListener('stateChanged', this.callStateChanged);
         }
     }
 

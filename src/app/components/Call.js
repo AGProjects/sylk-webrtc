@@ -61,7 +61,13 @@ class Call extends React.Component {
                 if (this.props.localMedia.getVideoTracks().length !== 0) {
                     currentCall.getLocalStreams()[0].getVideoTracks()[0].stop();
                 }
-                this.setState({audioOnly:true});
+                this.setState({audioOnly: true});
+
+            // We only get here if the remote has video and it is not muted, if
+            // we are sending video it means we have a video call
+            } else if (this.state.audioOnly && this.props.localMedia.getVideoTracks().length !== 0) {
+                DEBUG('Media type changed to video');
+                this.setState({audioOnly: false});
             } else {
                 this.forceUpdate();
             }

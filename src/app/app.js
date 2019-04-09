@@ -484,40 +484,67 @@ class Blink extends React.Component {
             this.setState({loading: 'Please allow access to your media devices'});
         }, 150);
 
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then((stream) => {
-                sylkrtc.utils.closeMediaStream(stream);
-            })
-            .catch((error) => {
-                DEBUG('Intial access failed: %o', error);
-            })
-            .then(() => {
-                return navigator.mediaDevices.enumerateDevices();
-            })
-            .then((devices) => {
-                devices.forEach((device) => {
-                    if ('video' in constraints && 'camera' in this.state.devices) {
-                        if (constraints.video !== false && (device.deviceId === this.state.devices.camera.deviceId || device.label === this.state.devices.camera.label)) {
-                            constraints.video.deviceId = {
-                                exact: device.deviceId
-                            };
-                        }
-                    }
-                    if ('mic' in this.state.devices) {
-                        if (device.deviceId === this.state.devices.mic.deviceId || device.label === this.state.devices.mic.Label) {
-                            constraints.audio = {
-                                deviceId: {
-                                    exact: device.deviceId
-                                }
-                            };
-                        }
-                    }
+        const isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
+            navigator.userAgent &&
+            navigator.userAgent.indexOf('CriOS') == -1 &&
+            navigator.userAgent.indexOf('FxiOS') == -1;
+
+        new Promise((resolve, reject) => {
+            if (isSafari) {
+                return navigator.mediaDevices.getUserMedia(constraints)
+                .then((stream) => {
+                    sylkrtc.utils.closeMediaStream(stream);
+                    resolve();
+                }).catch((error) => {
+                    DEBUG('Intial access failed: %o', error);
+                    resolve();
                 });
+            } else {
+                resolve();
+            }
+        })
+        .then(() => {
+                return navigator.mediaDevices.enumerateDevices();
+        })
+        .then((devices) => {
+            devices.forEach((device) => {
+                if ('video' in constraints && 'camera' in this.state.devices) {
+                    if (constraints.video !== false && (device.deviceId === this.state.devices.camera.deviceId || device.label === this.state.devices.camera.label)) {
+                        constraints.video.deviceId = {
+                            exact: device.deviceId
+                        };
+                    }
+                }
+                if ('mic' in this.state.devices) {
+                    if (device.deviceId === this.state.devices.mic.deviceId || device.label === this.state.devices.mic.Label) {
+                        constraints.audio = {
+                            deviceId: {
+                                exact: device.deviceId
+                            }
+                        };
+                    }
+                }
+            });
+        })
+        .catch((error) => {
+            DEBUG('Device enumeration failed: %o', error);
+        })
+        .then(() => {
+            return navigator.mediaDevices.getUserMedia(constraints)
+        })
+        .then((localStream) => {
+            clearTimeout(this.loadScreenTimer);
+            this.setState({status: null, loading: null, localMedia: localStream});
+            if (nextRoute !== null) {
+                this.refs.router.navigate(nextRoute);
+            }
+        })
+        .catch((error) => {
+            DEBUG('Access failed, trying audio only: %o', error);
+            navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: false
             })
-            .catch((error) => {
-                DEBUG('Device enumeration failed: %o', error);
-            })
-            .then(() => {return navigator.mediaDevices.getUserMedia(constraints)})
             .then((localStream) => {
                 clearTimeout(this.loadScreenTimer);
                 this.setState({status: null, loading: null, localMedia: localStream});
@@ -526,27 +553,14 @@ class Blink extends React.Component {
                 }
             })
             .catch((error) => {
-                DEBUG('Access failed, trying audio only: %o', error);
-                navigator.mediaDevices.getUserMedia({
-                    audio: true,
-                    video: false
-                })
-                .then((localStream) => {
-                    clearTimeout(this.loadScreenTimer);
-                    this.setState({status: null, loading: null, localMedia: localStream});
-                    if (nextRoute !== null) {
-                        this.refs.router.navigate(nextRoute);
-                    }
-                })
-                .catch((error) => {
-                    DEBUG('Access to local media failed: %o', error);
-                    clearTimeout(this.loadScreenTimer);
-                    this._notificationCenter.postSystemNotification("Can't access camera or microphone", {timeout: 10});
-                    this.setState({
-                        loading: null
-                    });
+                DEBUG('Access to local media failed: %o', error);
+                clearTimeout(this.loadScreenTimer);
+                this._notificationCenter.postSystemNotification("Can't access camera or microphone", {timeout: 10});
+                this.setState({
+                    loading: null
                 });
             });
+        });
     }
 
     startCall(targetUri, options) {

@@ -62,16 +62,22 @@ class Call extends React.Component {
                     currentCall.getLocalStreams()[0].getVideoTracks()[0].stop();
                 }
                 this.setState({audioOnly: true});
-
-            // We only get here if the remote has video and it is not muted, if
-            // we are sending video it means we have a video call
-            } else if (this.state.audioOnly && this.props.localMedia.getVideoTracks().length !== 0) {
-                DEBUG('Media type changed to video');
-                this.setState({audioOnly: false});
             } else {
                 this.forceUpdate();
             }
             currentCall.removeListener('stateChanged', this.callStateChanged);
+        // Switch to video earlier. The callOverlay has a handle on
+        // 'established'. It starts a timer. To prevent a state updating on
+        // unmounted component we try to switch on 'accept'. This means we get
+        // to localMedia first.
+        } else if (newState === 'accepted') {
+            // Switch if we have audioOnly and local videotracks. This means
+            // the call object switched and we are transitioning to an
+            // incoming call.
+            if (this.state.audioOnly && this.props.localMedia.getVideoTracks().length !== 0) {
+                DEBUG('Media type changed to video on accepted');
+                this.setState({audioOnly: false});
+            }
         }
     }
 

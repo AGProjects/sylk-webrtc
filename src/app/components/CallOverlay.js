@@ -15,6 +15,7 @@ class CallOverlay extends React.Component {
 
         this.duration = null;
         this.timer = null;
+        this._isMounted = true;
 
         // ES6 classes no longer autobind
         this.callStateChanged = this.callStateChanged.bind(this);
@@ -41,12 +42,15 @@ class CallOverlay extends React.Component {
     }
 
     componentWillUnmount() {
+        this._isMounted = false;
         clearTimeout(this.timer);
     }
 
     callStateChanged(oldState, newState, data) {
-        if (newState === 'established') {
+        // Prevent starting timer when we are unmounted
+        if (newState === 'established' && this._isMounted) {
             this.startTimer();
+            this.props.call.removeListener('stateChanged', this.callStateChanged);
         }
     }
 

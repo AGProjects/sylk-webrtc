@@ -574,7 +574,7 @@ class Blink extends React.Component {
         this.getLocalMedia(Object.assign({audio: true, video: true}, options));
     }
 
-    answerCall() {
+    answerCall(options) {
         this.setState({ showIncomingModal: false });
         if (this.state.inboundCall !== this.state.currentCall) {
             // terminate current call to switch to incoming one
@@ -584,7 +584,7 @@ class Blink extends React.Component {
             this.setState({currentCall: this.state.inboundCall, inboundCall: this.state.inboundCall, localMedia: null});
             this.state.inboundCall.on('stateChanged', this.callStateChanged);
         }
-        this.getLocalMedia(this.state.inboundCall.mediaTypes, '/call');
+        this.getLocalMedia(Object.assign({audio: true, video: true}, options), '/call');
     }
 
     rejectCall() {

@@ -27,14 +27,43 @@ const IncomingCallModal = (props) => {
         }
     };
 
+    const answerAudioOnly = () => {
+        props.onAnswer({audio: true, video: false});
+    }
+
+    const answer = () => {
+        props.onAnswer({audio: true, video: true});
+    };
+
     if (props.call == null) {
         return false;
     }
 
+    const buttonText = ["Decline", "Accept", "Audio"];
+
+    let answerButtons = [
+        <li key="hangupButton">
+            <button className="btn btn-danger btn-round-xxl" onClick={props.onHangup}><i className="fa fa-phone rotate-135"></i></button>
+            <br />
+            {buttonText.shift()}
+        </li>
+    ];
+
     let callType = 'audio';
     if (props.call.mediaTypes.video) {
         callType = 'video';
+        answerButtons.push(<li key="videoAnswerButton">
+            <button className="btn btn-success btn-round-xxl" onClick={answer} autoFocus><i className="fa fa-video-camera"></i></button>
+            <br />
+            {buttonText.shift()}
+        </li>);
     }
+
+    answerButtons.push(<li key="audioAnwerButton">
+        <button className="btn btn-success btn-round-xxl" onClick={answerAudioOnly} autoFocus><i className="fa fa-phone"></i></button>
+        <br />
+        {buttonText.shift()}
+    </li>);
 
     const remoteIdentityLine = props.call.remoteIdentity.displayName || props.call.remoteIdentity.uri;
 
@@ -58,9 +87,7 @@ const IncomingCallModal = (props) => {
                         <br />
                         <br />
                         <br />
-                        <button className="btn btn-danger btn-round-xxl" onClick={props.onHangup}><i className="fa fa-phone rotate-135"></i></button>
-                        &nbsp;&nbsp;&nbsp;
-                        <button className="btn btn-success btn-round-xxl" onClick={props.onAnswer} autoFocus><i className="fa fa-phone"></i></button>
+                        <ul className="list-inline">{answerButtons}</ul>
                     </div>
                 </div>
             </div>

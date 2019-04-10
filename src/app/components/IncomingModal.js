@@ -7,6 +7,8 @@ const ReactBootstrap = require('react-bootstrap');
 const Popover        = ReactBootstrap.Popover;
 const OverlayTrigger = ReactBootstrap.OverlayTrigger;
 
+const UserIcon       = require('./UserIcon');
+
 
 const IncomingCallModal = (props) => {
     useEffect(() => {
@@ -80,7 +82,7 @@ const IncomingCallModal = (props) => {
                 <div className="loading">
                     <div className="loading-inner">
                         <OverlayTrigger placement="top" overlay={tooltip}>
-                            <i className="fa fa-user fa-5 fa-fw incoming-user-icon"></i>
+                            <UserIcon identity={props.call.remoteIdentity} large={true} />
                         </OverlayTrigger>
                         <h1>{remoteIdentityLine}</h1>
                         <h4>is calling with {callType}</h4>

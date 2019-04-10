@@ -5,7 +5,7 @@
     width: 100% !important;
     height: 100% !important;
     overflow: hidden;
-    
+
     &.drawer-visible {
         width: calc(100% - 350px) !important;
         margin-right: 350px;

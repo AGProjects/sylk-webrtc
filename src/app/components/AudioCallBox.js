@@ -4,11 +4,13 @@ const React             = require('react');
 const PropTypes         = require('prop-types');
 const classNames        = require('classnames');
 const debug             = require('debug');
+const hark              = require('hark');
 const sylkrtc           = require('sylkrtc');
 
 const CallOverlay   = require('./CallOverlay');
 const DTMFModal     = require('./DTMFModal');
 const EscalateConferenceModal = require('./EscalateConferenceModal');
+const UserIcon       = require('./UserIcon');
 
 const DEBUG = debug('blinkrtc:AudioCallBox');
 
@@ -17,10 +19,12 @@ class AudioCallBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            active                      : false,
             audioMuted                  : false,
             showDtmfModal               : false,
             showEscalateConferenceModal : false
         };
+        this.speechEvents = null;
 
         // ES6 classes no longer autobind
         [
@@ -70,6 +74,10 @@ class AudioCallBox extends React.Component {
 
     componentWillUnmount() {
         clearTimeout(this.callTimer);
+        if (this.speechEvents !== null) {
+            this.speechEvents.stop();
+            this.speechEvents = null;
+        }
     }
 
     callStateChanged(oldState, newState, data) {
@@ -81,6 +89,17 @@ class AudioCallBox extends React.Component {
     attachStream(call) {
         const remoteStream = call.getRemoteStreams()[0];
         sylkrtc.utils.attachMediaStream(remoteStream, this.refs.remoteAudio);
+        const options = {
+            interval: 225,
+            play: false
+        };
+        this.speechEvents = hark(remoteStream, options);
+        this.speechEvents.on('speaking', () => {
+            this.setState({active: true});
+        });
+        this.speechEvents.on('stopped_speaking', () => {
+            this.setState({active: false});
+        });
     }
 
     escalateToConference(participants) {
@@ -134,6 +153,14 @@ class AudioCallBox extends React.Component {
             'fa-microphone-slash'   : this.state.audioMuted
         });
 
+        let remoteIdentity;
+
+        if (this.props.call !== null) {
+            remoteIdentity = this.props.call.remoteIdentity;
+        } else {
+            remoteIdentity = {uri: this.props.remoteIdentity};
+        }
+
         return (
             <div>
                 <CallOverlay
@@ -142,10 +169,9 @@ class AudioCallBox extends React.Component {
                     call = {this.props.call}
                 />
                 <audio id="remoteAudio" ref="remoteAudio" autoPlay />
-                <span className="fa-stack fa-4">
-                    <i className="fa fa-volume-off move-icon fa-stack-2x"></i>
-                    <i className="move-icon2 fa fa-volume-up fa-stack-2x animate-sound1"></i>
-                </span>
+                <div className={call-user-icon}>
+                    <UserIcon identity={remoteIdentity} large={true} active={this.state.active} />
+                </div>
                 <div className="call-buttons">
                     <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}>
                         <i className={muteButtonIconClasses}></i>

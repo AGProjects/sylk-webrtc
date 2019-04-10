@@ -12,6 +12,9 @@ const Avatar     = Mui.Avatar;
 const classNames = require('classnames');
 
 const styleSheet = {
+    root: {
+        transition: 'box-shadow 0.3s'
+    },
     drawerAvatar: {
         fontFamily: 'Helvetica Neue ,Helvetica, Arial, sans-serif',
         textTransform: 'uppercase'
@@ -21,6 +24,9 @@ const styleSheet = {
         height: '144px',
         fontSize: '5rem',
         margin: 'auto'
+    },
+    shadow: {
+        boxShadow: '0 0 10px 2px #999',
     }
 };
 
@@ -29,8 +35,10 @@ const UserIcon = (props) => {
     let initials = name.split(' ', 2).map(x => x[0]).join('');
     const color = utils.generateMaterialColor(props.identity.uri)['300'];
     const classes = classNames(
+        props.classes.root,
         props.classes.drawerAvatar,
-        {[`${props.classes.large}`]: props.large}
+        {[`${props.classes.large}`]: props.large},
+        {[`${props.classes.shadow}`]: props.active}
     );
 
     if (props.identity.uri === 'anonymous@anonymous.invalid') {
@@ -47,7 +55,8 @@ const UserIcon = (props) => {
 UserIcon.propTypes = {
     classes: PropTypes.object.isRequired,
     identity: PropTypes.object.isRequired,
-    large: PropTypes.bool
+    large: PropTypes.bool,
+    active: PropTypes.bool
 };
 
 

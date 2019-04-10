@@ -33,7 +33,7 @@ const UserIcon = (props) => {
         {[`${props.classes.large}`]: props.large}
     );
 
-    if (props.identity.uri === "anonymous@anonymous.invalid") {
+    if (props.identity.uri === 'anonymous@anonymous.invalid') {
         initials = <i className="fa fa-user fa-2x fa-fw"></i>;
     }
 

@@ -499,9 +499,8 @@ class Blink extends React.Component {
                     DEBUG('Intial access failed: %o', error);
                     resolve();
                 });
-            } else {
-                resolve();
             }
+            resolve();
         })
         .then(() => {
                 return navigator.mediaDevices.enumerateDevices();

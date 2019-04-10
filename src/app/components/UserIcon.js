@@ -26,7 +26,7 @@ const styleSheet = {
         margin: 'auto'
     },
     shadow: {
-        boxShadow: '0 0 10px 2px #999',
+        boxShadow: '0 0 10px 2px #999'
     }
 };
 

@@ -169,7 +169,7 @@ class AudioCallBox extends React.Component {
                     call = {this.props.call}
                 />
                 <audio id="remoteAudio" ref="remoteAudio" autoPlay />
-                <div className={call-user-icon}>
+                <div className="call-user-icon">
                     <UserIcon identity={remoteIdentity} large={true} active={this.state.active} />
                 </div>
                 <div className="call-buttons">

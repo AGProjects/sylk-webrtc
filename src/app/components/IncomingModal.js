@@ -41,7 +41,7 @@ const IncomingCallModal = (props) => {
         return false;
     }
 
-    const buttonText = ["Decline", "Accept", "Audio"];
+    const buttonText = ['Decline', 'Accept', 'Audio'];
 
     let answerButtons = [
         <li key="hangupButton">

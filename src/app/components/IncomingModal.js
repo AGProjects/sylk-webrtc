@@ -78,7 +78,7 @@ const IncomingCallModal = (props) => {
     const spacers = [
         <br />,
         <br />,
-        <br />,
+        <br />
     ];
     return (
         <div>

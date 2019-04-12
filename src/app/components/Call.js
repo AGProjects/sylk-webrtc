@@ -54,8 +54,9 @@ class Call extends React.Component {
             const remoteHasStreams = currentCall.getRemoteStreams().length > 0;
             const remoteHasNoVideoTracks = currentCall.getRemoteStreams()[0].getVideoTracks().length === 0;
             const remoteIsRecvOnly = currentCall.remoteMediaDirections.video[0] === 'recvonly';
+            const remoteIsInactive = currentCall.remoteMediaDirections.video[0] === 'inactive';
 
-            if (remoteHasStreams && (remoteHasNoVideoTracks || remoteIsRecvOnly) && !this.state.audioOnly) {
+            if (remoteHasStreams && (remoteHasNoVideoTracks || remoteIsRecvOnly || remoteIsInactive) && !this.state.audioOnly) {
                 DEBUG('Media type changed to audio');
                 // Stop local video
                 if (this.props.localMedia.getVideoTracks().length !== 0) {

@@ -75,6 +75,11 @@ const IncomingCallModal = (props) => {
         </Popover>
     );
 
+    const spacers = [
+        <br />,
+        <br />,
+        <br />,
+    ];
     return (
         <div>
             <div className="modal-backdrop"></div>
@@ -86,9 +91,7 @@ const IncomingCallModal = (props) => {
                         </OverlayTrigger>
                         <h1>{remoteIdentityLine}</h1>
                         <h4>is calling with {callType}</h4>
-                        <br />
-                        <br />
-                        <br />
+                        {props.compact ? '' : spacers}
                         <ul className="list-inline">{answerButtons}</ul>
                     </div>
                 </div>
@@ -100,7 +103,8 @@ const IncomingCallModal = (props) => {
 IncomingCallModal.propTypes = {
     call     : PropTypes.object,
     onAnswer : PropTypes.func.isRequired,
-    onHangup : PropTypes.func.isRequired
+    onHangup : PropTypes.func.isRequired,
+    compact  : PropTypes.bool
 };
 
 

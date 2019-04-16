@@ -62,7 +62,7 @@ const IncomingCallModal = (props) => {
     }
 
     answerButtons.push(<li key="audioAnwerButton">
-        <button className="btn btn-success btn-round-xxl" onClick={answerAudioOnly} autoFocus><i className="fa fa-phone"></i></button>
+        <button className="btn btn-success btn-round-xxl" onClick={answerAudioOnly} autoFocus={!props.call.mediaTypes.video}><i className="fa fa-phone"></i></button>
         <br />
         {buttonText.shift()}
     </li>);

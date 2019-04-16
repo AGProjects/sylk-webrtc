@@ -45,7 +45,7 @@ const IncomingCallModal = (props) => {
 
     let answerButtons = [
         <li key="hangupButton">
-            <button className="btn btn-danger btn-round-xxl" onClick={props.onHangup}><i className="fa fa-phone rotate-135"></i></button>
+            <button id="decline" className="btn btn-danger btn-round-xxl" onClick={props.onHangup}><i className="fa fa-phone rotate-135"></i></button>
             <br />
             {buttonText.shift()}
         </li>
@@ -55,14 +55,14 @@ const IncomingCallModal = (props) => {
     if (props.call.mediaTypes.video) {
         callType = 'video';
         answerButtons.push(<li key="videoAnswerButton">
-            <button className="btn btn-success btn-round-xxl" onClick={answer} autoFocus><i className="fa fa-video-camera"></i></button>
+            <button id="accept" className="btn btn-success btn-round-xxl" onClick={answer} autoFocus><i className="fa fa-video-camera"></i></button>
             <br />
             {buttonText.shift()}
         </li>);
     }
 
     answerButtons.push(<li key="audioAnwerButton">
-        <button className="btn btn-success btn-round-xxl" onClick={answerAudioOnly} autoFocus={!props.call.mediaTypes.video}><i className="fa fa-phone"></i></button>
+        <button id="audio" className="btn btn-success btn-round-xxl" onClick={answerAudioOnly} autoFocus={!props.call.mediaTypes.video}><i className="fa fa-phone"></i></button>
         <br />
         {buttonText.shift()}
     </li>);

@@ -205,7 +205,8 @@ function createMainWindow() {
         height: 600,
         minWidth: 1067,
         minHeight: 600,
-        title: 'Sylk'
+        title: 'Sylk',
+        backgroundColor: '#333'
     };
     if (isDarwin) {
         //windowOptions.titleBarStyle = 'hidden-inset';

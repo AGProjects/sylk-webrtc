@@ -26,7 +26,7 @@ const IncomingCallModal    = require('./components/IncomingCallModal');
 const NotificationCenter   = require('./components/NotificationCenter');
 const LoadingScreen        = require('./components/LoadingScreen');
 const NavigationBar        = require('./components/NavigationBar');
-const Preview        = require('./components/Preview');
+const Preview              = require('./components/Preview');
 
 const utils     = require('./utils');
 const config    = require('./config');

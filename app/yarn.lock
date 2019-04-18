@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-about-window@^1.6.1:
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/about-window/-/about-window-1.6.1.tgz#1687cd1a429abe7a0cff096ba3d96f278714ffe3"
+about-window@^1.12.1:
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/about-window/-/about-window-1.12.1.tgz#b81c10f6de58d38bce2aa5f31f61a82e6c3d6c2b"
 
 acorn@^5.0.0:
   version "5.7.3"

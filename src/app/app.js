@@ -664,7 +664,9 @@ class Blink extends React.Component {
             call.on('stateChanged', this.callStateChanged);
             this.setState({currentCall: call, inboundCall: call, showIncomingModal: true});
         }
-        this._notificationCenter.postSystemNotification('Incoming call', {body: `From ${call.remoteIdentity.displayName || call.remoteIdentity.uri}`, timeout: 15, silent: false});
+        if (!this.shouldUseHashRouting) {
+            this._notificationCenter.postSystemNotification('Incoming call', {body: `From ${call.remoteIdentity.displayName || call.remoteIdentity.uri}`, timeout: 15, silent: false});
+        }
     }
 
     setFocusEvents(enabled) {

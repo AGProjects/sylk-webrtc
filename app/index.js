@@ -238,6 +238,10 @@ function createMainWindow() {
         });
     }
 
+    ipc.on('buttonClick', function(event, arg) {
+        mainWindow.webContents.send('buttonClick',arg);
+    });
+
     // open links with default browser
     mainWindow.webContents.on('new-window', function(event, url) {
         event.preventDefault();

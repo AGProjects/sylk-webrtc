@@ -23,6 +23,7 @@ const ErrorPanel           = require('./components/ErrorPanel');
 const FooterBox            = require('./components/FooterBox');
 const StatusBox            = require('./components/StatusBox');
 const IncomingCallModal    = require('./components/IncomingCallModal');
+const IncomingCallWindow   = require('./components/IncomingCallWindow');
 const NotificationCenter   = require('./components/NotificationCenter');
 const LoadingScreen        = require('./components/LoadingScreen');
 const NavigationBar        = require('./components/NavigationBar');
@@ -75,6 +76,9 @@ class Blink extends React.Component {
             'registrationStateChanged',
             'callStateChanged',
             'inboundCallStateChanged',
+            'hasFocus',
+            'hasNoFocus',
+            'setFocusEvents',
             'handleCallByUri',
             'handleConferenceByUri',
             'handleRegistration',
@@ -302,6 +306,7 @@ class Blink extends React.Component {
                     inboundCall         : null,
                     localMedia          : null
                 });
+                this.setFocusEvents(false);
                 this.participantsToInvite = null;
 
                 this.refs.router.navigate('/ready');
@@ -316,6 +321,7 @@ class Blink extends React.Component {
         DEBUG('Inbound Call state changed! ' + newState);
         if (newState === 'terminated') {
             this.setState({ inboundCall: null, showIncomingModal: false });
+            this.setFocusEvents(false);
         }
     }
 
@@ -575,6 +581,7 @@ class Blink extends React.Component {
 
     answerCall(options) {
         this.setState({ showIncomingModal: false });
+        this.setFocusEvents(false);
         if (this.state.inboundCall !== this.state.currentCall) {
             // terminate current call to switch to incoming one
             this.state.inboundCall.removeListener('stateChanged', this.inboundCallStateChanged);
@@ -647,15 +654,41 @@ class Blink extends React.Component {
                 return;
             }
             this.setState({ showIncomingModal: true, inboundCall: call });
+            this.setFocusEvents(true);
             call.on('stateChanged', this.inboundCallStateChanged);
         } else {
             if (!this.muteIncoming) {
                 this.refs.audioPlayerInbound.play(true);
             }
+            this.setFocusEvents(true);
             call.on('stateChanged', this.callStateChanged);
             this.setState({currentCall: call, inboundCall: call, showIncomingModal: true});
         }
         this._notificationCenter.postSystemNotification('Incoming call', {body: `From ${call.remoteIdentity.displayName || call.remoteIdentity.uri}`, timeout: 15, silent: false});
+    }
+
+    setFocusEvents(enabled) {
+        if (this.shouldUseHashRouting) {
+            const remote = window.require('electron').remote;
+            if (enabled) {
+                const currentWindow = remote.getCurrentWindow();
+                currentWindow.on('focus', this.hasFocus);
+                currentWindow.on('blur', this.hasNoFocus);
+                this.setState({haveFocus: currentWindow.isFocused()});
+            } else {
+                const currentWindow = remote.getCurrentWindow();
+                currentWindow.removeListener('focus', this.hasFocus);
+                currentWindow.removeListener('blur', this.hasNoFocus);
+            }
+        }
+    }
+
+    hasFocus() {
+        this.setState({haveFocus: true});
+    }
+
+    hasNoFocus() {
+        this.setState({haveFocus: false});
     }
 
     missedCall(data) {
@@ -743,6 +776,7 @@ class Blink extends React.Component {
 
         let loadingScreen;
         let incomingCallModal;
+        let incomingWindow;
         let footerBox = <FooterBox />;
 
         if (this.state.loading !== null) {
@@ -762,6 +796,23 @@ class Blink extends React.Component {
                     />
                 </CSSTransition>
             );
+            if (this.shouldUseHashRouting) {
+                incomingWindow = (
+                    <IncomingCallWindow
+                        enabled  = {!this.state.haveFocus}
+                        onAnswer = {this.answerCall}
+                        onHangup = {this.rejectCall}
+                        setFocus = {this.setFocusEvents}
+                    >
+                        <IncomingCallModal
+                            call = {this.state.inboundCall}
+                            onAnswer = {this.answerCall}
+                            onHangup = {this.rejectCall}
+                            compact = {true}
+                        />
+                    </IncomingCallWindow>
+                );
+            }
         }
         if (this.state.localMedia) {
             footerBox = '';
@@ -777,6 +828,7 @@ class Blink extends React.Component {
                 <TransitionGroup>
                     {incomingCallModal}
                 </TransitionGroup>
+                {incomingWindow}
                 <Locations hash={this.shouldUseHashRouting} ref="router" onBeforeNavigation={this.checkRoute}>
                     <Location path="/"  handler={this.main} />
                     <Location path="/login" handler={this.login} />

@@ -115,7 +115,7 @@ const appMenu = Menu.buildFromTemplate([{
     label: 'Sylk',
     submenu: [
         { label: 'Check for updates...', click: (item, win, event) => { checkForUpdates(item, win, event); }},
-        { label: 'About', click: () => { openAboutWindow(aboutOptions); }},
+        { label: 'About', click: () => { openAboutWindow(Object.assign({}, aboutOptions)); }},
         { label: 'Quit', accelerator: 'Command+Q', click: () => { app.quit(); }}
     ]}, {
     label: 'Edit',

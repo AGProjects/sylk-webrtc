@@ -9,7 +9,7 @@ class IncomingCallWindow extends React.Component {
         super(props);
 
         this.width = 425;
-        this.height = 400;
+        this.height = 475;
         this.ipcRenderer = null;
         const {BrowserWindow} = window.require('electron').remote;
 

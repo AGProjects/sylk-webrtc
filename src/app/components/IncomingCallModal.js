@@ -77,7 +77,6 @@ const IncomingCallModal = (props) => {
 
     const spacers = [
         <br />,
-        <br />,
         <br />
     ];
     return (
@@ -91,6 +90,7 @@ const IncomingCallModal = (props) => {
                         </OverlayTrigger>
                         <h1>{remoteIdentityLine}</h1>
                         <h4>is calling with {callType}</h4>
+                        <br />
                         {props.compact ? '' : spacers}
                         <ul className="list-inline">{answerButtons}</ul>
                     </div>

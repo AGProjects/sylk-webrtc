@@ -104,7 +104,10 @@ let quitting = false;
 const aboutOptions = {
     icon_path: `${__dirname}/www/assets/images/blink.ico`,
     copyright: 'Copyright (c) AG Projects',
-    homepage: 'http://sylkserver.com'
+    homepage: 'http://sylkserver.com',
+    win_options: {
+        titleBarStyle: 'hiddenInset'
+    }
 };
 
 // Application menu

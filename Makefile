@@ -1,5 +1,5 @@
 
-GULP = gulp
+GULP = node_modules/.bin/gulp
 ESLINT = node_modules/.bin/eslint
 SASSLINT = node_modules/.bin/sass-lint
 

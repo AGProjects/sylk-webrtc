@@ -1,0 +1,6 @@
+# NodeJS
+node_modules
+
+# Development
+/dist
+/dist-electron

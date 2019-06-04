@@ -509,7 +509,7 @@ class Blink extends React.Component {
             resolve();
         })
         .then(() => {
-                return navigator.mediaDevices.enumerateDevices();
+            return navigator.mediaDevices.enumerateDevices();
         })
         .then((devices) => {
             devices.forEach((device) => {

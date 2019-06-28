@@ -652,7 +652,7 @@ class ConferenceBox extends React.Component {
                 </div>
                 <ConferenceDrawer show={this.state.showDrawer} close={this.toggleDrawer}>
                     <ConferenceDrawerSpeakerSelection
-                        participants={this.state.participants.concat([{id: this.props.call.id, publisherId: this.props.call.id, identity: this.props.call.localIdentity, streams: this.props.call.getLocalStreams()}])}
+                        participants={this.state.participants.concat([{id: this.props.call.id, publisherId: this.props.call.id, identity: this.props.call.localIdentity}])}
                         selected={this.handleActiveSpeakerSelected}
                         activeSpeakers={this.state.activeSpeakers}
                     />

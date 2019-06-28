@@ -472,11 +472,11 @@ class Blink extends React.Component {
             }).then(screenStream => {
                 this.state.currentCall.startScreensharing(screenStream.getVideoTracks()[0]);
                 screenStream.getVideoTracks()[0].addEventListener('ended', (ev) => {
-                    DEBUG("Screensharing stream ended by user action");
+                    DEBUG('Screensharing stream ended by user action');
                     this.switchScreensharing();
                 });
             }).catch((error) => {
-                DEBUG("Error getting screen %o", error);
+                DEBUG('Error getting screen %o', error);
             });
         } else if (navigator.mediaDevices.getDisplayMedia) {
             navigator.mediaDevices.getDisplayMedia({
@@ -484,23 +484,23 @@ class Blink extends React.Component {
             }).then(screenStream => {
                 this.state.currentCall.startScreensharing(screenStream.getVideoTracks()[0]);
                 screenStream.getVideoTracks()[0].addEventListener('ended', (ev) => {
-                    DEBUG("Screensharing stream ended by user action");
+                    DEBUG('Screensharing stream ended by user action');
                     this.switchScreensharing();
                 });
             }).catch((error) => {
-                DEBUG("Error getting screen %o", error);
+                DEBUG('Error getting screen %o', error);
             });
         } else {
-            DEBUG("Modern Screensharing API not available using getUserMedia")
+            DEBUG('Modern Screensharing API not available using getUserMedia');
             navigator.mediaDevices.getUserMedia(screenConstraints)
             .then((screenStream) => {
                 this.state.currentCall.startScreensharing(screenStream.getVideoTracks()[0]);
                 screenStream.getVideoTracks()[0].addEventListener('ended', (ev) => {
-                    DEBUG("Screensharing stream ended by user action");
+                    DEBUG('Screensharing stream ended by user action');
                     this.switchScreensharing();
                 });
             }).catch((error) => {
-                DEBUG("Error getting screen %o", error);
+                DEBUG('Error getting screen %o', error);
             });
         }
     }

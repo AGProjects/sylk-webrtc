@@ -628,7 +628,7 @@ class Blink extends React.Component {
     }
 
     switchScreensharing() {
-        if (!this.state.currentCall._sharingScreen) {
+        if (!this.state.currentCall.sharingScreen) {
             this.getLocalScreen();
         } else {
             this.state.currentCall.stopScreensharing();

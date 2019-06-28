@@ -15,7 +15,8 @@ class ConferenceParticipantSelf extends React.Component {
         super(props);
         this.state = {
             active: false,
-            hasVideo: false
+            hasVideo: false,
+            sharesScreen: false
         }
         this.speechEvents = null;
     }
@@ -25,6 +26,17 @@ class ConferenceParticipantSelf extends React.Component {
 
         // factor it out to a function to avoid lint warning about calling setState here
         this.attachSpeechEvents();
+        this.refs.videoElement.onresize = (event) => {
+            this.handleResize(event)
+        };
+    }
+
+    handleResize(event) {
+        if (event.srcElement.videoWidth !== 1280 && event.srcElement.videoWidth !== 640) {
+            this.setState({sharesScreen: true});
+        } else {
+            this.setState({sharesScreen: false});
+        }
     }
 
     componentWillUnmount() {
@@ -60,8 +72,9 @@ class ConferenceParticipantSelf extends React.Component {
         );
 
         const classes = classNames({
-            'mirror' : this.state.hasVideo,
+            'mirror' : this.state.hasVideo && !this.state.sharesScreen,
             'poster' : !this.state.hasVideo,
+            'fit'    : this.state.sharesScreen,
             'conference-active' : this.state.active
         });
 
@@ -79,7 +92,7 @@ class ConferenceParticipantSelf extends React.Component {
                 {muteIcon}
                 <OverlayTrigger placement="top" overlay={tooltip}>
                     <div className="participant-container">
-                        <video ref="videoElement" className={classes}  poster="assets/images/transparent-1px.png" autoPlay muted />
+                        <video ref="videoElement" className={classes} poster="assets/images/transparent-1px.png" autoPlay muted />
                     </div>
                 </OverlayTrigger>
             </div>

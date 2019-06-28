@@ -65,6 +65,7 @@ class ConferenceBox extends React.Component {
         this.callTimer = null;
         this.overlayTimer = null;
         this.logEvent = {};
+        this.haveVideo = false;
 
         [
             'error',
@@ -127,6 +128,9 @@ class ConferenceBox extends React.Component {
                 };
                 this.selectVideo(item);
             });
+            if (this.props.call.getLocalStreams()[0].getVideoTracks().length !== 0) {
+                this.haveVideo = true;
+            }
         } else {
             // this.changeResolution();
         }
@@ -381,7 +385,8 @@ class ConferenceBox extends React.Component {
             'animated'      : true,
             'fadeIn'        : true,
             'large'         : true,
-            'mirror'        : true
+            'mirror'        : !this.props.call.sharingScreen,
+            'fit'           : this.props.call.sharingScreen
         });
 
         let matrixClasses = classNames({
@@ -414,6 +419,13 @@ class ConferenceBox extends React.Component {
                 'fa-2x'         : true,
                 'fa-expand'     : !this.isFullScreen(),
                 'fa-compress'   : this.isFullScreen()
+            });
+
+            const screenSharingButtonIcons = classNames({
+                'fa'                    : true,
+                'fa-clone'              : true,
+                'fa-flip-horizontal'    : true,
+                'text-warning'          : this.props.call.sharingScreen
             });
 
             const videoHeaderTextClasses = classNames({
@@ -497,6 +509,7 @@ class ConferenceBox extends React.Component {
             const buttons = [];
 
             buttons.push(<button key="muteVideo" type="button" title="Mute/unmute video" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>);
+            buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen} disabled={!this.haveVideo}><i className={screenSharingButtonIcons}></i></button>);
             buttons.push(<button key="muteAudio" type="button" title="Mute/unmute audio" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>);
             buttons.push(<OverlayTrigger key="shareOverlay" ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
                             <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-plus"></i> </button>
@@ -668,6 +681,7 @@ class ConferenceBox extends React.Component {
 
 ConferenceBox.propTypes = {
     notificationCenter : PropTypes.func.isRequired,
+    shareScreen        : PropTypes.func.isRequired,
     call               : PropTypes.object,
     hangup             : PropTypes.func,
     remoteIdentity     : PropTypes.string

@@ -66,6 +66,7 @@ class Conference extends React.Component {
                         call = {this.props.currentCall}
                         hangup = {this.hangup}
                         remoteIdentity = {this.props.targetUri}
+                        shareScreen = {this.props.shareScreen}
                     />
                 );
             } else {
@@ -92,6 +93,7 @@ Conference.propTypes = {
     notificationCenter      : PropTypes.func.isRequired,
     account                 : PropTypes.object.isRequired,
     hangupCall              : PropTypes.func.isRequired,
+    shareScreen             : PropTypes.func.isRequired,
     currentCall             : PropTypes.object,
     localMedia              : PropTypes.object,
     targetUri               : PropTypes.string,

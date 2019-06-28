@@ -16,6 +16,7 @@ class ConferenceMatrixParticipant extends React.Component {
         this.state = {
             active: false,
             hasVideo: false,
+            sharesScreen: false,
             audioMuted: false
         }
         this.speechEvents = null;
@@ -39,6 +40,9 @@ class ConferenceMatrixParticipant extends React.Component {
             // disable right click for video elements
             e.preventDefault();
         };
+        this.refs.videoElement.onresize = (event) => {
+            this.handleResize(event)
+        };
     }
 
     componentWillUnmount() {
@@ -55,6 +59,14 @@ class ConferenceMatrixParticipant extends React.Component {
     onParticipantStateChanged(oldState, newState) {
         if (newState === 'established') {
             this.maybeAttachStream();
+        }
+    }
+
+    handleResize(event) {
+        if (this.state.hasVideo && event.srcElement.videoWidth !== 1280 && event.srcElement.videoWidth !== 640) {
+            this.setState({sharesScreen: true});
+        } else {
+            this.setState({sharesScreen: false});
         }
     }
 
@@ -79,7 +91,8 @@ class ConferenceMatrixParticipant extends React.Component {
 
     render() {
         const classes = classNames({
-            'poster' : !this.state.hasVideo
+            'poster' : !this.state.hasVideo,
+            'fit'    : this.state.sharesScreen
         });
         const remoteVideoClasses = classNames({
             'remote-video'      : true,

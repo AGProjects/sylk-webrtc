@@ -269,5 +269,17 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+        &.large {
+            &.fit {
+                width: auto !important;
+            }
+        }
     }
+
+    .fit {
+        object-fit: contain !important;
+        background-color: $white-transparent
+    }
+
+
 }

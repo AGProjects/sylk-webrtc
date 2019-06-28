@@ -106,7 +106,8 @@ class Blink extends React.Component {
             'checkRoute',
             'startPreview',
             'preview',
-            'main'
+            'main',
+            'switchScreensharing'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -457,6 +458,53 @@ class Blink extends React.Component {
         this.getLocalMedia();
     }
 
+    getLocalScreen() {
+        const screenConstraints = {
+            video: {
+                mozMediaSource: 'window',
+                mediaSource: 'window'
+            }
+        };
+
+        if (navigator.getDisplayMedia) {
+            navigator.getDisplayMedia({
+                video: true
+            }).then(screenStream => {
+                this.state.currentCall.startScreensharing(screenStream.getVideoTracks()[0]);
+                screenStream.getVideoTracks()[0].addEventListener('ended', (ev) => {
+                    DEBUG("Screensharing stream ended by user action");
+                    this.switchScreensharing();
+                });
+            }).catch((error) => {
+                DEBUG("Error getting screen %o", error);
+            });
+        } else if (navigator.mediaDevices.getDisplayMedia) {
+            navigator.mediaDevices.getDisplayMedia({
+                video: true
+            }).then(screenStream => {
+                this.state.currentCall.startScreensharing(screenStream.getVideoTracks()[0]);
+                screenStream.getVideoTracks()[0].addEventListener('ended', (ev) => {
+                    DEBUG("Screensharing stream ended by user action");
+                    this.switchScreensharing();
+                });
+            }).catch((error) => {
+                DEBUG("Error getting screen %o", error);
+            });
+        } else {
+            DEBUG("Modern Screensharing API not available using getUserMedia")
+            navigator.mediaDevices.getUserMedia(screenConstraints)
+            .then((screenStream) => {
+                this.state.currentCall.startScreensharing(screenStream.getVideoTracks()[0]);
+                screenStream.getVideoTracks()[0].addEventListener('ended', (ev) => {
+                    DEBUG("Screensharing stream ended by user action");
+                    this.switchScreensharing();
+                });
+            }).catch((error) => {
+                DEBUG("Error getting screen %o", error);
+            });
+        }
+    }
+
     getLocalMedia(mediaConstraints={audio: true, video: true}, nextRoute=null) {    // eslint-disable-line space-infix-ops
         DEBUG('getLocalMedia(), mediaConstraints=%o', mediaConstraints);
         const constraints = Object.assign({}, mediaConstraints);
@@ -577,6 +625,14 @@ class Blink extends React.Component {
     startGuestCall(targetUri, options) {
         this.setState({targetUri: targetUri});
         this.getLocalMedia(Object.assign({audio: true, video: true}, options));
+    }
+
+    switchScreensharing() {
+        if (!this.state.currentCall._sharingScreen) {
+            this.getLocalScreen();
+        } else {
+            this.state.currentCall.stopScreensharing();
+        }
     }
 
     answerCall(options) {

@@ -128,11 +128,12 @@ class ConferenceBox extends React.Component {
                 };
                 this.selectVideo(item);
             });
-            if (this.props.call.getLocalStreams()[0].getVideoTracks().length !== 0) {
-                this.haveVideo = true;
-            }
         } else {
             // this.changeResolution();
+        }
+
+        if (this.props.call.getLocalStreams()[0].getVideoTracks().length !== 0) {
+            this.haveVideo = true;
         }
     }
 

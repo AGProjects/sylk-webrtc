@@ -63,10 +63,14 @@ class ConferenceMatrixParticipant extends React.Component {
     }
 
     handleResize(event) {
-        if (this.state.hasVideo && event.srcElement.videoWidth !== 1280 && event.srcElement.videoWidth !== 640) {
-            this.setState({sharesScreen: true});
-        } else {
-            this.setState({sharesScreen: false});
+        const resolutions = [ '1280x720', '960x540', '640x480', '640x360', '480x270'];
+        if (this.state.hasVideo) {
+            const videoResolution = event.srcElement.videoWidth + 'x' + event.srcElement.videoHeight;
+            if (resolutions.indexOf(videoResolution) == -1) {
+                this.setState({sharesScreen: true});
+            } else {
+                this.setState({sharesScreen: false});
+            }
         }
     }
 

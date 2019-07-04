@@ -33,7 +33,7 @@ class ConferenceParticipantSelf extends React.Component {
 
     handleResize(event) {
         const resolutions = [ '1280x720', '960x540', '640x480', '640x360', '480x270'];
-        const videoResolution = event.srcElement.videoWidth + 'x' + event.srcElement.videoHeight;
+        const videoResolution = event.target.videoWidth + 'x' + event.target.videoHeight;
         if (resolutions.indexOf(videoResolution) == -1) {
             this.setState({sharesScreen: true});
         } else {

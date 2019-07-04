@@ -998,6 +998,7 @@ class Blink extends React.Component {
                 currentCall = {this.state.currentCall}
                 escalateToConference = {this.escalateToConference}
                 hangupCall = {this.hangupCall}
+                shareScreen = {this.switchScreensharing}
             />
         )
     }
@@ -1027,6 +1028,7 @@ class Blink extends React.Component {
                 account = {this.state.account}
                 currentCall = {this.state.currentCall}
                 hangupCall = {this.hangupCall}
+                shareScreen = {this.switchScreensharing}
             />
         );
     }

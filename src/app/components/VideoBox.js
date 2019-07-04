@@ -26,6 +26,7 @@ class VideoBox extends React.Component {
             videoMuted: false,
             localVideoShow: false,
             remoteVideoShow: false,
+            remoteSharesScreen: false,
             showEscalateConferenceModal: false
         };
 
@@ -36,6 +37,7 @@ class VideoBox extends React.Component {
             'showCallOverlay',
             'handleFullscreen',
             'handleRemoteVideoPlaying',
+            'handleRemoteResize',
             'muteAudio',
             'muteVideo',
             'hangupCall',
@@ -80,7 +82,20 @@ class VideoBox extends React.Component {
 
     handleRemoteVideoPlaying() {
         this.setState({remoteVideoShow: true});
+        this.refs.remoteVideo.onresize = (event) => {
+            this.handleRemoteResize(event)
+        };
         this.armOverlayTimer();
+    }
+
+    handleRemoteResize(event, target) {
+        const resolutions = [ '1280x720', '960x540', '640x480', '640x360', '480x270'];
+        const videoResolution = event.target.videoWidth + 'x' + event.target.videoHeight;
+        if (resolutions.indexOf(videoResolution) == -1) {
+            this.setState({remoteSharesScreen: true});
+        } else {
+            this.setState({remoteSharesScreen: false});
+        }
     }
 
     muteAudio(event) {
@@ -154,18 +169,20 @@ class VideoBox extends React.Component {
 
         const localVideoClasses = classNames({
             'video-thumbnail' : true,
-            'mirror'          : true,
+            'mirror'          : !this.props.call.sharingScreen,
             'hidden'          : !this.state.localVideoShow,
             'animated'        : true,
             'fadeIn'          : this.state.localVideoShow || this.state.videoMuted,
-            'fadeOut'         : this.state.videoMuted
+            'fadeOut'         : this.state.videoMuted,
+            'fit'             : this.props.call.sharingScreen
         });
 
         const remoteVideoClasses = classNames({
             'poster'        : !this.state.remoteVideoShow,
             'animated'      : true,
             'fadeIn'        : this.state.remoteVideoShow,
-            'large'         : true
+            'large'         : true,
+            'fit'           : this.state.remoteSharesScreen
         });
 
         let callButtons;
@@ -184,6 +201,13 @@ class VideoBox extends React.Component {
                 'fa-video-camera-slash' : this.state.videoMuted
             });
 
+            const screenSharingButtonIcons = classNames({
+                'fa'                    : true,
+                'fa-clone'              : true,
+                'fa-flip-horizontal'    : true,
+                'text-warning'          : this.props.call.sharingScreen
+            });
+
             const fullScreenButtonIcons = classNames({
                 'fa'            : true,
                 'fa-expand'     : !this.isFullScreen(),
@@ -200,6 +224,7 @@ class VideoBox extends React.Component {
 
             buttons.push(<button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>);
             buttons.push(<button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>);
+            buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen}><i className={screenSharingButtonIcons}></i></button>);
             if (this.isFullscreenSupported()) {
                 buttons.push(<button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
             }
@@ -260,6 +285,7 @@ VideoBox.propTypes = {
     call: PropTypes.object,
     localMedia: PropTypes.object,
     hangupCall: PropTypes.func,
+    shareScreen: PropTypes.func.isRequired,
     escalateToConference: PropTypes.func
 };
 

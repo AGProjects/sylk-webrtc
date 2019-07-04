@@ -59,6 +59,7 @@ class CallByUriBox extends React.Component {
                     currentCall = {this.props.currentCall}
                     targetUri = {this.props.targetUri}
                     hangupCall = {this.props.hangupCall}
+                    shareScreen = {this.props.shareScreen}
                 />
             );
         } else {
@@ -108,6 +109,7 @@ CallByUriBox.propTypes = {
     handleCallByUri    : PropTypes.func.isRequired,
     notificationCenter : PropTypes.func.isRequired,
     hangupCall         : PropTypes.func.isRequired,
+    shareScreen        : PropTypes.func.isRequired,
     targetUri          : PropTypes.string,
     localMedia         : PropTypes.object,
     account            : PropTypes.object,

@@ -135,6 +135,7 @@ class Call extends React.Component {
                         <VideoBox
                             call = {this.props.currentCall}
                             localMedia = {this.props.localMedia}
+                            shareScreen = {this.props.shareScreen}
                             hangupCall = {this.hangupCall}
                             escalateToConference = {this.props.escalateToConference}
                         />
@@ -162,6 +163,7 @@ class Call extends React.Component {
 Call.propTypes = {
     account                 : PropTypes.object.isRequired,
     hangupCall              : PropTypes.func.isRequired,
+    shareScreen             : PropTypes.func.isRequired,
     currentCall             : PropTypes.object,
     escalateToConference    : PropTypes.func,
     localMedia              : PropTypes.object,

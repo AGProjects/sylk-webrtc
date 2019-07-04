@@ -48,6 +48,11 @@
                 background-color: $black-transparent;
             }
         }
+
+        &.fit {
+            background-color: $white-transparent;
+            object-fit: contain !important;
+        }
     }
 
     .watermark {

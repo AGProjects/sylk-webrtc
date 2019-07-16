@@ -67,6 +67,7 @@ class ConferenceByUriBox extends React.Component {
                     targetUri = {this.props.targetUri}
                     hangupCall = {this.props.hangupCall}
                     shareScreen = {this.props.shareScreen}
+                    generatedVideoTrack = {this.props.generatedVideoTrack}
                 />
             );
         } else {
@@ -112,14 +113,15 @@ class ConferenceByUriBox extends React.Component {
 }
 
 ConferenceByUriBox.propTypes = {
-    notificationCenter : PropTypes.func.isRequired,
-    handler            : PropTypes.func.isRequired,
-    hangupCall         : PropTypes.func.isRequired,
-    shareScreen        : PropTypes.func.isRequired,
-    targetUri          : PropTypes.string,
-    localMedia         : PropTypes.object,
-    account            : PropTypes.object,
-    currentCall        : PropTypes.object
+    notificationCenter  : PropTypes.func.isRequired,
+    handler             : PropTypes.func.isRequired,
+    hangupCall          : PropTypes.func.isRequired,
+    shareScreen         : PropTypes.func.isRequired,
+    targetUri           : PropTypes.string,
+    localMedia          : PropTypes.object,
+    account             : PropTypes.object,
+    currentCall         : PropTypes.object,
+    generatedVideoTrack : PropTypes.bool
 };
 
 

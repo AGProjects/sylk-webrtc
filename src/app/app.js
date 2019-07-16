@@ -63,6 +63,7 @@ class Blink extends React.Component {
             loading: null,
             mode: MODE_NORMAL,
             localMedia: null,
+            generatedVideoTrack: false,
             history: [],
             devices: {}
         };
@@ -215,7 +216,8 @@ class Blink extends React.Component {
                     showIncomingModal: false,
                     currentCall: null,
                     inboundCall: null,
-                    localMedia: null
+                    localMedia: null,
+                    generatedVideoTrack: false
                 });
                 break;
             default:
@@ -305,7 +307,8 @@ class Blink extends React.Component {
                     targetUri           : callSuccesfull ? '' : this.state.targetUri,
                     showIncomingModal   : false,
                     inboundCall         : null,
-                    localMedia          : null
+                    localMedia          : null,
+                    generatedVideoTrack : false
                 });
                 this.setFocusEvents(false);
                 this.participantsToInvite = null;
@@ -600,7 +603,14 @@ class Blink extends React.Component {
             })
             .then((localStream) => {
                 clearTimeout(this.loadScreenTimer);
-                this.setState({status: null, loading: null, localMedia: localStream});
+
+                if (nextRoute === '/conference' ||  this.state.mode === MODE_GUEST_CONFERENCE) {
+                    DEBUG('Next route is conference, audio only media, creating fake video stream');
+                    const generatedVideoTrack = utils.generateVideoTrack(localStream);
+                    localStream.addTrack(generatedVideoTrack);
+                }
+
+                this.setState({status: null, loading: null, localMedia: localStream, generatedVideoTrack: true});
                 if (nextRoute !== null) {
                     this.refs.router.navigate(nextRoute);
                 }
@@ -771,7 +781,7 @@ class Blink extends React.Component {
             if (this.state.currentCall !== null) {
                 this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
                 this.state.currentCall.terminate();
-                this.setState({currentCall: null, showIncomingModal: false, localMedia: null});
+                this.setState({currentCall: null, showIncomingModal: false, localMedia: null, generatedVideoTrack: false});
             }
             setTimeout(() => {
                 this.startConference(data.room);
@@ -1050,6 +1060,7 @@ class Blink extends React.Component {
                 participantsToInvite = {this.participantsToInvite}
                 hangupCall = {this.hangupCall}
                 shareScreen = {this.switchScreensharing}
+                generatedVideoTrack = {this.state.generatedVideoTrack}
             />
         )
     }
@@ -1086,6 +1097,7 @@ class Blink extends React.Component {
                 currentCall = {this.state.currentCall}
                 hangupCall = {this.hangupCall}
                 shareScreen = {this.switchScreensharing}
+                generatedVideoTrack = {this.state.generatedVideoTrack}
             />
         );
     }

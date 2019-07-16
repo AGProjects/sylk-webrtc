@@ -74,7 +74,7 @@ class ConferenceParticipantSelf extends React.Component {
         );
 
         const classes = classNames({
-            'mirror' : this.state.hasVideo && !this.state.sharesScreen,
+            'mirror' : this.state.hasVideo && !this.state.sharesScreen && !this.props.generatedVideoTrack,
             'poster' : !this.state.hasVideo,
             'fit'    : this.state.sharesScreen,
             'conference-active' : this.state.active
@@ -105,7 +105,8 @@ class ConferenceParticipantSelf extends React.Component {
 ConferenceParticipantSelf.propTypes = {
     stream: PropTypes.object.isRequired,
     identity: PropTypes.object.isRequired,
-    audioMuted: PropTypes.bool.isRequired
+    audioMuted: PropTypes.bool.isRequired,
+    generatedVideoTrack: PropTypes.bool
 };
 
 

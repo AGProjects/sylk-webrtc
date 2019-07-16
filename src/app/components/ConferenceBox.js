@@ -386,7 +386,7 @@ class ConferenceBox extends React.Component {
             'animated'      : true,
             'fadeIn'        : true,
             'large'         : true,
-            'mirror'        : !this.props.call.sharingScreen,
+            'mirror'        : !this.props.call.sharingScreen && !this.props.generatedVideoTrack,
             'fit'           : this.props.call.sharingScreen
         });
 
@@ -550,6 +550,7 @@ class ConferenceBox extends React.Component {
                         stream={this.props.call.getLocalStreams()[0]}
                         identity={this.props.call.localIdentity}
                         audioMuted={this.state.audioMuted}
+                        generatedVideoTrack={this.props.generatedVideoTrack}
                     />
                 );
             }
@@ -681,11 +682,12 @@ class ConferenceBox extends React.Component {
 }
 
 ConferenceBox.propTypes = {
-    notificationCenter : PropTypes.func.isRequired,
-    shareScreen        : PropTypes.func.isRequired,
-    call               : PropTypes.object,
-    hangup             : PropTypes.func,
-    remoteIdentity     : PropTypes.string
+    notificationCenter  : PropTypes.func.isRequired,
+    shareScreen         : PropTypes.func.isRequired,
+    call                : PropTypes.object,
+    hangup              : PropTypes.func,
+    remoteIdentity      : PropTypes.string,
+    generatedVideoTrack : PropTypes.bool
 };
 
 ReactMixin(ConferenceBox.prototype, FullscreenMixin);

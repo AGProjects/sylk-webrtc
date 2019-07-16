@@ -67,6 +67,7 @@ class Conference extends React.Component {
                         hangup = {this.hangup}
                         remoteIdentity = {this.props.targetUri}
                         shareScreen = {this.props.shareScreen}
+                        generatedVideoTrack = {this.props.generatedVideoTrack}
                     />
                 );
             } else {
@@ -76,6 +77,7 @@ class Conference extends React.Component {
                         localMedia = {this.props.localMedia}
                         mediaPlaying = {this.mediaPlaying}
                         hangupCall = {this.hangup}
+                        generatedVideoTrack = {this.props.generatedVideoTrack}
                     />
                 );
             }
@@ -97,7 +99,8 @@ Conference.propTypes = {
     currentCall             : PropTypes.object,
     localMedia              : PropTypes.object,
     targetUri               : PropTypes.string,
-    participantsToInvite    : PropTypes.array
+    participantsToInvite    : PropTypes.array,
+    generatedVideoTrack     : PropTypes.bool
 };
 
 

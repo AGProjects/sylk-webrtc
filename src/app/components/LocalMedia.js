@@ -41,7 +41,7 @@ class LocalMedia extends React.Component {
             'large'    : true,
             'animated' : true,
             'fadeIn'   : true,
-            'mirror'   : true
+            'mirror'   : !this.props.generatedVideoTrack
         });
 
         return (
@@ -61,10 +61,11 @@ class LocalMedia extends React.Component {
 }
 
 LocalMedia.propTypes = {
-    hangupCall: PropTypes.func,
-    localMedia: PropTypes.object.isRequired,
-    mediaPlaying: PropTypes.func.isRequired,
-    remoteIdentity: PropTypes.string
+    hangupCall          : PropTypes.func,
+    localMedia          : PropTypes.object.isRequired,
+    mediaPlaying        : PropTypes.func.isRequired,
+    remoteIdentity      : PropTypes.string,
+    generatedVideoTrack : PropTypes.bool
 };
 
 

@@ -90,7 +90,7 @@ function generateVideoTrack(stream, width = 640, height = 480) {
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
-    const canvas = Object.assign(document.createElement("canvas"), {width, height});
+    const canvas = Object.assign(document.createElement('canvas'), {width, height});
     const ctx = canvas.getContext('2d');
 
     const img = new Image();
@@ -109,7 +109,7 @@ function generateVideoTrack(stream, width = 640, height = 480) {
         ctx.fillRect(0, 0, width, height);
         ctx.filter = 'grayscale(100%) brightness(90%)';
         ctx.drawImage(blinkLogo, (width / 2) - 150, (height / 2) - 150, 300, 300);
-        ctx.filter = "none";
+        ctx.filter = 'none';
         ctx.drawImage(img, (width / 2) - 45 , height / 3, 90, 90);
         const barWidth = (width / bufferLength) * 2.5;
         let barHeight;
@@ -123,8 +123,8 @@ function generateVideoTrack(stream, width = 640, height = 480) {
             x += barWidth + 1;
         }
     };
-    img.src = "assets/images/video-camera-slash.png";
-    blinkLogo.src = "assets/images/blink-white-big.png";
+    img.src = 'assets/images/video-camera-slash.png';
+    blinkLogo.src = 'assets/images/blink-white-big.png';
 
     const canvasStream = canvas.captureStream();
     return Object.assign(canvasStream.getVideoTracks()[0], {enabled: true});

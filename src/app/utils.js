@@ -107,18 +107,18 @@ function generateVideoTrack(stream, width = 640, height = 480) {
 
         ctx.fillStyle = 'rgb(35, 35, 35)';
         ctx.fillRect(0, 0, width, height);
-        ctx.filter= 'grayscale(100%) brightness(90%)';
-        ctx.drawImage(blinkLogo, (width/2)-150, (height/2)-150, 300, 300);
+        ctx.filter = 'grayscale(100%) brightness(90%)';
+        ctx.drawImage(blinkLogo, (width / 2) - 150, (height / 2) - 150, 300, 300);
         ctx.filter = "none";
         ctx.drawImage(img, (width / 2) - 45 , height / 3, 90, 90);
         const barWidth = (width / bufferLength) * 2.5;
         let barHeight;
-        const x = 0;
+        let x = 0;
         for(var i = 0; i < bufferLength; i++) {
-            barHeight = dataArray[i]/2;
+            barHeight = dataArray[i] / 2;
 
             ctx.fillStyle = 'rgb(' + (barHeight + 100) + ', 50, 50)';
-            ctx.fillRect(x, 2 * height/3 - barHeight / 2, barWidth, barHeight);
+            ctx.fillRect(x, 2 * height / 3 - barHeight / 2, barWidth, barHeight);
 
             x += barWidth + 1;
         }

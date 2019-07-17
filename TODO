@@ -1,6 +1,7 @@
+ - File transfer support (drag and drop for desktop)
+ - Text chat sessions
  - Document configuration changes required to make it work with local SylkServer instance
  - Show Preview window when join a conference from link, Press continue if microphone works
- - Bring window in front when incomming call arrives
  - Audio indication when the conference start (2nd party joins the conference the first time)
  - Auto login on start or after failure to register
  - Auto answer for given addresses after predefined delay and chosen media type
@@ -8,9 +9,6 @@
  - Most called numbers on main screen for easy visual redial (like big tiles)
  - Address book lookup for Mac
  - Output/Alert device selection
- - Text chat sessions
- - File transfer support (drag and drop for desktop)
- - Screen sharing support (and/or second camera feed)
  - Local video recording
  - Edit display name after join a conference without account 
  - Streaming to external video broadcast service

@@ -138,6 +138,7 @@ class Call extends React.Component {
                             shareScreen = {this.props.shareScreen}
                             hangupCall = {this.hangupCall}
                             escalateToConference = {this.props.escalateToConference}
+                            generatedVideoTrack = {this.props.generatedVideoTrack}
                         />
                     );
                 } else {
@@ -147,6 +148,7 @@ class Call extends React.Component {
                             localMedia = {this.props.localMedia}
                             mediaPlaying = {this.mediaPlaying}
                             hangupCall = {this.hangupCall}
+                            generatedVideoTrack = {this.props.generatedVideoTrack}
                         />
                     );
                 }
@@ -167,7 +169,8 @@ Call.propTypes = {
     currentCall             : PropTypes.object,
     escalateToConference    : PropTypes.func,
     localMedia              : PropTypes.object,
-    targetUri               : PropTypes.string
+    targetUri               : PropTypes.string,
+    generatedVideoTrack     : PropTypes.bool
 };
 
 

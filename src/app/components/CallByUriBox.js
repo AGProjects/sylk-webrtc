@@ -60,6 +60,7 @@ class CallByUriBox extends React.Component {
                     targetUri = {this.props.targetUri}
                     hangupCall = {this.props.hangupCall}
                     shareScreen = {this.props.shareScreen}
+                    generatedVideoTrack = {this.props.generatedVideoTrack}
                 />
             );
         } else {
@@ -106,14 +107,15 @@ class CallByUriBox extends React.Component {
 }
 
 CallByUriBox.propTypes = {
-    handleCallByUri    : PropTypes.func.isRequired,
-    notificationCenter : PropTypes.func.isRequired,
-    hangupCall         : PropTypes.func.isRequired,
-    shareScreen        : PropTypes.func.isRequired,
-    targetUri          : PropTypes.string,
-    localMedia         : PropTypes.object,
-    account            : PropTypes.object,
-    currentCall        : PropTypes.object
+    handleCallByUri     : PropTypes.func.isRequired,
+    notificationCenter  : PropTypes.func.isRequired,
+    hangupCall          : PropTypes.func.isRequired,
+    shareScreen         : PropTypes.func.isRequired,
+    targetUri           : PropTypes.string,
+    localMedia          : PropTypes.object,
+    account             : PropTypes.object,
+    currentCall         : PropTypes.object,
+    generatedVideoTrack : PropTypes.bool
 };
 
 

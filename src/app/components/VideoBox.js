@@ -170,7 +170,7 @@ class VideoBox extends React.Component {
 
         const localVideoClasses = classNames({
             'video-thumbnail' : true,
-            'mirror'          : !this.props.call.sharingScreen,
+            'mirror'          : !this.props.call.sharingScreen && !this.props.generatedVideoTrack,
             'hidden'          : !this.state.localVideoShow,
             'animated'        : true,
             'fadeIn'          : this.state.localVideoShow || this.state.videoMuted,
@@ -283,11 +283,12 @@ class VideoBox extends React.Component {
 }
 
 VideoBox.propTypes = {
-    call: PropTypes.object,
-    localMedia: PropTypes.object,
-    hangupCall: PropTypes.func,
-    shareScreen: PropTypes.func.isRequired,
-    escalateToConference: PropTypes.func
+    call                    : PropTypes.object,
+    localMedia              : PropTypes.object,
+    hangupCall              : PropTypes.func,
+    shareScreen             : PropTypes.func.isRequired,
+    escalateToConference    : PropTypes.func,
+    generatedVideoTrack     : PropTypes.bool
 };
 
 ReactMixin(VideoBox.prototype, FullscreenMixin);

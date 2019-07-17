@@ -604,8 +604,8 @@ class Blink extends React.Component {
             .then((localStream) => {
                 clearTimeout(this.loadScreenTimer);
 
-                if (nextRoute === '/conference' ||  this.state.mode === MODE_GUEST_CONFERENCE) {
-                    DEBUG('Next route is conference, audio only media, creating fake video stream');
+                if (nextRoute != '/preview') {
+                    DEBUG('Audio only media, but video was requested, creating generated video track');
                     const generatedVideoTrack = utils.generateVideoTrack(localStream);
                     localStream.addTrack(generatedVideoTrack);
                 }
@@ -1009,6 +1009,7 @@ class Blink extends React.Component {
                 escalateToConference = {this.escalateToConference}
                 hangupCall = {this.hangupCall}
                 shareScreen = {this.switchScreensharing}
+                generatedVideoTrack = {this.state.generatedVideoTrack}
             />
         )
     }
@@ -1039,6 +1040,7 @@ class Blink extends React.Component {
                 currentCall = {this.state.currentCall}
                 hangupCall = {this.hangupCall}
                 shareScreen = {this.switchScreensharing}
+                generatedVideoTrack = {this.state.generatedVideoTrack}
             />
         );
     }

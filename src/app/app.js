@@ -28,6 +28,7 @@ const NotificationCenter   = require('./components/NotificationCenter');
 const LoadingScreen        = require('./components/LoadingScreen');
 const NavigationBar        = require('./components/NavigationBar');
 const Preview              = require('./components/Preview');
+const ScreenSharingModal   = require('./components/ScreenSharingModal');
 
 const utils     = require('./utils');
 const config    = require('./config');
@@ -58,6 +59,7 @@ class Blink extends React.Component {
             connection: null,
             inboundCall: null,
             showIncomingModal: false,
+            showScreenSharingModal: false,
             status: null,
             targetUri: '',
             loading: null,
@@ -108,7 +110,9 @@ class Blink extends React.Component {
             'startPreview',
             'preview',
             'main',
-            'switchScreensharing'
+            'switchScreensharing',
+            'toggleScreenSharingModal',
+            'getLocalScreen'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -461,15 +465,28 @@ class Blink extends React.Component {
         this.getLocalMedia();
     }
 
-    getLocalScreen() {
-        const screenConstraints = {
+    getLocalScreen(source) {
+        let screenConstraints = {
             video: {
                 mozMediaSource: 'window',
                 mediaSource: 'window'
             }
         };
+        if (this.shouldUseHashRouting) {
+            screenConstraints = {
+                audio: false,
+                video: {
+                    mandatory : {
+                        chromeMediaSource: 'desktop',
+                        chromeMediaSourceId: source
+                    }
+                }
+            };
+            DEBUG('This is electron, modifying constraints %o', screenConstraints);
+            this.toggleScreenSharingModal();
+        }
 
-        if (navigator.getDisplayMedia) {
+        if (!this.shouldUseHashRouting && navigator.getDisplayMedia) {
             navigator.getDisplayMedia({
                 video: true
             }).then(screenStream => {
@@ -481,7 +498,7 @@ class Blink extends React.Component {
             }).catch((error) => {
                 DEBUG('Error getting screen %o', error);
             });
-        } else if (navigator.mediaDevices.getDisplayMedia) {
+        } else if (!this.shouldUseHashRouting && navigator.mediaDevices.getDisplayMedia) {
             navigator.mediaDevices.getDisplayMedia({
                 video: true
             }).then(screenStream => {
@@ -639,10 +656,20 @@ class Blink extends React.Component {
 
     switchScreensharing() {
         if (!this.state.currentCall.sharingScreen) {
-            this.getLocalScreen();
+            if (this.shouldUseHashRouting) {
+                this.toggleScreenSharingModal();
+            } else {
+                this.getLocalScreen();
+            }
         } else {
             this.state.currentCall.stopScreensharing();
         }
+    }
+
+    toggleScreenSharingModal() {
+        this.setState({
+            showScreenSharingModal : !this.state.showScreenSharingModal
+        });
     }
 
     answerCall(options) {
@@ -845,6 +872,7 @@ class Blink extends React.Component {
         let loadingScreen;
         let incomingCallModal;
         let incomingWindow;
+        let screenSharingModal;
         let footerBox = <FooterBox />;
 
         if (this.state.loading !== null) {
@@ -882,6 +910,18 @@ class Blink extends React.Component {
                 );
             }
         }
+
+        if (this.shouldUseHashRouting) {
+            screenSharingModal = (
+                <ScreenSharingModal
+                    show = {this.state.showScreenSharingModal}
+                    close= {this.toggleScreenSharingModal}
+                    sources = {this.state.sources}
+                    getLocalScreen = {this.getLocalScreen}
+                />
+            );
+        }
+
         if (this.state.localMedia) {
             footerBox = '';
         }
@@ -897,6 +937,7 @@ class Blink extends React.Component {
                     {incomingCallModal}
                 </TransitionGroup>
                 {incomingWindow}
+                {screenSharingModal}
                 <Locations hash={this.shouldUseHashRouting} ref="router" onBeforeNavigation={this.checkRoute}>
                     <Location path="/"  handler={this.main} />
                     <Location path="/login" handler={this.login} />

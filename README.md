@@ -1,8 +1,8 @@
 
 # Sylk
 
-Sylk is a WebRTC client focused on multiparty video conferencing.  Sylk is
-the companion client for SylkServer video conferencing application.
+Sylk WebRTC Client, focused on multiparty conferencing, is the companion
+client for SylkServer.
 
 Sylk is built using HTML and JavaScript and uses the
 [SylkRTC](https://github.com/AGProjects/sylkrtc.js) API to talk to
@@ -13,20 +13,26 @@ companion [Electron](http://electron.atom.io) app.
 
 ## Features
 
-* Audio / video calling with SIP interoperability
-* Multi-party video conferencing (WebRTC only)
-* Guest mode (no account required if invited)
+* Multimedia calling with SIP interoperability
+* Screen sharing for both one-to-one or multi-party
+* Multi-party conferencing (WebRTC only)
+* Guest mode (no account required when invited)
 
 ## Customization
 
+Sylk WebRTC Client is preconfigured for use with SIP2SIP free service.
+
 The default settings of the app are found in src/app/config.js
+
+You must edit config.js file if you wish to use the client together with
+another instance of SylkServer.
 
 ## Development
 
-Nodejs is needed for development.  Version >= 8.0 is recommended.  A
-convenience `configure` script and `Makefile` are provided.
+Node.js is needed for development.  Version >= 8.0 is recommended.  For
+convenience the `configure` script and `Makefile` are provided.
 
-Nodejs can be downloaded from https://nodejs.org
+Node.js can be downloaded from https://nodejs.org
 
 yarn must be used to install dependencies, it can be installed as
 follows:
@@ -85,7 +91,7 @@ For Windows build:
 
 ### Electron application
 
-The version number is set in app/package.json
+The version number can be set in app/package.json
 
 * Build the Electron application
 
@@ -138,15 +144,19 @@ NOTE: Requires a GNU/Linux system with the following packages installed: icnsuti
 
 ## Debugging
 
-By default Sylk doesn't output a lot of information to the browser's JavaScript console.
-Console debug messages are namespaced by library, the two most important ones being 'sylkrtc' and 'blinkrtc'.
-In order to enable debugging for both open the browser's JavaScript console and type the following:
+By default Sylk doesn't output a lot of information to the browser's
+JavaScript console.  Console debug messages are namespaced by library, the
+two most important ones being 'sylkrtc' and 'blinkrtc'.  In order to enable
+debugging for both open the browser's JavaScript console and type the
+following:
 
 ```
     window.blinkDebugger.enable('sylkrtc*,blinkrtc*');
 ```
 
 Then reload the page. Debug messages will be logged to the console now.
+
+Electron app debug can be enabled from Debug/Open DevTools menu.
 
 
 ## License
@@ -156,8 +166,8 @@ Sylk is available under the AGPLv3 license. See the LICENSE file.
 
 ## Authors
 
-* Saúl Ibarra Corretgé ([@saghul](https://github.com/saghul))
 * Tijmen de Mes ([@tijmenNL](https://github.com/tijmenNL))
+* Saúl Ibarra Corretgé ([@saghul](https://github.com/saghul))
 
 
 ## Credits
@@ -165,5 +175,5 @@ Sylk is available under the AGPLv3 license. See the LICENSE file.
 The following organizations have helped the development of Sylk by providing funding:
 
 * [NLnet Foundation](https://www.nlnet.nl)
-* [SIDNfonds](https://www.sidnfonds.nl)
 * [ISOC Nederland](https://www.isoc.nl)
+* [SIDNfonds](https://www.sidnfonds.nl)

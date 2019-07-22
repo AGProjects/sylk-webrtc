@@ -62,8 +62,8 @@ const ScreenSharingModal = (props) => {
         });
     });
 
-    const screens = sources.filter(source => source.display_id !== '');
-    const windows = sources.filter(source => source.display_id === '');
+    const screens = sources.filter(source => source.display_id !== '' || source.id.lastIndexOf('screen', 0) === 0);
+    const windows = sources.filter(source => source.display_id === '' && source.id.lastIndexOf('screen', 0) !== 0);
 
     const shareScreen = () => {
         props.getLocalScreen(focus);

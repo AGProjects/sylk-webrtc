@@ -1,14 +1,13 @@
+ - Auto login at start or after failure to register (stay online)
+ - Focus the Share entire screen when opening the Share dialog
  - File transfer support (drag and drop for desktop)
  - Text chat sessions
- - Document configuration changes required to make it work with local SylkServer instance
  - Show Preview window when join a conference from link, Press continue if microphone works
  - Audio indication when the conference start (2nd party joins the conference the first time)
- - Auto login on start or after failure to register
  - Auto answer for given addresses after predefined delay and chosen media type
  - Call history menu
  - Most called numbers on main screen for easy visual redial (like big tiles)
- - Address book lookup for Mac
+ - Addressbook lookup for Mac
  - Output/Alert device selection
  - Local video recording
  - Edit display name after join a conference without account 
- - Streaming to external video broadcast service

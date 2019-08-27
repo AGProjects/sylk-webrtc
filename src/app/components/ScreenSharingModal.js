@@ -14,7 +14,7 @@ const withStyles    = Styles.withStyles;
 const Mui               = require('material-ui');
 const Tabs              = Mui.Tabs;
 const Tab               = Mui.Tab;
-const GridList          =  Mui.GridList;
+const GridList          = Mui.GridList;
 const GridListTile      = Mui.GridListTile;
 const GridListTileBar   = Mui.GridListTileBar;
 
@@ -100,7 +100,7 @@ const ScreenSharingModal = (props) => {
                 </Tabs>
                 <br />
 
-                { sources.length === 0 && 
+                { sources.length === 0 &&
                     (
                         <div>
                             <i className="fa fa-4x fa-spin fa-cog" />

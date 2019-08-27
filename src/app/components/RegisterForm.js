@@ -35,6 +35,9 @@ class RegisterForm extends React.Component {
         storage.get('account').then((account) => {
             if (account) {
                 this.setState(account);
+                if (this.props.autoLogin) {
+                    this.props.handleRegistration(this.state.accountId, this.state.password);
+                }
             }
         });
     }
@@ -114,7 +117,8 @@ class RegisterForm extends React.Component {
 
 RegisterForm.propTypes = {
     handleRegistration     : PropTypes.func.isRequired,
-    registrationInProgress : PropTypes.bool.isRequired
+    registrationInProgress : PropTypes.bool.isRequired,
+    autoLogin              : PropTypes.bool
 };
 
 

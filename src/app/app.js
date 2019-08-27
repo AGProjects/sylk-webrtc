@@ -1163,6 +1163,7 @@ class Blink extends React.Component {
                 <RegisterBox
                     registrationInProgress = {this.state.registrationState !== null && this.state.registrationState !== 'failed'}
                     handleRegistration = {this.handleRegistration}
+                    autoLogin = {this.shouldUseHashRouting}
                 />
             );
         }

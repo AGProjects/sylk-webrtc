@@ -15,6 +15,7 @@ const RegisterBox = (props) => {
                 <RegisterForm
                     registrationInProgress={props.registrationInProgress}
                     handleRegistration={props.handleRegistration}
+                    autoLogin={props.autoLogin}
                 />
             </div>
         </div>
@@ -23,7 +24,8 @@ const RegisterBox = (props) => {
 
 RegisterBox.propTypes = {
     handleRegistration     : PropTypes.func.isRequired,
-    registrationInProgress : PropTypes.bool
+    registrationInProgress : PropTypes.bool,
+    autoLogin              : PropTypes.bool
 };
 
 

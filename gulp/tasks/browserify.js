@@ -13,13 +13,14 @@ var terser       = require('gulp-terser');
 var envify       = require('envify/custom');
 var source       = require('vinyl-source-stream');
 var buffer       = require('vinyl-buffer');
-var config       = require('../config').browserify;
 var _            = require('underscore');
 var babelify     = require('babelify');
 var notify       = require('gulp-notify');
 var sourcemaps   = require('gulp-sourcemaps');
 
+var config       = require('../config').browserify;
 var utils        = require('../utils');
+
 
 var browserifyTask = function(callback) {
 

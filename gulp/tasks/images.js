@@ -1,4 +1,5 @@
-var gulp        = require('gulp');
+var gulp = require('gulp');
+
 
 gulp.task('images', function() {
     gulp.src('src/assets/images/*')

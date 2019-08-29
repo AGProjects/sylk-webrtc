@@ -1,4 +1,5 @@
-var gulp        = require('gulp');
+var gulp = require('gulp');
+
 
 gulp.task('fonts', function() {
     gulp.src('node_modules/fontawesome-actions/dist/fonts/*')

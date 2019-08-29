@@ -11,11 +11,11 @@ var utils  = require('../utils');
 
 
 gulp.task('sass', function () {
-  return  gulp.src(config.sass.src, {base: 'src'})
-    .pipe(sourcemaps.init({loadMaps: true}))
-    .pipe(sass({outputStyle:'compressed'}).on('error', sass.logError))
-    .pipe(utils.env.type === 'dev' ? sourcemaps.write() : utils.noop())
-    .pipe(autoprefixer())
-    .pipe(gulp.dest(config.sass.dest))
-    .pipe(browserSync.stream({match: '**/*.css'}));
+    return gulp.src(config.sass.src, {base: 'src'})
+        .pipe(sourcemaps.init({loadMaps: true}))
+        .pipe(sass({outputStyle:'compressed'}).on('error', sass.logError))
+        .pipe(utils.env.type === 'dev' ? sourcemaps.write() : utils.noop())
+        .pipe(autoprefixer())
+        .pipe(gulp.dest(config.sass.dest))
+        .pipe(browserSync.stream({match: '**/*.css'}));
 });

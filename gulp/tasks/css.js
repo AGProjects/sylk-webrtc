@@ -7,8 +7,8 @@ var lazypipe     = require('lazypipe');
 var cleanCSS     = require('gulp-clean-css');
 var gulpif       = require('gulp-if');
 
-var config       = require('../config');
 var utils        = require('../utils');
+
 
 gulp.task('vendorCSS', function() {
     //concatenate CSS files

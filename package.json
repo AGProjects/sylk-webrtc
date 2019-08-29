@@ -23,7 +23,7 @@
     "electron-builder": "^20.39.0",
     "envify": "^4.1.0",
     "eslint": "^3.19.0",
-    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-react": "^6.10.3",
     "eslint-plugin-react-hooks": "^1.5.1",
     "fontawesome-actions": "^0.17.0",

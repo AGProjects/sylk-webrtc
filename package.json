@@ -59,7 +59,7 @@
     "react-router-component": "^0.39.1",
     "react-transition-group": "^2.6.0",
     "require-dir": "^0.3.2",
-    "sass-lint": "^1.12.1",
+    "sass-lint": "^1.13.1",
     "screenfull": "^4.0.1",
     "superagent": "^3.8.1",
     "sylkrtc": "AGProjects/sylkrtc.js",

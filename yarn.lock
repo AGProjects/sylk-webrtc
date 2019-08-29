@@ -3671,7 +3671,7 @@ gulp-sourcemaps@^2.6.5:
     strip-bom-string "1.X"
     through2 "2.X"
 
-gulp-terser@^1.1.7:
+gulp-terser@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/gulp-terser/-/gulp-terser-1.2.0.tgz#41df2a1d0257d011ba8b05efb2568432ecd0495b"
   dependencies:

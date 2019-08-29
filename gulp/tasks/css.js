@@ -6,8 +6,9 @@ var sourcemaps   = require('gulp-sourcemaps');
 var lazypipe     = require('lazypipe');
 var cleanCSS     = require('gulp-clean-css');
 var gulpif       = require('gulp-if');
-var gutil        = require('gulp-util');
+
 var config       = require('../config');
+var utils        = require('../utils');
 
 gulp.task('vendorCSS', function() {
     //concatenate CSS files
@@ -25,7 +26,7 @@ gulp.task('vendorCSS', function() {
             )
         )
         .pipe(gulpif('*.css', cleanCSS()))
-        .pipe(gutil.env.type === 'dev' ? sourcemaps.write('./') : gutil.noop())
+        .pipe(utils.env.type === 'dev' ? sourcemaps.write('./') : utils.noop())
         .pipe(gulp.dest('dist'))
         .pipe(browserSync.reload({stream:true}));
 });

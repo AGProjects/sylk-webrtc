@@ -11,7 +11,6 @@ var watchify     = require('watchify');
 var gulp         = require('gulp');
 var terser       = require('gulp-terser');
 var envify       = require('envify/custom');
-var gutil        = require('gulp-util');
 var source       = require('vinyl-source-stream');
 var buffer       = require('vinyl-buffer');
 var config       = require('../config').browserify;
@@ -20,16 +19,18 @@ var babelify     = require('babelify');
 var notify       = require('gulp-notify');
 var sourcemaps   = require('gulp-sourcemaps');
 
+var utils        = require('../utils');
+
 var browserifyTask = function(callback) {
 
     var bundleQueue = config.bundleConfigs.length;
 
     var browserifyThis = function(bundleConfig) {
         // When lauched from watch task, we start Watchify
-        var watchMode = gutil.env._.indexOf('watch') !== -1 ? true : false;
+        var watchMode = utils.env._.indexOf('watch') !== -1 ? true : false;
 
         // Development mode?
-        var devMode = gutil.env.type === 'dev';
+        var devMode = utils.env.type === 'dev';
 
         var bundler;
 
@@ -70,10 +71,10 @@ var browserifyTask = function(callback) {
             .pipe(buffer())
             .pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
             // Only uglify in dev mode
-            .pipe(devMode ? gutil.noop() : terser())
-            .on('error', function (err) { gutil.log(gutil.colors.red('[Error]'), err.toString()); })
+            .pipe(devMode ? utils.noop() : terser())
+            .on('error', function (err) { utils.log(utils.colors.red('[Error]'), err.toString()); })
             // writes .map file only if dev mode is enabled
-            .pipe(devMode ? sourcemaps.write('./') : gutil.noop())
+            .pipe(devMode ? sourcemaps.write('./') : utils.noop())
             // Specify the output destination
             .pipe(gulp.dest(bundleConfig.dest))
             .on('end', reportFinished)
@@ -84,7 +85,7 @@ var browserifyTask = function(callback) {
             // Rebundle on update
             bundler.on('update', bundle);
             bundler.on('time', function(time) {
-                gutil.log('Rebundled ' + bundleConfig.entries + ' in ' + time + 'ms');
+                utils.log('Rebundled ' + bundleConfig.entries + ' in ' + time + 'ms');
             });
         }
 

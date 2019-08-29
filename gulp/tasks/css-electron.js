@@ -6,7 +6,6 @@ var htmlreplace = require('gulp-html-replace');
   //minify html files
 
   var gulp         = require('gulp');
-  var concat       = require('gulp-concat');
   var useref       = require('gulp-useref');
   var browserSync  = require('browser-sync');
   var sourcemaps   = require('gulp-sourcemaps');

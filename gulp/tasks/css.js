@@ -1,5 +1,4 @@
 var gulp         = require('gulp');
-var concat       = require('gulp-concat');
 var useref       = require('gulp-useref');
 var htmlreplace  = require('gulp-html-replace');
 var browserSync  = require('browser-sync');

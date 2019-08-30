@@ -31,7 +31,7 @@ class RegisterForm extends React.Component {
         });
     }
 
-    componentWillMount() {
+    componentDidMount() {
         storage.get('account').then((account) => {
             if (account) {
                 this.setState(account);

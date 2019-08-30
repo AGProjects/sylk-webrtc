@@ -1010,6 +1010,7 @@ class Blink extends React.Component {
                     startConference = {this.startConference}
                     targetUri = {this.state.targetUri}
                     history = {this.state.history}
+                    key= {this.state.targetUri}
                 />
             </div>
         );

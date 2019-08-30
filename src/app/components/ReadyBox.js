@@ -26,11 +26,6 @@ class ReadyBox extends React.Component {
         this.handleConferenceCall = this.handleConferenceCall.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
-        this.setState({
-            targetUri: nextProps.targetUri
-        });
-    }
 
     getTargetUri() {
         const defaultDomain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);

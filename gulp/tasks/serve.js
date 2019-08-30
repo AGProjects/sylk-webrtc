@@ -6,6 +6,6 @@ config.browserSync.host = '0.0.0.0';
 config.browserSync.open = false;
 config.browserSync.ghostMode = false;
 
-gulp.task('serve', [], function(callback) {
+gulp.task('serve', function() {
     browserSync(config.browserSync);
 });

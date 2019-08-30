@@ -1,10 +1,24 @@
 var gulp        = require('gulp');
-var requireDir  = require('require-dir');
+var HubRegistry = require('gulp-hub');
+/* load some files into the registry */
+var hub = new HubRegistry(['gulp/tasks/*.js']);
 
-// Require all tasks in gulp/tasks, including subfolders
-requireDir('./gulp/tasks', { recurse: true });
+/* tell gulp to use the tasks just loaded */
+gulp.registry(hub);
+
+var config      = require('./gulp/config.js');
+var browserSync = require('browser-sync');
+
+gulp.task('watch:styles_html', function() {
+    // Watchify will watch and recompile our JS, so no need to gulp.watch it
+    gulp.watch(config.sass.src, gulp.series('sass'));
+    gulp.watch('./src/index.html', gulp.series('vendorCSS'));
+    browserSync(config.browserSync);
+});
 
 // Expose runnable and default tasks here
-gulp.task('build', ['lint', 'browserify', 'vendorCSS', 'sass','images','sounds','fonts']);
-gulp.task('build-electron', ['lint', 'browserify', 'vendorCSS-electron', 'sass', 'images','sounds','fonts']);
-gulp.task('default', ['build']);
+gulp.task('build', gulp.series('lint', gulp.parallel('browserify', 'vendorCSS', 'sass','images','sounds','fonts')));
+gulp.task('build-electron', gulp.series('lint', gulp.parallel('browserify', 'vendorCSS-electron', 'sass', 'images','sounds','fonts')));
+gulp.task('watch', gulp.series('build', 'watch:styles_html'));
+gulp.task('default', gulp.series('build'));
+

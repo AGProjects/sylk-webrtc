@@ -3601,13 +3601,13 @@ gulp-autoprefixer@^4.1.0:
     through2 "^2.0.0"
     vinyl-sourcemaps-apply "^0.2.0"
 
-gulp-clean-css@^3.10.0:
-  version "3.10.0"
-  resolved "https://registry.yarnpkg.com/gulp-clean-css/-/gulp-clean-css-3.10.0.tgz#bccd4605eff104bfa4980014cc4b3c24c571736d"
+gulp-clean-css@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/gulp-clean-css/-/gulp-clean-css-4.2.0.tgz#915ec258dc6d3e6a50043f610066d5c2eac4f54e"
   dependencies:
     clean-css "4.2.1"
     plugin-error "1.0.1"
-    through2 "2.0.3"
+    through2 "3.0.1"
     vinyl-sourcemaps-apply "0.2.1"
 
 gulp-cli@^2.2.0:
@@ -7671,13 +7671,6 @@ through2-filter@^3.0.0:
     through2 "~2.0.0"
     xtend "~4.0.0"
 
-through2@2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/through2/-/through2-2.0.3.tgz#0004569b37c7c74ba39c43f3ced78d1ad94140be"
-  dependencies:
-    readable-stream "^2.1.5"
-    xtend "~4.0.1"
-
 through2@2.X, through2@^2.0.0, through2@^2.0.1, through2@^2.0.3, through2@~2.0.0:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/through2/-/through2-2.0.5.tgz#01c1e39eb31d07cb7d03a96a70823260b23132cd"
@@ -7685,18 +7678,18 @@ through2@2.X, through2@^2.0.0, through2@^2.0.1, through2@^2.0.3, through2@~2.0.0
     readable-stream "~2.3.6"
     xtend "~4.0.1"
 
+through2@3.0.1, through2@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/through2/-/through2-3.0.1.tgz#39276e713c3302edf9e388dd9c812dd3b825bd5a"
+  dependencies:
+    readable-stream "2 || 3"
+
 through2@^0.6.1:
   version "0.6.5"
   resolved "https://registry.yarnpkg.com/through2/-/through2-0.6.5.tgz#41ab9c67b29d57209071410e1d7a7a968cd3ad48"
   dependencies:
     readable-stream ">=1.0.33-1 <1.1.0-0"
     xtend ">=4.0.0 <4.1.0-0"
-
-through2@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/through2/-/through2-3.0.1.tgz#39276e713c3302edf9e388dd9c812dd3b825bd5a"
-  dependencies:
-    readable-stream "2 || 3"
 
 through2@~0.2.3:
   version "0.2.3"

@@ -31,7 +31,7 @@
     "fontawesome-actions": "^0.17.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^4.1.0",
-    "gulp-clean-css": "^3.10.0",
+    "gulp-clean-css": "^4.2.0",
     "gulp-eslint": "^3.0.1",
     "gulp-html-replace": "^1.6.2",
     "gulp-hub": "^4.2.0",

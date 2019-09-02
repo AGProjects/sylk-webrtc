@@ -62,7 +62,7 @@ class ConferenceMatrixParticipant extends React.Component {
 
     handleResize(event) {
         // console.log(event.srcElement.videoWidth);
-        const resolutions = [ '1280x720', '960x540', '640x480', '640x360', '480x270','320x180'];
+        const resolutions = ['1280x720', '960x540', '640x480', '640x360', '480x270', '320x180'];
         if (this.state.hasVideo) {
             const videoResolution = event.target.videoWidth + 'x' + event.target.videoHeight;
             if (resolutions.indexOf(videoResolution) == -1) {

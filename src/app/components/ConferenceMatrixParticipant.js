@@ -2,9 +2,7 @@
 
 const React             = require('react');
 const PropTypes         = require('prop-types');
-const ReactBootstrap    = require('react-bootstrap');
-const Tooltip           = ReactBootstrap.Tooltip;
-const OverlayTrigger    = ReactBootstrap.OverlayTrigger;
+
 const sylkrtc           = require('sylkrtc');
 const hark              = require('hark');
 const classNames        = require('classnames');
@@ -41,7 +39,7 @@ class ConferenceMatrixParticipant extends React.Component {
             e.preventDefault();
         };
         this.refs.videoElement.onresize = (event) => {
-            this.handleResize(event)
+            this.handleResize(event);
         };
     }
 

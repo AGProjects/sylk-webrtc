@@ -38,14 +38,14 @@ class ConferenceDrawerSpeakerSelection extends React.Component {
             if (this.state.speakers.length > 0) {
                 this.props.selected({ id: event});
                 const newSpeakers = this.state.speakers.slice(1);
-                this.setState({speakers: newSpeakers})
+                this.setState({speakers: newSpeakers});
             }
         } else {
             if (this.state.speakers[0] !== this.props.participants[event].id) {
                 this.props.selected(this.props.participants[event]);
                 const newSpeakers = this.state.speakers.slice();
                 newSpeakers[0] = this.props.participants[event].id;
-                this.setState({speakers: newSpeakers})
+                this.setState({speakers: newSpeakers});
             }
         }
     }
@@ -56,12 +56,12 @@ class ConferenceDrawerSpeakerSelection extends React.Component {
                 this.props.selected({ id: event}, true);
                 const newSpeakers = this.state.speakers.slice();
                 newSpeakers.pop();
-                this.setState({speakers: newSpeakers})
+                this.setState({speakers: newSpeakers});
             }
         } else {
             const newSpeakers = this.state.speakers.slice();
             newSpeakers[1] = this.props.participants[event].id;
-            this.setState({speakers: newSpeakers})
+            this.setState({speakers: newSpeakers});
             this.props.selected(this.props.participants[event], true);
         }
     }

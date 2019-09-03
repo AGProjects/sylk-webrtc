@@ -21,8 +21,8 @@ const styles = {
     root: {
         color: '#ffffff',
         '&$checked': {
-            color: '#ffffff',
-        },
+            color: '#ffffff'
+        }
     },
     checked: {},
     font: {
@@ -125,7 +125,7 @@ class RegisterForm extends React.Component {
                     classes={{
                         root: this.props.classes.center
                     }}
-                    >
+                >
                     <FormControlLabel
                         classes={{
                             label: this.props.classes.font
@@ -136,7 +136,7 @@ class RegisterForm extends React.Component {
                                 onChange={this.handleRememberChange}
                                 classes={{
                                     default: this.props.classes.root,
-                                    checked: this.props.classes.checked,
+                                    checked: this.props.classes.checked
                                 }}
                             />
                         }

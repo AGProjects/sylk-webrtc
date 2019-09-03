@@ -435,7 +435,8 @@ class Blink extends React.Component {
                             }
                         } else {
                             // Wipe storage if private login
-                            storage.set('account', '');
+                            storage.remove('account');
+                            history.clear();
                         }
                         break;
                     case MODE_GUEST_CALL:

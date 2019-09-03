@@ -431,12 +431,21 @@ class Blink extends React.Component {
                             if (this.shouldUseHashRouting) {
                                 storage.set('account', {accountId: this.state.accountId, password: this.state.password});
                             } else {
+                                storage.get('account').then((account) => {
+                                    if (account && account.accountId !== this.state.accountId) {
+                                        history.clear().then(() => {
+                                            this.setState({history: []});
+                                        });
+                                    }
+                                });
                                 storage.set('account', {accountId: this.state.accountId, password: ''});
                             }
                         } else {
                             // Wipe storage if private login
                             storage.remove('account');
-                            history.clear();
+                            history.clear().then(() => {
+                                this.setState({history: []});
+                            });
                         }
                         break;
                     case MODE_GUEST_CALL:
@@ -1223,7 +1232,9 @@ class Blink extends React.Component {
             }
             if (this.shouldUseHashRouting) {
                 storage.remove('account');
-                history.clear();
+                history.clear().then(() => {
+                    this.setState({history: []});
+                });
             }
             this.setState({account: null, registrationState: null, status: null});
             this.refs.router.navigate('/login');

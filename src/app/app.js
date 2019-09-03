@@ -378,6 +378,7 @@ class Blink extends React.Component {
 
     handleRegistration(accountId, password, remember) {
         // Needed for ready event in connection
+        remember = this.shouldUseHashRouting ? true : remember;
         this.setState({
             accountId : accountId,
             password  : password,

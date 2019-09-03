@@ -25,6 +25,10 @@ function load() {
     return storage.get('history');
 }
 
+function clear() {
+    return storage.remove('history');
+}
 
 exports.add = add;
 exports.load = load;
+exports.clear =  clear;

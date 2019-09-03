@@ -483,6 +483,7 @@ class Blink extends React.Component {
                 mediaSource: 'window'
             }
         };
+
         if (this.shouldUseHashRouting) {
             screenConstraints = {
                 audio: false,

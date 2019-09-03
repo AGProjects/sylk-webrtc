@@ -42,6 +42,7 @@ const DEBUG = debug('blinkrtc:App');
 
 // Application modes
 const MODE_NORMAL           = Symbol('mode-normal');
+const MODE_PRIVATE          = Symbol('mode-private');
 const MODE_GUEST_CALL       = Symbol('mode-guest-call');
 const MODE_GUEST_CONFERENCE = Symbol('mode-guest-conference');
 
@@ -63,7 +64,7 @@ class Blink extends React.Component {
             status: null,
             targetUri: '',
             loading: null,
-            mode: MODE_NORMAL,
+            mode: MODE_PRIVATE,
             localMedia: null,
             generatedVideoTrack: false,
             history: [],
@@ -375,12 +376,12 @@ class Blink extends React.Component {
         }
     }
 
-    handleRegistration(accountId, password) {
+    handleRegistration(accountId, password, remember) {
         // Needed for ready event in connection
         this.setState({
             accountId : accountId,
             password  : password,
-            mode      : MODE_NORMAL,
+            mode      : remember ? MODE_NORMAL : MODE_PRIVATE,
             loading   : 'Connecting...'
         });
 
@@ -417,6 +418,7 @@ class Blink extends React.Component {
                 account.on('outgoingCall', this.outgoingCall);
                 account.on('conferenceCall', this.outgoingCall);
                 switch (this.state.mode) {
+                    case MODE_PRIVATE:
                     case MODE_NORMAL:
                         account.on('registrationStateChanged', this.registrationStateChanged);
                         account.on('incomingCall', this.incomingCall);
@@ -424,7 +426,16 @@ class Blink extends React.Component {
                         account.on('conferenceInvite', this.conferenceInvite);
                         this.setState({account: account});
                         this.state.account.register();
-                        storage.set('account', {accountId: this.state.accountId, password: this.state.password});
+                        if (this.state.mode !== MODE_PRIVATE) {
+                            if (this.shouldUseHashRouting) {
+                                storage.set('account', {accountId: this.state.accountId, password: this.state.password});
+                            } else {
+                                storage.set('account', {accountId: this.state.accountId, password: ''});
+                            }
+                        } else {
+                            // Wipe storage if private login
+                            storage.set('account', '');
+                        }
                         break;
                     case MODE_GUEST_CALL:
                         this.setState({account: account, loading: null, registrationState: 'registered'});
@@ -821,9 +832,25 @@ class Blink extends React.Component {
     }
 
     addCallHistoryEntry(uri) {
-        history.add(uri).then((entries) => {
+        if (this.state.mode === MODE_NORMAL) {
+            history.add(uri).then((entries) => {
+                this.setState({history: entries});
+            });
+        } else {
+            let entries = this.state.history.slice();
+            if (entries.length !== 0) {
+                const idx = entries.indexOf(uri);
+                if (idx !== -1) {
+                    entries.splice(idx, 1);
+                }
+                entries.unshift(uri);
+                // keep just the last 50
+                entries = entries.slice(0, 50);
+            } else {
+                entries = [uri];
+            }
             this.setState({history: entries});
-        });
+        }
     }
 
     checkRoute(nextPath, navigation, match) {
@@ -1178,7 +1205,7 @@ class Blink extends React.Component {
 
     logout() {
         setTimeout(() => {
-            if (this.state.registrationState !== null && this.state.mode === MODE_NORMAL) {
+            if (this.state.registrationState !== null && (this.state.mode === MODE_NORMAL || this.state.mode === MODE_PRIVATE)) {
                 this.state.account.unregister();
             }
 

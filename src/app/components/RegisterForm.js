@@ -5,9 +5,34 @@ const PropTypes  = require('prop-types');
 const classNames = require('classnames');
 const ipaddr     = require('ipaddr.js');
 
+const Styles        = require('material-ui/styles');
+const withStyles    = Styles.withStyles;
+
+const Mui               = require('material-ui');
+const FormGroup         = Mui.FormGroup;
+const FormControlLabel  = Mui.FormControlLabel;
+const Checkbox          = Mui.Checkbox;
+
 const EnrollmentModal = require('./EnrollmentModal');
 const storage         = require('../storage');
 
+
+const styles = {
+    root: {
+        color: '#ffffff',
+        '&$checked': {
+            color: '#ffffff',
+        },
+    },
+    checked: {},
+    font: {
+        fontSize: '14px !important',
+        color: '#ffffff'
+    },
+    center: {
+        justifyContent: 'center'
+    }
+};
 
 class RegisterForm extends React.Component {
     constructor(props) {
@@ -16,6 +41,7 @@ class RegisterForm extends React.Component {
             accountId: '',
             password: '',
             registering: false,
+            remember: false,
             showEnrollmentModal: false
         };
 
@@ -23,6 +49,7 @@ class RegisterForm extends React.Component {
         [
             'handleAccountIdChange',
             'handlePasswordChange',
+            'handleRememberChange',
             'handleSubmit',
             'handleEnrollment',
             'createAccount'
@@ -34,7 +61,7 @@ class RegisterForm extends React.Component {
     componentDidMount() {
         storage.get('account').then((account) => {
             if (account) {
-                this.setState(account);
+                this.setState(Object.assign({}, account, {remember: true}));
                 if (this.props.autoLogin) {
                     this.props.handleRegistration(this.state.accountId, this.state.password);
                 }
@@ -50,9 +77,13 @@ class RegisterForm extends React.Component {
         this.setState({password: event.target.value});
     }
 
+    handleRememberChange(event) {
+        this.setState({remember: event.target.checked});
+    }
+
     handleSubmit(event) {
         event.preventDefault();
-        this.props.handleRegistration(this.state.accountId, this.state.password);
+        this.props.handleRegistration(this.state.accountId, this.state.password, this.state.remember);
     }
 
     handleEnrollment(account) {
@@ -81,10 +112,44 @@ class RegisterForm extends React.Component {
             'btn-info'   : this.state.registering
         });
 
+        const formClasses = classNames({
+            'form-signin'          : true,
+            'form-signin-electron' : this.props.autoLogin
+        });
+
+        let rememberBox;
+        if (!this.props.autoLogin) {
+            rememberBox = (
+                <FormGroup
+                    row
+                    classes={{
+                        root: this.props.classes.center
+                    }}
+                    >
+                    <FormControlLabel
+                        classes={{
+                            label: this.props.classes.font
+                        }}
+                        control={
+                            <Checkbox
+                                checked={this.state.remember}
+                                onChange={this.handleRememberChange}
+                                classes={{
+                                    default: this.props.classes.root,
+                                    checked: this.props.classes.checked,
+                                }}
+                            />
+                        }
+                        label="Remember me"
+                    />
+                </FormGroup>
+            );
+        }
+
         return (
             <div>
                 <p className="lead">Sign in to continue</p>
-                <form className="form-signin" onSubmit={this.handleSubmit}>
+                <form className={formClasses} onSubmit={this.handleSubmit}>
                     <label htmlFor="inputEmail" className="sr-only">Sip Account</label>
                     <div className="input-group">
                         <span className="input-group-addon first"><i className="fa fa-globe fa-fw"></i></span>
@@ -95,6 +160,8 @@ class RegisterForm extends React.Component {
                         <span className="input-group-addon second"><i className="fa fa-lock fa-fw"></i></span>
                         <input type="password" id="inputPassword" ref="pass" className="form-control" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} required />
                     </div>
+
+                    {rememberBox}
 
                     <div className="btn-group btn-group-justified">
                         <div className="btn-group">
@@ -116,10 +183,11 @@ class RegisterForm extends React.Component {
 }
 
 RegisterForm.propTypes = {
+    classes                : PropTypes.object,
     handleRegistration     : PropTypes.func.isRequired,
     registrationInProgress : PropTypes.bool.isRequired,
     autoLogin              : PropTypes.bool
 };
 
 
-module.exports = RegisterForm;
+module.exports = withStyles(styles)(RegisterForm);

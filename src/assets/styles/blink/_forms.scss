@@ -75,13 +75,16 @@
 }
 
 .form-guest,
-.form-signin {
+.form-signin-electron {
     .input-group {
         ~.input-group {
             margin-bottom: 20px;
         }
     }
+}
 
+.form-guest,
+.form-signin {
     .form-control {
         position: relative;
         height: auto;

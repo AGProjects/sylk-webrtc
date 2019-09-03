@@ -24,7 +24,11 @@ function get(key) {
     return store.getItem(key);
 }
 
+function remove(key) {
+    return store.removeItem(key);
+}
 
 exports.initialize = initialize;
 exports.set = set;
 exports.get = get;
+exports.remove = remove;

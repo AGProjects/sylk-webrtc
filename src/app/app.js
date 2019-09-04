@@ -1231,10 +1231,7 @@ class Blink extends React.Component {
                 );
             }
             if (this.shouldUseHashRouting) {
-                storage.remove('account');
-                history.clear().then(() => {
-                    this.setState({history: []});
-                });
+                storage.set('account', {accountId: this.state.accountId, password: ''});
             }
             this.setState({account: null, registrationState: null, status: null});
             this.refs.router.navigate('/login');

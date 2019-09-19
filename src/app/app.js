@@ -551,7 +551,12 @@ class Blink extends React.Component {
     getLocalMedia(mediaConstraints={audio: true, video: true}, nextRoute=null) {    // eslint-disable-line space-infix-ops
         DEBUG('getLocalMedia(), mediaConstraints=%o', mediaConstraints);
         const constraints = Object.assign({}, mediaConstraints);
-        
+
+        const isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
+        navigator.userAgent &&
+        navigator.userAgent.indexOf('CriOS') == -1 &&
+        navigator.userAgent.indexOf('FxiOS') == -1;
+
         if (constraints.video === true) {
             if ((nextRoute === '/conference' ||  this.state.mode === MODE_GUEST_CONFERENCE) && navigator.userAgent.indexOf('Firefox') > 0) {
                 constraints.video = {
@@ -562,6 +567,10 @@ class Blink extends React.Component {
                         'ideal': 480
                     }
                 };
+
+            // TODO: remove this, workaround so at least safari works wehn joining a video conference
+            } else if ((nextRoute === '/conference' ||  this.state.mode === MODE_GUEST_CONFERENCE) && isSafari) {
+                constraints.video = false;
             } else {
                 // ask for 720p video
                 constraints.video = {
@@ -581,10 +590,6 @@ class Blink extends React.Component {
             this.setState({loading: 'Please allow access to your media devices'});
         }, 150);
 
-        const isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
-            navigator.userAgent &&
-            navigator.userAgent.indexOf('CriOS') == -1 &&
-            navigator.userAgent.indexOf('FxiOS') == -1;
 
         new Promise((resolve, reject) => {
             if (isSafari) {

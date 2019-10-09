@@ -1,7 +1,7 @@
 'use strict';
 
 const React      = require('react');
-const PropTypes             = require('prop-types');
+const PropTypes  = require('prop-types');
 
 
 class DragAndDrop extends React.Component {
@@ -101,7 +101,7 @@ class DragAndDrop extends React.Component {
 }
 
 DragAndDrop.propTypes = {
-    handleDrop  : PropTypes.func.isRequired
+    handleDrop: PropTypes.func.isRequired
 };
 
 

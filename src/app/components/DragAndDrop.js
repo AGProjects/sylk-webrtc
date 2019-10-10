@@ -101,7 +101,8 @@ class DragAndDrop extends React.Component {
 }
 
 DragAndDrop.propTypes = {
-    handleDrop: PropTypes.func.isRequired
+    handleDrop: PropTypes.func.isRequired,
+    children: PropTypes.node
 };
 
 

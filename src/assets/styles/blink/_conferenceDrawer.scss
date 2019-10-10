@@ -56,6 +56,44 @@
         }
     }
 
+    .drawer-files {
+        display: flex;
+        flex-direction: column;
+        max-height: 100vh;
+
+        .list-group {
+            width: 350px;
+            margin-left: -15px;
+            overflow-x: hidden;
+            overflow-y: auto;
+
+            .list-group-item {
+                margin-left: 0;
+            }
+        }
+
+        .file-link {
+            display: flex;
+            justify-content: space-between;
+
+            span {
+                padding: 0 2px;
+            }
+        }
+
+        a {
+            width: 250px;
+            overflow: hidden;
+            font-weight: bold;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .small {
+            margin-bottom: 2px;
+        }
+    }
+
     h2 {
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         font-size: 18px;

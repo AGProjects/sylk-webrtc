@@ -5,6 +5,9 @@ const NotificationSystem = require('react-notification-system');
 const moment             = require('moment');
 const Notify             = require('notifyjs');
 
+const Mui               = require('material-ui');
+const LinearProgress    = Mui.LinearProgress;
+
 const config = require('../config');
 
 
@@ -80,6 +83,76 @@ class NotificationCenter extends React.Component {
             title: 'Missed Call',
             autoDismiss: 0,
             action: action,
+            level: 'info',
+            position: 'br'
+        });
+    }
+
+    postFileUploadProgress(filename, cb) {
+        let progressNotification = this.refs.notificationSystem.addNotification({
+            message: `${filename}`,
+            title: 'Uploading file',
+            autoDismiss: 0,
+            level: 'info',
+            position: 'br',
+            onRemove: cb,
+            children: (
+                <div>
+                    <LinearProgress
+                        style={{marginTop: '2px'}}
+                        classes={{barColorPrimary: 'blue-bar'}}
+                        variant="determinate"
+                        value={0}
+                    />
+                </div>
+            )
+        });
+        return progressNotification
+    }
+
+    editFileUploadNotification(progress, notification) {
+        if (progress === undefined) {
+            progress = 100;
+        }
+        this.refs.notificationSystem.editNotification(notification, 
+            {
+                level: 'success',
+                children: (
+                    <div>
+                        <LinearProgress
+                            style={{marginTop: '2px'}}
+                            classes={{barColorPrimary: 'blue-bar'}}
+                            variant="determinate"
+                            value={progress}
+                        />
+                    </div>
+                )
+            }
+        );
+    }
+
+    removeFileUploadNotification(notification) {
+        let timer = setTimeout(() => {
+            this.refs.notificationSystem.removeNotification(notification);
+        }, 3000);
+    }
+
+    postFileUploadFailed(filename) {
+        this.refs.notificationSystem.addNotification({
+            message: `Uploading of ${filename} failed`,
+            title: 'File sharing failed',
+            autoDismiss: 10  ,
+            level: 'error',
+            position: 'br'
+        });
+    }
+
+    postFileShared(file) {
+        const uploader = file.uploader.displayName || file.uploader.uri || file.uploader;
+        this.refs.notificationSystem.addNotification({
+            message: `${uploader} shared ${file.filename}`,
+            title: 'File shared',
+            autoDismiss: 3,
             level: 'info',
             position: 'br'
         });

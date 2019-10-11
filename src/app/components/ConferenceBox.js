@@ -8,11 +8,17 @@ const ReactMixin            = require('react-mixin');
 const ReactBootstrap        = require('react-bootstrap');
 const Popover               = ReactBootstrap.Popover;
 const OverlayTrigger        = ReactBootstrap.OverlayTrigger;
+const Mui                   = require('material-ui');
+const IconButton            = Mui.IconButton;
+const Badge                 = Mui.Badge;
+const Styles                = require('material-ui/styles');
+const withStyles            = Styles.withStyles;
 const sylkrtc               = require('sylkrtc');
 const classNames            = require('classnames');
 const debug                 = require('debug');
 const moment                = require('moment');
 const momentFormat          = require('moment-duration-format');
+const superagent            = require('superagent');
 
 const config                            = require('../config');
 const utils                             = require('../utils');
@@ -20,6 +26,7 @@ const FullscreenMixin                   = require('../mixins/FullScreen');
 const AudioPlayer                       = require('./AudioPlayer');
 const ConferenceDrawer                  = require('./ConferenceDrawer');
 const ConferenceDrawerLog               = require('./ConferenceDrawerLog');
+const ConferenceDrawerFiles             = require('./ConferenceDrawerFiles');
 const ConferenceDrawerParticipant       = require('./ConferenceDrawerParticipant');
 const ConferenceDrawerParticipantList   = require('./ConferenceDrawerParticipantList');
 const ConferenceDrawerSpeakerSelection  = require('./ConferenceDrawerSpeakerSelection');
@@ -27,11 +34,32 @@ const ConferenceCarousel                = require('./ConferenceCarousel');
 const ConferenceParticipant             = require('./ConferenceParticipant');
 const ConferenceMatrixParticipant       = require('./ConferenceMatrixParticipant');
 const ConferenceParticipantSelf         = require('./ConferenceParticipantSelf');
+const DragAndDrop                       = require('./DragAndDrop');
 const InviteParticipantsModal           = require('./InviteParticipantsModal');
 
 const DEBUG = debug('blinkrtc:ConferenceBox');
 
 
+const styleSheet = {
+    sharingButton: {
+        width: '45px',
+        height: '45px',
+        backgroundColor: '#fff',
+        fontSize:'20px',
+        border: '1px solid #fff',
+        color: '#333',
+        margin: '4px'
+    },
+    badge: {
+        top: '1px',
+        width: '20px',
+        height: '20px',
+        right: '28px',
+        fontWeight: 'bold',
+        fontSize: '1rem',
+        backgroundColor: '#337ab7'
+    }
+};
 class ConferenceBox extends React.Component {
     constructor(props) {
         super(props);
@@ -42,10 +70,12 @@ class ConferenceBox extends React.Component {
             participants: props.call.participants.slice(),
             showInviteModal: false,
             showDrawer: false,
+            showFiles: false,
             shareOverlayVisible: false,
             activeSpeakers: props.call.activeParticipants.slice(),
             selfDisplayedLarge: false,
-            eventLog: []
+            eventLog: [],
+            sharedFiles: props.call.sharedFiles.slice()
         };
 
         const friendlyName = this.props.remoteIdentity.split('@')[0];
@@ -66,6 +96,7 @@ class ConferenceBox extends React.Component {
         this.overlayTimer = null;
         this.logEvent = {};
         this.haveVideo = false;
+        this.uploads = [];
 
         [
             'error',
@@ -93,14 +124,19 @@ class ConferenceBox extends React.Component {
             'onParticipantLeft',
             'onParticipantStateChanged',
             'onConfigureRoom',
+            'onFileSharing',
             'maybeSwitchLargeVideo',
             'handleClipboardButton',
             'handleEmailButton',
             'handleShareOverlayEntered',
             'handleShareOverlayExited',
             'handleActiveSpeakerSelected',
+            'handleDrop',
+            'handleFiles',
+            'downloadFile',
             'toggleInviteModal',
             'toggleDrawer',
+            'toggleFiles',
             'preventOverlay'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
@@ -115,6 +151,7 @@ class ConferenceBox extends React.Component {
         this.props.call.on('participantJoined', this.onParticipantJoined);
         this.props.call.on('participantLeft', this.onParticipantLeft);
         this.props.call.on('roomConfigured', this.onConfigureRoom);
+        this.props.call.on('fileSharing', this.onFileSharing);
 
         this.armOverlayTimer();
         this.startCallTimer();
@@ -140,6 +177,10 @@ class ConferenceBox extends React.Component {
     componentWillUnmount() {
         clearTimeout(this.overlayTimer);
         clearTimeout(this.callTimer);
+        this.uploads.forEach((upload) => {
+            this.props.notificationCenter().removeNotification(upload[1]);
+            upload[0].abort();
+        })
         this.exitFullscreen();
     }
 
@@ -187,6 +228,17 @@ class ConferenceBox extends React.Component {
             this.logEvent.info('set speakers to', speakers, config.originator);
         }
         this.maybeSwitchLargeVideo();
+    }
+
+    onFileSharing(files) {
+        let stateFiles = this.state.sharedFiles.slice();
+        stateFiles = stateFiles.concat(files);
+        this.setState({sharedFiles: stateFiles});
+        files.forEach((file)=>{
+            if (file.session !== this.props.call.id) {
+                this.props.notificationCenter().postFileShared(file);
+            }
+        })
     }
 
     changeResolution() {
@@ -285,6 +337,65 @@ class ConferenceBox extends React.Component {
             }
         });
     }
+
+    handleDrop(files) { 
+        DEBUG('Dropped file %o', files);
+        this.uploadFiles(files);
+    };
+
+    handleFiles(e) {
+        DEBUG('Selected files %o', e.target.files);
+        this.uploadFiles(e.target.files);
+    }
+
+    uploadFiles(files) {
+        for (var key in files) {
+            // is the item a File?
+            if (files.hasOwnProperty(key) && files[key] instanceof File) {
+                let uploadRequest;
+                let complete = false;
+                const filename = files[key].name
+                let progressNotification = this.props.notificationCenter().postFileUploadProgress(
+                    filename, 
+                    (notification) => {
+                        if (!complete) {
+                            uploadRequest.abort();
+                            this.uploads.splice(this.uploads.indexOf(uploadRequest), 1);
+                        }
+                    }
+                );
+                uploadRequest = superagent
+                .post(`${config.fileSharingUrl}/${this.props.remoteIdentity}/${this.props.call.id}/${filename}`)
+                .send(files[key])
+                .on('progress', (e) => {
+                    this.props.notificationCenter().editFileUploadNotification(e.percent, progressNotification);
+                })
+                .end((err, response) => {
+                    complete = true;
+                    this.props.notificationCenter().removeFileUploadNotification(progressNotification);
+                    if (err) {
+                        this.props.notificationCenter().postFileUploadFailed(filename);
+                    }
+                    this.uploads.splice(this.uploads.indexOf(uploadRequest), 1);
+                });
+                this.uploads.push([uploadRequest, progressNotification]);
+            }
+        }
+    }
+
+    downloadFile(filename) {
+        const a = document.createElement('a');
+        a.href = `${config.fileSharingUrl}/${this.props.remoteIdentity}/${this.props.call.id}/${filename}`;
+        a.target = '_blank';
+        a.download = filename;
+        const clickEvent = document.createEvent ("MouseEvent");
+        clickEvent.initMouseEvent ("click", true, true, window, 0,
+            clickEvent.screenX, clickEvent.screenY, clickEvent.clientX, clickEvent.clientY,
+            clickEvent.ctrlKey, clickEvent.altKey, clickEvent.shiftKey, clickEvent.metaKey,
+            0, null);
+        a.dispatchEvent(clickEvent);
+    }
+
     preventOverlay(event) {
         // Stop the overlay when we are the thumbnail bar
         event.stopPropagation();
@@ -369,7 +480,12 @@ class ConferenceBox extends React.Component {
     }
 
     toggleDrawer() {
-        this.setState({callOverlayVisible: true, showDrawer: !this.state.showDrawer});
+        this.setState({callOverlayVisible: true, showDrawer: !this.state.showDrawer, showFiles: false});
+        clearTimeout(this.overlayTimer);
+    }
+
+    toggleFiles() {
+        this.setState({callOverlayVisible: true, showFiles: !this.state.showFiles, showDrawer: false});
         clearTimeout(this.overlayTimer);
     }
 
@@ -397,7 +513,7 @@ class ConferenceBox extends React.Component {
         const containerClasses = classNames({
             'video-container': true,
             'conference': true,
-            'drawer-visible': this.state.showDrawer
+            'drawer-visible': this.state.showDrawer || this.state.showFiles
         });
 
         const remoteIdentity = this.props.remoteIdentity.split('@')[0];
@@ -429,6 +545,11 @@ class ConferenceBox extends React.Component {
                 'text-warning'          : this.props.call.sharingScreen
             });
 
+            const shareFileButtonIcons = classNames({
+                'fa'                    : true,
+                'fa-upload'             : true
+            });
+
             const videoHeaderTextClasses = classNames({
                 'lead'          : true
             });
@@ -443,6 +564,11 @@ class ConferenceBox extends React.Component {
                 'btn'           : true,
                 'btn-link'      : true
             });
+
+            const shareButtonClasses = classNames(
+                commonButtonClasses,
+                this.props.classes.sharingButton
+            );
 
             let callDetail;
             if (this.state.callDetail !== null) {
@@ -461,6 +587,16 @@ class ConferenceBox extends React.Component {
             const topButtons = [];
             if (this.isFullscreenSupported()) {
                 topButtons.push(<button key="fsButton" type="button" title="Go full-screen" className={commonButtonTopClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
+            }
+
+            if (!this.state.showFiles) {
+                if (this.state.sharedFiles.length !== 0) {
+                    topButtons.push(
+                        <Badge badgeContent={this.state.sharedFiles.length} color="primary" classes={{badge: this.props.classes.badge}}>
+                            <button key="fbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleFiles}> <i className="fa fa-files-o fa-2x"></i> </button>
+                        </Badge>
+                    );
+                }
             }
 
             if (!this.state.showDrawer) {
@@ -512,6 +648,13 @@ class ConferenceBox extends React.Component {
             buttons.push(<button key="muteVideo" type="button" title="Mute/unmute video" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>);
             buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen} disabled={!this.haveVideo}><i className={screenSharingButtonIcons}></i></button>);
             buttons.push(<button key="muteAudio" type="button" title="Mute/unmute audio" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>);
+            buttons.push(
+                <label htmlFor="outlined-button-file">
+                    <IconButton component="span" disableRipple={true} className={shareButtonClasses}>
+                        <i className={shareFileButtonIcons}></i>
+                    </IconButton>
+                </label>
+            );
             buttons.push(<OverlayTrigger key="shareOverlay" ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
                             <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-plus"></i> </button>
                          </OverlayTrigger>);
@@ -638,7 +781,14 @@ class ConferenceBox extends React.Component {
         }
 
         return (
-            <div>
+            <DragAndDrop handleDrop={this.handleDrop}>
+                <input
+                    style={{display:'none'}}
+                    id="outlined-button-file"
+                    multiple
+                    type="file"
+                    onInput={this.handleFiles}
+                />
                 <div className={containerClasses} onMouseMove={this.showOverlay}>
                     <div className="top-overlay">
                         <TransitionGroup>
@@ -676,7 +826,13 @@ class ConferenceBox extends React.Component {
                     </ConferenceDrawerParticipantList>
                     <ConferenceDrawerLog log={this.state.eventLog} />
                 </ConferenceDrawer>
-            </div>
+                <ConferenceDrawer show={this.state.showFiles} close={this.toggleFiles}>
+                    <ConferenceDrawerFiles
+                        sharedFiles={this.state.sharedFiles} 
+                        downloadFile={this.downloadFile}
+                    />
+                </ConferenceDrawer>
+            </DragAndDrop>
         );
     }
 }
@@ -684,6 +840,7 @@ class ConferenceBox extends React.Component {
 ConferenceBox.propTypes = {
     notificationCenter  : PropTypes.func.isRequired,
     shareScreen         : PropTypes.func.isRequired,
+    classes             : PropTypes.object.isRequired,
     call                : PropTypes.object,
     hangup              : PropTypes.func,
     remoteIdentity      : PropTypes.string,
@@ -693,4 +850,4 @@ ConferenceBox.propTypes = {
 ReactMixin(ConferenceBox.prototype, FullscreenMixin);
 
 
-module.exports = ConferenceBox;
+module.exports = withStyles(styleSheet)(ConferenceBox);

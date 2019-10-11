@@ -645,19 +645,21 @@ class ConferenceBox extends React.Component {
 
             const buttons = [];
 
+            buttons.push(
+                <OverlayTrigger key="shareOverlay" ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
+                    <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-plus"></i> </button>
+                </OverlayTrigger>
+            );
             buttons.push(<button key="muteVideo" type="button" title="Mute/unmute video" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>);
-            buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen} disabled={!this.haveVideo}><i className={screenSharingButtonIcons}></i></button>);
             buttons.push(<button key="muteAudio" type="button" title="Mute/unmute audio" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>);
+            buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen} disabled={!this.haveVideo}><i className={screenSharingButtonIcons}></i></button>);
             buttons.push(
                 <label htmlFor="outlined-button-file">
-                    <IconButton component="span" disableRipple={true} className={shareButtonClasses}>
+                    <IconButton title="Share files" component="span" disableRipple={true} className={shareButtonClasses}>
                         <i className={shareFileButtonIcons}></i>
                     </IconButton>
                 </label>
             );
-            buttons.push(<OverlayTrigger key="shareOverlay" ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
-                            <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-plus"></i> </button>
-                         </OverlayTrigger>);
             buttons.push(<button key="hangupButton" type="button" title="Leave conference" className="btn btn-round btn-danger" onClick={this.hangup}> <i className="fa fa-phone rotate-135"></i> </button>);
 
             callButtons = (

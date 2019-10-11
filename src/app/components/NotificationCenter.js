@@ -156,7 +156,7 @@ class NotificationCenter extends React.Component {
         this.refs.notificationSystem.addNotification({
             message: `${uploader} shared ${file.filename}`,
             title: 'File shared',
-            autoDismiss: 3,
+            autoDismiss: 10,
             level: 'info',
             position: 'br'
         });

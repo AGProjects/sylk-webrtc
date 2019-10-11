@@ -388,8 +388,8 @@ class ConferenceBox extends React.Component {
         a.href = `${config.fileSharingUrl}/${this.props.remoteIdentity}/${this.props.call.id}/${filename}`;
         a.target = '_blank';
         a.download = filename;
-        const clickEvent = document.createEvent ("MouseEvent");
-        clickEvent.initMouseEvent ("click", true, true, window, 0,
+        const clickEvent = document.createEvent('MouseEvent');
+        clickEvent.initMouseEvent('click', true, true, window, 0,
             clickEvent.screenX, clickEvent.screenY, clickEvent.clientX, clickEvent.clientY,
             clickEvent.ctrlKey, clickEvent.altKey, clickEvent.shiftKey, clickEvent.metaKey,
             0, null);

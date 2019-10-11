@@ -464,7 +464,7 @@ class ConferenceBox extends React.Component {
     }
 
     showOverlay() {
-        if (!this.state.shareOverlayVisible && !this.state.showDrawer) {
+        if (!this.state.shareOverlayVisible && !this.state.showDrawer && !this.state.showFiles) {
             if (!this.state.callOverlayVisible) {
                 this.setState({callOverlayVisible: true});
             }

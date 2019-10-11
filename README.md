@@ -16,6 +16,7 @@ companion [Electron](http://electron.atom.io) app.
 * Multimedia calling with SIP interoperability
 * Screen sharing for both one-to-one or multi-party
 * Multi-party conferencing (WebRTC only)
+* File sharing in WebRTC conferences
 * Guest mode (no account required when invited)
 
 ## Customization

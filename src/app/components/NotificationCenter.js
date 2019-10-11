@@ -137,6 +137,10 @@ class NotificationCenter extends React.Component {
         }, 3000);
     }
 
+    removeNotification(notification) {
+        this.refs.notificationSystem.removeNotification(notification);
+    }
+
     postFileUploadFailed(filename) {
         this.refs.notificationSystem.addNotification({
             message: `Uploading of ${filename} failed`,

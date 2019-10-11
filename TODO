@@ -1,6 +1,3 @@
- - Auto login at start or after failure to register (stay online)
- - Focus the Share entire screen when opening the Share dialog
- - File transfer support (drag and drop for desktop)
  - Text chat sessions
  - Show Preview window when join a conference from link, Press continue if microphone works
  - Audio indication when the conference start (2nd party joins the conference the first time)

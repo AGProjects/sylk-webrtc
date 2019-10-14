@@ -21,12 +21,12 @@ companion [Electron](http://electron.atom.io) app.
 
 ## Customization
 
-Sylk WebRTC Client is preconfigured for use with SIP2SIP free service.
+Sylk WebRTC Client is preconfigured to use with the free service SIP2SIP.
 
-The default settings of the app are found in src/app/config.js
+The default settings of the app are found in `src/app/config.js`.
 
-You must edit config.js file if you wish to use the client together with
-another instance of SylkServer.
+If you wish to use the client together with another instance of SylkServer,
+you must edit `src/app/config.js`.
 
 ## Development
 

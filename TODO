@@ -1,10 +1,10 @@
  - Text chat sessions
- - Show Preview window when join a conference from link, Press continue if microphone works
+ - Call history menu on main screen for easy visual redial, e.g.:
+   https://www.jqueryscript.net/demo/Scroll-triggered-Reveal-Animations-With-jQuery-Animate-css-Scrolla/
+ - Network statistics (packet loss, bandwitdh usage)
+ - Edit display name after join a conference without account
  - Audio indication when the conference start (2nd party joins the conference the first time)
  - Auto answer for given addresses after predefined delay and chosen media type
- - Call history menu
- - Most called numbers on main screen for easy visual redial (like big tiles)
  - Addressbook lookup for Mac
  - Output/Alert device selection
  - Local video recording
- - Edit display name after join a conference without account 

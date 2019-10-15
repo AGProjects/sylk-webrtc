@@ -62,7 +62,7 @@ class RegisterForm extends React.Component {
         storage.get('account').then((account) => {
             if (account) {
                 this.setState(Object.assign({}, account, {remember: true}));
-                if (this.props.autoLogin) {
+                if (this.props.autoLogin && this.state.password !== '') {
                     this.props.handleRegistration(this.state.accountId, this.state.password);
                 }
             }

@@ -137,6 +137,7 @@ NOTE: Requires a GNU/Linux system with the following packages installed: icnsuti
     make distclean
 ```
 
+
 ## Debugging
 
 By default Sylk doesn't output a lot of information to the browser's

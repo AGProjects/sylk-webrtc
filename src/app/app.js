@@ -960,7 +960,6 @@ class Blink extends React.Component {
                 <ScreenSharingModal
                     show = {this.state.showScreenSharingModal}
                     close= {this.toggleScreenSharingModal}
-                    sources = {this.state.sources}
                     getLocalScreen = {this.getLocalScreen}
                 />
             );

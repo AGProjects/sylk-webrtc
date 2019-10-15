@@ -1100,7 +1100,6 @@ class Blink extends React.Component {
     }
 
     callByUri(urlParameters) {
-
         // check if the uri contains a domain
         if (urlParameters.targetUri.indexOf('@') === -1) {
             const status = {

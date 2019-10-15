@@ -54,11 +54,6 @@ const ScreenSharingModal = (props) => {
             if (interval !== null) {
                 clearTimeout(interval);
             }
-            if (!props.show) {
-                setSources([]);
-                setFocus(null);
-                setValue('screens');
-            }
         });
     });
 
@@ -81,12 +76,19 @@ const ScreenSharingModal = (props) => {
         });
     }
 
+    const close = () => {
+        setSources([]);
+        setFocus(null);
+        setValue('screens');
+        props.close();
+    }
+
     if (props.show && sources.length === 0) {
         getSources();
     }
 
     return (
-        <Modal show={props.show} onHide={props.close}>
+        <Modal show={props.show} onHide={close}>
             <Modal.Header closeButton>
                 <Modal.Title id="cmodal-title-sm">Share your screen</Modal.Title>
             </Modal.Header>
@@ -141,7 +143,7 @@ const ScreenSharingModal = (props) => {
 
                 <br />
                 <div className="text-right">
-                    <button type="submit" className="btn btn-default" onClick={props.close}>Cancel </button>
+                    <button type="submit" className="btn btn-default" onClick={close}>Cancel </button>
                     <button type="submit" className="btn btn-success" onClick={shareScreen} disabled={focus === null}>Share</button>
                 </div>
             </Modal.Body>

@@ -173,14 +173,14 @@ class AudioCallBox extends React.Component {
                     <UserIcon identity={remoteIdentity} large={true} active={this.state.active} />
                 </div>
                 <div className="call-buttons">
+                    <button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}>
+                        <i className="fa fa-user-plus"></i>
+                    </button>
                     <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}>
                         <i className={muteButtonIconClasses}></i>
                     </button>
                     <button key="dtmfButton" type="button" disabled={this.state.callDuration === null} className={commonButtonClasses} onClick={this.showDtmfModal}>
                         <i className="fa fa-fax"></i>
-                    </button>
-                    <button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}>
-                        <i className="fa fa-user-plus"></i>
                     </button>
                     <br />
                     <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}>

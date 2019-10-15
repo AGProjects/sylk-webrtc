@@ -647,7 +647,7 @@ class ConferenceBox extends React.Component {
 
             buttons.push(
                 <OverlayTrigger key="shareOverlay" ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
-                    <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-plus"></i> </button>
+                    <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-user-plus"></i> </button>
                 </OverlayTrigger>
             );
             buttons.push(<button key="muteVideo" type="button" title="Mute/unmute video" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>);

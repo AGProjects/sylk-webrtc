@@ -1,6 +1,34 @@
- - Text chat sessions
- - Call history menu on main screen for easy visual redial, e.g.:
-   https://www.jqueryscript.net/demo/Scroll-triggered-Reveal-Animations-With-jQuery-Animate-css-Scrolla/
+
+History
+-------
+
+ * Fetch last calls from https://enrollment.sipthor.net/settings.phtml?action=get_history&realm=sip2sip.info
+ * Sort all retrieved data by date in descending order (regardless of direction)
+ * Iterate the results and fill up rectangular shaped tiles bellow the search box, each with:
+
+    - Display name
+    - Remote address
+    - Timestamp and duration if any
+    - Direction icon
+
+   If the remote address was already displayed, skip it.
+
+ * When click a history tile one time fill up the search bar with remote address
+ * When double click history tile start video call to remote address
+ * Make the main app page scrollable to display older history tiles 
+ * Update the history tiles after each call
+
+
+Text chat
+---------
+
+ * Conferencing only
+ * Interoperability with MSP chat/XMPP Muc
+
+
+Others
+------
+
  - Network statistics (packet loss, bandwitdh usage)
  - Edit display name after join a conference without account
  - Audio indication when the conference start (2nd party joins the conference the first time)
@@ -8,3 +36,4 @@
  - Addressbook lookup for Mac
  - Output/Alert device selection
  - Local video recording
+

@@ -2,7 +2,8 @@
 History
 -------
 
- * Fetch last calls from https://enrollment.sipthor.net/settings.phtml?action=get_history&realm=sip2sip.info
+ * Fetch the last calls from https://enrollment.sipthor.net/settings.phtml?action=get_history&realm=REALM
+    - replace REALM with the domain part of the sign-in account
  * Sort all retrieved data by date in descending order (regardless of direction)
  * Iterate the results and fill up rectangular shaped tiles bellow the search box, each with:
 

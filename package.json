@@ -22,7 +22,7 @@
     "debug": "^3.2.6",
     "digest-auth-request": "^0.7.0",
     "electron": "^3.1.12",
-    "electron-builder": "^20.39.0",
+    "electron-builder": "^21.2.0",
     "envify": "^4.1.0",
     "eslint": "^3.19.0",
     "eslint-plugin-import": "^2.18.2",

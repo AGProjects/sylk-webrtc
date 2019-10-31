@@ -7510,7 +7510,7 @@ sumchecker@^2.0.2:
   dependencies:
     debug "^2.2.0"
 
-superagent@^3.8.1:
+superagent@^3.8.3:
   version "3.8.3"
   resolved "https://registry.yarnpkg.com/superagent/-/superagent-3.8.3.tgz#460ea0dbdb7d5b11bc4f78deba565f86a178e128"
   dependencies:

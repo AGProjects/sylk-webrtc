@@ -64,7 +64,7 @@
     "react-visibility-sensor": "^5.1.1",
     "sass-lint": "^1.13.1",
     "screenfull": "^4.0.1",
-    "superagent": "^3.8.1",
+    "superagent": "^3.8.3",
     "sylkrtc": "AGProjects/sylkrtc.js",
     "through2": "^3.0.1",
     "underscore": "^1.9.1",

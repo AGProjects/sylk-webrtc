@@ -4,7 +4,7 @@
   "license": "AGPLv3",
   "private": true,
   "devDependencies": {
-    "animate.css": "^3.5.2",
+    "animate.css": "^3.7.2",
     "ansi-colors": "^4.1.1",
     "audio-context": "^1.0.3",
     "audio-loader": "^1.0.3",

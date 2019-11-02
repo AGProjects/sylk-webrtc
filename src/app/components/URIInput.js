@@ -10,14 +10,14 @@ class URIInput extends React.Component {
         super(props);
         this.state = {
             value: props.defaultValue,
-            selecting: false,
-            clicked: false
+            selecting: false
         };
         // ES6 classes no longer autobind
         this.onInputBlur = this.onInputBlur.bind(this);
         this.onInputChange = this.onInputChange.bind(this);
         this.onInputKeyDown = this.onInputKeyDown.bind(this);
         this.onInputClick = this.onInputClick.bind(this);
+        this.clicked = false;
         this.autoComplete;
     }
 
@@ -66,9 +66,9 @@ class URIInput extends React.Component {
     }
 
     onInputClick(event) {
-        if (!this.state.clicked) {
+        if (!this.clicked) {
             this.refs.uri_input.select();
-            this.setState({clicked: true});
+            this.clicked = true;
         }
     }
 
@@ -98,7 +98,8 @@ class URIInput extends React.Component {
 
     onInputBlur(event) {
         // focus was lost, reset selecting state
-        this.setState({selecting: false, clicked: false});
+        this.setState({selecting: false});
+        this.clicked = false;
     }
 
     render() {

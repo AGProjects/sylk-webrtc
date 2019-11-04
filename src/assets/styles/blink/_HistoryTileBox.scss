@@ -1,0 +1,20 @@
+.history-tile-box {
+    display: flex;
+    align-items: self-start;
+    flex: 1 0 auto;
+    width: 100%;
+    max-width: 1200px;
+    margin: auto;
+
+    // Show hide history cards
+    .card-hidden {
+        height: 100%;
+        visibility: hidden;
+    }
+
+    .card-visible {
+        height: 100%;
+        visibility: visible;
+        animation-delay: .3s;
+    }
+}

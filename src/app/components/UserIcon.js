@@ -19,6 +19,12 @@ const styleSheet = {
         fontFamily: 'Helvetica Neue ,Helvetica, Arial, sans-serif',
         textTransform: 'uppercase'
     },
+    card: {
+        width: '70px',
+        height: '70px',
+        fontSize: '2.5rem',
+        margin: '10px'
+    },
     large: {
         width: '144px',
         height: '144px',
@@ -37,6 +43,7 @@ const UserIcon = (props) => {
     const classes = classNames(
         props.classes.root,
         props.classes.drawerAvatar,
+        {[`${props.classes.card}`]: props.card},
         {[`${props.classes.large}`]: props.large},
         {[`${props.classes.shadow}`]: props.active}
     );
@@ -56,6 +63,7 @@ UserIcon.propTypes = {
     classes: PropTypes.object.isRequired,
     identity: PropTypes.object.isRequired,
     large: PropTypes.bool,
+    card: PropTypes.bool,
     active: PropTypes.bool
 };
 

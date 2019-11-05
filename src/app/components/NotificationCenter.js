@@ -151,14 +151,18 @@ class NotificationCenter extends React.Component {
         });
     }
 
-    postFileShared(file) {
+    postFileShared(file, cb) {
         const uploader = file.uploader.displayName || file.uploader.uri || file.uploader;
         this.refs.notificationSystem.addNotification({
             message: `${uploader} shared ${file.filename}`,
             title: 'File shared',
             autoDismiss: 10,
             level: 'info',
-            position: 'br'
+            position: 'br',
+            action: {
+                label: 'Show Files',
+                callback: () => { cb(); }
+            }
         });
     }
 

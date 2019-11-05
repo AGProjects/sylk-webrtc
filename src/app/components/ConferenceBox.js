@@ -137,6 +137,7 @@ class ConferenceBox extends React.Component {
             'toggleInviteModal',
             'toggleDrawer',
             'toggleFiles',
+            'showFiles',
             'preventOverlay'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
@@ -236,7 +237,7 @@ class ConferenceBox extends React.Component {
         this.setState({sharedFiles: stateFiles});
         files.forEach((file)=>{
             if (file.session !== this.props.call.id) {
-                this.props.notificationCenter().postFileShared(file);
+                this.props.notificationCenter().postFileShared(file, this.showFiles);
             }
         })
     }
@@ -487,6 +488,11 @@ class ConferenceBox extends React.Component {
 
     toggleFiles() {
         this.setState({callOverlayVisible: true, showFiles: !this.state.showFiles, showDrawer: false});
+        clearTimeout(this.overlayTimer);
+    }
+
+    showFiles() {
+        this.setState({callOverlayVisible: true, showFiles: true, showDrawer: false});
         clearTimeout(this.overlayTimer);
     }
 

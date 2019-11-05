@@ -826,11 +826,13 @@ class Blink extends React.Component {
                 this.state.currentCall.terminate();
                 this.setState({currentCall: null, targetUri: data.originator.uri, showIncomingModal: false, localMedia: null});
             } else {
-                this.getServerHistory();
                 this.setState({targetUri: data.originator.uri});
             }
             this.refs.router.navigate('/ready');
         });
+        if (this.state.currentCall !== null) {
+            this.getServerHistory();
+        }
     }
 
     conferenceInvite(data) {

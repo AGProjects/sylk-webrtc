@@ -1013,7 +1013,7 @@ class Blink extends React.Component {
             );
         }
 
-        if (this.state.localMedia) {
+        if (this.state.localMedia || this.state.registrationState === 'registered') {
             footerBox = '';
         }
         return (
@@ -1101,7 +1101,8 @@ class Blink extends React.Component {
                     startConference = {this.startConference}
                     targetUri = {this.state.targetUri}
                     history = {this.state.history}
-                    key= {this.state.targetUri}
+                    key = {this.state.targetUri}
+                    serverHistory = {this.state.serverHistory}
                 />
             </div>
         );

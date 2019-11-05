@@ -72,6 +72,23 @@ h6,
     margin: 0 auto;
 }
 
+// Stckiy layer to top
+.sticky-wrapper {
+    position: sticky;
+    top: -1px;
+    z-index: 1;
+    margin-top: calc(50vh - 159px);
+    margin-right: -20px;
+    margin-left: -20px;
+}
+
+.sticky {
+    //sass-lint:disable-block no-color-literals, property-sort-order
+    background-color: $black-less-transparent;
+    background: linear-gradient(180deg, $black 0%, rgba($black, .95) 15%, rgba($black, .55) 80%, rgba($black, 0) 100%);
+}
+
+
 // Cover
 
 .cover {
@@ -80,6 +97,33 @@ h6,
     .btn-lg {
         padding: 10px 20px;
         font-weight: bold;
+    }
+}
+
+// Scroll main section
+
+.scroll {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 50px);
+    margin-top: 50px;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    .footer {
+        position: static;
+        padding-top: 10px;
+    }
+}
+
+// Work around for safari on mobile to show copyright
+@media only screen
+and (min-device-width: 320px)
+and (max-device-width: 568px)
+and (-webkit-min-device-pixel-ratio: 2)
+and (orientation: portrait) {
+    .scroll {
+        height: calc(90vh - 50px);
     }
 }
 
@@ -106,4 +150,15 @@ h6,
         width: 500px;
         margin: auto;
     }
+}
+
+// Helper to include shadow if footer is not displayed from main
+.extra-shadow {
+    position: fixed;
+    bottom: -100px;
+    z-index: 10;
+    width: 100vw;
+    height: 100px;
+    margin: 0 -20px;
+    box-shadow: 0 -5px 100px $black-transparent;
 }

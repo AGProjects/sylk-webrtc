@@ -11,6 +11,7 @@ const CSSTransition             = require('react-transition-group/CSSTransition'
 const adapter                   = require('webrtc-adapter');
 const sylkrtc                   = require('sylkrtc');
 const debug                     = require('debug');
+const DigestAuthRequest         = require('digest-auth-request');
 
 const RegisterBox          = require('./components/RegisterBox');
 const ReadyBox             = require('./components/ReadyBox');
@@ -68,6 +69,7 @@ class Blink extends React.Component {
             localMedia: null,
             generatedVideoTrack: false,
             history: [],
+            serverHistory: [],
             devices: {}
         };
         this.state = Object.assign({}, this._initialSstate);
@@ -113,7 +115,8 @@ class Blink extends React.Component {
             'main',
             'switchScreensharing',
             'toggleScreenSharingModal',
-            'getLocalScreen'
+            'getLocalScreen',
+            'getServerHistory'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -870,6 +873,48 @@ class Blink extends React.Component {
         }
     }
 
+    getServerHistory() {
+        if (!config.useServerCallHistory) {
+            return;
+        }
+
+        DEBUG('Requesting call history from server');
+        let getServerCallHistory = new DigestAuthRequest(
+            'GET',
+            `${config.serverCallHistoryUrl}?action=get_history&realm=${this.state.account.id.split('@')[1]}`,
+            this.state.account.id.split('@')[0],
+            this.state.password
+        );
+        // Disable logging
+        getServerCallHistory.loggingOn = false;
+        getServerCallHistory.request((data) => {
+            if (data.success !== undefined && data.success === false) {
+                DEBUG('Error getting call history from server: %o', data.error_message)
+                return;
+            }
+            let history = []
+            data.placed.map(elem => {elem.direction = 'placed'; return elem});
+            data.received.map(elem => {elem.direction = 'received'; return elem});
+            history = data.placed;
+            history = history.concat(data.received);
+            history.sort((a,b) => {
+                return new Date(b.startTime) - new Date(a.startTime);
+            });
+            const known = [];
+            history = history.filter((elem) => {
+                if (known.indexOf(elem.remoteParty) <= -1) {
+                    if (elem.media.indexOf('audio') > -1 || elem.media.indexOf('video') > -1) {
+                        known.push(elem.remoteParty);
+                        return elem;
+                    }
+                }
+            });
+            this.setState({serverHistory: history});
+        }, (errorCode) => {
+            DEBUG('Error getting call history from server: %o', errorCode)
+        });
+    }
+
     checkRoute(nextPath, navigation, match) {
         if (nextPath !== this.prevPath) {
             DEBUG(`Transition from ${this.prevPath} to ${nextPath}`);
@@ -881,6 +926,9 @@ class Blink extends React.Component {
                 return false;
             }
 
+            if (config.useServerCallHistory && nextPath === '/ready' && this.state.registrationState === 'registered') {
+                this.getServerHistory();
+            }
             // Press back in ready after a login, prevent initial navigation
             // don't deny if there is no registrationState (connection fail)
             if (this.prevPath === '/ready' && nextPath === '/login' && this.state.registrationState !== null) {

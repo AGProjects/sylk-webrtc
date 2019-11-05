@@ -20,7 +20,7 @@
     "classnames": "^2.2.6",
     "connect-modrewrite": "^0.10.2",
     "debug": "^3.2.6",
-    "digest-auth-request": "tijmenNL/digest-auth-request#fix-header-matching",
+    "digest-auth-request": "tijmenNL/digest-auth-request#dist",
     "electron": "^3.1.12",
     "electron-builder": "^21.2.0",
     "envify": "^4.1.0",

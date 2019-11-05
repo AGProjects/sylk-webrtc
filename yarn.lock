@@ -2468,9 +2468,9 @@ diffie-hellman@^5.0.0:
     miller-rabin "^4.0.0"
     randombytes "^2.0.0"
 
-digest-auth-request@tijmenNL/digest-auth-request#fix-header-matching:
+digest-auth-request@tijmenNL/digest-auth-request#dist:
   version "0.8.0"
-  resolved "https://codeload.github.com/tijmenNL/digest-auth-request/tar.gz/37f8ee69bbf2193c092dc5125d5d6122e650d536"
+  resolved "https://codeload.github.com/tijmenNL/digest-auth-request/tar.gz/b1aa5cdc6848170a2798b28be56420a21b1b6e2d"
   dependencies:
     crypto-js "^3.1.6"
 

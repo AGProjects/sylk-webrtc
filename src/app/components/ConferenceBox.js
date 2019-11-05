@@ -346,6 +346,7 @@ class ConferenceBox extends React.Component {
     handleFiles(e) {
         DEBUG('Selected files %o', e.target.files);
         this.uploadFiles(e.target.files);
+        event.target.value = '';
     }
 
     uploadFiles(files) {
@@ -789,7 +790,7 @@ class ConferenceBox extends React.Component {
                     id="outlined-button-file"
                     multiple
                     type="file"
-                    onInput={this.handleFiles}
+                    onChange={this.handleFiles}
                 />
                 <div className={containerClasses} onMouseMove={this.showOverlay}>
                     <div className="top-overlay">

@@ -312,7 +312,7 @@ class Blink extends React.Component {
 
                 this.setState({
                     currentCall         : null,
-                    targetUri           : callSuccesfull ? '' : this.state.targetUri,
+                    targetUri           : callSuccesfull || config.useServerCallHistory ? '' : this.state.targetUri,
                     showIncomingModal   : false,
                     inboundCall         : null,
                     localMedia          : null,

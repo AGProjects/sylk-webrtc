@@ -830,9 +830,7 @@ class Blink extends React.Component {
             }
             this.refs.router.navigate('/ready');
         });
-        if (this.state.currentCall !== null) {
-            this.getServerHistory();
-        }
+        this.getServerHistory();
     }
 
     conferenceInvite(data) {

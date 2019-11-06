@@ -821,17 +821,20 @@ class Blink extends React.Component {
     missedCall(data) {
         DEBUG('Missed call from ' + data.originator);
         this._notificationCenter.postSystemNotification('Missed call', {body: `From ${data.originator.displayName || data.originator.uri}`, timeout: 15, silent: false});
-        this._notificationCenter.postMissedCall(data.originator, () => {
-            if (this.state.currentCall !== null) {
-                this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
-                this.state.currentCall.terminate();
-                this.setState({currentCall: null, missedTargetUri: data.originator.uri, showIncomingModal: false, localMedia: null});
-            } else {
-                this.setState({missedTargetUri: data.originator.uri});
-            }
-            this.refs.router.navigate('/ready');
-        });
-        this.getServerHistory();
+        if (this.state.currentCall !== null || !config.useServerCallHistory) {
+            this._notificationCenter.postMissedCall(data.originator, () => {
+                if (this.state.currentCall !== null) {
+                    this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
+                    this.state.currentCall.terminate();
+                    this.setState({currentCall: null, missedTargetUri: data.originator.uri, showIncomingModal: false, localMedia: null});
+                } else {
+                    this.setState({missedTargetUri: data.originator.uri});
+                }
+                this.refs.router.navigate('/ready');
+            });
+        } else {
+            this.getServerHistory();
+        }
     }
 
     conferenceInvite(data) {

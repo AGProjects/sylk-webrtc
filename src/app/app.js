@@ -64,6 +64,7 @@ class Blink extends React.Component {
             showScreenSharingModal: false,
             status: null,
             targetUri: '',
+            missedTargetUri: '',
             loading: null,
             mode: MODE_PRIVATE,
             localMedia: null,
@@ -824,9 +825,9 @@ class Blink extends React.Component {
             if (this.state.currentCall !== null) {
                 this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
                 this.state.currentCall.terminate();
-                this.setState({currentCall: null, targetUri: data.originator.uri, showIncomingModal: false, localMedia: null});
+                this.setState({currentCall: null, missedTargetUri: data.originator.uri, showIncomingModal: false, localMedia: null});
             } else {
-                this.setState({targetUri: data.originator.uri});
+                this.setState({missedTargetUri: data.originator.uri});
             }
             this.refs.router.navigate('/ready');
         });
@@ -1100,9 +1101,9 @@ class Blink extends React.Component {
                     account   = {this.state.account}
                     startCall = {this.startCall}
                     startConference = {this.startConference}
-                    targetUri = {this.state.targetUri}
+                    missedTargetUri = {this.state.missedTargetUri}
                     history = {this.state.history}
-                    key = {this.state.targetUri}
+                    key = {this.state.missedTargetUri}
                     serverHistory = {this.state.serverHistory}
                 />
             </div>

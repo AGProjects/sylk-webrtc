@@ -20,7 +20,7 @@ class ReadyBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            targetUri: this.props.targetUri,
+            targetUri: this.props.missedTargetUri,
             showConferenceModal: false,
             sticky: false
         };
@@ -180,7 +180,7 @@ ReadyBox.propTypes = {
     account         : PropTypes.object.isRequired,
     startCall       : PropTypes.func.isRequired,
     startConference : PropTypes.func.isRequired,
-    targetUri       : PropTypes.string,
+    missedTargetUri : PropTypes.string,
     history         : PropTypes.array,
     serverHistory   : PropTypes.array
 };

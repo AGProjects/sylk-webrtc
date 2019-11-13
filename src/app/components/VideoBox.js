@@ -92,7 +92,7 @@ class VideoBox extends React.Component {
         //DEBUG("%o", event);
         const resolutions = [ '1280x720', '960x540', '640x480', '640x360', '480x270','320x180'];
         const videoResolution = event.target.videoWidth + 'x' + event.target.videoHeight;
-        if (resolutions.indexOf(videoResolution) == -1) {
+        if (resolutions.indexOf(videoResolution) === -1) {
             this.setState({remoteSharesScreen: true});
         } else {
             this.setState({remoteSharesScreen: false});

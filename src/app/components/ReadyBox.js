@@ -22,7 +22,8 @@ class ReadyBox extends React.Component {
         this.state = {
             targetUri: this.props.missedTargetUri,
             showConferenceModal: false,
-            sticky: false
+            sticky: false,
+            height: utils.getWindowHeight() - 50
         };
         this.stickyTopRef = React.createRef();
 
@@ -33,6 +34,7 @@ class ReadyBox extends React.Component {
         this.handleVideoCall = this.handleVideoCall.bind(this);
         this.showConferenceModal = this.showConferenceModal.bind(this);
         this.handleConferenceCall = this.handleConferenceCall.bind(this);
+        this.handleResize = this.handleResize.bind(this);
     }
 
     componentDidMount() {
@@ -40,10 +42,12 @@ class ReadyBox extends React.Component {
             this.setState({sticky: e.intersectionRatio < 1});
             }, {threshold: [1]});
         this.observer.observe(this.stickyTopRef.current);
+        window.addEventListener('resize', this.handleResize);
     }
 
     componentWillUnmount() {
         this.observer.unobserve(this.stickyTopRef.current);
+        window.removeEventListener('resize', this.handleResize);
     }
 
     getTargetUri() {
@@ -99,6 +103,10 @@ class ReadyBox extends React.Component {
         }
     }
 
+    handleResize() {
+        this.setState({height: utils.getWindowHeight() - 50});
+    }
+
     render() {
         const classes = classNames({
             'btn'           : true,
@@ -121,7 +129,7 @@ class ReadyBox extends React.Component {
         return (
             <div>
                 <div className="cover-container">
-                    <div className="inner cover scroll">
+                    <div className="inner cover scroll" style={{height: this.state.height}}>
                         <div className={stickyClasses} ref={this.stickyTopRef}>
                             <div className="form-dial">
                                 <p className="lead">Enter the address you wish to call</p>

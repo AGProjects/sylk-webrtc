@@ -116,17 +116,6 @@ h6,
     }
 }
 
-// Work around for safari on mobile to show copyright
-@media only screen
-and (min-device-width: 320px)
-and (max-device-width: 568px)
-and (-webkit-min-device-pixel-ratio: 2)
-and (orientation: portrait) {
-    .scroll {
-        height: calc(90vh - 50px);
-    }
-}
-
 // Footer
 
 .footer {

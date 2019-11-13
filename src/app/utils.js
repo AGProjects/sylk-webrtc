@@ -130,9 +130,14 @@ function generateVideoTrack(stream, width = 640, height = 480) {
     return Object.assign(canvasStream.getVideoTracks()[0], {enabled: true});
 }
 
+function getWindowHeight() {
+    return window.innerHeight;
+}
+
 exports.copyToClipboard = copyToClipboard;
 exports.normalizeUri = normalizeUri;
 exports.generateSillyName = generateSillyName;
 exports.generateUniqueId = generateUniqueId;
 exports.generateMaterialColor = generateMaterialColor;
 exports.generateVideoTrack = generateVideoTrack;
+exports.getWindowHeight = getWindowHeight;

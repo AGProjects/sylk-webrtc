@@ -31,7 +31,8 @@ class VideoBox extends React.Component {
         };
 
         this.overlayTimer = null;
-
+        this.localVideoRef = React.createRef();
+        this.remoteVideoRef = React.createRef();
         // ES6 classes no longer autobind
         [
             'showCallOverlay',
@@ -49,8 +50,8 @@ class VideoBox extends React.Component {
     }
 
     componentDidMount() {
-        sylkrtc.utils.attachMediaStream(this.props.call.getLocalStreams()[0], this.refs.localVideo, {disableContextMenu: true});
-        let promise =  this.refs.localVideo.play()
+        sylkrtc.utils.attachMediaStream(this.props.call.getLocalStreams()[0], this.localVideoRef.current, {disableContextMenu: true});
+        let promise =  this.localVideoRef.current.play()
         if (promise !== undefined) {
             promise.then(_ => {
                 this.setState({localVideoShow: true});    // eslint-disable-line react/no-did-mount-set-state
@@ -60,18 +61,18 @@ class VideoBox extends React.Component {
                 // Show a "Play" button so that user can start playback.
             });
         } else {
-            this.refs.localVideo.addEventListener('playing', () => {
+            this.localVideoRef.current.addEventListener('playing', () => {
                 this.setState({localVideoShow: true});    // eslint-disable-line react/no-did-mount-set-state
             });
         }
 
-        this.refs.remoteVideo.addEventListener('playing', this.handleRemoteVideoPlaying);
-        sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.refs.remoteVideo, {disableContextMenu: true});
+        this.remoteVideoRef.current.addEventListener('playing', this.handleRemoteVideoPlaying);
+        sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.remoteVideoRef.current, {disableContextMenu: true});
     }
 
     componentWillUnmount() {
         clearTimeout(this.overlayTimer);
-        this.refs.remoteVideo.removeEventListener('playing', this.handleRemoteVideoPlaying);
+        this.remoteVideoRef.current.removeEventListener('playing', this.handleRemoteVideoPlaying);
         this.exitFullscreen();
     }
 
@@ -82,7 +83,7 @@ class VideoBox extends React.Component {
 
     handleRemoteVideoPlaying() {
         this.setState({remoteVideoShow: true});
-        this.refs.remoteVideo.onresize = (event) => {
+        this.remoteVideoRef.current.onresize = (event) => {
             this.handleRemoteResize(event)
         };
         this.armOverlayTimer();
@@ -266,8 +267,8 @@ class VideoBox extends React.Component {
                 <TransitionGroup>
                     {watermark}
                 </TransitionGroup>
-                <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref="remoteVideo" autoPlay />
-                <video id="localVideo" className={localVideoClasses} ref="localVideo" autoPlay muted />
+                <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref={this.remoteVideoRef} autoPlay />
+                <video id="localVideo" className={localVideoClasses} ref={this.localVideoRef} autoPlay muted />
                 <TransitionGroup>
                     {callButtons}
                 </TransitionGroup>

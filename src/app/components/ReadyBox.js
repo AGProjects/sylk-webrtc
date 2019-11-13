@@ -130,7 +130,7 @@ class ReadyBox extends React.Component {
                                     data={history}
                                     onChange={this.handleTargetChange}
                                     onSelect={this.handleTargetSelect}
-                                    autoFocus={true}
+                                    autoFocus={ !/Mobi|Android/i.test(navigator.userAgent) || true}
                                     placeholder="Eg. alice@sip2sip.info or 3333"
                                 />
                                 <div className="form-group">

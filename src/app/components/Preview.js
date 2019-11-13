@@ -45,6 +45,7 @@ class Preview extends React.Component {
             mic: mic
         }
         this.devices = [];
+        this.localVideo = React.createRef();
 
         // ES6 classes no longer autobind
         this.hangupCall = this.hangupCall.bind(this);
@@ -54,8 +55,8 @@ class Preview extends React.Component {
     }
 
     componentDidMount() {
-        this.refs.localVideo.addEventListener('playing', this.localVideoElementPlaying);
-        sylkrtc.utils.attachMediaStream(this.props.localMedia, this.refs.localVideo, {disableContextMenu: true});
+        this.localVideo.current.addEventListener('playing', this.localVideoElementPlaying);
+        sylkrtc.utils.attachMediaStream(this.props.localMedia, this.localVideo.current, {disableContextMenu: true});
 
         navigator.mediaDevices.enumerateDevices()
             .then((devices) => {
@@ -89,7 +90,7 @@ class Preview extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.localMedia !== this.props.localMedia) {
-            sylkrtc.utils.attachMediaStream(nextProps.localMedia, this.refs.localVideo, {disableContextMenu: true});
+            sylkrtc.utils.attachMediaStream(nextProps.localMedia, this.localVideo.current, {disableContextMenu: true});
         }
 
         if (nextProps.selectedDevices !== this.props.selectedDevices) {
@@ -107,7 +108,7 @@ class Preview extends React.Component {
     }
 
     componentWillUnmount() {
-        this.refs.localVideo.removeEventListener('playing', this.localVideoElementPlaying);
+        this.localVideo.current.removeEventListener('playing', this.localVideoElementPlaying);
     }
 
     setDevice = (device) => (e) => {
@@ -118,7 +119,7 @@ class Preview extends React.Component {
     }
     
     localVideoElementPlaying() {
-        this.refs.localVideo.removeEventListener('playing', this.localVideoElementPlaying);
+        this.localVideo.current.removeEventListener('playing', this.localVideoElementPlaying);
     }
 
     hangupCall(event) {
@@ -214,13 +215,13 @@ class Preview extends React.Component {
         return (
             <div>
                 {icon}
-                <div className={containerClasses} ref="videoContainer">
+                <div className={containerClasses}>
                     <div className="top-overlay">
                         <TransitionGroup>
                             {header}
                         </TransitionGroup>
                     </div>
-                    <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted />
+                    <video className={localVideoClasses} id="localVideo" ref={this.localVideo} autoPlay muted />
                     <div className="call-buttons">
                         <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-power-off"></i> </button>
                     </div>

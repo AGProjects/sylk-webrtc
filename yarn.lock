@@ -2574,7 +2574,7 @@ diffie-hellman@^5.0.0:
 
 digest-auth-request@tijmenNL/digest-auth-request#dist:
   version "0.8.0"
-  resolved "https://codeload.github.com/tijmenNL/digest-auth-request/tar.gz/b1aa5cdc6848170a2798b28be56420a21b1b6e2d"
+  resolved "https://codeload.github.com/tijmenNL/digest-auth-request/tar.gz/e9d69219088d440c57af69f7ef1fffd5ff7d3527"
   dependencies:
     crypto-js "^3.1.6"
 

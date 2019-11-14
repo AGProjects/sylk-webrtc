@@ -12,22 +12,24 @@ class LocalMedia extends React.Component {
     constructor(props) {
         super(props);
 
+        this.localVideo = React.createRef();
+
         // ES6 classes no longer autobind
         this.hangupCall = this.hangupCall.bind(this);
         this.localVideoElementPlaying = this.localVideoElementPlaying.bind(this);
     }
 
     componentDidMount() {
-        this.refs.localVideo.addEventListener('playing', this.localVideoElementPlaying);
-        sylkrtc.utils.attachMediaStream(this.props.localMedia, this.refs.localVideo, {disableContextMenu: true});
+        this.localVideo.current.addEventListener('playing', this.localVideoElementPlaying);
+        sylkrtc.utils.attachMediaStream(this.props.localMedia, this.localVideo.current, {disableContextMenu: true});
     }
 
     componentWillUnmount() {
-        this.refs.localVideo.removeEventListener('playing', this.localVideoElementPlaying);
+        this.localVideo.current.removeEventListener('playing', this.localVideoElementPlaying);
     }
 
     localVideoElementPlaying() {
-        this.refs.localVideo.removeEventListener('playing', this.localVideoElementPlaying);
+        this.localVideo.current.removeEventListener('playing', this.localVideoElementPlaying);
         this.props.mediaPlaying();
     }
 
@@ -45,13 +47,13 @@ class LocalMedia extends React.Component {
         });
 
         return (
-            <div className="video-container" ref="videoContainer">
+            <div className="video-container">
                 <CallOverlay
                     show = {true}
                     remoteIdentity = {this.props.remoteIdentity}
                     call = {null}
                 />
-                <video className={localVideoClasses} id="localVideo" ref="localVideo" autoPlay muted />
+                <video className={localVideoClasses} id="localVideo" ref={this.localVideo} autoPlay muted />
                 <div className="call-buttons">
                     <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>
                 </div>

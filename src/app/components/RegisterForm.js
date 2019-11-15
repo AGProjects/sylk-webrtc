@@ -158,7 +158,7 @@ class RegisterForm extends React.Component {
                     <label htmlFor="inputPassword" className="sr-only">Password</label>
                     <div className="input-group">
                         <span className="input-group-addon second"><i className="fa fa-lock fa-fw"></i></span>
-                        <input type="password" id="inputPassword" ref="pass" className="form-control" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} required />
+                        <input type="password" id="inputPassword" className="form-control" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} required />
                     </div>
 
                     {rememberBox}

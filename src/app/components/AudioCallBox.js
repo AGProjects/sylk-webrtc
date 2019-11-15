@@ -26,6 +26,8 @@ class AudioCallBox extends React.Component {
         };
         this.speechEvents = null;
 
+        this.remoteAudio = React.createRef();
+
         // ES6 classes no longer autobind
         [
             'callStateChanged',
@@ -88,7 +90,7 @@ class AudioCallBox extends React.Component {
 
     attachStream(call) {
         const remoteStream = call.getRemoteStreams()[0];
-        sylkrtc.utils.attachMediaStream(remoteStream, this.refs.remoteAudio);
+        sylkrtc.utils.attachMediaStream(remoteStream, this.remoteAudio.current);
         const options = {
             interval: 225,
             play: false
@@ -168,7 +170,7 @@ class AudioCallBox extends React.Component {
                     remoteIdentity = {this.props.remoteIdentity}
                     call = {this.props.call}
                 />
-                <audio id="remoteAudio" ref="remoteAudio" autoPlay />
+                <audio id="remoteAudio" ref={this.remoteAudio} autoPlay />
                 <div className="call-user-icon">
                     <UserIcon identity={remoteIdentity} large={true} active={this.state.active} />
                 </div>

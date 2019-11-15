@@ -14,7 +14,7 @@ const AboutModal = (props) => {
             </Modal.Header>
             <Modal.Body>
                 <p>Copyright &copy; <a href="http://ag-projects.com" target="_blank" rel="noopener noreferrer">AG Projects</a></p>
-                <p>Powered by <a href="http://sylkserver.com" target="_blank">SylkServer</a></p>
+                <p>Powered by <a href="http://sylkserver.com" target="_blank" rel="noopener noreferrer">SylkServer</a></p>
             </Modal.Body>
         </Modal>
     );

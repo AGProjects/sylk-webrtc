@@ -75,7 +75,7 @@ class CallByUriBox extends React.Component {
 
             content = (
                 <div>
-                    <h2>You've been invited to call<br/><strong>{this.props.targetUri}</strong></h2>
+                    <h2>You&#39;ve been invited to call<br/><strong>{this.props.targetUri}</strong></h2>
                     <form className="form-guest" onSubmit={this.handleSubmit}>
                         <label className="sr-only">Name</label>
                         <div className="input-group">

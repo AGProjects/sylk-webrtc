@@ -2572,7 +2572,7 @@ diffie-hellman@^5.0.0:
     miller-rabin "^4.0.0"
     randombytes "^2.0.0"
 
-digest-auth-request@tijmenNL/digest-auth-request#dist:
+digest-auth-request@tijmenNL/digest-auth-request:
   version "0.8.0"
   resolved "https://codeload.github.com/tijmenNL/digest-auth-request/tar.gz/e9d69219088d440c57af69f7ef1fffd5ff7d3527"
   dependencies:

@@ -19,6 +19,8 @@ class ConferenceMatrixParticipant extends React.Component {
         }
         this.speechEvents = null;
 
+        this.videoElement = React.createRef();
+
         // ES6 classes no longer autobind
         [
             'onParticipantStateChanged'
@@ -34,17 +36,17 @@ class ConferenceMatrixParticipant extends React.Component {
 
     componentDidMount() {
         this.maybeAttachStream();
-        this.refs.videoElement.oncontextmenu = (e) => {
+        this.videoElement.current.oncontextmenu = (e) => {
             // disable right click for video elements
             e.preventDefault();
         };
-        this.refs.videoElement.onresize = (event) => {
+        this.videoElement.current.onresize = (event) => {
             this.handleResize(event);
         };
     }
 
     componentWillUnmount() {
-        this.refs.videoElement.pause();
+        this.videoElement.current.pause();
         if (!this.props.isLocal) {
             this.props.participant.removeListener('stateChanged', this.onParticipantStateChanged);
         }
@@ -76,7 +78,7 @@ class ConferenceMatrixParticipant extends React.Component {
     maybeAttachStream() {
         const streams = this.props.participant.streams;
         if (streams.length > 0) {
-            sylkrtc.utils.attachMediaStream(streams[0], this.refs.videoElement);
+            sylkrtc.utils.attachMediaStream(streams[0], this.videoElement.current);
             this.setState({hasVideo: streams[0].getVideoTracks().length > 0});
             const options = {
                 interval: 150,
@@ -123,7 +125,7 @@ class ConferenceMatrixParticipant extends React.Component {
                 {activeIcon}
                 {participantInfo}
                 <div className="video">
-                    <video poster="assets/images/transparent-1px.png" className={classes} ref="videoElement" autoPlay muted={this.props.isLocal}/>
+                    <video poster="assets/images/transparent-1px.png" className={classes} ref={this.videoElement} autoPlay muted={this.props.isLocal}/>
                 </div>
             </div>
         );

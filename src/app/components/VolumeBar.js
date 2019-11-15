@@ -49,8 +49,8 @@ class VolumeBar extends React.Component {
         });
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.localMedia !== this.props.localMedia) {
+    componentDidUpdate(prevProps) {
+        if (prevProps.localMedia !== this.props.localMedia) {
             if (this.speechEvents !== null) {
                 this.speechEvents.stop();
                 this.speechEvents = null;
@@ -59,7 +59,7 @@ class VolumeBar extends React.Component {
                 interval: 225,
                 play: false
             };
-            this.speechEvents = hark(nextProps.localMedia, options);
+            this.speechEvents = hark(this.props.localMedia, options);
             this.speechEvents.on('volume_change', (vol, threshold) => {
                 this.setState({volume: 2 * (vol + 75)});
             });

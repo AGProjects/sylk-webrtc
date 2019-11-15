@@ -93,7 +93,7 @@ const ScreenSharingModal = (props) => {
                 <Modal.Title id="cmodal-title-sm">Share your screen</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                Sylk wants to share the contents of your screen. Choose what you'd like to share.
+                Sylk wants to share the contents of your screen. Choose what you&#39;d like to share.
                 <Tabs
                     value={value}
                     indicatorColor="primary"

@@ -21,6 +21,8 @@ class ConferenceParticipant extends React.Component {
         }
         this.speechEvents = null;
 
+        this.videoElement = React.createRef();
+
         // ES6 classes no longer autobind
         [
             'onParticipantStateChanged',
@@ -36,14 +38,14 @@ class ConferenceParticipant extends React.Component {
 
     componentDidMount() {
         this.maybeAttachStream();
-        this.refs.videoElement.oncontextmenu = (e) => {
+        this.videoElement.current.oncontextmenu = (e) => {
             // disable right click for video elements
             e.preventDefault();
         };
     }
 
     componentWillUnmount() {
-        this.refs.videoElement.pause();
+        this.videoElement.current.pause();
         this.props.participant.removeListener('stateChanged', this.onParticipantStateChanged);
         if (this.speechEvents !== null) {
             this.speechEvents.stop();
@@ -75,7 +77,7 @@ class ConferenceParticipant extends React.Component {
     maybeAttachStream() {
         const streams = this.props.participant.streams;
         if (streams.length > 0) {
-            sylkrtc.utils.attachMediaStream(streams[0], this.refs.videoElement);
+            sylkrtc.utils.attachMediaStream(streams[0], this.videoElement.current);
             this.setState({hasVideo: streams[0].getVideoTracks().length > 0});
             const options = {
                 interval: 150,
@@ -141,7 +143,7 @@ class ConferenceParticipant extends React.Component {
                 {muteButton}
                 <OverlayTrigger placement="top" overlay={tooltip}>
                     <div className="participant-container">
-                        <video ref="videoElement" className={classes} poster="assets/images/transparent-1px.png" autoPlay />
+                        <video ref={this.videoElement} className={classes} poster="assets/images/transparent-1px.png" autoPlay />
                     </div>
                 </OverlayTrigger>
             </div>

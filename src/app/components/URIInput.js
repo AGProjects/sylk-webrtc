@@ -12,6 +12,9 @@ class URIInput extends React.Component {
             value: props.defaultValue,
             selecting: false
         };
+
+        this.uri_input = React.createRef();
+
         // ES6 classes no longer autobind
         this.onInputBlur = this.onInputBlur.bind(this);
         this.onInputChange = this.onInputChange.bind(this);
@@ -42,7 +45,7 @@ class URIInput extends React.Component {
         });
 
         if (this.props.autoFocus) {
-            this.refs.uri_input.focus();
+            this.uri_input.current.focus();
         }
     }
 
@@ -56,7 +59,7 @@ class URIInput extends React.Component {
         }
 
         if (this.props.autoFocus) {
-            this.refs.uri_input.focus();
+            this.uri_input.current.focus();
         }
     }
 
@@ -71,7 +74,7 @@ class URIInput extends React.Component {
 
     onInputClick(event) {
         if (!this.clicked) {
-            this.refs.uri_input.select();
+            this.uri_input.current.select();
             this.clicked = true;
         }
     }
@@ -109,7 +112,7 @@ class URIInput extends React.Component {
     render() {
         return (
             <div className="form-group uri-input">
-                <input type="text" id="uri-input" name="uri-input" ref="uri_input" className="form-control input-lg"
+                <input type="text" id="uri-input" name="uri-input" ref={this.uri_input} className="form-control input-lg"
                     onChange={this.onInputChange}
                     onKeyDown={this.onInputKeyDown}
                     onBlur={this.onInputBlur}

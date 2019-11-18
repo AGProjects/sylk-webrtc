@@ -47,10 +47,11 @@ class URIInput extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
+        if (this.props.defaultValue !== this.state.value) {
+            this.setState({value: this.props.defaultValue}); // eslint-disable-line react/no-did-update-set-state
+        }
+
         if (this.props.defaultValue !== prevProps.defaultValue) {
-            this.setState({
-                value: this.props.defaultValue
-            });
             this.autoComplete.autocomplete.setVal(this.props.defaultValue);
         }
 

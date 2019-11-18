@@ -932,7 +932,7 @@ class Blink extends React.Component {
                 return false;
             }
 
-            if (config.useServerCallHistory && nextPath === '/ready' && this.state.registrationState === 'registered') {
+            if (config.useServerCallHistory && nextPath === '/ready' && this.state.registrationState === 'registered' && (this.state.mode !== MODE_GUEST_CALL && this.state.mode !== MODE_GUEST_CONFERENCE)) {
                 this.getServerHistory();
             }
             // Press back in ready after a login, prevent initial navigation

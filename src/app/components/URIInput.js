@@ -46,12 +46,15 @@ class URIInput extends React.Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        this.setState({
-            value: nextProps.defaultValue
-        });
-        this.autoComplete.autocomplete.setVal(nextProps.defaultValue);
-        if (nextProps.autoFocus) {
+    componentDidUpdate(prevProps) {
+        if (this.props.defaultValue !== prevProps.defaultValue) {
+            this.setState({
+                value: this.props.defaultValue
+            });
+            this.autoComplete.autocomplete.setVal(this.props.defaultValue);
+        }
+
+        if (this.props.autoFocus) {
             this.refs.uri_input.focus();
         }
     }

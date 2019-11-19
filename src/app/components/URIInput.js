@@ -9,7 +9,6 @@ class URIInput extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: props.defaultValue,
             selecting: false
         };
 
@@ -50,21 +49,12 @@ class URIInput extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.defaultValue !== this.state.value) {
-            this.setState({value: this.props.defaultValue}); // eslint-disable-line react/no-did-update-set-state
-        }
-
-        if (this.props.defaultValue !== prevProps.defaultValue) {
-            this.autoComplete.autocomplete.setVal(this.props.defaultValue);
-        }
-
         if (this.props.autoFocus) {
             this.uriInput.current.focus();
         }
     }
 
     setValue(value) {
-        this.setState({value: value});
         this.props.onChange(value);
     }
 
@@ -117,7 +107,7 @@ class URIInput extends React.Component {
                     onKeyDown={this.onInputKeyDown}
                     onBlur={this.onInputBlur}
                     onClick={this.onInputClick}
-                    value={this.state.value}
+                    value={this.props.defaultValue}
                     autoCapitalize="off"
                     autoCorrect="off"
                     required

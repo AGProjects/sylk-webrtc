@@ -35,7 +35,6 @@ const ConferenceHeader = (props) => {
     let [seconds, setSeconds] = useState(0);
 
     useInterval(() => {
-        // Your custom logic here
         setSeconds(seconds + 1);
     }, 1000);
 
@@ -102,8 +101,8 @@ const ConferenceHeader = (props) => {
 ConferenceHeader.propTypes = {
     show: PropTypes.bool.isRequired,
     remoteIdentity: PropTypes.string.isRequired,
-    participants: PropTypes.array,
-    buttons: PropTypes.object
+    participants: PropTypes.array.isRequired,
+    buttons: PropTypes.object.isRequired
 };
 
 

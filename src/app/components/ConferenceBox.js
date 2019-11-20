@@ -578,18 +578,14 @@ class ConferenceBox extends React.Component {
             );
 
             let callDetail;
-            if (this.state.callDetail !== null) {
-                const participantCount = this.state.participants.length + 1;
-                callDetail = (
-                    <span>
-                        <i className="fa fa-clock-o"></i> {this.callDuration}
-                        &nbsp;&mdash;&nbsp;
-                        <i className="fa fa-users"></i> {participantCount} participant{participantCount > 1 ? 's' : ''}
-                    </span>
-                );
-            } else {
-                callDetail = 'Connecting...'
-            }
+            const participantCount = this.state.participants.length + 1;
+            callDetail = (
+                <span>
+                    <i className="fa fa-clock-o"></i> {this.callDuration}
+                    &nbsp;&mdash;&nbsp;
+                    <i className="fa fa-users"></i> {participantCount} participant{participantCount > 1 ? 's' : ''}
+                </span>
+            );
 
             const topButtons = [];
             if (this.isFullscreenSupported()) {

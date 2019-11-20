@@ -16,8 +16,6 @@ const withStyles            = Styles.withStyles;
 const sylkrtc               = require('sylkrtc');
 const classNames            = require('classnames');
 const debug                 = require('debug');
-const moment                = require('moment');
-const momentFormat          = require('moment-duration-format');
 const superagent            = require('superagent');
 
 const config                            = require('../config');
@@ -30,6 +28,7 @@ const ConferenceDrawerFiles             = require('./ConferenceDrawerFiles');
 const ConferenceDrawerParticipant       = require('./ConferenceDrawerParticipant');
 const ConferenceDrawerParticipantList   = require('./ConferenceDrawerParticipantList');
 const ConferenceDrawerSpeakerSelection  = require('./ConferenceDrawerSpeakerSelection');
+const ConferenceHeader                  = require('./ConferenceHeader');
 const ConferenceCarousel                = require('./ConferenceCarousel');
 const ConferenceParticipant             = require('./ConferenceParticipant');
 const ConferenceMatrixParticipant       = require('./ConferenceMatrixParticipant');
@@ -91,8 +90,6 @@ class ConferenceBox extends React.Component {
 
         this.emailLink = `mailto:?subject=${encodeURI(subject)}&body=${encodeURI(emailMessage)}`;
 
-        this.callDuration = null;
-        this.callTimer = null;
         this.overlayTimer = null;
         this.logEvent = {};
         this.haveVideo = false;
@@ -155,7 +152,6 @@ class ConferenceBox extends React.Component {
         this.props.call.on('fileSharing', this.onFileSharing);
 
         this.armOverlayTimer();
-        this.startCallTimer();
 
         // attach to ourselves first if there are no other participants
         if (this.state.participants.length === 0) {
@@ -177,7 +173,6 @@ class ConferenceBox extends React.Component {
 
     componentWillUnmount() {
         clearTimeout(this.overlayTimer);
-        clearTimeout(this.callTimer);
         this.uploads.forEach((upload) => {
             this.props.notificationCenter().removeNotification(upload[1]);
             upload[0].abort();
@@ -448,16 +443,6 @@ class ConferenceBox extends React.Component {
         this.props.hangup();
     }
 
-    startCallTimer() {
-        const startTime = new Date();
-        this.callTimer = setInterval(() => {
-            this.callDuration = moment.duration(new Date() - startTime).format('hh:mm:ss', {trim: false});
-            if (this.state.callOverlayVisible) {
-                this.forceUpdate();
-            }
-        }, 300);
-    }
-
     armOverlayTimer() {
         clearTimeout(this.overlayTimer);
         this.overlayTimer = setTimeout(() => {
@@ -501,8 +486,6 @@ class ConferenceBox extends React.Component {
             return (<div></div>);
         }
 
-        let videoHeader;
-        let callButtons;
         let watermark;
 
         const largeVideoClasses = classNames({
@@ -525,158 +508,119 @@ class ConferenceBox extends React.Component {
 
         const remoteIdentity = this.props.remoteIdentity.split('@')[0];
 
-        if (this.state.callOverlayVisible) {
-            const muteButtonIcons = classNames({
-                'fa'                    : true,
-                'fa-microphone'         : !this.state.audioMuted,
-                'fa-microphone-slash'   : this.state.audioMuted
-            });
-
-            const muteVideoButtonIcons = classNames({
-                'fa'                    : true,
-                'fa-video-camera'       : !this.state.videoMuted,
-                'fa-video-camera-slash' : this.state.videoMuted
-            });
-
-            const fullScreenButtonIcons = classNames({
-                'fa'            : true,
-                'fa-2x'         : true,
-                'fa-expand'     : !this.isFullScreen(),
-                'fa-compress'   : this.isFullScreen()
-            });
-
-            const screenSharingButtonIcons = classNames({
-                'fa'                    : true,
-                'fa-clone'              : true,
-                'fa-flip-horizontal'    : true,
-                'text-warning'          : this.props.call.sharingScreen
-            });
-
-            const shareFileButtonIcons = classNames({
-                'fa'                    : true,
-                'fa-upload'             : true
-            });
-
-            const videoHeaderTextClasses = classNames({
-                'lead'          : true
-            });
-
-            const commonButtonClasses = classNames({
-                'btn'           : true,
-                'btn-round'     : true,
-                'btn-default'   : true
-            });
-
-            const commonButtonTopClasses = classNames({
-                'btn'           : true,
-                'btn-link'      : true
-            });
-
-            const shareButtonClasses = classNames(
-                commonButtonClasses,
-                this.props.classes.sharingButton
-            );
-
-            let callDetail;
-            const participantCount = this.state.participants.length + 1;
-            callDetail = (
-                <span>
-                    <i className="fa fa-clock-o"></i> {this.callDuration}
-                    &nbsp;&mdash;&nbsp;
-                    <i className="fa fa-users"></i> {participantCount} participant{participantCount > 1 ? 's' : ''}
-                </span>
-            );
-
-            const topButtons = [];
-            if (this.isFullscreenSupported()) {
-                topButtons.push(<button key="fsButton" type="button" title="Go full-screen" className={commonButtonTopClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
-            }
-
-            if (!this.state.showFiles) {
-                if (this.state.sharedFiles.length !== 0) {
-                    topButtons.push(
-                        <Badge badgeContent={this.state.sharedFiles.length} color="primary" classes={{badge: this.props.classes.badge}}>
-                            <button key="fbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleFiles}> <i className="fa fa-files-o fa-2x"></i> </button>
-                        </Badge>
-                    );
-                }
-            }
-
-            if (!this.state.showDrawer) {
-                topButtons.push(<button key="sbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleDrawer}> <i className="fa fa-bars fa-2x"></i> </button>);
-            }
-
-            videoHeader = (
-                <CSSTransition
-                    key="header"
-                    classNames="videoheader"
-                    timeout={{ enter: 300, exit: 300}}
-                >
-                    <div key="header" className="call-header">
-                        <div className="container-fluid">
-                            <p className={videoHeaderTextClasses}><strong>Conference:</strong> {remoteIdentity}</p>
-                            <p className={videoHeaderTextClasses}>{callDetail}</p>
-                            <div className="conference-top-buttons">
-                                {topButtons}
-                            </div>
-
-                        </div>
+        const shareOverlay = (
+            <Popover id="shareOverlay" title="Join me, maybe?">
+                <p>
+                    Invite other online users of this service, share <strong><a href={this.callUrl} target="_blank" rel="noopener noreferrer">this link</a></strong> with others or email, so they can easily join this conference.
+                </p>
+                <div className="text-center">
+                    <div className="btn-group">
+                        <button className="btn btn-primary" onClick={this.toggleInviteModal} alt="Invite users">
+                            <i className="fa fa-user-plus"></i>
+                        </button>
+                        <button className="btn btn-primary" onClick={this.handleClipboardButton} alt="Copy to clipboard">
+                            <i className="fa fa-clipboard"></i>
+                        </button>
+                        <button className="btn btn-primary" onClick={this.handleEmailButton} alt="Send email">
+                            <i className="fa fa-envelope-o"></i>
+                        </button>
                     </div>
-                </CSSTransition>
-            );
-
-            const shareOverlay = (
-                <Popover id="shareOverlay" title="Join me, maybe?">
-                    <p>
-                        Invite other online users of this service, share <strong><a href={this.callUrl} target="_blank" rel="noopener noreferrer">this link</a></strong> with others or email, so they can easily join this conference.
-                    </p>
-                    <div className="text-center">
-                        <div className="btn-group">
-                            <button className="btn btn-primary" onClick={this.toggleInviteModal} alt="Invite users">
-                                <i className="fa fa-user-plus"></i>
-                            </button>
-                            <button className="btn btn-primary" onClick={this.handleClipboardButton} alt="Copy to clipboard">
-                                <i className="fa fa-clipboard"></i>
-                            </button>
-                            <button className="btn btn-primary" onClick={this.handleEmailButton} alt="Send email">
-                                <i className="fa fa-envelope-o"></i>
-                            </button>
-                        </div>
-                    </div>
-                </Popover>
-            );
-
-            const buttons = [];
-
-            buttons.push(
-                <OverlayTrigger key="shareOverlay" ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
-                    <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-user-plus"></i> </button>
-                </OverlayTrigger>
-            );
-            buttons.push(<button key="muteVideo" type="button" title="Mute/unmute video" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>);
-            buttons.push(<button key="muteAudio" type="button" title="Mute/unmute audio" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>);
-            buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen} disabled={!this.haveVideo}><i className={screenSharingButtonIcons}></i></button>);
-            buttons.push(
-                <label htmlFor="outlined-button-file">
-                    <IconButton title="Share files" component="span" disableRipple={true} className={shareButtonClasses}>
-                        <i className={shareFileButtonIcons}></i>
-                    </IconButton>
-                </label>
-            );
-            buttons.push(<button key="hangupButton" type="button" title="Leave conference" className="btn btn-round btn-danger" onClick={this.hangup}> <i className="fa fa-phone rotate-135"></i> </button>);
-
-            callButtons = (
-                <CSSTransition
-                    key="header2"
-                    classNames="videoheader"
-                    timeout={{ enter: 300, exit: 300}}
-                >
-                <div className="conference-buttons">
-                    {buttons}
                 </div>
-                </CSSTransition>
-            );
-        } else {
+            </Popover>
+        );
+
+        const buttons = {};
+
+        const commonButtonTopClasses = classNames({
+            'btn'           : true,
+            'btn-link'      : true
+        });
+
+        const fullScreenButtonIcons = classNames({
+            'fa'            : true,
+            'fa-2x'         : true,
+            'fa-expand'     : !this.isFullScreen(),
+            'fa-compress'   : this.isFullScreen()
+        });
+
+        const topButtons = [];
+        if (this.isFullscreenSupported()) {
+            topButtons.push(<button key="fsButton" type="button" title="Go full-screen" className={commonButtonTopClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
+        }
+
+        if (!this.state.showFiles) {
+            if (this.state.sharedFiles.length !== 0) {
+                topButtons.push(
+                    <Badge badgeContent={this.state.sharedFiles.length} color="primary" classes={{badge: this.props.classes.badge}}>
+                        <button key="fbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleFiles}> <i className="fa fa-files-o fa-2x"></i> </button>
+                    </Badge>
+                );
+            }
+        }
+
+        if (!this.state.showDrawer) {
+            topButtons.push(<button key="sbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleDrawer}> <i className="fa fa-bars fa-2x"></i> </button>);
+        }
+
+        const topLeftButtons = [];
+        topLeftButtons.push(<button key="chatButton" type="button" title="Open Chat" className={commonButtonTopClasses} onClick={this.toggleChat}> <i className="fa fa-comments fa-2x"></i> </button>);
+        buttons.top = {left: topLeftButtons, right: topButtons};
+
+        const commonButtonClasses = classNames({
+            'btn'           : true,
+            'btn-round'     : true,
+            'btn-default'   : true
+        });
+
+        const shareButtonClasses = classNames(
+            commonButtonClasses,
+            this.props.classes.sharingButton
+        );
+
+        const muteButtonIcons = classNames({
+            'fa'                    : true,
+            'fa-microphone'         : !this.state.audioMuted,
+            'fa-microphone-slash'   : this.state.audioMuted
+        });
+
+        const muteVideoButtonIcons = classNames({
+            'fa'                    : true,
+            'fa-video-camera'       : !this.state.videoMuted,
+            'fa-video-camera-slash' : this.state.videoMuted
+        });
+
+        const screenSharingButtonIcons = classNames({
+            'fa'                    : true,
+            'fa-clone'              : true,
+            'fa-flip-horizontal'    : true,
+            'text-warning'          : this.props.call.sharingScreen
+        });
+
+        const shareFileButtonIcons = classNames({
+            'fa'                    : true,
+            'fa-upload'             : true
+        });
+
+        const bottomButtons = [];
+        bottomButtons.push(
+            <OverlayTrigger key="shareOverlay" ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
+                <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-user-plus"></i> </button>
+            </OverlayTrigger>
+        );
+        bottomButtons.push(<button key="muteVideo" type="button" title="Mute/unmute video" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>);
+        bottomButtons.push(<button key="muteAudio" type="button" title="Mute/unmute audio" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>);
+        bottomButtons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen} disabled={!this.haveVideo}><i className={screenSharingButtonIcons}></i></button>);
+        bottomButtons.push(
+            <label key="shareFiles" htmlFor="outlined-button-file">
+                <IconButton title="Share files" component="span" disableRipple={true} className={shareButtonClasses}>
+                    <i className={shareFileButtonIcons}></i>
+                </IconButton>
+            </label>
+        );
+        bottomButtons.push(<button key="hangupButton" type="button" title="Leave conference" className="btn btn-round btn-danger" onClick={this.hangup}> <i className="fa fa-phone rotate-135"></i> </button>);
+        buttons.bottom = bottomButtons;
+
+        if (!this.state.callOverlayVisible) {
             watermark = (
                 <CSSTransition
                     key="watermark"
@@ -795,12 +739,12 @@ class ConferenceBox extends React.Component {
                     onChange={this.handleFiles}
                 />
                 <div className={containerClasses} onMouseMove={this.showOverlay}>
-                    <div className="top-overlay">
-                        <TransitionGroup>
-                            {videoHeader}
-                            {callButtons}
-                        </TransitionGroup>
-                    </div>
+                    <ConferenceHeader
+                        show={this.state.callOverlayVisible}
+                        remoteIdentity={remoteIdentity}
+                        participants={this.state.participants}
+                        buttons={buttons}
+                    />
                     <TransitionGroup>
                         {watermark}
                     </TransitionGroup>

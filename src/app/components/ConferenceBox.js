@@ -562,9 +562,6 @@ class ConferenceBox extends React.Component {
             topButtons.push(<button key="sbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleDrawer}> <i className="fa fa-bars fa-2x"></i> </button>);
         }
 
-        const topLeftButtons = [];
-        topLeftButtons.push(<button key="chatButton" type="button" title="Open Chat" className={commonButtonTopClasses} onClick={this.toggleChat}> <i className="fa fa-comments fa-2x"></i> </button>);
-        buttons.top = {left: topLeftButtons, right: topButtons};
 
         const commonButtonClasses = classNames({
             'btn'           : true,

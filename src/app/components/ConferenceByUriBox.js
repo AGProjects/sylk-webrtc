@@ -50,6 +50,10 @@ class ConferenceByUriBox extends React.Component {
             displayName = 'Guest';
         } else {
             displayName = this.state.displayName;
+            // Bug in SIPSIMPLE, display name can't end with \ else we don't join chat
+            if (displayName.endsWith('\\')) {
+                displayName = displayName.slice(0, -1);
+            }
         }
         this.props.handler(displayName, this.props.targetUri);
     }

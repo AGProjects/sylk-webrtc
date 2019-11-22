@@ -49,7 +49,7 @@ class URIInput extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.autoFocus) {
+        if (prevProps.defaultValue !== this.props.defaultValue && this.props.autoFocus) {
             this.uriInput.current.focus();
         }
     }
@@ -95,7 +95,9 @@ class URIInput extends React.Component {
 
     onInputBlur(event) {
         // focus was lost, reset selecting state
-        this.setState({selecting: false});
+        if (this.state.selecting) {
+            this.setState({selecting: false});
+        }
         this.clicked = false;
     }
 

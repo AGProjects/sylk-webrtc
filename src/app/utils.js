@@ -4,10 +4,7 @@ const SillyNames = require('./SillyNames');
 const MaterialColors = require('./MaterialColors');
 
 function generateUniqueId() {
-    const buffer = new Buffer(uuidv4('binary'));
-    let uniqueId = buffer.toString('base64');
-    uniqueId = uniqueId.replace(/\//g,'.');
-    uniqueId = uniqueId.replace(/=/g,'');
+    const uniqueId = uuidv4().replace(/-/g, '').slice(0, 15);
     return uniqueId;
 }
 

@@ -1,7 +1,7 @@
 {
   "name": "Sylk",
   "version": "2.4.0",
-  "license": "AGPLv3",
+  "license": "AGPL-3.0-or-later",
   "private": true,
   "devDependencies": {
     "animate.css": "^3.7.2",

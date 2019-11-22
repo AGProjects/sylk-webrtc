@@ -21,6 +21,7 @@
     .drawer-body {
         display: flex;
         flex-direction: column;
+        height: 100%;
         padding: 15px;
         overflow: hidden;
         text-align: left;
@@ -59,10 +60,11 @@
     .drawer-files {
         display: flex;
         flex-direction: column;
-        max-height: 100vh;
+        max-height: 100%;
 
         .list-group {
             width: 350px;
+            margin-bottom: -15px;
             margin-left: -15px;
             overflow-x: hidden;
             overflow-y: auto;

@@ -562,6 +562,8 @@ class ConferenceBox extends React.Component {
             topButtons.push(<button key="sbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleDrawer}> <i className="fa fa-bars fa-2x"></i> </button>);
         }
 
+        buttons.top = {right: topButtons};
+
 
         const commonButtonClasses = classNames({
             'btn'           : true,

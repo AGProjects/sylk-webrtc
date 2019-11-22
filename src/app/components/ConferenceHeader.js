@@ -64,8 +64,8 @@ const ConferenceHeader = (props) => {
                         <div className="conference-top-left-buttons">
                             {props.buttons.top.left}
                         </div>
-                        <p className='lead'><strong>Conference:</strong> {props.remoteIdentity}</p>
-                        <p className='lead'>{callDetail}</p>
+                        <p className="lead"><strong>Conference:</strong> {props.remoteIdentity}</p>
+                        <p className="lead">{callDetail}</p>
                         <div className="conference-top-buttons">
                             {props.buttons.top.right}
                         </div>

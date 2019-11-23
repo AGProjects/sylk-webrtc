@@ -105,17 +105,17 @@ class NavigationBar extends React.Component {
                             <strong><i className="fa fa-user"></i> {this.props.account.id}</strong>
                         </MenuItem>
                         <MenuItem divider />
+                        <MenuItem eventKey="about">
+                            <i className="fa fa-info-circle"></i> About Sylk
+                        </MenuItem>
                         <MenuItem eventKey="callMeMaybe">
                             <i className="fa fa-share"></i> Call me, maybe?
                         </MenuItem>
                         <MenuItem eventKey="preview">
-                            <i className="fa fa-video-camera"></i> Audio/Video Preview
-                        </MenuItem>
-                        <MenuItem eventKey="about">
-                            <i className="fa fa-info-circle"></i> About
+                            <i className="fa fa-video-camera"></i> Video preview
                         </MenuItem>
                         <MenuItem eventKey="settings">
-                            <i className="fa fa-wrench"></i> Settings
+                            <i className="fa fa-wrench"></i> Server account settings
                         </MenuItem>
                         <MenuItem eventKey="logOut">
                             <i className="fa fa-sign-out"></i> Sign Out

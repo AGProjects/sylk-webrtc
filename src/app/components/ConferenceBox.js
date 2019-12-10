@@ -230,11 +230,11 @@ class ConferenceBox extends React.Component {
         let stateFiles = this.state.sharedFiles.slice();
         stateFiles = stateFiles.concat(files);
         this.setState({sharedFiles: stateFiles});
-        files.forEach((file)=>{
+        files.forEach((file) => {
             if (file.session !== this.props.call.id) {
                 this.props.notificationCenter().postFileShared(file, this.showFiles);
             }
-        })
+        });
     }
 
     changeResolution() {

@@ -19,6 +19,21 @@
     }
 }
 
+.conference-top-left-buttons {
+    position: absolute;
+    top: -4px;
+    left: 0;
+    margin-top: 3.5px;
+
+    .btn-link {
+        color: $lighter-gray;
+
+        &:hover {
+            color: $white;
+        }
+    }
+}
+
 .conference-thumbnails {
     position: absolute;
     right: 0;

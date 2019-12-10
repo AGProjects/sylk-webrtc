@@ -8052,8 +8052,8 @@ sver-compat@^1.5.0:
     es6-symbol "^3.1.1"
 
 sylkrtc@AGProjects/sylkrtc.js:
-  version "1.1.1"
-  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/1523683266b873403b1e852c7fa5c538520b76ee"
+  version "1.2.0"
+  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/fc6f4ed25b33dc239f5f1d202c2b76e438aa62bb"
   dependencies:
     attachmediastream "^2.0.0"
     blueimp-md5 "^2.10.0"

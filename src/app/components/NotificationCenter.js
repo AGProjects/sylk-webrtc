@@ -166,6 +166,20 @@ class NotificationCenter extends React.Component {
         });
     }
 
+    postNewMessage(message, cb) {
+        const sender = message.sender.displayName || message.sender.uri;
+        this.refs.notificationSystem.addNotification({
+            title: `Chat message from ${sender}`,
+            autoDismiss: 10,
+            level: 'info',
+            position: 'bl',
+            action: {
+                label: 'Show Chat',
+                callback: () => { cb(); }
+            }
+        });
+    }
+
     render() {
         return (
             <NotificationSystem ref="notificationSystem" allowHTML={true} />

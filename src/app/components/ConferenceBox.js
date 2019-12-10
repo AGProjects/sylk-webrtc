@@ -33,6 +33,8 @@ const ConferenceCarousel                = require('./ConferenceCarousel');
 const ConferenceParticipant             = require('./ConferenceParticipant');
 const ConferenceMatrixParticipant       = require('./ConferenceMatrixParticipant');
 const ConferenceParticipantSelf         = require('./ConferenceParticipantSelf');
+const ConferenceChat                    = require('./ConferenceChat');
+const ConferenceChatEditor              = require('./ConferenceChatEditor');
 const DragAndDrop                       = require('./DragAndDrop');
 const InviteParticipantsModal           = require('./InviteParticipantsModal');
 
@@ -70,11 +72,16 @@ class ConferenceBox extends React.Component {
             showInviteModal: false,
             showDrawer: false,
             showFiles: false,
+            showChat: false,
             shareOverlayVisible: false,
             activeSpeakers: props.call.activeParticipants.slice(),
             selfDisplayedLarge: false,
             eventLog: [],
-            sharedFiles: props.call.sharedFiles.slice()
+            sharedFiles: props.call.sharedFiles.slice(),
+            messages: props.call.messages.slice(),
+            isComposing: false,
+            newMessages: 0,
+            shouldScroll: false
         };
 
         const friendlyName = this.props.remoteIdentity.split('@')[0];
@@ -122,19 +129,25 @@ class ConferenceBox extends React.Component {
             'onParticipantStateChanged',
             'onConfigureRoom',
             'onFileSharing',
+            'onMessage',
+            'onComposing',
             'maybeSwitchLargeVideo',
             'handleClipboardButton',
             'handleEmailButton',
             'handleShareOverlayEntered',
             'handleShareOverlayExited',
             'handleActiveSpeakerSelected',
+            'handleSend',
+            'handleTyping',
             'handleDrop',
             'handleFiles',
             'downloadFile',
             'toggleInviteModal',
             'toggleDrawer',
             'toggleFiles',
+            'toggleChat',
             'showFiles',
+            'setScroll',
             'preventOverlay'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
@@ -150,6 +163,8 @@ class ConferenceBox extends React.Component {
         this.props.call.on('participantLeft', this.onParticipantLeft);
         this.props.call.on('roomConfigured', this.onConfigureRoom);
         this.props.call.on('fileSharing', this.onFileSharing);
+        this.props.call.on('message', this.onMessage);
+        this.props.call.on('composingIndication', this.onComposing);
 
         this.armOverlayTimer();
 
@@ -235,6 +250,30 @@ class ConferenceBox extends React.Component {
                 this.props.notificationCenter().postFileShared(file, this.showFiles);
             }
         });
+    }
+
+    onMessage(message) {
+        let stateMessages = this.state.messages.slice();
+        let newMessages = this.state.newMessages;
+
+        if (message.type === 'normal' && !this.state.showChat) {
+            newMessages += 1;
+            this.props.notificationCenter().postNewMessage(message, () => {
+                this.setState({showChat: true})
+            });
+        } else if (this.state.showChat) {
+            newMessages = 0;
+        }
+        stateMessages.push(message);
+        this.setState({messages: stateMessages, newMessages: newMessages});
+    }
+
+    onComposing(indication) {
+        if (indication.state === 'active') {
+            this.setState({isComposing: true});
+        } else {
+            this.setState({isComposing: false});
+        }
     }
 
     changeResolution() {
@@ -345,6 +384,17 @@ class ConferenceBox extends React.Component {
         event.target.value = '';
     }
 
+    handleSend(message, type) {
+        let msg = this.props.call.sendMessage(message, type);
+        let stateMessages = this.state.messages.slice();
+        stateMessages.push(msg);
+        this.setState({messages: stateMessages});
+    }
+
+    handleTyping(state) {
+        this.props.call.sendComposing(state);
+    }
+
     uploadFiles(files) {
         for (var key in files) {
             // is the item a File?
@@ -378,6 +428,10 @@ class ConferenceBox extends React.Component {
                 this.uploads.push([uploadRequest, progressNotification]);
             }
         }
+    }
+
+    setScroll() {
+        this.setState({shouldScroll: !this.state.shouldScroll});
     }
 
     downloadFile(filename) {
@@ -474,6 +528,10 @@ class ConferenceBox extends React.Component {
     toggleFiles() {
         this.setState({callOverlayVisible: true, showFiles: !this.state.showFiles, showDrawer: false});
         clearTimeout(this.overlayTimer);
+    }
+
+    toggleChat() {
+        this.setState({showChat: !this.state.showChat});
     }
 
     showFiles() {
@@ -763,6 +821,17 @@ class ConferenceBox extends React.Component {
                         close={this.toggleInviteModal}
                     />
                 </div>
+                <ConferenceDrawer
+                    show={this.state.showChat}
+                    close={this.toggleChat}
+                    anchor="left"
+                    transparent={true}
+                    wide={true}
+                    {...this.state.isComposing &&  {title: (<i className="fa fa-ellipsis-h fa-2x" />)}}
+                >
+                    <ConferenceChat messages={this.state.messages} scroll={this.state.shouldScroll} />
+                    <ConferenceChatEditor onSubmit={this.handleSend} onTyping={this.handleTyping} scroll={this.setScroll} />
+                </ConferenceDrawer>
                 <ConferenceDrawer show={this.state.showDrawer} close={this.toggleDrawer}>
                     <ConferenceDrawerSpeakerSelection
                         participants={this.state.participants.concat([{id: this.props.call.id, publisherId: this.props.call.id, identity: this.props.call.localIdentity}])}

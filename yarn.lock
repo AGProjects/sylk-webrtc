@@ -2821,6 +2821,12 @@ elliptic@^6.0.0:
     minimalistic-assert "^1.0.0"
     minimalistic-crypto-utils "^1.0.0"
 
+emoji-mart@^2.11.1:
+  version "2.11.1"
+  resolved "https://registry.yarnpkg.com/emoji-mart/-/emoji-mart-2.11.1.tgz#fc9330b513803c17b98c9ad289c12ab61ff05f8f"
+  dependencies:
+    prop-types "^15.6.0"
+
 emoji-regex@^7.0.1:
   version "7.0.3"
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-7.0.3.tgz#933a04052860c85e83c122479c4748a8e4c72156"
@@ -4340,6 +4346,10 @@ ignore@^3.1.2:
 ignore@^4.0.6:
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-4.0.6.tgz#750e3db5862087b4737ebac8207ffd1ef27b25fc"
+
+image-conversion@^1.1.9:
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/image-conversion/-/image-conversion-1.1.9.tgz#33e95c0871f0ad7043da23dbb4c03a50b8cd5e9f"
 
 immediate@^3.2.3:
   version "3.2.3"

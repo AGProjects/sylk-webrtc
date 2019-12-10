@@ -334,7 +334,7 @@ class ConferenceBox extends React.Component {
         });
     }
 
-    handleDrop(files) { 
+    handleDrop(files) {
         DEBUG('Dropped file %o', files);
         this.uploadFiles(files);
     };
@@ -353,7 +353,7 @@ class ConferenceBox extends React.Component {
                 let complete = false;
                 const filename = files[key].name
                 let progressNotification = this.props.notificationCenter().postFileUploadProgress(
-                    filename, 
+                    filename,
                     (notification) => {
                         if (!complete) {
                             uploadRequest.abort();
@@ -776,7 +776,7 @@ class ConferenceBox extends React.Component {
                 </ConferenceDrawer>
                 <ConferenceDrawer show={this.state.showFiles} close={this.toggleFiles}>
                     <ConferenceDrawerFiles
-                        sharedFiles={this.state.sharedFiles} 
+                        sharedFiles={this.state.sharedFiles}
                         downloadFile={this.downloadFile}
                     />
                 </ConferenceDrawer>

@@ -261,8 +261,6 @@ class ConferenceBox extends React.Component {
             this.props.notificationCenter().postNewMessage(message, () => {
                 this.setState({showChat: true})
             });
-        } else if (this.state.showChat) {
-            newMessages = 0;
         }
         stateMessages.push(message);
         this.setState({messages: stateMessages, newMessages: newMessages});
@@ -531,7 +529,7 @@ class ConferenceBox extends React.Component {
     }
 
     toggleChat() {
-        this.setState({showChat: !this.state.showChat});
+        this.setState({showChat: !this.state.showChat, newMessages: 0});
     }
 
     showFiles() {

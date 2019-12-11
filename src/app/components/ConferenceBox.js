@@ -256,7 +256,7 @@ class ConferenceBox extends React.Component {
         let stateMessages = this.state.messages.slice();
         let newMessages = this.state.newMessages;
 
-        if (message.type === 'normal' && !this.state.showChat) {
+        if (message.type === 'normal' && !message.content.startsWith('?OTRv') && !this.state.showChat) {
             newMessages += 1;
             if (this.messageNotification !== null) {
                 this.props.notificationCenter().removeNotification(this.messageNotification);

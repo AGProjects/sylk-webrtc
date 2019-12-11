@@ -5,6 +5,7 @@ const useState          = React.useState;
 const useEffect         = React.useEffect;
 const useRef            = React.useRef;
 const PropTypes         = require('prop-types');
+const classNames        = require('classnames');
 const TransitionGroup   = require('react-transition-group/TransitionGroup');
 const CSSTransition     = require('react-transition-group/CSSTransition');
 const moment            = require('moment');
@@ -53,6 +54,18 @@ const ConferenceHeader = (props) => {
             </span>
         );
 
+        let electron = false;
+        if (typeof window.process !== 'undefined') {
+            if (window.process.versions.electron !== '' && window.process.platform === 'darwin') {
+                electron = true;
+            }
+        }
+
+        const leftButtonClasses = classNames({
+            'conference-top-left-buttons': true,
+            'electron-margin': electron
+        });
+
         videoHeader = (
             <CSSTransition
                 key="header"
@@ -61,7 +74,7 @@ const ConferenceHeader = (props) => {
             >
                 <div key="header" className="call-header">
                     <div className="container-fluid">
-                        <div className="conference-top-left-buttons">
+                        <div className={leftButtonClasses}>
                             {props.buttons.top.left}
                         </div>
                         <p className="lead"><strong>Conference:</strong> {props.remoteIdentity}</p>

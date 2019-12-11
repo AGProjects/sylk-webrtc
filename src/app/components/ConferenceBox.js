@@ -101,7 +101,7 @@ class ConferenceBox extends React.Component {
         this.logEvent = {};
         this.haveVideo = false;
         this.uploads = [];
-
+        this.messageNotification = null;
         [
             'error',
             'warning',
@@ -258,7 +258,10 @@ class ConferenceBox extends React.Component {
 
         if (message.type === 'normal' && !this.state.showChat) {
             newMessages += 1;
-            this.props.notificationCenter().postNewMessage(message, () => {
+            if (this.messageNotification !== null) {
+                this.props.notificationCenter().removeNotification(this.messageNotification);
+            }
+            this.messageNotification = this.props.notificationCenter().postNewMessage(message, () => {
                 this.setState({showChat: true})
             });
         }

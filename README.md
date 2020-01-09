@@ -72,17 +72,21 @@ For Windows build:
     make watch
 ```
 
-* Deploy the built website to the server
+* Deploy the built website to the default server (SIP2SIP.info)
 
 ```
     make deploy
 ```
 
-* Deploy the built website to the staging server
+* Deploy the built website to the default staging server (SIP2SIP.info)
 
 ```
     make deploy-test
 ```
+
+To deploy the built website to your own web server, copy the contents of the
+dist/ folder to the location on de website where you want it to be
+available. See examples/apache/.htaccess for required rewrite rules.
 
 ### Electron application
 

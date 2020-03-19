@@ -58,7 +58,7 @@
     "notifyjs": "^3.0.0",
     "prop-types": "^15.7.2",
     "react": "^16.9.0",
-    "react-bootstrap": "^0.32.3",
+    "react-bootstrap": "^0.33.1",
     "react-dom": "^16.9.0",
     "react-mixin": "^4.0.0",
     "react-notification-system": "^0.3.0",

@@ -11,8 +11,8 @@ about-window@^1.12.1:
   resolved "https://registry.yarnpkg.com/about-window/-/about-window-1.12.1.tgz#b81c10f6de58d38bce2aa5f31f61a82e6c3d6c2b"
 
 acorn@^5.0.0:
-  version "5.7.3"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.7.3.tgz#67aa231bf8812974b85235a96771eb6bd07ea279"
+  version "5.7.4"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.7.4.tgz#3e8d8a9947d0599a1796d10225d7432f4a4acf5e"
 
 argparse@^1.0.7:
   version "1.0.10"

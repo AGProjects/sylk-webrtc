@@ -226,7 +226,8 @@ class Blink extends React.Component {
                     currentCall: null,
                     inboundCall: null,
                     localMedia: null,
-                    generatedVideoTrack: false
+                    generatedVideoTrack: false,
+                    serverHistory: []
                 });
                 break;
             default:
@@ -411,6 +412,7 @@ class Blink extends React.Component {
                     this.setState({account: null, registrationState: null});
                 }
             );
+            this.setState({serverHistory: []});
         }
 
         const options = {
@@ -1291,7 +1293,7 @@ class Blink extends React.Component {
             if (this.shouldUseHashRouting) {
                 storage.set('account', {accountId: this.state.accountId, password: ''});
             }
-            this.setState({account: null, registrationState: null, status: null});
+            this.setState({account: null, registrationState: null, status: null, serverHistory: []});
             this.refs.router.navigate('/login');
         });
         return <div></div>;

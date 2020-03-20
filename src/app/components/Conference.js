@@ -68,6 +68,7 @@ class Conference extends React.Component {
                         remoteIdentity = {this.props.targetUri}
                         shareScreen = {this.props.shareScreen}
                         generatedVideoTrack = {this.props.generatedVideoTrack}
+                        muteAudioFromStart = {this.props.muteAudioFromStart}
                     />
                 );
             } else {
@@ -100,7 +101,8 @@ Conference.propTypes = {
     localMedia              : PropTypes.object,
     targetUri               : PropTypes.string,
     participantsToInvite    : PropTypes.array,
-    generatedVideoTrack     : PropTypes.bool
+    generatedVideoTrack     : PropTypes.bool,
+    muteAudioFromStart      : PropTypes.bool
 };
 
 

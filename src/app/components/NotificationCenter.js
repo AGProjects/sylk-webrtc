@@ -181,7 +181,7 @@ class NotificationCenter extends React.Component {
     }
 
     postMutedOnStart() {
-        this.refs.notificationSystem.addNotification({
+        return this.refs.notificationSystem.addNotification({
             children: (<p style={{margin: '0 0 5px', textAlign: 'left'}}>You have been added to the conference with your audio muted. You can always unmute yourself when you are ready to speak.</p>),
             title: 'Your audio is muted',
             autoDismiss: 0,

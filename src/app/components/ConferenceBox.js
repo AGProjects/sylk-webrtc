@@ -101,6 +101,7 @@ class ConferenceBox extends React.Component {
         this.logEvent = {};
         this.haveVideo = false;
         this.uploads = [];
+        this.muteNotification = null;
         this.messageNotification = null;
         [
             'error',
@@ -196,7 +197,10 @@ class ConferenceBox extends React.Component {
         this.uploads.forEach((upload) => {
             this.props.notificationCenter().removeNotification(upload[1]);
             upload[0].abort();
-        })
+        });
+        if (this.muteNotification !== null) {
+            this.props.notificationCenter().removeNotification(this.muteNotification);
+        }
         this.exitFullscreen();
     }
 
@@ -482,7 +486,7 @@ class ConferenceBox extends React.Component {
             DEBUG('Mute microphone, guest participant');
             track.enabled = false;
             this.setState({audioMuted: true});
-            this.props.notificationCenter().postMutedOnStart();
+            this.muteNotification = this.props.notificationCenter().postMutedOnStart();
         }
     }
 

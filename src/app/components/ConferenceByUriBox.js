@@ -73,6 +73,7 @@ class ConferenceByUriBox extends React.Component {
                     shareScreen = {this.props.shareScreen}
                     generatedVideoTrack = {this.props.generatedVideoTrack}
                     muteAudioFromStart = {true}
+                    participantIsGuest = {true}
                 />
             );
         } else {

@@ -897,7 +897,8 @@ ConferenceBox.propTypes = {
     hangup              : PropTypes.func,
     remoteIdentity      : PropTypes.string,
     generatedVideoTrack : PropTypes.bool,
-    muteAudioFromStart  : PropTypes.bool
+    muteAudioFromStart  : PropTypes.bool,
+    participantIsGuest  : PropTypes.bool
 };
 
 ReactMixin(ConferenceBox.prototype, FullscreenMixin);

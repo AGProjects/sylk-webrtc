@@ -12,7 +12,7 @@ const MuteAudioParticipantsModal = (props) => {
         props.close();
     }
     return (
-        <Modal show={props.show} onHide={props.close}>
+        <Modal show={props.show} onHide={props.close} aria-labelledby="cmodal-title-sm">
             <Modal.Header closeButton>
                 <Modal.Title id="cmodal-title-sm">Mute audio from everybody except yourself?</Modal.Title>
             </Modal.Header>

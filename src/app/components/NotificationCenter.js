@@ -190,6 +190,16 @@ class NotificationCenter extends React.Component {
         });
     }
 
+    postMutedBy(originator) {
+        return this.refs.notificationSystem.addNotification({
+            children: (<p style={{margin: '0 0 5px', textAlign: 'left'}}>You have been muted by {originator.displayName || originator.uri}. You can always unmute yourself when you are ready to speak.</p>),
+            title: 'Your audio is muted',
+            autoDismiss: 0,
+            level: 'info',
+            position: 'bc'
+        });
+    }
+
     render() {
         const style = {
               Containers: {

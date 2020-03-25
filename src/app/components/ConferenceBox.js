@@ -28,6 +28,7 @@ const ConferenceDrawerFiles             = require('./ConferenceDrawerFiles');
 const ConferenceDrawerParticipant       = require('./ConferenceDrawerParticipant');
 const ConferenceDrawerParticipantList   = require('./ConferenceDrawerParticipantList');
 const ConferenceDrawerSpeakerSelection  = require('./ConferenceDrawerSpeakerSelection');
+const ConferenceDrawerMute              = require('./ConferenceDrawerMute');
 const ConferenceHeader                  = require('./ConferenceHeader');
 const ConferenceCarousel                = require('./ConferenceCarousel');
 const ConferenceParticipant             = require('./ConferenceParticipant');
@@ -37,6 +38,7 @@ const ConferenceChat                    = require('./ConferenceChat');
 const ConferenceChatEditor              = require('./ConferenceChatEditor');
 const DragAndDrop                       = require('./DragAndDrop');
 const InviteParticipantsModal           = require('./InviteParticipantsModal');
+const MuteAudioParticipantsModal        = require('./MuteAudioParticipantsModal');
 
 const DEBUG = debug('blinkrtc:ConferenceBox');
 
@@ -70,6 +72,7 @@ class ConferenceBox extends React.Component {
             videoMuted: false,
             participants: props.call.participants.slice(),
             showInviteModal: false,
+            showMuteAudioParticipantsModal: false,
             showDrawer: false,
             showFiles: false,
             showChat: false,
@@ -133,6 +136,7 @@ class ConferenceBox extends React.Component {
             'onFileSharing',
             'onMessage',
             'onComposing',
+            'onMuteAudio',
             'maybeSwitchLargeVideo',
             'handleClipboardButton',
             'handleEmailButton',
@@ -143,8 +147,10 @@ class ConferenceBox extends React.Component {
             'handleTyping',
             'handleDrop',
             'handleFiles',
+            'handleMuteAudioParticipants',
             'downloadFile',
             'toggleInviteModal',
+            'toggleMuteAudioParticipantsModal',
             'toggleDrawer',
             'toggleFiles',
             'toggleChat',
@@ -167,6 +173,7 @@ class ConferenceBox extends React.Component {
         this.props.call.on('fileSharing', this.onFileSharing);
         this.props.call.on('message', this.onMessage);
         this.props.call.on('composingIndication', this.onComposing);
+        this.props.call.on('muteAudio', this.onMuteAudio);
 
         this.armOverlayTimer();
 
@@ -283,6 +290,20 @@ class ConferenceBox extends React.Component {
             this.setState({isComposing: true});
         } else {
             this.setState({isComposing: false});
+        }
+    }
+
+    onMuteAudio(message) {
+        this.logEvent.info('muted audio from', ['Everybody'], message.originator);
+        if (message.originator != this.props.call.localIdentity && !this.state.audioMuted) {
+            const localStream = this.props.call.getLocalStreams()[0];
+            if (localStream.getAudioTracks().length > 0) {
+                const track = localStream.getAudioTracks()[0];
+                DEBUG('Mute audio on event from %o', message.originator);
+                track.enabled = false;
+                this.setState({audioMuted: true});
+                this.notifications.push(this.props.notificationCenter().postMutedBy(message.originator));
+            }
         }
     }
 
@@ -403,6 +424,11 @@ class ConferenceBox extends React.Component {
 
     handleTyping(state) {
         this.props.call.sendComposing(state);
+    }
+
+    handleMuteAudioParticipants() {
+        DEBUG('Mute all participants');
+        this.props.call.muteAudioParticipants();
     }
 
     uploadFiles(files) {
@@ -539,6 +565,10 @@ class ConferenceBox extends React.Component {
         if (this.refs.showOverlay) {
             this.refs.shareOverlay.hide();
         }
+    }
+
+    toggleMuteAudioParticipantsModal() {
+        this.setState({showMuteAudioParticipantsModal: !this.state.showMuteAudioParticipantsModal});
     }
 
     toggleDrawer() {
@@ -821,8 +851,14 @@ class ConferenceBox extends React.Component {
             }
         }
 
+
         return (
             <DragAndDrop handleDrop={this.handleDrop}>
+                <MuteAudioParticipantsModal
+                    show={this.state.showMuteAudioParticipantsModal}
+                    close={this.toggleMuteAudioParticipantsModal}
+                    handleMute={this.handleMuteAudioParticipants}
+                />
                 <input
                     style={{display:'none'}}
                     id="outlined-button-file"
@@ -873,6 +909,11 @@ class ConferenceBox extends React.Component {
                         selected={this.handleActiveSpeakerSelected}
                         activeSpeakers={this.state.activeSpeakers}
                     />
+                    {this.props.participantIsGuest ? "" :
+                        <ConferenceDrawerMute
+                            muteEverybody={this.toggleMuteAudioParticipantsModal}
+                        />
+                    }
                     <ConferenceDrawerParticipantList>
                         {drawerParticipants}
                     </ConferenceDrawerParticipantList>

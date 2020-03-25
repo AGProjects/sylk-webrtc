@@ -131,7 +131,7 @@ class ConferenceParticipant extends React.Component {
 
             muteButton = (
                 <div className="mute">
-                    <button className={muteButtonClasses} onClick={this.onMuteAudioClicked}>
+                    <button className={muteButtonClasses} onClick={this.onMuteAudioClicked} title="Mute remote audio locally">
                         <i className={muteButtonIcons}></i>
                     </button>
                 </div>

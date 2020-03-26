@@ -126,7 +126,7 @@ class ConferenceBox extends React.Component {
             'showOverlay',
             'handleFullscreen',
             'muteAudio',
-            'muteAudioFromStart',
+            'muteGuestAudioOnJoin',
             'muteVideo',
             'hangup',
             'onParticipantJoined',
@@ -194,8 +194,8 @@ class ConferenceBox extends React.Component {
             this.haveVideo = true;
         }
 
-        if (this.props.muteAudioFromStart === true) {
-            this.muteAudioFromStart();
+        if (this.props.participantIsGuest && config.muteGuestAudioOnJoin) {
+            this.muteGuestAudioOnJoin();
         }
     }
 
@@ -505,7 +505,7 @@ class ConferenceBox extends React.Component {
         }
     }
 
-    muteAudioFromStart() {
+    muteGuestAudioOnJoin() {
         const localStream = this.props.call.getLocalStreams()[0];
         if (localStream.getAudioTracks().length > 0) {
             const track = localStream.getAudioTracks()[0];
@@ -938,7 +938,6 @@ ConferenceBox.propTypes = {
     hangup              : PropTypes.func,
     remoteIdentity      : PropTypes.string,
     generatedVideoTrack : PropTypes.bool,
-    muteAudioFromStart  : PropTypes.bool,
     participantIsGuest  : PropTypes.bool
 };
 

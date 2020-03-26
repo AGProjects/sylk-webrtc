@@ -68,7 +68,6 @@ class Conference extends React.Component {
                         remoteIdentity = {this.props.targetUri}
                         shareScreen = {this.props.shareScreen}
                         generatedVideoTrack = {this.props.generatedVideoTrack}
-                        muteAudioFromStart = {this.props.muteAudioFromStart}
                         participantIsGuest = {this.props.participantIsGuest}
                     />
                 );

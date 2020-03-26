@@ -14,7 +14,10 @@ const configOptions = {
     wsServer                : 'wss://webrtc-gateway.sipthor.net:9999/webrtcgateway/ws',
     fileSharingUrl          : 'https://webrtc-gateway.sipthor.net:9999/webrtcgateway/filesharing',
     iceServers              : [{urls: 'stun:stun.sipthor.net:3478'}],
-    muteGuestAudioOnJoin    : true
+    muteGuestAudioOnJoin    : true,
+    guestUserPermissions    : {
+        allowMuteAllParticipants     : false
+    }
 };
 
 

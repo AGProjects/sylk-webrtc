@@ -142,9 +142,9 @@ class ReadyBox extends React.Component {
                                     placeholder="Eg. alice@sip2sip.info or 3333"
                                 />
                                 <div className="form-group">
-                                    <button aria-label="Make Audio Call" title="Audio Call" type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
-                                    <button aria-label="Make Video Call" title="Video Call" type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
-                                    <button aria-label="Join Video Conference" title="Join Video Conference" type="button" className="btn btn-primary btn-round-big" onClick={this.showConferenceModal}><i className="fa fa-users"></i></button>
+                                    <button aria-label="Start an audio call" title="Audio call" type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
+                                    <button aria-label="Start a video call" title="Video call" type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
+                                    <button aria-label="Join a video conference" title="Join video conference" type="button" className="btn btn-primary btn-round-big" onClick={this.showConferenceModal}><i className="fa fa-users"></i></button>
                                 </div>
                             </div>
                         </div>

@@ -799,7 +799,7 @@ class ConferenceBox extends React.Component {
                         <ConferenceMatrixParticipant
                             key={p.id}
                             participant={p}
-                            large={activeSpeakers.length <= 1}
+                            large={activeSpeakersCount <= 1}
                             isLocal={p.id === this.props.call.id}
                         />
                     );

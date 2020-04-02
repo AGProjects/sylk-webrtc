@@ -790,7 +790,8 @@ class ConferenceBox extends React.Component {
             matrixClasses = classNames({
                 'matrix'        : true,
                 'one-row'       : activeSpeakersCount === 2,
-                'two-columns'   : activeSpeakersCount === 2
+                'two-columns'   : activeSpeakersCount === 2,
+                'offset-carousel' : activeSpeakersCount === 1 && this.state.participants.length >= 2
             });
 
             if (activeSpeakersCount > 0) {
@@ -850,7 +851,10 @@ class ConferenceBox extends React.Component {
                 });
             }
         }
-
+        const carouselClasses = classNames({
+            'conference-thumbnails': true,
+            'conference-thumbnails-small': this.state.participants.length === 1 &&  this.state.activeSpeakers.length <= 1
+        });
 
         return (
             <DragAndDrop handleDrop={this.handleDrop}>
@@ -879,7 +883,7 @@ class ConferenceBox extends React.Component {
                     <div className={matrixClasses}>
                         {videos}
                     </div>
-                    <div className="conference-thumbnails" onMouseMove={this.preventOverlay}>
+                    <div className={carouselClasses} onMouseMove={this.preventOverlay}>
                         <ConferenceCarousel align={'right'}>
                             {participants}
                         </ConferenceCarousel>

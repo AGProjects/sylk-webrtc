@@ -50,3 +50,33 @@
         }
     }
 }
+
+.btn-hand {
+    padding-top: 0;
+    padding-bottom: 0;
+    color: $white;
+
+    &:hover {
+        color: $bootstrap-primary;
+    }
+
+    i {
+        font-size: 21px;
+    }
+}
+
+.media-right {
+    .btn-hand {
+        padding-top: 0;
+        padding-bottom: 0;
+        color: $gray;
+
+        &:hover {
+            color: $bootstrap-primary;
+        }
+
+        i {
+            font-size: inherit;
+        }
+    }
+}

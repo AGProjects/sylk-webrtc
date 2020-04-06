@@ -474,7 +474,6 @@ class ConferenceBox extends React.Component {
                     this.handleActiveSpeakerSelected(participant);
                 }
             }
-            // }
         } else {
             this.handleActiveSpeakerSelected(participant)
         }

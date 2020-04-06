@@ -7,6 +7,7 @@ const sylkrtc           = require('sylkrtc');
 const hark              = require('hark');
 const classNames        = require('classnames');
 
+const HandIcon = require('./HandIcon')
 
 class ConferenceMatrixParticipant extends React.Component {
     constructor(props) {
@@ -106,7 +107,13 @@ class ConferenceMatrixParticipant extends React.Component {
         });
         const participantInfo = (
             <div className="controls">
-                <p className="lead">{this.props.participant.identity.displayName || this.props.participant.identity.uri}</p>
+                <p className="lead">{this.props.participant.identity.displayName || this.props.participant.identity.uri}
+                    <HandIcon
+                        raisedHand={this.props.raisedHand}
+                        handleHandSelected={() => this.props.handleHandSelected(this.props.participant)}
+                        disableHandToggle={this.props.disableHandToggle}
+                    />
+                </p>
             </div>
         );
 
@@ -134,8 +141,13 @@ class ConferenceMatrixParticipant extends React.Component {
 
 ConferenceMatrixParticipant.propTypes = {
     participant: PropTypes.object.isRequired,
+    raisedHand: PropTypes.number.isRequired,
+    handleHandSelected: PropTypes.func.isRequired,
+    disableHandToggle: PropTypes.bool,
     large: PropTypes.bool,
-    isLocal: PropTypes.bool
+    isLocal: PropTypes.bool,
+    isGeneratedTrack: PropTypes.bool,
+    handleHandSelected: PropTypes.func
 };
 
 

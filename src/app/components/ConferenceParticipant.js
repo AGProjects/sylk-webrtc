@@ -10,6 +10,8 @@ const hark              = require('hark');
 const classNames        = require('classnames');
 
 
+const HandIcon = require('./HandIcon');
+
 class ConferenceParticipant extends React.Component {
     constructor(props) {
         super(props);
@@ -141,6 +143,12 @@ class ConferenceParticipant extends React.Component {
         return (
             <div onMouseMove={this.showOverlay} onMouseLeave={this.hideOverlay}>
                 {muteButton}
+                <HandIcon
+                    raisedHand={this.props.raisedHand}
+                    handleHandSelected={() => this.props.handleHandSelected(this.props.participant)}
+                    disableHandToggle={this.props.disableHandToggle}
+                    thumb
+                />
                 <OverlayTrigger placement="top" overlay={tooltip}>
                     <div className="participant-container">
                         <video ref={this.videoElement} className={classes} poster="assets/images/transparent-1px.png" autoPlay />
@@ -152,7 +160,10 @@ class ConferenceParticipant extends React.Component {
 }
 
 ConferenceParticipant.propTypes = {
-    participant: PropTypes.object.isRequired
+    participant: PropTypes.object.isRequired,
+    raisedHand: PropTypes.number.isRequired,
+    handleHandSelected: PropTypes.func.isRequired,
+    disableHandToggle: PropTypes.bool
 };
 
 

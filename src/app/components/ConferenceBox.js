@@ -82,6 +82,8 @@ class ConferenceBox extends React.Component {
             eventLog: [],
             sharedFiles: props.call.sharedFiles.slice(),
             messages: props.call.messages.slice(),
+            raisedHands: props.call.raisedHands.slice(),
+            raisedHand: false,
             isComposing: false,
             newMessages: 0,
             shouldScroll: false
@@ -137,6 +139,7 @@ class ConferenceBox extends React.Component {
             'onMessage',
             'onComposing',
             'onMuteAudio',
+            'onRaisedHands',
             'maybeSwitchLargeVideo',
             'handleClipboardButton',
             'handleEmailButton',
@@ -148,6 +151,8 @@ class ConferenceBox extends React.Component {
             'handleDrop',
             'handleFiles',
             'handleMuteAudioParticipants',
+            'handleToggleHand',
+            'handleHandSelected',
             'downloadFile',
             'toggleInviteModal',
             'toggleMuteAudioParticipantsModal',
@@ -174,6 +179,7 @@ class ConferenceBox extends React.Component {
         this.props.call.on('message', this.onMessage);
         this.props.call.on('composingIndication', this.onComposing);
         this.props.call.on('muteAudio', this.onMuteAudio);
+        this.props.call.on('raisedHands', this.onRaisedHands);
 
         this.armOverlayTimer();
 
@@ -307,6 +313,22 @@ class ConferenceBox extends React.Component {
         }
     }
 
+    onRaisedHands(message) {
+        let raisedHand = true;
+        if (message.raisedHands.findIndex((element) => {return element.id === this.props.call.id}) === -1) {
+            raisedHand = false;
+        }
+
+        const raisedHands = this.state.raisedHands.slice();
+        if (raisedHands.length < message.raisedHands.length) {
+            const diff = message.raisedHands.filter((element) => {return raisedHands.findIndex((elem) => {return elem.id === element.id})});
+            if (diff.length > 0 && diff[0].id !== this.props.call.id) {
+                this.props.notificationCenter().postRaisedHand(diff[0].identity);
+            }
+        }
+        this.setState({raisedHands: message.raisedHands, raisedHand: raisedHand});
+    }
+
     changeResolution() {
         let stream = this.props.call.getLocalStreams()[0];
         if (this.state.participants.length < 2) {
@@ -429,6 +451,34 @@ class ConferenceBox extends React.Component {
     handleMuteAudioParticipants() {
         DEBUG('Mute all participants');
         this.props.call.muteAudioParticipants();
+    }
+
+    handleToggleHand() {
+        this.props.call.toggleHand();
+    }
+
+    handleHandSelected(participant) {
+        DEBUG('%o', participant);
+        if (this.state.activeSpeakers.length !== 0) {
+            if (this.state.activeSpeakers.length !== 2) {
+                this.handleActiveSpeakerSelected(participant, true);
+            } else {
+                let index = this.state.activeSpeakers.findIndex((element) => {return element.id === this.props.call.id})
+                if (index !== -1) {
+                    if (index == 1) {
+                        this.handleActiveSpeakerSelected(participant);
+                    } else {
+                        this.handleActiveSpeakerSelected(participant, true);
+                    }
+                } else {
+                    this.handleActiveSpeakerSelected(participant);
+                }
+            }
+            // }
+        } else {
+            this.handleActiveSpeakerSelected(participant)
+        }
+        this.props.call.toggleHand(participant.publisherId);
     }
 
     uploadFiles(files) {
@@ -655,6 +705,12 @@ class ConferenceBox extends React.Component {
             'fa-compress'   : this.isFullScreen()
         });
 
+        const handClasses = classNames({
+            'fa'              : true,
+            'fa-2x'           : true,
+            'fa-hand-o-up'    : true,
+            'text-primary'    : this.state.raisedHand
+        })
         const topButtons = [];
         if (this.isFullscreenSupported()) {
             topButtons.push(<button key="fsButton" type="button" title="Go full-screen" className={commonButtonTopClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
@@ -685,6 +741,9 @@ class ConferenceBox extends React.Component {
                 <button key="chatButton" type="button" title="Open Chat" className={commonButtonTopClasses} onClick={this.toggleChat}> <i className="fa fa-comments fa-2x"></i> </button>
             );
         }
+        topLeftButtons.push(
+            <button key="handButton" type="button" title="Raise Hand" className={commonButtonTopClasses} onClick={this.handleToggleHand}> <i className={handClasses}></i> </button>
+        );
         buttons.top = {left: topLeftButtons, right: topButtons};
 
 
@@ -770,16 +829,21 @@ class ConferenceBox extends React.Component {
             }
         }
 
+        const disableHandToggle = !config.guestUserPermissions.allowToggleHandsParticipants && this.props.participantIsGuest;
         const drawerParticipants = [];
         drawerParticipants.push(
             <ConferenceDrawerParticipant
                 key="myself"
-                participant={{identity: this.props.call.localIdentity}}
+                participant={{identity: this.props.call.localIdentity, publisherId: this.props.call.id}}
                 isLocal={true}
+                raisedHand={this.state.raisedHands.findIndex((element) => {return element.id === this.props.call.id})}
+                handleHandSelected={this.handleHandSelected}
+                disableHandToggle={disableHandToggle}
             />
         );
 
         let videos = [];
+
         if (this.state.participants.length === 0) {
             videos.push(
                 <video ref="largeVideo" key="largeVideo" className={largeVideoClasses} poster="assets/images/transparent-1px.png" autoPlay muted />
@@ -796,12 +860,19 @@ class ConferenceBox extends React.Component {
 
             if (activeSpeakersCount > 0) {
                 activeSpeakers.forEach((p) => {
+                    let raisedHand = this.state.raisedHands.indexOf(p);
+                    if (p.id === this.props.call.id && this.state.raisedHand) {
+                        raisedHand = this.state.raisedHands.findIndex((elem) => elem.id === this.props.call.id);
+                    }
                     videos.push(
                         <ConferenceMatrixParticipant
                             key={p.id}
                             participant={p}
                             large={activeSpeakersCount <= 1}
                             isLocal={p.id === this.props.call.id}
+                            raisedHand={raisedHand}
+                            handleHandSelected={this.handleHandSelected}
+                            disableHandToggle={disableHandToggle}
                         />
                     );
                 });
@@ -813,6 +884,9 @@ class ConferenceBox extends React.Component {
                                 key={p.id}
                                 participant={p}
                                 selected={this.onVideoSelected}
+                                raisedHand={this.state.raisedHands.indexOf(p)}
+                                handleHandSelected={this.handleHandSelected}
+                                disableHandToggle={disableHandToggle}
                             />
                         );
                     }
@@ -821,6 +895,9 @@ class ConferenceBox extends React.Component {
                         <ConferenceDrawerParticipant
                             key={p.id}
                             participant={p}
+                            raisedHand={this.state.raisedHands.indexOf(p)}
+                            handleHandSelected={this.handleHandSelected}
+                            disableHandToggle={disableHandToggle}
                         />
                     );
                 });
@@ -839,6 +916,9 @@ class ConferenceBox extends React.Component {
                             key = {p.id}
                             participant = {p}
                             large = {this.state.participants.length <= 1}
+                            raisedHand={this.state.raisedHands.indexOf(p)}
+                            handleHandSelected={this.handleHandSelected}
+                            disableHandToggle={disableHandToggle}
                         />
                     );
 
@@ -846,6 +926,9 @@ class ConferenceBox extends React.Component {
                         <ConferenceDrawerParticipant
                             key={p.id}
                             participant={p}
+                            raisedHand={this.state.raisedHands.indexOf(p)}
+                            handleHandSelected={this.handleHandSelected}
+                            disableHandToggle={disableHandToggle}
                         />
                     );
                 });

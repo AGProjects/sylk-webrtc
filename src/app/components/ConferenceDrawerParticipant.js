@@ -8,6 +8,7 @@ const Media             = ReactBootstrap.Media;
 const ButtonGroup       = ReactBootstrap.ButtonGroup;
 
 const UserIcon  = require('./UserIcon');
+const HandIcon  = require('./HandIcon');
 
 
 const ConferenceDrawerParticipant = (props) => {
@@ -25,6 +26,12 @@ const ConferenceDrawerParticipant = (props) => {
                 <Media.Heading>{props.participant.identity.displayName || props.participant.identity.uri}</Media.Heading>
             </Media.Body>
             <Media.Right className="vertical-center">
+                <HandIcon
+                    raisedHand={props.raisedHand}
+                    handleHandSelected={() => props.handleHandSelected(props.participant)}
+                    disableHandToggle={props.disableHandToggle}
+                    drawer
+                />
                 {tag}
             </Media.Right>
         </Media>
@@ -34,6 +41,9 @@ const ConferenceDrawerParticipant = (props) => {
 
 ConferenceDrawerParticipant.propTypes = {
     participant: PropTypes.object.isRequired,
+    raisedHand: PropTypes.number.isRequired,
+    handleHandSelected: PropTypes.func.isRequired,
+    disableHandToggle: PropTypes.bool,
     isLocal: PropTypes.bool
 };
 

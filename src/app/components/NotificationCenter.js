@@ -200,6 +200,15 @@ class NotificationCenter extends React.Component {
         });
     }
 
+    postRaisedHand(identity) {
+        return this.refs.notificationSystem.addNotification({
+            title: `${identity.displayName || identity.uri} wants to speak.`,
+            autoDismiss: 10,
+            level: 'info',
+            position: 'bc'
+        });
+    }
+
     render() {
         const style = {
               Containers: {

@@ -16,7 +16,8 @@ const configOptions = {
     iceServers              : [{urls: 'stun:stun.sipthor.net:3478'}],
     muteGuestAudioOnJoin    : true,
     guestUserPermissions    : {
-        allowMuteAllParticipants     : false
+        allowMuteAllParticipants     : false,
+        allowToggleHandsParticipants : false
     }
 };
 

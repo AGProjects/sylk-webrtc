@@ -47,7 +47,7 @@ const HandIcon = (props) => {
     }
     if (props.raisedHand !== -1) {
         let button = (
-            <button key="handButton" type="button" title="Open Chat" className="btn btn-link btn-hand" onClick={props.handleHandSelected}>
+            <button key="handButton" type="button" title="Accept speaker request" className="btn btn-link btn-hand" onClick={props.handleHandSelected}>
                 <i className="fa fa-hand-o-up" />
             </button>
         );

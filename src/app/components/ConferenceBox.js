@@ -547,6 +547,9 @@ class ConferenceBox extends React.Component {
                 DEBUG('Unmute microphone');
                 track.enabled = true;
                 this.setState({audioMuted: false});
+                this.notifications.forEach((notification) => {
+                    this.props.notificationCenter().removeNotification(notification);
+                });
             } else {
                 DEBUG('Mute microphone');
                 track.enabled = false;

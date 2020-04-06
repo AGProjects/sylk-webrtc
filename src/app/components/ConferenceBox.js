@@ -455,6 +455,7 @@ class ConferenceBox extends React.Component {
 
     handleToggleHand() {
         this.props.call.toggleHand();
+        this.setState({raisedHand: !this.state.raisedHand});
     }
 
     handleHandSelected(participant) {

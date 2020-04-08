@@ -283,9 +283,11 @@ class ConferenceBox extends React.Component {
             if (this.messageNotification !== null) {
                 this.props.notificationCenter().removeNotification(this.messageNotification);
             }
-            this.messageNotification = this.props.notificationCenter().postNewMessage(message, () => {
-                this.setState({showChat: true})
-            });
+            if (newMessages === 1) {
+                this.messageNotification = this.props.notificationCenter().postNewMessage(message, () => {
+                    this.setState({showChat: true})
+                });
+            }
         }
         stateMessages.push(message);
         this.setState({messages: stateMessages, newMessages: newMessages});

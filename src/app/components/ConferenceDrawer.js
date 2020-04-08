@@ -34,13 +34,13 @@ const styleSheet = {
     },
     paperLeftTransparent: {
         width: 350,
-        backgroundColor: Fade(Grey[100], .90),
+        backgroundColor: Fade(Grey[100], .85),
         borderLeft: 0,
         borderRight: '1px solid rgba(0, 0, 0, 0.12)'
     },
     paperLeftTransparentWide: {
         width: 450,
-        backgroundColor: Fade(Grey[100], .90),
+        backgroundColor: Fade(Grey[100], .85),
         borderLeft: 0,
         borderRight: '1px solid rgba(0, 0, 0, 0.12)'
     },

@@ -1003,7 +1003,7 @@ class ConferenceBox extends React.Component {
                         selected={this.handleActiveSpeakerSelected}
                         activeSpeakers={this.state.activeSpeakers}
                     />
-                    {!this.props.participantIsGuest || config.guestUserPermissions.allowMuteAllParticipants ?
+                    {onlyGuestsPresent || !this.props.participantIsGuest || config.guestUserPermissions.allowMuteAllParticipants ?
                         <ConferenceDrawerMute
                             muteEverybody={this.toggleMuteAudioParticipantsModal}
                         /> : ''

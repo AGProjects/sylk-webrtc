@@ -832,7 +832,11 @@ class ConferenceBox extends React.Component {
             }
         }
 
-        const disableHandToggle = !config.guestUserPermissions.allowToggleHandsParticipants && this.props.participantIsGuest;
+        const onlyGuestsPresent = this.state.participants.filter((p) => {
+            return p.identity.uri.endsWith(`@${config.defaultGuestDomain}`)
+        }).length === this.state.participants.length;
+
+        const disableHandToggle = !config.guestUserPermissions.allowToggleHandsParticipants && this.props.participantIsGuest && !onlyGuestsPresent;
         const drawerParticipants = [];
         drawerParticipants.push(
             <ConferenceDrawerParticipant

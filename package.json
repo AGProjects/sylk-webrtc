@@ -70,7 +70,7 @@
     "superagent": "^3.8.3",
     "sylkrtc": "AGProjects/sylkrtc.js",
     "through2": "^3.0.1",
-    "underscore": "^1.9.1",
+    "underscore": "^1.10.2",
     "uuid": "^7.0.3",
     "vinyl-buffer": "1.0.1",
     "vinyl-source-stream": "^2.0.0",

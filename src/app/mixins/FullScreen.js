@@ -9,23 +9,23 @@ const FullscreenMixin = {
     },
 
     isFullscreenSupported: function() {
-        return screenfull.enabled;
+        return screenfull.isEnabled;
     },
 
     requestFullscreen: function(elem) {
-        if (screenfull.enabled) {
+        if (screenfull.isEnabled) {
             screenfull.request(elem);
         }
     },
 
     exitFullscreen: function() {
-        if (screenfull.enabled) {
+        if (screenfull.isEnabled) {
             screenfull.exit();
         }
     },
 
     toggleFullscreen: function(elem) {
-        if (screenfull.enabled) {
+        if (screenfull.isEnabled) {
             screenfull.toggle(elem);
         }
     }

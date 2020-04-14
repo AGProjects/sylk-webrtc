@@ -45,7 +45,7 @@
     "gulp-useref": "3.1.6",
     "hark": "^1.1.6",
     "html-react-parser": "^0.10.3",
-    "image-conversion": "^1.1.9",
+    "image-conversion": "^2.1.1",
     "ipaddr.js": "^1.9.1",
     "lazypipe": "^1.0.2",
     "localforage": "^1.7.3",

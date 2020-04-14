@@ -4390,9 +4390,9 @@ ignore@^4.0.6:
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-4.0.6.tgz#750e3db5862087b4737ebac8207ffd1ef27b25fc"
 
-image-conversion@^1.1.9:
-  version "1.1.9"
-  resolved "https://registry.yarnpkg.com/image-conversion/-/image-conversion-1.1.9.tgz#33e95c0871f0ad7043da23dbb4c03a50b8cd5e9f"
+image-conversion@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/image-conversion/-/image-conversion-2.1.1.tgz#8213fc19033f7dfdee20bb19792e8dcebd052417"
 
 immediate@^3.2.3:
   version "3.2.3"

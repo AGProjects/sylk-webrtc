@@ -720,9 +720,9 @@ audio-type@^1.0.2:
     is-wav "^1.1.0"
     read-chunk "^2.0.0"
 
-autocomplete.js@^0.37.0:
-  version "0.37.0"
-  resolved "https://registry.yarnpkg.com/autocomplete.js/-/autocomplete.js-0.37.0.tgz#bcfbfd7bcabe90e90fad4c2b1aaa931379a10c38"
+autocomplete.js@^0.37.1:
+  version "0.37.1"
+  resolved "https://registry.yarnpkg.com/autocomplete.js/-/autocomplete.js-0.37.1.tgz#a29a048d827e7d2bf8f7df8b831766e5cc97df01"
   dependencies:
     immediate "^3.2.3"
 

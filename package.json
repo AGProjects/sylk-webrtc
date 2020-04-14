@@ -8,7 +8,7 @@
     "ansi-colors": "^4.1.1",
     "audio-context": "^1.0.3",
     "audio-loader": "^1.0.3",
-    "autocomplete.js": "^0.37.0",
+    "autocomplete.js": "^0.37.1",
     "babel-eslint": "^8.2.6",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-es2015": "^6.24.1",

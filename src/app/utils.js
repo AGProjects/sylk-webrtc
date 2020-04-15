@@ -152,7 +152,7 @@ function loadAudio(file, context) {
         }
         request.send();
      });
- }
+}
 
 
 exports.copyToClipboard = copyToClipboard;

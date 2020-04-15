@@ -131,6 +131,30 @@ function getWindowHeight() {
     return window.innerHeight;
 }
 
+function loadAudio(file, context) {
+    return new Promise((resolve, reject) => {
+        let request = new XMLHttpRequest();
+        request.open('GET', file, true);
+        request.responseType = 'arraybuffer';
+        request.onload = () => {
+            if (request.status === 200) {
+                context.decodeAudioData(request.response,
+                    (buffer) => {resolve(buffer)},
+                    (error) => {reject(error)}
+                )
+            } else {
+                reject(Error(request.statusText));
+            }
+        }
+
+        request.onerror = () => {
+            reject(Error('Network Error'));
+        }
+        request.send();
+     });
+ }
+
+
 exports.copyToClipboard = copyToClipboard;
 exports.normalizeUri = normalizeUri;
 exports.generateSillyName = generateSillyName;
@@ -138,3 +162,4 @@ exports.generateUniqueId = generateUniqueId;
 exports.generateMaterialColor = generateMaterialColor;
 exports.generateVideoTrack = generateVideoTrack;
 exports.getWindowHeight = getWindowHeight;
+exports.loadAudio = loadAudio;

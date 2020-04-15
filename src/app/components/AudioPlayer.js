@@ -2,9 +2,11 @@
 
 const React     = require('react');
 const PropTypes = require('prop-types');
-const load = require('audio-loader');
 // const play = require('audio-play');
 const ac = require('audio-context')();
+
+const utils = require('../utils');
+
 
 class AudioPlayer extends React.Component {
     constructor(props) {
@@ -21,10 +23,10 @@ class AudioPlayer extends React.Component {
     }
 
     componentDidMount() {
-        load(this.props.sourceFile).then(
-            (buffer, time) => {
-                this.buffer = buffer;
-                this.time = time;
+        utils.loadAudio(this.props.sourceFile, ac).then(
+            (buffer) => {
+                this.buffer = buffer
+                this.time = ac.currentTime;
             }
         );
     }

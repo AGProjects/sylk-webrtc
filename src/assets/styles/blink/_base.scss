@@ -84,7 +84,7 @@ h6,
 
 .sticky {
     //sass-lint:disable-block no-color-literals, property-sort-order
-    /* stylelint-disable order/properties-order */
+    /* stylelint-disable order/properties-order,declaration-block-no-shorthand-property-overrides */
     background-color: $black-less-transparent;
     background: linear-gradient(180deg, $black 0%, rgba($black, .95) 15%, rgba($black, .55) 80%, rgba($black, 0) 100%);
     /* stylelint-enable */

@@ -39,8 +39,8 @@
 
         &.poster {
             @include background-image-retina($video-poster-image, 75px, 75px);
-            background-position: center;
             background-repeat: no-repeat;
+            background-position: center;
             background-blend-mode: luminosity;
 
             &.large {

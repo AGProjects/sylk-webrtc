@@ -174,11 +174,11 @@
             height: 20 / 14 * 3em;
             padding-right: 10px;
             font-weight: 600;
+            user-select: all;
             background: $light-gray;
             background-repeat: no-repeat;
             background-position: left;
             background-size: contain;
-            user-select: all;
             border-radius: 4px;
         }
     }

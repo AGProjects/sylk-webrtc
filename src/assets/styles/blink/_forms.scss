@@ -66,8 +66,8 @@
                     font-size: 16px;
                     border: 0;
                     border-top: 1px solid $light-gray;
-                    border-top-right-radius: 0;
                     border-top-left-radius: 0;
+                    border-top-right-radius: 0;
                 }
             }
         }
@@ -89,7 +89,7 @@
         position: relative;
         height: auto;
         padding: 10px;
-        font-size: 16px;
         box-sizing: border-box;
+        font-size: 16px;
     }
 }

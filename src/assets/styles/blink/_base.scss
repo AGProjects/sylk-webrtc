@@ -84,6 +84,7 @@ h6,
 
 .sticky {
     //sass-lint:disable-block no-color-literals, property-sort-order
+    /* stylelint-disable-next-line properties-order */
     background-color: $black-less-transparent;
     background: linear-gradient(180deg, $black 0%, rgba($black, .95) 15%, rgba($black, .55) 80%, rgba($black, 0) 100%);
 }

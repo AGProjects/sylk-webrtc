@@ -30,8 +30,8 @@ you must edit `src/app/config.js`.
 
 ## Development
 
-Node.js is needed for development.  Version >= 8.0 is recommended.  For
-convenience the `configure` script and `Makefile` are provided.
+Node.js is needed for development.  Version >= 10.0 is recommended.  For
+convenience the `configure` script and `Makefile`  are provided.
 
 Node.js can be downloaded from https://nodejs.org
 

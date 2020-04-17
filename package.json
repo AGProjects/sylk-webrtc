@@ -8,6 +8,7 @@
     "ansi-colors": "^4.1.1",
     "audio-context": "^1.0.3",
     "autocomplete.js": "^0.37.1",
+    "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.6",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-es2015": "^6.24.1",
@@ -93,8 +94,31 @@
     "start": "electron ./app",
     "build-osx": "electron-builder --mac --x64",
     "build-win": "electron-builder --win --ia32 --x64",
-    "build-linux": "electron-builder --linux --ia32 --x64"
+    "build-linux": "electron-builder --linux --ia32 --x64",
+    "predev": "rm -f .posthtmlrc & cp .posthtmlrc_no_electron .posthtmlrc",
+    "dev": "parcel ./src/index.html --https --cert ./test/tls/test.pem  --key ./test/tls/test.pem --port 3000",
+    "preserve": "rm -f .posthtmlrc & cp .posthtmlrc_no_electron .posthtmlrc",
+    "serve": "parcel serve ./src/index.html --https --cert ./test/tls/test.pem  --key ./test/tls/test.pem --port 3000",
+    "prebuild": "rm -f .posthtmlrc & cp .posthtmlrc_no_electron .posthtmlrc & npm run lint:eslint",
+    "build": "parcel build ./src/index.html --no-source-maps",
+    "prebuild-dev": "rm -f .posthtmlrc & cp .posthtmlrc_no_electron .posthtmlrc & npm run lint:eslint",
+    "build-dev": "parcel build ./src/index.html",
+    "preelectron": "rm -f .posthtmlrc & cp .posthtmlrc_electron .posthtmlrc & npm run lint:eslint",
+    "electron": "parcel build ./src/index.html -d ./app/www/ --public-url ./ --no-source-maps --no-content-hash",
+    "lint:eslint": "eslint src/app",
+    "lint:sass": "stylelint \"src/**/*.scss\"",
+    "lint": "npm-run-all --parallel  lint:*"
   },
+  "staticPath": [
+    {
+      "staticPath": "src/assets/sounds",
+      "staticOutDir": "assets/sounds"
+    },
+    {
+      "staticPath": "src/assets/images",
+      "staticOutDir": "assets/images"
+    }
+  ],
   "build": {
     "appId": "com.agprojects.Sylk",
     "productName": "Sylk",

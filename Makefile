@@ -31,10 +31,10 @@ deploy-linux:
 	ssh agp@node10.dns-hosting.info 'sudo /root/sync-symlink-sylk.sh'
 
 dist:
-	$(GULP) build --type production
+	npm run build
 
 dist-dev:
-	$(GULP) build --type dev
+	npm run build-dev
 
 clean:
 	rm -rf dist dist-electron app/www
@@ -43,20 +43,17 @@ distclean: clean
 	rm -rf node_modules app/node_modules
 
 watch:
-	$(GULP) watch --type dev
+	npm run dev
 
 serve:
-	$(GULP) serve
+	npm run serve
 
 lint:
-	-$(SASSLINT) -v -q
-	-$(ESLINT) src/app
+	npm run lint
 
 electron:
 	# TODO: use a different gulp task which doesn't browserify
-	rm -rf app/www
-	$(GULP) build-electron --type production
-	cp -r dist app/www
+	npm run electron
 
 pkg-osx: electron
 	npm run build-osx

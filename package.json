@@ -48,6 +48,7 @@
     "react-router-component": "^0.39.1",
     "react-transition-group": "^2.6.0",
     "react-visibility-sensor": "^5.1.1",
+    "sass": "^1.26.3",
     "screenfull": "^5.0.2",
     "stylelint": "^13.3.2",
     "stylelint-config-recess-order": "^2.0.4",

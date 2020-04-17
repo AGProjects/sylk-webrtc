@@ -1,8 +1,4 @@
 
-GULP = node_modules/.bin/gulp
-ESLINT = node_modules/.bin/eslint
-SASSLINT = node_modules/.bin/sass-lint
-
 .PHONY: all clean deploy deploy-test deploy-osx deploy-win dist dist-dev distclean watch serve lint pkg-osx pkg-win pkg-linux app-run
 
 all: dist

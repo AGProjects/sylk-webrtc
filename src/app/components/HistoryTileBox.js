@@ -3,8 +3,7 @@
 const React         = require('react');
 const PropTypes     = require('prop-types');
 
-const Mui           = require('material-ui');
-const Grid          = Mui.Grid;
+const { Grid }      = require('@material-ui/core');
 
 
 const HistoryTileBox = (props) => {
@@ -15,7 +14,7 @@ const HistoryTileBox = (props) => {
                 direction="row"
                 justify="center"
                 alignItems="center"
-                spacing={16}
+                spacing={2}
             >
                 {props.children}
             </Grid>

@@ -3,8 +3,7 @@
 const React         = require('react');
 const PropTypes     = require('prop-types');
 const classNames    = require('classnames');
-const Mui           = require('material-ui');
-const Grid          = Mui.Grid;
+const { Grid }      = require('@material-ui/core');
 const VizSensor     = require('react-visibility-sensor').default;
 
 const ConferenceModal = require('./ConferenceModal');

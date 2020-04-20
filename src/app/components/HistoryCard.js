@@ -6,20 +6,14 @@ const classNames    = require('classnames');
 const moment        = require('moment');
 const momentFormat  = require('moment-duration-format');
 
-const Styles        = require('material-ui/styles');
-const withStyles    = Styles.withStyles;
-
-const Mui           = require('material-ui');
-const Card          = Mui.Card;
-const CardActions   = Mui.CardActions
-const CardContent   = Mui.CardContent;
-const Typography    = Mui.Typography;
-const Button        = Mui.IconButton;
+const { makeStyles } = require('@material-ui/core/styles');
+const { Card, CardActions, CardContent } = require('@material-ui/core');
+const { Typography, IconButton: Button } = require('@material-ui/core');
 
 const UserIcon      = require('./UserIcon');
 
 
-const styleSheet = {
+const styles = makeStyles({
     card: {
         display: 'flex'
     },
@@ -30,7 +24,7 @@ const styleSheet = {
         paddingBottom: 0
     },
     icon: {
-        margin: 'auto'   
+        margin: 'auto'
     },
     column: {
         display: 'flex',
@@ -48,10 +42,14 @@ const styleSheet = {
         width: 40,
         height: 40,
         color: '#337ab7'
+    },
+    mainHeading: {
+        color: props => props.historyItem.direction === 'received' && props.historyItem.duration === 0 ? '#a94442' : 'inherit'
     }
-};
+});
+
 const HistoryCard = (props) => {
-    const classes = props.classes;
+    const classes =  styles(props);
     const identity = {
         displayName: props.historyItem.displayName,
         uri: props.historyItem.remoteParty || props.historyItem
@@ -83,32 +81,30 @@ const HistoryCard = (props) => {
     }
 
     let duration = moment.duration(props.historyItem.duration, 'seconds').format('hh:mm:ss', {trim: false});
-    let color = {};
     if (props.historyItem.direction === 'received' && props.historyItem.duration === 0) {
-        color.color = '#a94442';
         duration = 'missed';
     }
 
     const name = identity.displayName || identity.uri;
 
     return (
-        <Card 
+        <Card
             className={classes.card}
-            onClick={() => {props.setTargetUri(identity.uri)}} 
+            onClick={() => {props.setTargetUri(identity.uri)}}
             onDoubleClick={startVideoCall}
         >
             <div className={classes.column}>
             <CardContent className={classes.content}>
-                <Typography noWrap variant="headline" style={color}>{name} ({duration})</Typography>
-                <Typography className={classes.biggerFont} variant="subheading" color="textSecondary">
+                <Typography noWrap className={classes.mainHeading} variant="h5">{name} ({duration})</Typography>
+                <Typography className={classes.biggerFont} variant="subtitle1" color="textSecondary">
                     <strong><i className={directionIcon}></i></strong>&nbsp;{props.historyItem.startTime}
                 </Typography>
             </CardContent>
             <CardActions className={classes.actions}>
-                <Button className={classes.iconSmall} onClick={startAudioCall} title={`Audio call to ${name}`}>
+                <Button classes={{root: classes.iconSmall}} onClick={startAudioCall} title={`Audio call to ${name}`}>
                     <i className="fa fa-phone"></i>
                 </Button>
-                <Button className={classes.iconSmall} onClick={startVideoCall} title={`Video call to ${name}`}>
+                <Button classes={{root: classes.iconSmall}} onClick={startVideoCall} title={`Video call to ${name}`}>
                     <i className="fa fa-video-camera"></i>
                 </Button>
             </CardActions>
@@ -121,7 +117,6 @@ const HistoryCard = (props) => {
 }
 
 HistoryCard.propTypes = {
-    classes        : PropTypes.object.isRequired,
     historyItem    : PropTypes.object,
     startAudioCall : PropTypes.func.isRequired,
     startVideoCall : PropTypes.func.isRequired,
@@ -129,4 +124,4 @@ HistoryCard.propTypes = {
 };
 
 
-module.exports =  withStyles(styleSheet)(HistoryCard);
+module.exports =  HistoryCard;

@@ -4,20 +4,17 @@ const React                 = require('react');
 const PropTypes             = require('prop-types');
 const hark                  = require('hark');
 
-const Styles        = require('material-ui/styles');
-const withStyles    = Styles.withStyles;
-const Colors        = require('material-ui/colors');
-const Green         = Colors.green;
-const Mui           = require('material-ui');
-const Progress      = Mui.LinearProgress;
+const { withStyles }     = require('@material-ui/styles');
+const { green }          = require('@material-ui/core/colors');
+const { LinearProgress } = require('@material-ui/core');
 
 
 const styleSheet = {
     colorSecondary: {
-        backgroundColor: Green[100]
+        backgroundColor: green[100]
     },
     barColorSecondary: {
-        backgroundColor: Green[500]
+        backgroundColor: green[500]
     },
     root: {
         height: '10px',
@@ -79,7 +76,7 @@ class VolumeBar extends React.Component {
             color = 'secondary';
         }
         return (
-            <Progress classes={this.props.classes} variant="determinate" color={color} value={this.state.volume}></Progress>
+            <LinearProgress classes={this.props.classes} variant="determinate" color={color} value={this.state.volume}></LinearProgress>
         );
     }
 }

@@ -5,13 +5,9 @@ const PropTypes  = require('prop-types');
 const classNames = require('classnames');
 const ipaddr     = require('ipaddr.js');
 
-const Styles        = require('material-ui/styles');
-const withStyles    = Styles.withStyles;
-
-const Mui               = require('material-ui');
-const FormGroup         = Mui.FormGroup;
-const FormControlLabel  = Mui.FormControlLabel;
-const Checkbox          = Mui.Checkbox;
+const { withStyles }                    = require('@material-ui/styles');
+const { FormGroup, FormControlLabel }   = require('@material-ui/core');
+const { Checkbox }                      = require('@material-ui/core');
 
 const EnrollmentModal = require('./EnrollmentModal');
 const storage         = require('../storage');
@@ -20,8 +16,13 @@ const storage         = require('../storage');
 const styles = {
     root: {
         color: '#ffffff',
+        height: 48,
+        width: 48,
         '&$checked': {
             color: '#ffffff'
+        },
+        '& .MuiSvgIcon-root': {
+            fontSize: 24
         }
     },
     checked: {},
@@ -135,7 +136,7 @@ class RegisterForm extends React.Component {
                                 checked={this.state.remember}
                                 onChange={this.handleRememberChange}
                                 classes={{
-                                    default: this.props.classes.root,
+                                    root: this.props.classes.root,
                                     checked: this.props.classes.checked
                                 }}
                             />
@@ -183,7 +184,7 @@ class RegisterForm extends React.Component {
 }
 
 RegisterForm.propTypes = {
-    classes                : PropTypes.object,
+    classes                : PropTypes.object.isRequired,
     handleRegistration     : PropTypes.func.isRequired,
     registrationInProgress : PropTypes.bool.isRequired,
     autoLogin              : PropTypes.bool

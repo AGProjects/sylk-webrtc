@@ -4,14 +4,13 @@ const React     = require('react');
 const PropTypes = require('prop-types');
 const utils     = require('../utils');
 
-const Styles     = require('material-ui/styles');
-const withStyles = Styles.withStyles;
-const Mui        = require('material-ui');
-const Avatar     = Mui.Avatar;
+const { makeStyles }    = require('@material-ui/styles');
+const { Avatar }        = require('@material-ui/core');
 
 const classNames = require('classnames');
 
-const styleSheet = {
+
+const styleSheet = makeStyles({
     root: {
         transition: 'box-shadow 0.3s'
     },
@@ -34,18 +33,19 @@ const styleSheet = {
     shadow: {
         boxShadow: '0 0 10px 2px #999'
     }
-};
+});
 
 const UserIcon = (props) => {
+    const classes = styleSheet();
     const name = props.identity.displayName || props.identity.uri;
     let initials = name.split(' ', 2).map(x => x[0]).join('');
     const color = utils.generateMaterialColor(props.identity.uri)['300'];
-    const classes = classNames(
-        props.classes.root,
-        props.classes.drawerAvatar,
-        {[`${props.classes.card}`]: props.card},
-        {[`${props.classes.large}`]: props.large},
-        {[`${props.classes.shadow}`]: props.active}
+    const avatarClasses = classNames(
+        classes.root,
+        classes.drawerAvatar,
+        {[`${classes.card}`]: props.card},
+        {[`${classes.large}`]: props.large},
+        {[`${classes.shadow}`]: props.active}
     );
 
     if (props.identity.uri === 'anonymous@anonymous.invalid') {
@@ -53,14 +53,13 @@ const UserIcon = (props) => {
     }
 
     return (
-        <Avatar className={classes} style={{backgroundColor: color}}>
+        <Avatar className={avatarClasses} style={{backgroundColor: color}}>
             {initials}
         </Avatar>
     );
 };
 
 UserIcon.propTypes = {
-    classes: PropTypes.object.isRequired,
     identity: PropTypes.object.isRequired,
     large: PropTypes.bool,
     card: PropTypes.bool,
@@ -68,4 +67,4 @@ UserIcon.propTypes = {
 };
 
 
-module.exports = withStyles(styleSheet)(UserIcon);
+module.exports = UserIcon;

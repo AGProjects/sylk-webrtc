@@ -79,7 +79,7 @@
     "prebuild-dev": "rm -f .posthtmlrc & cp .posthtmlrc_no_electron .posthtmlrc & npm run lint:eslint",
     "build-dev": "parcel build ./src/index.html",
     "preelectron": "rm -f .posthtmlrc & cp .posthtmlrc_electron .posthtmlrc & npm run lint:eslint",
-    "electron": "parcel build ./src/index.html -d ./app/www/ --public-url ./ --no-source-maps --no-content-hash --experimental-scope-hositing",
+    "electron": "parcel build ./src/index.html -d ./app/www/ --public-url ./ --no-source-maps --no-content-hash --experimental-scope-hoisting",
     "lint:eslint": "eslint src/app",
     "lint:sass": "stylelint \"src/**/*.scss\"",
     "lint": "npm-run-all --parallel  lint:*"

@@ -5,8 +5,7 @@ const NotificationSystem = require('react-notification-system');
 const moment             = require('moment');
 const Notify             = require('notifyjs');
 
-const Mui               = require('material-ui');
-const LinearProgress    = Mui.LinearProgress;
+const { LinearProgress } = require('@material-ui/core');
 
 const config = require('../config');
 

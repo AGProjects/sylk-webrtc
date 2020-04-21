@@ -5,7 +5,7 @@ const PropTypes  = require('prop-types');
 const classNames = require('classnames');
 const ipaddr     = require('ipaddr.js');
 
-const { withStyles }                    = require('@material-ui/styles');
+const { withStyles }                    = require('@material-ui/core/styles');
 const { FormGroup, FormControlLabel }   = require('@material-ui/core');
 const { Checkbox }                      = require('@material-ui/core');
 

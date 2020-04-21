@@ -4,7 +4,7 @@ const React                 = require('react');
 const PropTypes             = require('prop-types');
 const hark                  = require('hark');
 
-const { withStyles }     = require('@material-ui/styles');
+const { withStyles }     = require('@material-ui/core/styles');
 const { green }          = require('@material-ui/core/colors');
 const { LinearProgress } = require('@material-ui/core');
 

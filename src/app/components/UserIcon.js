@@ -4,7 +4,7 @@ const React     = require('react');
 const PropTypes = require('prop-types');
 const utils     = require('../utils');
 
-const { makeStyles }    = require('@material-ui/styles');
+const { makeStyles }    = require('@material-ui/core/styles');
 const { Avatar }        = require('@material-ui/core');
 
 const classNames = require('classnames');

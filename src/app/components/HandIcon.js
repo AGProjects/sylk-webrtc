@@ -3,13 +3,11 @@
 const React         = require('react');
 const PropTypes     = require('prop-types');
 
-const Mui           = require('material-ui');
-const Badge         = Mui.Badge;
-const Styles        = require('material-ui/styles');
-const withStyles    = Styles.withStyles;
+const { makeStyles }    = require('@material-ui/core/styles');
+const { Badge }         = require('@material-ui/core');
 
 
-const styleSheet = {
+const styleSheet = makeStyles({
     badge: {
         width: '20px',
         height: '20px',
@@ -24,7 +22,8 @@ const styleSheet = {
         fontSize: '1rem',
         backgroundColor: '#337ab7',
         position: 'unset',
-        marginLeft: '-10px'
+        marginLeft: '-10px',
+        transform: 'none'
     },
     rootThumb: {
         display: 'block',
@@ -32,18 +31,18 @@ const styleSheet = {
         position: 'absolute',
         zIndex: 3
     }
-};
+});
 
 const HandIcon = (props) => {
     let content = null;
-
-    let badgeClass = props.classes.badge;
+    const classes = styleSheet();
+    let badgeClass = classes.badge;
     if (props.drawer) {
-        badgeClass = props.classes.badgeDrawer;
+        badgeClass = classes.badgeDrawer;
     }
     let rootClass;
     if (props.thumb) {
-        rootClass = props.classes.rootThumb;
+        rootClass = classes.rootThumb;
     }
     if (props.raisedHand !== -1) {
         let button = (
@@ -66,11 +65,10 @@ const HandIcon = (props) => {
 HandIcon.propTypes = {
     raisedHand          : PropTypes.number.isRequired,
     handleHandSelected  : PropTypes.func.isRequired,
-    classes             : PropTypes.object.isRequired,
     disableHandToggle   : PropTypes.bool,
     drawer              : PropTypes.bool,
     thumb               : PropTypes.bool
 };
 
 
-module.exports = withStyles(styleSheet)(HandIcon);
+module.exports = HandIcon;

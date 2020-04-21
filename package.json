@@ -19,7 +19,7 @@
     "digest-auth-request": "tijmenNL/digest-auth-request",
     "electron": "^3.1.12",
     "electron-builder": "21.0.9",
-    "emoji-mart": "^2.11.1",
+    "emoji-mart": "^3.0.0",
     "eslint": "^6.6.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-react": "^7.16.0",

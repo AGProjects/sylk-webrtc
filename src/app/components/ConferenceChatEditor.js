@@ -9,7 +9,7 @@ const debug         = require('debug');
 
 const imageConversion   = require('image-conversion');
 const data = require('emoji-mart/data/apple.json');
-const { NimblePicker: Picker } = require('emoji-mart/dist-es/components/picker/nimble-picker');
+const Picker = require('emoji-mart/dist-modern/components/picker/nimble-picker').default;
 
 const DEBUG = debug('blinkrtc:ConferenceChatEditor');
 
@@ -188,6 +188,7 @@ const ConferenceChatEditor = (props) => {
                                 set="apple"
                                 data={data}
                                 showPreview={false}
+                                sheetSize={32}
                                 showSkinTones={false}
                                 onSelect={addEmoji}
                                 style={{position: 'relative', width: '100%'}}

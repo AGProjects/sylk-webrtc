@@ -9,8 +9,7 @@ const debug         = require('debug');
 
 const imageConversion   = require('image-conversion');
 const data = require('emoji-mart/data/apple.json');
-const emoji             = require('emoji-mart');
-const Picker            = emoji.NimblePicker;
+const { NimblePicker: Picker } = require('emoji-mart/dist-es/components/picker/nimble-picker');
 
 const DEBUG = debug('blinkrtc:ConferenceChatEditor');
 

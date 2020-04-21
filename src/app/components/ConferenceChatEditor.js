@@ -8,8 +8,9 @@ const PropTypes     = require('prop-types');
 const debug         = require('debug');
 
 const imageConversion   = require('image-conversion');
+const data = require('emoji-mart/data/apple.json');
 const emoji             = require('emoji-mart');
-const Picker            = emoji.Picker;
+const Picker            = emoji.NimblePicker;
 
 const DEBUG = debug('blinkrtc:ConferenceChatEditor');
 
@@ -186,6 +187,7 @@ const ConferenceChatEditor = (props) => {
                         {picker ?
                             <Picker
                                 set="apple"
+                                data={data}
                                 showPreview={false}
                                 showSkinTones={false}
                                 onSelect={addEmoji}

@@ -8,11 +8,8 @@ const ReactMixin            = require('react-mixin');
 const ReactBootstrap        = require('react-bootstrap');
 const Popover               = ReactBootstrap.Popover;
 const OverlayTrigger        = ReactBootstrap.OverlayTrigger;
-const Mui                   = require('material-ui');
-const IconButton            = Mui.IconButton;
-const Badge                 = Mui.Badge;
-const Styles                = require('material-ui/styles');
-const withStyles            = Styles.withStyles;
+const { withStyles }        = require('@material-ui/core/styles');
+const { IconButton, Badge } = require('@material-ui/core');
 const sylkrtc               = require('sylkrtc');
 const classNames            = require('classnames');
 const debug                 = require('debug');
@@ -51,16 +48,25 @@ const styleSheet = {
         fontSize:'20px',
         border: '1px solid #fff',
         color: '#333',
-        margin: '4px'
+        margin: '4px',
+        '&:hover': {
+            backgroundColor: '#fff'
+        }
     },
     badge: {
-        top: '1px',
         width: '20px',
         height: '20px',
-        right: '28px',
         fontWeight: 'bold',
         fontSize: '1rem',
-        backgroundColor: '#337ab7'
+        backgroundColor: '#337ab7',
+        '&.MuiBadge-anchorOriginTopLeftCircle': {
+            top: '18%',
+            left: '18%'
+        },
+        '&.MuiBadge-anchorOriginTopRightCircle': {
+            top: '18%',
+            right: '18%'
+        }
     }
 };
 class ConferenceBox extends React.Component {
@@ -724,7 +730,7 @@ class ConferenceBox extends React.Component {
         if (!this.state.showFiles) {
             if (this.state.sharedFiles.length !== 0) {
                 topButtons.push(
-                    <Badge badgeContent={this.state.sharedFiles.length} color="primary" classes={{badge: this.props.classes.badge}}>
+                    <Badge badgeContent={this.state.sharedFiles.length} color="primary" classes={{badge: this.props.classes.badge}} anchorOrigin={{horizontal: 'left', vertical: 'top'}} overlap="circle">
                         <button key="fbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleFiles}> <i className="fa fa-files-o fa-2x"></i> </button>
                     </Badge>
                 );
@@ -738,7 +744,7 @@ class ConferenceBox extends React.Component {
         const topLeftButtons = [];
         if (this.state.newMessages !== 0) {
             topLeftButtons.push(
-                <Badge key="chatBadge" badgeContent={this.state.newMessages} color="primary" classes={{badge: this.props.classes.badge}}>
+                <Badge key="chatBadge" badgeContent={this.state.newMessages} color="primary" classes={{badge: this.props.classes.badge}} overlap="circle">
                     <button key="chatButton" type="button" title="Open Chat" className={commonButtonTopClasses} onClick={this.toggleChat}> <i className="fa fa-comments fa-2x"></i> </button>
                 </Badge>);
         } else {

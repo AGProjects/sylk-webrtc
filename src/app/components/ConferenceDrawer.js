@@ -18,17 +18,17 @@ const styleSheet = makeStyles({
     paperLeft: {
         width: 350,
         backgroundColor: grey[100],
-        borderLeft: 0,
+        borderLeft: 0
     },
     paperLeftTransparent: {
         width: 350,
         backgroundColor: fade(grey[100], .85),
-        borderLeft: 0,
+        borderLeft: 0
     },
     paperLeftTransparentWide: {
         width: 450,
         backgroundColor: fade(grey[100], .85),
-        borderLeft: 0,
+        borderLeft: 0
     },
     title: {
         flex: '0 1 auto'

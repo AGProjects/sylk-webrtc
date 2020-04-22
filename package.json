@@ -14,7 +14,6 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "bootstrap-css-only": "^3.3.7",
-    "classnames": "^2.2.6",
     "clsx": "^1.1.0",
     "debug": "^3.2.6",
     "digest-auth-request": "tijmenNL/digest-auth-request",

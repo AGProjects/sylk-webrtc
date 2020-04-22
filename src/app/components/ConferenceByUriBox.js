@@ -2,7 +2,7 @@
 
 const React      = require('react');
 const PropTypes  = require('prop-types');
-const classNames = require('classnames');
+const  { default: clsx } = require('clsx');
 
 const Conference = require('./Conference');
 
@@ -76,7 +76,7 @@ class ConferenceByUriBox extends React.Component {
                 />
             );
         } else {
-            const classes = classNames({
+            const classes = clsx({
                 'capitalize' : true,
                 'btn'        : true,
                 'btn-lg'     : true,

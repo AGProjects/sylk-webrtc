@@ -11,7 +11,7 @@ const OverlayTrigger        = ReactBootstrap.OverlayTrigger;
 const { withStyles }        = require('@material-ui/core/styles');
 const { IconButton, Badge } = require('@material-ui/core');
 const sylkrtc               = require('sylkrtc');
-const classNames            = require('classnames');
+const { default: clsx }     = require('clsx');
 const debug                 = require('debug');
 const superagent            = require('superagent');
 
@@ -661,7 +661,7 @@ class ConferenceBox extends React.Component {
 
         let watermark;
 
-        const largeVideoClasses = classNames({
+        const largeVideoClasses = clsx({
             'animated'      : true,
             'fadeIn'        : true,
             'large'         : true,
@@ -669,11 +669,11 @@ class ConferenceBox extends React.Component {
             'fit'           : this.props.call.sharingScreen
         });
 
-        let matrixClasses = classNames({
+        let matrixClasses = clsx({
             'matrix'        : true
         });
 
-        const containerClasses = classNames({
+        const containerClasses = clsx({
             'video-container': true,
             'conference': true,
             'drawer-visible': this.state.showDrawer || this.state.showFiles
@@ -704,19 +704,19 @@ class ConferenceBox extends React.Component {
 
         const buttons = {};
 
-        const commonButtonTopClasses = classNames({
+        const commonButtonTopClasses = clsx({
             'btn'           : true,
             'btn-link'      : true
         });
 
-        const fullScreenButtonIcons = classNames({
+        const fullScreenButtonIcons = clsx({
             'fa'            : true,
             'fa-2x'         : true,
             'fa-expand'     : !this.isFullScreen(),
             'fa-compress'   : this.isFullScreen()
         });
 
-        const handClasses = classNames({
+        const handClasses = clsx({
             'fa'              : true,
             'fa-2x'           : true,
             'fa-hand-o-up'    : true,
@@ -758,37 +758,37 @@ class ConferenceBox extends React.Component {
         buttons.top = {left: topLeftButtons, right: topButtons};
 
 
-        const commonButtonClasses = classNames({
+        const commonButtonClasses = clsx({
             'btn'           : true,
             'btn-round'     : true,
             'btn-default'   : true
         });
 
-        const shareButtonClasses = classNames(
+        const shareButtonClasses = clsx(
             commonButtonClasses,
             this.props.classes.sharingButton
         );
 
-        const muteButtonIcons = classNames({
+        const muteButtonIcons = clsx({
             'fa'                    : true,
             'fa-microphone'         : !this.state.audioMuted,
             'fa-microphone-slash'   : this.state.audioMuted
         });
 
-        const muteVideoButtonIcons = classNames({
+        const muteVideoButtonIcons = clsx({
             'fa'                    : true,
             'fa-video-camera'       : !this.state.videoMuted,
             'fa-video-camera-slash' : this.state.videoMuted
         });
 
-        const screenSharingButtonIcons = classNames({
+        const screenSharingButtonIcons = clsx({
             'fa'                    : true,
             'fa-clone'              : true,
             'fa-flip-horizontal'    : true,
             'text-warning'          : this.props.call.sharingScreen
         });
 
-        const shareFileButtonIcons = classNames({
+        const shareFileButtonIcons = clsx({
             'fa'                    : true,
             'fa-upload'             : true
         });
@@ -866,7 +866,7 @@ class ConferenceBox extends React.Component {
         } else {
             const activeSpeakers = this.state.activeSpeakers;
             const activeSpeakersCount = activeSpeakers.length;
-            matrixClasses = classNames({
+            matrixClasses = clsx({
                 'matrix'        : true,
                 'one-row'       : activeSpeakersCount === 2,
                 'two-columns'   : activeSpeakersCount === 2,
@@ -917,7 +917,7 @@ class ConferenceBox extends React.Component {
                     );
                 });
             } else {
-                matrixClasses = classNames({
+                matrixClasses = clsx({
                     'matrix'        : true,
                     'one-row'       : this.state.participants.length === 2 ,
                     'two-row'       : this.state.participants.length >= 3 && this.state.participants.length < 7,
@@ -949,7 +949,7 @@ class ConferenceBox extends React.Component {
                 });
             }
         }
-        const carouselClasses = classNames({
+        const carouselClasses = clsx({
             'conference-thumbnails': true,
             'conference-thumbnails-small': this.state.participants.length === 1 &&  this.state.activeSpeakers.length <= 1
         });

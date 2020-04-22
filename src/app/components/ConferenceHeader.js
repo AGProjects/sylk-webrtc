@@ -5,7 +5,7 @@ const useState          = React.useState;
 const useEffect         = React.useEffect;
 const useRef            = React.useRef;
 const PropTypes         = require('prop-types');
-const classNames        = require('classnames');
+const { default: clsx } = require('clsx');
 const TransitionGroup   = require('react-transition-group/TransitionGroup');
 const CSSTransition     = require('react-transition-group/CSSTransition');
 const moment            = require('moment');
@@ -61,7 +61,7 @@ const ConferenceHeader = (props) => {
             }
         }
 
-        const leftButtonClasses = classNames({
+        const leftButtonClasses = clsx({
             'conference-top-left-buttons': true,
             'electron-margin': electron
         });

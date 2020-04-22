@@ -4,7 +4,7 @@ const React              = require('react');
 const PropTypes          = require('prop-types');
 const TransitionGroup    = require('react-transition-group/TransitionGroup');
 const CSSTransition      = require('react-transition-group/CSSTransition');
-const classNames         = require('classnames');
+const { default: clsx }  = require('clsx');
 
 class ConferenceCarousel extends React.Component {
     constructor(props) {
@@ -113,7 +113,7 @@ class ConferenceCarousel extends React.Component {
         if (this.state.displayRightArrow) {
             arrows.push(<div className="right-arrow" onClick={this.scrollToRight}><i className="fa fa-caret-right fa-4x"></i></div>);
         }
-        const classes = classNames({
+        const classes = clsx({
             'carousel-list' : true,
             'list-inline'   : true,
             'text-right'    : this.props.align === 'right'

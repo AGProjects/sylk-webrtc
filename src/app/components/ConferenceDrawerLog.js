@@ -2,13 +2,13 @@
 
 const React         = require('react');
 const PropTypes     = require('prop-types');
-const classNames    = require('classnames');
+const { default: clsx } = require('clsx');
 const utils         = require('../utils');
 
 
 const ConferenceDrawerLog = (props) => {
     const entries = props.log.map((elem, idx) => {
-        const classes = classNames({
+        const classes = clsx({
             'text-danger'   : elem.level === 'error',
             'text-warning'  : elem.level === 'warning',
             'log-entry'     : true

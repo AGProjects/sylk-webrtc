@@ -3,7 +3,7 @@
 const React     = require('react');
 const PropTypes = require('prop-types');
 
-const classNames    = require('classnames');
+const { default: clsx }     = require('clsx');
 const { makeStyles, fade }  = require('@material-ui/core/styles');
 const { grey }              = require('@material-ui/core/colors');
 const { Drawer, Toolbar, Typography, Divider } = require('@material-ui/core');
@@ -44,14 +44,14 @@ const styleSheet = makeStyles({
 
 const ConferenceDrawer = (props) => {
     const classes = styleSheet();
-    const paperClass = classNames(
+    const paperClass = clsx(
         {[`${classes.paper}`]: props.anchor !== 'left' && !props.transparent && !props.wide},
         {[`${classes.paperLeft}`]: props.anchor === 'left' && !props.transparent && !props.wide},
         {[`${classes.paperLeftTransparent}`]: props.anchor === 'left' && props.transparent && !props.wide},
         {[`${classes.paperLeftTransparentWide}`]: props.anchor === 'left' && props.transparent && props.wide}
     );
 
-    const chevronIcon = classNames({
+    const chevronIcon = clsx({
         'fa'                : true,
         'fa-chevron-right'  : props.anchor !== 'left',
         'fa-chevron-left'   : props.anchor === 'left'

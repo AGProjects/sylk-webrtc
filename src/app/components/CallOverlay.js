@@ -4,7 +4,6 @@ const React                   = require('react');
 const PropTypes               = require('prop-types');
 const TransitionGroup         = require('react-transition-group/TransitionGroup');
 const CSSTransition           = require('react-transition-group/CSSTransition');
-const classNames              = require('classnames');
 const moment                  = require('moment');
 const momentFormat            = require('moment-duration-format');
 
@@ -75,10 +74,6 @@ class CallOverlay extends React.Component {
         let header;
 
         if (this.props.show) {
-            const textClasses = classNames({
-                'lead'          : true
-            });
-
             let callDetail;
             if (this.duration !== null) {
                 callDetail = <span><i className="fa fa-clock-o"></i> {this.duration}</span>;
@@ -93,8 +88,8 @@ class CallOverlay extends React.Component {
                     timeout={{ enter: 300, exit: 300}}
                 >
                     <div key="header" className="call-header">
-                        <p className={textClasses}><strong>Call with</strong> {this.props.remoteIdentity}</p>
-                        <p className={textClasses}>{callDetail}</p>
+                        <p className="lead"><strong>Call with</strong> {this.props.remoteIdentity}</p>
+                        <p className="lead">{callDetail}</p>
                     </div>
                 </CSSTransition>
             );

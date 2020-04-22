@@ -3,8 +3,7 @@
 const React         = require('react');
 const useState      = React.useState;
 const PropTypes     = require('prop-types');
-const classNames    = require('classnames');
-
+const { default: clsx } = require('clsx');
 const ReactBootstrap    = require('react-bootstrap');
 const Media             = ReactBootstrap.Media;
 const parse             = require('html-react-parser');
@@ -37,7 +36,7 @@ const ChatMessage = (props) => {
         });
     }
 
-    let theme = classNames({
+    let theme = clsx({
         'text-left'     : true,
         'pending'       : state === 'pending',
         'text-danger'   : state === 'failed',

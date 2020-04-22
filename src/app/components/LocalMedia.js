@@ -3,7 +3,7 @@
 const React      = require('react');
 const PropTypes  = require('prop-types');
 const sylkrtc    = require('sylkrtc');
-const classNames = require('classnames');
+const { default: clsx } = require('clsx');
 
 const CallOverlay      = require('./CallOverlay');
 
@@ -39,7 +39,7 @@ class LocalMedia extends React.Component {
     }
 
     render() {
-        const localVideoClasses = classNames({
+        const localVideoClasses = clsx({
             'large'    : true,
             'animated' : true,
             'fadeIn'   : true,

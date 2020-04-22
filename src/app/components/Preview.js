@@ -2,7 +2,7 @@
 
 const React                 = require('react');
 const PropTypes             = require('prop-types');
-const classNames            = require('classnames');
+const { default: clsx }     = require('clsx');
 const TransitionGroup       = require('react-transition-group/TransitionGroup');
 const CSSTransition         = require('react-transition-group/CSSTransition');
 const sylkrtc               = require('sylkrtc');
@@ -117,7 +117,7 @@ class Preview extends React.Component {
             this.props.setDevice(device);
         }
     }
-    
+
     localVideoElementPlaying() {
         this.localVideo.current.removeEventListener('playing', this.localVideoElementPlaying);
     }
@@ -132,24 +132,24 @@ class Preview extends React.Component {
     }
 
     render() {
-        const localVideoClasses = classNames({
+        const localVideoClasses = clsx({
             'large'    : true,
             'animated' : true,
             'fadeIn'   : true,
             'mirror'   : true
         });
-        const textClasses = classNames({
+        const textClasses = clsx({
             'lead'          : true
         });
-        const commonButtonTopClasses = classNames({
+        const commonButtonTopClasses = clsx({
             'btn'           : true,
             'btn-link'      : true
         });
-        const containerClasses = classNames({
+        const containerClasses = clsx({
             'video-container': true,
             'drawer-visible': this.state.showDrawer
         });
-        const iconClasses = classNames({
+        const iconClasses = clsx({
             'video-icon': true,
             'drawer-visible': this.state.showDrawer
         })

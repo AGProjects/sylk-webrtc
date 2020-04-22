@@ -5,7 +5,7 @@ const React          = require('react');
 const PropTypes      = require('prop-types');
 const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
-const classNames     = require('classnames');
+const { default: clsx } = require('clsx');
 
 const AudioPlayer    = require('./AudioPlayer');
 
@@ -66,7 +66,7 @@ class DTMFModal extends React.Component {
     }
 
     render() {
-        const buttonClasses = classNames({
+        const buttonClasses = clsx({
             'btn'            : true,
             'btn-round-xxl'  : true,
             'btn-dtmf'       : true

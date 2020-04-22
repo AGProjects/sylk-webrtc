@@ -2,7 +2,7 @@
 
 const React          = require('react');
 const PropTypes      = require('prop-types');
-const classNames     = require('classnames');
+const { default: clsx } = require('clsx');
 const ReactBootstrap = require('react-bootstrap');
 const Navbar         = ReactBootstrap.Navbar;
 const DropdownButton = ReactBootstrap.DropdownButton;
@@ -78,7 +78,7 @@ class NavigationBar extends React.Component {
     }
 
     render() {
-        const muteClasses = classNames({
+        const muteClasses = clsx({
             'fa'              : true,
             'fa-2x'           : true,
             'fa-bell-o'       : !this.state.mute,

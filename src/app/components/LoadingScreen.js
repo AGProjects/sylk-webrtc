@@ -2,11 +2,10 @@
 
 const React = require('react');
 const PropTypes  = require('prop-types');
-const classNames = require('classnames');
-
+const { default: clsx } = require('clsx');
 
 const LoadingScreen = (props) => {
-    const textDisplayClasses = classNames({
+    const textDisplayClasses = clsx({
         'hidden': props.text.length === 0
     });
 

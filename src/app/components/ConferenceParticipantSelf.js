@@ -7,7 +7,7 @@ const Tooltip           = ReactBootstrap.Tooltip;
 const OverlayTrigger    = ReactBootstrap.OverlayTrigger;
 const sylkrtc           = require('sylkrtc');
 const hark              = require('hark');
-const classNames        = require('classnames');
+const { default: clsx } = require('clsx');
 
 
 class ConferenceParticipantSelf extends React.Component {
@@ -73,7 +73,7 @@ class ConferenceParticipantSelf extends React.Component {
             <Tooltip id="t-myself">{this.props.identity.displayName || this.props.identity.uri}</Tooltip>
         );
 
-        const classes = classNames({
+        const classes = clsx({
             'mirror' : this.state.hasVideo && !this.state.sharesScreen && !this.props.generatedVideoTrack,
             'poster' : !this.state.hasVideo,
             'fit'    : this.state.sharesScreen,

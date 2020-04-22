@@ -2,7 +2,7 @@
 
 const React             = require('react');
 const PropTypes         = require('prop-types');
-const classNames        = require('classnames');
+const { default: clsx } = require('clsx');
 const debug             = require('debug');
 const hark              = require('hark');
 const sylkrtc           = require('sylkrtc');
@@ -143,13 +143,13 @@ class AudioCallBox extends React.Component {
         });
     }
     render() {
-        const commonButtonClasses = classNames({
+        const commonButtonClasses = clsx({
             'btn'           : true,
             'btn-round'     : true,
             'btn-default'   : true
         });
 
-        const muteButtonIconClasses = classNames({
+        const muteButtonIconClasses = clsx({
             'fa'                    : true,
             'fa-microphone'         : !this.state.audioMuted,
             'fa-microphone-slash'   : this.state.audioMuted

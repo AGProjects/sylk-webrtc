@@ -7,7 +7,7 @@ const utils     = require('../utils');
 const { makeStyles }    = require('@material-ui/core/styles');
 const { Avatar }        = require('@material-ui/core');
 
-const classNames = require('classnames');
+const { default: clsx } = require('clsx');
 
 
 const styleSheet = makeStyles({
@@ -40,7 +40,7 @@ const UserIcon = (props) => {
     const name = props.identity.displayName || props.identity.uri;
     let initials = name.split(' ', 2).map(x => x[0]).join('');
     const color = utils.generateMaterialColor(props.identity.uri)['300'];
-    const avatarClasses = classNames(
+    const avatarClasses = clsx(
         classes.root,
         classes.drawerAvatar,
         {[`${classes.card}`]: props.card},

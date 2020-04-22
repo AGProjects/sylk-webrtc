@@ -2,7 +2,7 @@
 
 const React         = require('react');
 const PropTypes     = require('prop-types');
-const classNames    = require('classnames');
+const { default: clsx } = require('clsx');
 const moment        = require('moment');
 const momentFormat  = require('moment-duration-format');
 
@@ -55,7 +55,7 @@ const HistoryCard = (props) => {
         uri: props.historyItem.remoteParty || props.historyItem
     }
 
-    const directionIcon = classNames({
+    const directionIcon = clsx({
         'fa'                    : true,
         'rotate-minus-45'       : true,
         'fa-long-arrow-left'    : props.historyItem.direction === 'received',

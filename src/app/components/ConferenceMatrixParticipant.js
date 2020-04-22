@@ -5,7 +5,7 @@ const PropTypes         = require('prop-types');
 
 const sylkrtc           = require('sylkrtc');
 const hark              = require('hark');
-const classNames        = require('classnames');
+const { default: clsx }  = require('clsx');
 
 const HandIcon = require('./HandIcon')
 
@@ -96,11 +96,11 @@ class ConferenceMatrixParticipant extends React.Component {
     }
 
     render() {
-        const classes = classNames({
+        const classes = clsx({
             'poster' : !this.state.hasVideo,
             'fit'    : this.state.sharesScreen
         });
-        const remoteVideoClasses = classNames({
+        const remoteVideoClasses = clsx({
             'remote-video'      : true,
             'large'             : this.props.large,
             'conference-active' : this.state.active

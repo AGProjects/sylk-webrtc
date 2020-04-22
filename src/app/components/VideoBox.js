@@ -6,7 +6,7 @@ const TransitionGroup           = require('react-transition-group/TransitionGrou
 const CSSTransition             = require('react-transition-group/CSSTransition');
 const ReactMixin                = require('react-mixin');
 const sylkrtc                   = require('sylkrtc');
-const classNames                = require('classnames');
+const { default: clsx }         = require('clsx');
 const debug                     = require('debug');
 
 const FullscreenMixin           = require('../mixins/FullScreen');
@@ -169,7 +169,7 @@ class VideoBox extends React.Component {
             return (<div></div>);
         }
 
-        const localVideoClasses = classNames({
+        const localVideoClasses = clsx({
             'video-thumbnail' : true,
             'mirror'          : !this.props.call.sharingScreen && !this.props.generatedVideoTrack,
             'hidden'          : !this.state.localVideoShow,
@@ -179,7 +179,7 @@ class VideoBox extends React.Component {
             'fit'             : this.props.call.sharingScreen
         });
 
-        const remoteVideoClasses = classNames({
+        const remoteVideoClasses = clsx({
             'poster'        : !this.state.remoteVideoShow,
             'animated'      : true,
             'fadeIn'        : this.state.remoteVideoShow,
@@ -191,32 +191,32 @@ class VideoBox extends React.Component {
         let watermark;
 
         if (this.state.callOverlayVisible) {
-            const muteButtonIcons = classNames({
+            const muteButtonIcons = clsx({
                 'fa'                    : true,
                 'fa-microphone'         : !this.state.audioMuted,
                 'fa-microphone-slash'   : this.state.audioMuted
             });
 
-            const muteVideoButtonIcons = classNames({
+            const muteVideoButtonIcons = clsx({
                 'fa'                    : true,
                 'fa-video-camera'       : !this.state.videoMuted,
                 'fa-video-camera-slash' : this.state.videoMuted
             });
 
-            const screenSharingButtonIcons = classNames({
+            const screenSharingButtonIcons = clsx({
                 'fa'                    : true,
                 'fa-clone'              : true,
                 'fa-flip-horizontal'    : true,
                 'text-warning'          : this.props.call.sharingScreen
             });
 
-            const fullScreenButtonIcons = classNames({
+            const fullScreenButtonIcons = clsx({
                 'fa'            : true,
                 'fa-expand'     : !this.isFullScreen(),
                 'fa-compress'   : this.isFullScreen()
             });
 
-            const commonButtonClasses = classNames({
+            const commonButtonClasses = clsx({
                 'btn'           : true,
                 'btn-round'     : true,
                 'btn-default'   : true

@@ -7,7 +7,7 @@ const Tooltip           = ReactBootstrap.Tooltip;
 const OverlayTrigger    = ReactBootstrap.OverlayTrigger;
 const sylkrtc           = require('sylkrtc');
 const hark              = require('hark');
-const classNames        = require('classnames');
+const { default: clsx } = require('clsx');
 
 
 const HandIcon = require('./HandIcon');
@@ -110,7 +110,7 @@ class ConferenceParticipant extends React.Component {
             <Tooltip id={this.props.participant.id}>{this.props.participant.identity.displayName || this.props.participant.identity.uri}</Tooltip>
         );
 
-        const classes = classNames({
+        const classes = clsx({
             'poster' : !this.state.hasVideo,
             'conference-active' : this.state.active
         });
@@ -118,13 +118,13 @@ class ConferenceParticipant extends React.Component {
         let muteButton;
 
         if (this.state.overlayVisible) {
-            const muteButtonIcons = classNames({
+            const muteButtonIcons = clsx({
                 'fa'                    : true,
                 'fa-microphone'         : !this.state.audioMuted,
                 'fa-microphone-slash'   : this.state.audioMuted
             });
 
-            const muteButtonClasses = classNames({
+            const muteButtonClasses = clsx({
                 'btn'         : true,
                 'btn-round'   : true,
                 'btn-default' : !this.state.audioMuted,

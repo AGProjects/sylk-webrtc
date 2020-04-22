@@ -2,7 +2,7 @@
 
 const React      = require('react');
 const PropTypes  = require('prop-types');
-const classNames = require('classnames');
+const { default: clsx } = require('clsx');
 const ipaddr     = require('ipaddr.js');
 
 const { withStyles }                    = require('@material-ui/core/styles');
@@ -104,7 +104,7 @@ class RegisterForm extends React.Component {
         const domain = this.state.accountId.substring(this.state.accountId.indexOf('@') + 1);
         const validDomain = !ipaddr.IPv4.isValidFourPartDecimal(domain) && !ipaddr.IPv6.isValid(domain);
         const validInput =  validDomain && this.state.accountId.indexOf('@') !== -1 && this.state.password !== 0;
-        const classes = classNames({
+        const classes = clsx({
             'btn'        : true,
             'btn-lg'     : true,
             'btn-block'  : true,
@@ -113,7 +113,7 @@ class RegisterForm extends React.Component {
             'btn-info'   : this.state.registering
         });
 
-        const formClasses = classNames({
+        const formClasses = clsx({
             'form-signin'          : true,
             'form-signin-electron' : this.props.autoLogin
         });

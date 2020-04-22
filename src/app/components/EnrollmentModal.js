@@ -4,7 +4,7 @@ const React          = require('react');
 const PropTypes      = require('prop-types');
 const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
-const classNames     = require('classnames');
+const  { default: clsx } = require('clsx');
 const superagent     = require('superagent');
 
 const config         = require('../config');
@@ -81,7 +81,7 @@ class EnrollmentModal extends React.Component {
     }
 
     render() {
-        const passwordClasses = classNames({
+        const passwordClasses = clsx({
             'form-group' : true,
             'has-error'  : this.state.password !== this.state.password2
         });

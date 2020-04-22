@@ -2,7 +2,7 @@
 
 const React         = require('react');
 const PropTypes     = require('prop-types');
-const classNames    = require('classnames');
+const { default: clsx } = require('clsx');
 const { Grid }      = require('@material-ui/core');
 const VizSensor     = require('react-visibility-sensor').default;
 
@@ -107,14 +107,14 @@ class ReadyBox extends React.Component {
     }
 
     render() {
-        const classes = classNames({
+        const classes = clsx({
             'btn'           : true,
             'btn-round-big' : true,
             'btn-success'   : this.state.targetUri.length !== 0,
             'btn-default'   : this.state.targetUri.length === 0
         });
 
-        const stickyClasses = classNames({
+        const stickyClasses = clsx({
             'sticky-wrapper'    : true,
             'sticky'            : this.state.sticky
         });

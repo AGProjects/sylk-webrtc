@@ -5,7 +5,7 @@ const useState       = React.useState;
 const PropTypes      = require('prop-types');
 const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
-const classNames     = require('classnames');
+const { default: clsx } = require('clsx');
 
 const config          = require('../config');
 
@@ -24,7 +24,7 @@ const ConferenceModal = (props) => {
 
     const validUri = conferenceTargetUri.length > 0 && conferenceTargetUri.indexOf('@') === -1;
 
-    const classes = classNames({
+    const classes = clsx({
         'btn'         : true,
         'btn-success' : validUri,
         'btn-warning' : !validUri

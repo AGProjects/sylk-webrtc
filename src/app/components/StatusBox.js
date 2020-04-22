@@ -2,18 +2,18 @@
 
 const React      = require('react');
 const PropTypes  = require('prop-types');
-const classNames = require('classnames');
+const { default: clsx } = require('clsx');
 
 
 const StatusBox = (props) => {
-    const classes = classNames({
+    const classes = clsx({
         'alert' : true,
         'alert-warning' : props.level === 'warning',
         'alert-danger'  : props.level === 'danger',
         'alert-info'    : props.level === 'info'
     });
 
-    const widthClasses = classNames({
+    const widthClasses = clsx({
         'form-signin' : props.width === 'small' || !props.width,
         'form-dial'   : props.width === 'medium',
         'half-width'   : props.width === 'large'

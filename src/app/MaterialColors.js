@@ -1,6 +1,6 @@
 'use strict';
 
-const colors = require('material-ui/colors');
+const { colors } = require('@material-ui/core');
 const murmur = require('murmurhash-js');
 
 // Available material design colors

@@ -8,18 +8,11 @@ const PropTypes      = require('prop-types');
 const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
 
-const Styles        = require('material-ui/styles');
-const withStyles    = Styles.withStyles;
-
-const Mui               = require('material-ui');
-const Tabs              = Mui.Tabs;
-const Tab               = Mui.Tab;
-const GridList          = Mui.GridList;
-const GridListTile      = Mui.GridListTile;
-const GridListTileBar   = Mui.GridListTileBar;
+const { makeStyles } = require('@material-ui/core/styles');
+const {Tabs, Tab, GridList, GridListTile, GridListTileBar } = require('@material-ui/core');
 
 
-const styleSheet = {
+const styleSheet = makeStyles({
     root: {
         display: 'flex',
         flexWrap: 'wrap',
@@ -36,12 +29,13 @@ const styleSheet = {
         border: '2px solid #3f51b5',
         padding: '2px !important'
     }
-};
+});
 
 const ScreenSharingModal = (props) => {
     const [value, setValue] = useState('screens');
     const [focus, setFocus] = useState(null);
     const [sources, setSources] = useState([]);
+    const classes = styleSheet();
 
     useEffect(() => {
         let interval = null;
@@ -99,10 +93,10 @@ const ScreenSharingModal = (props) => {
                     indicatorColor="primary"
                     textColor="primary"
                     onChange={(event, value) => { setValue(value)}}
-                    fullWidth={true}
+                    variant="fullWidth"
                 >
-                    <Tab value="screens" classes={{ fullWidth: props.classes.fullWidth}} label="Your Entire Screen" />
-                    <Tab value="windows" classes={{ fullWidth: props.classes.fullWidth}} label="Application Window" />
+                    <Tab value="screens" classes={{ fullWidth: classes.fullWidth}} label="Your Entire Screen" />
+                    <Tab value="windows" classes={{ fullWidth: classes.fullWidth}} label="Application Window" />
                 </Tabs>
                 <br />
 
@@ -116,9 +110,9 @@ const ScreenSharingModal = (props) => {
                 }
 
                 { value === 'screens' && sources.length !== 0 &&
-                    <GridList cellHeight={180} spacing={8} cols={2}  className={props.classes.gridList}>
+                    <GridList cellHeight={180} spacing={8} cols={2}  className={classes.gridList}>
                         {screens.map(screen => (
-                            <GridListTile key={screen.id} onClick={() => setFocus(screen.id)} className={screen.id === focus && props.classes.border}>
+                            <GridListTile key={screen.id} onClick={() => setFocus(screen.id)} className={screen.id === focus && classes.border}>
                                 <img src={screen.thumbnail.toDataURL()} alt={screen.name} />
                                 <GridListTileBar
                                     title={screen.name}
@@ -129,9 +123,9 @@ const ScreenSharingModal = (props) => {
                 }
 
                 { value === 'windows' && sources.length !== 0 &&
-                    <GridList cellHeight={'auto'} spacing={8} cols={3} className={props.classes.gridList}>
+                    <GridList cellHeight={'auto'} spacing={8} cols={3} className={classes.gridList}>
                         {windows.map(screen => (
-                            <GridListTile key={screen.id} onClick={() => setFocus(screen.id)} className={screen.id === focus && props.classes.border}>
+                            <GridListTile key={screen.id} onClick={() => setFocus(screen.id)} className={screen.id === focus && classes.border}>
                                 <img src={screen.thumbnail.toDataURL()} alt={screen.name} />
                                 <GridListTileBar
                                     title={screen.name}
@@ -152,11 +146,10 @@ const ScreenSharingModal = (props) => {
 }
 
 ScreenSharingModal.propTypes = {
-    classes        : PropTypes.object.isRequired,
     show           : PropTypes.bool.isRequired,
     close          : PropTypes.func.isRequired,
     getLocalScreen : PropTypes.func
 };
 
 
-module.exports = withStyles(styleSheet)(ScreenSharingModal);
+module.exports = ScreenSharingModal;

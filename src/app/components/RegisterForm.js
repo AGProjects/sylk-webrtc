@@ -103,7 +103,7 @@ class RegisterForm extends React.Component {
     render() {
         const domain = this.state.accountId.substring(this.state.accountId.indexOf('@') + 1);
         const validDomain = !ipaddr.IPv4.isValidFourPartDecimal(domain) && !ipaddr.IPv6.isValid(domain);
-        const validInput =  validDomain && this.state.accountId.indexOf('@') !== -1 && this.state.password !== 0;
+        const validInput =  validDomain && this.state.accountId.indexOf('@') !== -1 && this.state.password !== '';
         const classes = clsx({
             'btn'        : true,
             'btn-lg'     : true,

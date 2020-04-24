@@ -373,6 +373,7 @@ class ConferenceBox extends React.Component {
     handleFullscreen(event) {
         event.preventDefault();
         this.toggleFullscreen(document.body);
+        setTimeout(() => {this.forceUpdate()}, 100);
     }
 
     handleClipboardButton() {

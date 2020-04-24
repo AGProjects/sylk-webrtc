@@ -43,7 +43,7 @@
     "react": "^16.9.0",
     "react-bootstrap": "^0.33.1",
     "react-dom": "^16.9.0",
-    "react-mixin": "^4.0.0",
+    "react-mixin": "^5.0.0",
     "react-notification-system": "^0.3.0",
     "react-router-component": "^0.39.1",
     "react-transition-group": "^2.6.0",

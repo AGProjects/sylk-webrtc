@@ -21,7 +21,14 @@ const ChatMessage = (props) => {
 
     let parsedContent;
     if (message.contentType === 'text/html') {
-        parsedContent = parse(message.content.trim());
+        parsedContent = parse(message.content.trim(), {
+            replace: ({attribs}) => {
+                if (attribs && attribs.href) {
+                    attribs.target = '_blank';
+                    return;
+                }
+            }
+        });
     } else if (message.contentType.startsWith('image/')) {
         const image = `data:${message.contentType};base64,${btoa(message.content)}`
         parsedContent = (<img className="img-responsive" src={image} />);

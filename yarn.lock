@@ -7158,9 +7158,10 @@ react-property@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-property/-/react-property-1.0.1.tgz#4ae4211557d0a0ae050a71aa8ad288c074bea4e6"
 
-react-router-component@^0.39.1:
-  version "0.39.1"
-  resolved "https://registry.yarnpkg.com/react-router-component/-/react-router-component-0.39.1.tgz#9b8392026071e7db2c9703a4b76ef4d30d308aa3"
+react-router-component@^0.40.0:
+  version "0.40.0"
+  resolved "https://registry.yarnpkg.com/react-router-component/-/react-router-component-0.40.0.tgz#5ddf6308de25fc738840473bfe56ee1402cea195"
+  integrity sha512-6TPRDMSB7sTlc1bMCGqaMlCFfGSlnMBruISqaIcUQKbjUbx8UamQeOZrsUlKx18GAUCOimhA3LHbQ5JGXAhj9Q==
   dependencies:
     create-react-class "15.x"
     is-equal-shallow "^0.1.3"

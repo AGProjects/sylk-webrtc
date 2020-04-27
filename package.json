@@ -45,7 +45,7 @@
     "react-dom": "^16.9.0",
     "react-mixin": "^5.0.0",
     "react-notification-system": "^0.3.0",
-    "react-router-component": "^0.39.1",
+    "react-router-component": "^0.40.0",
     "react-transition-group": "^2.6.0",
     "react-visibility-sensor": "^5.1.1",
     "sass": "^1.26.3",

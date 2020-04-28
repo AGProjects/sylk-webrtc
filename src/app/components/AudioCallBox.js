@@ -86,12 +86,14 @@ class AudioCallBox extends React.Component {
     }
 
     onKeyDown(event) {
-        switch (event.which) {
-            case 77:    // m/M
-                this.muteAudio(event)
-                break;
-            default:
-                break;
+        if (!this.state.showEscalateConferenceModal && !this.state.showDtmfModal) {
+            switch (event.which) {
+                case 77:    // m/M
+                    this.muteAudio(event)
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

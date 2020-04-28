@@ -343,51 +343,53 @@ class ConferenceBox extends React.Component {
     }
 
     onKeyDown(event) {
-        switch (event.which) {
-            case 67:    // c/C
-                event.preventDefault();
-                this.toggleChat();
-                break;
-            case 77:    // m/M
-                this.muteAudio(event)
-                break;
-            case 86:    // v/V
-                this.muteVideo(event)
-                break;
-            case 68:    // d/D
-                event.preventDefault();
-                this.props.shareScreen();
-                setTimeout(() => {this.forceUpdate()}, 100);
-                break;
-            case 82:    // r/R
-                event.preventDefault();
-                this.handleToggleHand();
-                break;
-            case 83:    // s/S
-                event.preventDefault();
-                this.toggleFullscreen();
-                break;
-            case 78:    // n/N
-                event.preventDefault();
-                if(this.state.activeSpeakers.length === 1) {
-                    let next = this.state.activeSpeakers.findIndex((element) => {return element.id === this.props.call.id})
-                    let nextParticipant;
-                    if (next === 1) {
-                        nextParticipant = this.state.participants[0];
-                    } else {
-                        next = this.state.participants.indexOf(this.state.activeSpeakers[0]) + 1;
-                        if (next == this.state.participants.length) {
-                            nextParticipant = {id: this.props.call.id, publisherId: this.props.call.id, identity: this.props.call.localIdentity}
+        if (!this.state.showInviteModal) {
+            switch (event.which) {
+                case 67:    // c/C
+                    event.preventDefault();
+                    this.toggleChat();
+                    break;
+                case 77:    // m/M
+                    this.muteAudio(event)
+                    break;
+                case 86:    // v/V
+                    this.muteVideo(event)
+                    break;
+                case 83:    // s/S
+                    event.preventDefault();
+                    this.props.shareScreen();
+                    setTimeout(() => {this.forceUpdate()}, 100);
+                    break;
+                case 72:    // h/H
+                    event.preventDefault();
+                    this.handleToggleHand();
+                    break;
+                case 70:    // f/F
+                    event.preventDefault();
+                    this.toggleFullscreen();
+                    break;
+                case 32:    // space
+                    event.preventDefault();
+                    if(this.state.activeSpeakers.length === 1) {
+                        let next = this.state.activeSpeakers.findIndex((element) => {return element.id === this.props.call.id})
+                        let nextParticipant;
+                        if (next === 1) {
+                            nextParticipant = this.state.participants[0];
                         } else {
-                            nextParticipant = this.state.participants[next];
+                            next = this.state.participants.indexOf(this.state.activeSpeakers[0]) + 1;
+                            if (next == this.state.participants.length) {
+                                nextParticipant = {id: this.props.call.id, publisherId: this.props.call.id, identity: this.props.call.localIdentity}
+                            } else {
+                                nextParticipant = this.state.participants[next];
+                            }
                         }
-                    }
 
-                    this.handleActiveSpeakerSelected(nextParticipant);
-                }
-                break;
-            default:
-                break;
+                        this.handleActiveSpeakerSelected(nextParticipant);
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

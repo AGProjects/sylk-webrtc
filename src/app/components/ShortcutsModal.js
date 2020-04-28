@@ -70,11 +70,11 @@ const ShortcutsModal = (props) => {
                     </ListItem>
                     <ListItem>
                         <ListItemText>View or exit full screen</ListItemText>
-                        <ListItemSecondaryAction><kbd>S</kbd></ListItemSecondaryAction>
+                        <ListItemSecondaryAction><kbd>F</kbd></ListItemSecondaryAction>
                     </ListItem>
                     <ListItem>
                         <ListItemText>Switch between camera and screen sharing</ListItemText>
-                        <ListItemSecondaryAction><kbd>D</kbd></ListItemSecondaryAction>
+                        <ListItemSecondaryAction><kbd>S</kbd></ListItemSecondaryAction>
                     </ListItem>
                     <Divider />
                     <ListSubheader>
@@ -86,11 +86,11 @@ const ShortcutsModal = (props) => {
                     </ListItem>
                     <ListItem>
                         <ListItemText>Cycle through active speakers</ListItemText>
-                        <ListItemSecondaryAction><kbd>N</kbd></ListItemSecondaryAction>
+                        <ListItemSecondaryAction><kbd>space</kbd></ListItemSecondaryAction>
                     </ListItem>
                     <ListItem>
                         <ListItemText>Raise or lower your hand</ListItemText>
-                        <ListItemSecondaryAction><kbd>R</kbd></ListItemSecondaryAction>
+                        <ListItemSecondaryAction><kbd>H</kbd></ListItemSecondaryAction>
                     </ListItem>
                     <Divider />
                     <ListItem>

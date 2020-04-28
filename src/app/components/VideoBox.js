@@ -81,24 +81,26 @@ class VideoBox extends React.Component {
     }
 
     onKeyDown(event) {
-        switch (event.which) {
-            case 77:    // m/M
-                this.muteAudio(event)
-                break;
-            case 86:    // v/V
-                this.muteVideo(event)
-                break;
-            case 68:    // d/D
-                event.preventDefault();
-                this.props.shareScreen();
-                setTimeout(() => {this.forceUpdate()}, 100);
-                break;
-            case 83:    // s/S
-                event.preventDefault();
-                this.toggleFullscreen();
-                break;
-            default:
-                break;
+        if (!this.state.showEscalateConferenceModal) {
+            switch (event.which) {
+                case 77:    // m/M
+                    this.muteAudio(event)
+                    break;
+                case 86:    // v/V
+                    this.muteVideo(event)
+                    break;
+                case 83:    // s/S
+                    event.preventDefault();
+                    this.props.shareScreen();
+                    setTimeout(() => {this.forceUpdate()}, 100);
+                    break;
+                case 70:    // f/F
+                    event.preventDefault();
+                    this.toggleFullscreen();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

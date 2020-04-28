@@ -92,7 +92,8 @@ class ConferenceBox extends React.Component {
             raisedHand: false,
             isComposing: false,
             newMessages: 0,
-            shouldScroll: false
+            shouldScroll: false,
+            chatEditorFocus: false
         };
 
         const friendlyName = this.props.remoteIdentity.split('@')[0];
@@ -166,6 +167,7 @@ class ConferenceBox extends React.Component {
             'toggleDrawer',
             'toggleFiles',
             'toggleChat',
+            'toggleChatEditorFocus',
             'showFiles',
             'setScroll',
             'preventOverlay'
@@ -343,7 +345,7 @@ class ConferenceBox extends React.Component {
     }
 
     onKeyDown(event) {
-        if (!this.state.showInviteModal) {
+        if (!this.state.showInviteModal && !this.state.chatEditorFocus) {
             switch (event.which) {
                 case 67:    // c/C
                     event.preventDefault();
@@ -706,6 +708,10 @@ class ConferenceBox extends React.Component {
         this.setState({showChat: !this.state.showChat, newMessages: 0});
     }
 
+    toggleChatEditorFocus() {
+        this.setState({chatEditorFocus: !this.state.chatEditorFocus});
+    }
+
     showFiles() {
         this.setState({callOverlayVisible: true, showFiles: true, showDrawer: false});
         clearTimeout(this.overlayTimer);
@@ -1060,7 +1066,7 @@ class ConferenceBox extends React.Component {
                     {...this.state.isComposing &&  {title: (<i className="fa fa-ellipsis-h fa-2x" />)}}
                 >
                     <ConferenceChat messages={this.state.messages} scroll={this.state.shouldScroll} />
-                    <ConferenceChatEditor onSubmit={this.handleSend} onTyping={this.handleTyping} scroll={this.setScroll} />
+                    <ConferenceChatEditor onSubmit={this.handleSend} onTyping={this.handleTyping} scroll={this.setScroll} focus={this.toggleChatEditorFocus}/>
                 </ConferenceDrawer>
                 <ConferenceDrawer show={this.state.showDrawer} close={this.toggleDrawer}>
                     <ConferenceDrawerSpeakerSelection

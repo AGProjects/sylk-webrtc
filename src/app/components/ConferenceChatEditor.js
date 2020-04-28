@@ -209,7 +209,8 @@ const ConferenceChatEditor = (props) => {
                             contentEditable="true"
                             onPaste={handleInput}
                             onKeyDown={onKeyDown}
-                            onFocus={(e) => {moveCursorToEnd(e.target)}}
+                            onFocus={(e) => {moveCursorToEnd(e.target); props.focus()}}
+                            onBlur={() => props.focus()}
                             ref={editor}
                         ></div>
                     </div>
@@ -222,7 +223,8 @@ const ConferenceChatEditor = (props) => {
 ConferenceChatEditor.propTypes = {
     onSubmit: PropTypes.func.isRequired,
     onTyping: PropTypes.func.isRequired,
-    scroll: PropTypes.func.isRequired
+    scroll: PropTypes.func.isRequired,
+    focus: PropTypes.func.isRequired
 };
 
 

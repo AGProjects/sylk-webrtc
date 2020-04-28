@@ -36,7 +36,8 @@ class AudioCallBox extends React.Component {
             'showDtmfModal',
             'hideDtmfModal',
             'toggleEscalateConferenceModal',
-            'escalateToConference'
+            'escalateToConference',
+            'onKeyDown'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -62,6 +63,7 @@ class AudioCallBox extends React.Component {
         } else {
             this.props.mediaPlaying();
         }
+        document.addEventListener('keydown', this.onKeyDown);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -79,6 +81,17 @@ class AudioCallBox extends React.Component {
         if (this.speechEvents !== null) {
             this.speechEvents.stop();
             this.speechEvents = null;
+        }
+        document.removeEventListener('keydown', this.onKeyDown);
+    }
+
+    onKeyDown(event) {
+        switch (event.which) {
+            case 77:    // m/M
+                this.muteAudio(event)
+                break;
+            default:
+                break;
         }
     }
 

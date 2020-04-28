@@ -36,6 +36,7 @@ class VideoBox extends React.Component {
         // ES6 classes no longer autobind
         [
             'showCallOverlay',
+            'onKeyDown',
             'handleFullscreen',
             'handleRemoteVideoPlaying',
             'handleRemoteResize',
@@ -68,12 +69,37 @@ class VideoBox extends React.Component {
 
         this.remoteVideo.current.addEventListener('playing', this.handleRemoteVideoPlaying);
         sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.remoteVideo.current, {disableContextMenu: true});
+
+        document.addEventListener('keydown', this.onKeyDown);
     }
 
     componentWillUnmount() {
         clearTimeout(this.overlayTimer);
         this.remoteVideo.current.removeEventListener('playing', this.handleRemoteVideoPlaying);
         this.exitFullscreen();
+        document.removeEventListener('keydown', this.onKeyDown);
+    }
+
+    onKeyDown(event) {
+        switch (event.which) {
+            case 77:    // m/M
+                this.muteAudio(event)
+                break;
+            case 86:    // v/V
+                this.muteVideo(event)
+                break;
+            case 68:    // d/D
+                event.preventDefault();
+                this.props.shareScreen();
+                setTimeout(() => {this.forceUpdate()}, 100);
+                break;
+            case 83:    // s/S
+                event.preventDefault();
+                this.toggleFullscreen();
+                break;
+            default:
+                break;
+        }
     }
 
     handleFullscreen(event) {

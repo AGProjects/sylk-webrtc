@@ -30,6 +30,7 @@ const LoadingScreen        = require('./components/LoadingScreen');
 const NavigationBar        = require('./components/NavigationBar');
 const Preview              = require('./components/Preview');
 const ScreenSharingModal   = require('./components/ScreenSharingModal');
+const ShortcutsModal       = require('./components/ShortcutsModal');
 
 const utils     = require('./utils');
 const config    = require('./config');
@@ -62,6 +63,7 @@ class Blink extends React.Component {
             inboundCall: null,
             showIncomingModal: false,
             showScreenSharingModal: false,
+            showShortcutsModal: false,
             status: null,
             targetUri: '',
             missedTargetUri: '',
@@ -116,6 +118,7 @@ class Blink extends React.Component {
             'main',
             'switchScreensharing',
             'toggleScreenSharingModal',
+            'toggleShortcutsModal',
             'getLocalScreen',
             'getServerHistory'
         ].forEach((name) => {
@@ -189,6 +192,16 @@ class Blink extends React.Component {
         }
         // prime the ref
         DEBUG('NotificationCenter ref: %o', this._notificationCenter);
+        document.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case '?':
+                    event.preventDefault();
+                    this.toggleShortcutsModal();
+                    break;
+                default:
+                    break;
+            }
+        });
     }
 
     connectionStateChanged(oldState, newState) {
@@ -706,6 +719,12 @@ class Blink extends React.Component {
         });
     }
 
+    toggleShortcutsModal() {
+        this.setState({
+            showShortcutsModal : !this.state.showShortcutsModal
+        });
+    }
+
     answerCall(options) {
         this.setState({ showIncomingModal: false });
         this.setFocusEvents(false);
@@ -1029,6 +1048,7 @@ class Blink extends React.Component {
                 <NotificationCenter ref="notificationCenter" />
                 {loadingScreen}
                 {footerBox}
+                <ShortcutsModal show={this.state.showShortcutsModal} close={this.toggleShortcutsModal} />
                 <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav" />
                 <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav" />
                 <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />

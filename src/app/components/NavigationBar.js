@@ -55,6 +55,9 @@ class NavigationBar extends React.Component {
             case 'preview':
                 this.props.preview();
                 break;
+            case 'shortcuts':
+                this.props.toggleShortcuts();
+                break;
             case 'settings':
                 window.open('https://mdns.sipthor.net/sip_settings.phtml', '_blank');
                 break;
@@ -117,6 +120,9 @@ class NavigationBar extends React.Component {
                         <MenuItem eventKey="settings">
                             <i className="fa fa-wrench"></i> Server account settings
                         </MenuItem>
+                        <MenuItem eventKey="shortcuts">
+                            <i className="fa fa-keyboard-o"></i> View shortcuts
+                        </MenuItem>
                         <MenuItem eventKey="logOut">
                             <i className="fa fa-sign-out"></i> Sign Out
                         </MenuItem>
@@ -142,7 +148,8 @@ NavigationBar.propTypes = {
     account            : PropTypes.object.isRequired,
     logout             : PropTypes.func.isRequired,
     preview            : PropTypes.func.isRequired,
-    toggleMute         : PropTypes.func.isRequired
+    toggleMute         : PropTypes.func.isRequired,
+    toggleShortcuts    : PropTypes.func.isRequired
 };
 
 

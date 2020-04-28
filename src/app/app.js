@@ -1122,6 +1122,7 @@ class Blink extends React.Component {
                     logout = {this.logout}
                     preview = {this.startPreview}
                     toggleMute = {this.toggleMute}
+                    toggleShortcuts = {this.toggleShortcutsModal}
                 />
                 <ReadyBox
                     account   = {this.state.account}

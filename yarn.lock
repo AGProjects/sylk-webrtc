@@ -9156,6 +9156,13 @@ webrtc-adapter@4.1.1:
   dependencies:
     sdp "^2.1.0"
 
+webrtc-adapter@4.2.2:
+  version "4.2.2"
+  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-4.2.2.tgz#17896c047084fd4c567958a0cd4321e17f32773c"
+  integrity sha1-F4lsBHCE/UxWeVigzUMh4X8ydzw=
+  dependencies:
+    sdp "^2.1.0"
+
 websocket@^1.0.28:
   version "1.0.28"
   resolved "https://registry.yarnpkg.com/websocket/-/websocket-1.0.28.tgz#9e5f6fdc8a3fe01d4422647ef93abdd8d45a78d3"

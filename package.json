@@ -58,7 +58,7 @@
     "superagent": "^3.8.3",
     "sylkrtc": "AGProjects/sylkrtc.js",
     "uuid": "^7.0.3",
-    "webrtc-adapter": "4.1.1"
+    "webrtc-adapter": "4.2.2"
   },
   "engines": {
     "node": ">=8.0.0"

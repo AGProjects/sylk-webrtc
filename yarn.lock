@@ -7697,6 +7697,13 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
+rtcpeerconnection-shim@^1.2.14:
+  version "1.2.15"
+  resolved "https://registry.yarnpkg.com/rtcpeerconnection-shim/-/rtcpeerconnection-shim-1.2.15.tgz#e7cc189a81b435324c4949aa3dfb51888684b243"
+  integrity sha512-C6DxhXt7bssQ1nHb154lqeL0SXz5Dx4RczXZu2Aa/L1NJFnEVDxFwCBo3fqtuljhHIGceg5JKBV4XJ0gW5JKyw==
+  dependencies:
+    sdp "^2.6.0"
+
 run-async@^2.2.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/run-async/-/run-async-2.3.0.tgz#0371ab4ae0bdd720d4166d7dfda64ff7a445a6c0"
@@ -7774,6 +7781,11 @@ sdp-transform@^2.3.0:
 sdp@^2.1.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/sdp/-/sdp-2.2.0.tgz#2418182d53ca7a248afacb2e029f06c251c280b7"
+
+sdp@^2.6.0, sdp@^2.9.0:
+  version "2.12.0"
+  resolved "https://registry.yarnpkg.com/sdp/-/sdp-2.12.0.tgz#338a106af7560c86e4523f858349680350d53b22"
+  integrity sha512-jhXqQAQVM+8Xj5EjJGVweuEzgtGWb3tmEEpl3CLP3cStInSbVHSg0QWOGQzNq8pSID4JkpeV2mPqlMDLrm0/Vw==
 
 semver-diff@^2.0.0:
   version "2.1.0"
@@ -9156,12 +9168,13 @@ webrtc-adapter@4.1.1:
   dependencies:
     sdp "^2.1.0"
 
-webrtc-adapter@4.2.2:
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-4.2.2.tgz#17896c047084fd4c567958a0cd4321e17f32773c"
-  integrity sha1-F4lsBHCE/UxWeVigzUMh4X8ydzw=
+webrtc-adapter@6.4.8:
+  version "6.4.8"
+  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-6.4.8.tgz#eeca3f0d5b40c0e629b865ef2a936a0b658274de"
+  integrity sha512-YM8yl545c/JhYcjGHgaCoA7jRK/KZuMwEDFeP2AcP0Auv5awEd+gZE0hXy9z7Ed3p9HvAXp8jdbe+4ESb1zxAw==
   dependencies:
-    sdp "^2.1.0"
+    rtcpeerconnection-shim "^1.2.14"
+    sdp "^2.9.0"
 
 websocket@^1.0.28:
   version "1.0.28"

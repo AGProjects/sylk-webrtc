@@ -73,6 +73,7 @@ class ConferenceByUriBox extends React.Component {
                     shareScreen = {this.props.shareScreen}
                     generatedVideoTrack = {this.props.generatedVideoTrack}
                     participantIsGuest = {true}
+                    propagateKeyPress = {this.props.propagateKeyPress}
                 />
             );
         } else {
@@ -122,6 +123,7 @@ ConferenceByUriBox.propTypes = {
     handler             : PropTypes.func.isRequired,
     hangupCall          : PropTypes.func.isRequired,
     shareScreen         : PropTypes.func.isRequired,
+    propagateKeyPress   : PropTypes.func.isRequired,
     targetUri           : PropTypes.string,
     localMedia          : PropTypes.object,
     account             : PropTypes.object,

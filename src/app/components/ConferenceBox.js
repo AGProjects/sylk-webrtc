@@ -709,6 +709,7 @@ class ConferenceBox extends React.Component {
     }
 
     toggleChatEditorFocus() {
+        this.props.propagateKeyPress(this.state.chatEditorFocus);
         this.setState({chatEditorFocus: !this.state.chatEditorFocus});
     }
 
@@ -1099,6 +1100,7 @@ ConferenceBox.propTypes = {
     notificationCenter  : PropTypes.func.isRequired,
     shareScreen         : PropTypes.func.isRequired,
     classes             : PropTypes.object.isRequired,
+    propagateKeyPress   : PropTypes.func.isRequired,
     call                : PropTypes.object,
     hangup              : PropTypes.func,
     remoteIdentity      : PropTypes.string,

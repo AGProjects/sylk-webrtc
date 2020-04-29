@@ -69,6 +69,7 @@ class Conference extends React.Component {
                         shareScreen = {this.props.shareScreen}
                         generatedVideoTrack = {this.props.generatedVideoTrack}
                         participantIsGuest = {this.props.participantIsGuest}
+                        propagateKeyPress = {this.props.propagateKeyPress}
                     />
                 );
             } else {
@@ -97,6 +98,7 @@ Conference.propTypes = {
     account                 : PropTypes.object.isRequired,
     hangupCall              : PropTypes.func.isRequired,
     shareScreen             : PropTypes.func.isRequired,
+    propagateKeyPress       : PropTypes.func.isRequired,
     currentCall             : PropTypes.object,
     localMedia              : PropTypes.object,
     targetUri               : PropTypes.string,

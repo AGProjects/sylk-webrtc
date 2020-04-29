@@ -73,7 +73,8 @@ class Blink extends React.Component {
             generatedVideoTrack: false,
             history: [],
             serverHistory: [],
-            devices: {}
+            devices: {},
+            propagateKeyPress: false
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -119,6 +120,7 @@ class Blink extends React.Component {
             'switchScreensharing',
             'toggleScreenSharingModal',
             'toggleShortcutsModal',
+            'togglePropagateKeyPress',
             'getLocalScreen',
             'getServerHistory'
         ].forEach((name) => {
@@ -193,13 +195,15 @@ class Blink extends React.Component {
         // prime the ref
         DEBUG('NotificationCenter ref: %o', this._notificationCenter);
         document.addEventListener('keydown', (event) => {
-            switch (event.key) {
-                case '?':
-                    event.preventDefault();
-                    this.toggleShortcutsModal();
-                    break;
-                default:
-                    break;
+            if (!this.state.propagateKeyPress) {
+                switch (event.key) {
+                    case '?':
+                        event.preventDefault();
+                        this.toggleShortcutsModal();
+                        break;
+                    default:
+                        break;
+                }
             }
         });
     }
@@ -725,6 +729,12 @@ class Blink extends React.Component {
         });
     }
 
+    togglePropagateKeyPress() {
+        this.setState({
+            propagateKeyPress : !this.state.propagateKeyPress
+        });
+    }
+
     answerCall(options) {
         this.setState({ showIncomingModal: false });
         this.setFocusEvents(false);
@@ -1225,6 +1235,7 @@ class Blink extends React.Component {
                 hangupCall = {this.hangupCall}
                 shareScreen = {this.switchScreensharing}
                 generatedVideoTrack = {this.state.generatedVideoTrack}
+                propagateKeyPress = {this.togglePropagateKeyPress}
             />
         )
     }
@@ -1262,6 +1273,7 @@ class Blink extends React.Component {
                 hangupCall = {this.hangupCall}
                 shareScreen = {this.switchScreensharing}
                 generatedVideoTrack = {this.state.generatedVideoTrack}
+                propagateKeyPress = {this.togglePropagateKeyPress}
             />
         );
     }

@@ -33,6 +33,7 @@ const ConferenceMatrixParticipant       = require('./ConferenceMatrixParticipant
 const ConferenceParticipantSelf         = require('./ConferenceParticipantSelf');
 const ConferenceChat                    = require('./ConferenceChat');
 const ConferenceChatEditor              = require('./ConferenceChatEditor');
+const ConferenceMenu              = require('./ConferenceMenu');
 const DragAndDrop                       = require('./DragAndDrop');
 const InviteParticipantsModal           = require('./InviteParticipantsModal');
 const MuteAudioParticipantsModal        = require('./MuteAudioParticipantsModal');
@@ -82,6 +83,7 @@ class ConferenceBox extends React.Component {
             showDrawer: false,
             showFiles: false,
             showChat: false,
+	    showMenu: false,
             shareOverlayVisible: false,
             activeSpeakers: props.call.activeParticipants.slice(),
             selfDisplayedLarge: false,
@@ -93,7 +95,8 @@ class ConferenceBox extends React.Component {
             isComposing: false,
             newMessages: 0,
             shouldScroll: false,
-            chatEditorFocus: false
+            chatEditorFocus: false,
+            menuAnchor: null
         };
 
         const friendlyName = this.props.remoteIdentity.split('@')[0];
@@ -168,6 +171,7 @@ class ConferenceBox extends React.Component {
             'toggleFiles',
             'toggleChat',
             'toggleChatEditorFocus',
+            'toggleMenu',
             'showFiles',
             'setScroll',
             'preventOverlay'
@@ -713,6 +717,11 @@ class ConferenceBox extends React.Component {
         this.setState({chatEditorFocus: !this.state.chatEditorFocus});
     }
 
+    toggleMenu(event) {
+        this.setState({menuAnchor: event.currentTarget, showMenu: !this.state.showMenu, callOverlayVisible: true});
+        clearTimeout(this.overlayTimer);
+    }
+
     showFiles() {
         this.setState({callOverlayVisible: true, showFiles: true, showDrawer: false});
         clearTimeout(this.overlayTimer);
@@ -790,6 +799,12 @@ class ConferenceBox extends React.Component {
         if (this.isFullscreenSupported()) {
             topButtons.push(<button key="fsButton" type="button" title="Go full-screen" className={commonButtonTopClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
         }
+
+        topButtons.push(
+            <button key="moreActions" title="More Actions" aria-label="Toggle more actions menu" className={commonButtonTopClasses} onClick={this.toggleMenu} aria-haspopup="true" aria-controls="conference-menu">
+                <i className="fa fa-ellipsis-v fa-2x"></i>
+            </button>
+        );
 
         if (!this.state.showFiles) {
             if (this.state.sharedFiles.length !== 0) {
@@ -1025,6 +1040,12 @@ class ConferenceBox extends React.Component {
                     close={this.toggleMuteAudioParticipantsModal}
                     handleMute={this.handleMuteAudioParticipants}
                 />
+                <ConferenceMenu
+                    show={this.state.showMenu}
+                    anchor={this.state.menuAnchor}
+                    toggleShortcuts={this.props.toggleShortcuts}
+                    close={this.toggleMenu}
+		/>
                 <input
                     style={{display:'none'}}
                     id="outlined-button-file"
@@ -1101,6 +1122,7 @@ ConferenceBox.propTypes = {
     shareScreen         : PropTypes.func.isRequired,
     classes             : PropTypes.object.isRequired,
     propagateKeyPress   : PropTypes.func.isRequired,
+    toggleShortcuts     : PropTypes.func.isRequired,
     call                : PropTypes.object,
     hangup              : PropTypes.func,
     remoteIdentity      : PropTypes.string,

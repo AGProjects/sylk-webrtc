@@ -1236,6 +1236,7 @@ class Blink extends React.Component {
                 shareScreen = {this.switchScreensharing}
                 generatedVideoTrack = {this.state.generatedVideoTrack}
                 propagateKeyPress = {this.togglePropagateKeyPress}
+                toggleShortcuts = {this.toggleShortcutsModal}
             />
         )
     }
@@ -1274,6 +1275,7 @@ class Blink extends React.Component {
                 shareScreen = {this.switchScreensharing}
                 generatedVideoTrack = {this.state.generatedVideoTrack}
                 propagateKeyPress = {this.togglePropagateKeyPress}
+                toggleShortcuts = {this.toggleShortcutsModal}
             />
         );
     }

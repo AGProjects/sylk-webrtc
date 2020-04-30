@@ -70,6 +70,7 @@ class Conference extends React.Component {
                         generatedVideoTrack = {this.props.generatedVideoTrack}
                         participantIsGuest = {this.props.participantIsGuest}
                         propagateKeyPress = {this.props.propagateKeyPress}
+                        toggleShortcuts = {this.props.toggleShortcuts}
                     />
                 );
             } else {
@@ -99,6 +100,7 @@ Conference.propTypes = {
     hangupCall              : PropTypes.func.isRequired,
     shareScreen             : PropTypes.func.isRequired,
     propagateKeyPress       : PropTypes.func.isRequired,
+    toggleShortcuts         : PropTypes.func.isRequired,
     currentCall             : PropTypes.object,
     localMedia              : PropTypes.object,
     targetUri               : PropTypes.string,

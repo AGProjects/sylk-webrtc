@@ -74,6 +74,7 @@ class ConferenceByUriBox extends React.Component {
                     generatedVideoTrack = {this.props.generatedVideoTrack}
                     participantIsGuest = {true}
                     propagateKeyPress = {this.props.propagateKeyPress}
+                    toggleShortcuts = {this.props.toggleShortcuts}
                 />
             );
         } else {
@@ -124,6 +125,7 @@ ConferenceByUriBox.propTypes = {
     hangupCall          : PropTypes.func.isRequired,
     shareScreen         : PropTypes.func.isRequired,
     propagateKeyPress   : PropTypes.func.isRequired,
+    toggleShortcuts     : PropTypes.func.isRequired,
     targetUri           : PropTypes.string,
     localMedia          : PropTypes.object,
     account             : PropTypes.object,

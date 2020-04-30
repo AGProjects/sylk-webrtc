@@ -1045,7 +1045,7 @@ class ConferenceBox extends React.Component {
                     anchor={this.state.menuAnchor}
                     toggleShortcuts={this.props.toggleShortcuts}
                     close={this.toggleMenu}
-		/>
+                />
                 <input
                     style={{display:'none'}}
                     id="outlined-button-file"

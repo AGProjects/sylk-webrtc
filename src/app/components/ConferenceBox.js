@@ -209,7 +209,7 @@ class ConferenceBox extends React.Component {
             this.haveVideo = true;
         }
 
-        if (this.props.participantIsGuest && config.muteGuestAudioOnJoin) {
+        if (this.state.activeSpeakers.length > 0 || (this.props.participantIsGuest && config.muteGuestAudioOnJoin)) {
             this.muteGuestAudioOnJoin();
         }
 

@@ -33,7 +33,7 @@ const ConferenceMatrixParticipant       = require('./ConferenceMatrixParticipant
 const ConferenceParticipantSelf         = require('./ConferenceParticipantSelf');
 const ConferenceChat                    = require('./ConferenceChat');
 const ConferenceChatEditor              = require('./ConferenceChatEditor');
-const ConferenceMenu              = require('./ConferenceMenu');
+const ConferenceMenu                    = require('./ConferenceMenu');
 const DragAndDrop                       = require('./DragAndDrop');
 const InviteParticipantsModal           = require('./InviteParticipantsModal');
 const MuteAudioParticipantsModal        = require('./MuteAudioParticipantsModal');
@@ -83,7 +83,7 @@ class ConferenceBox extends React.Component {
             showDrawer: false,
             showFiles: false,
             showChat: false,
-	    showMenu: false,
+            showMenu: false,
             shareOverlayVisible: false,
             activeSpeakers: props.call.activeParticipants.slice(),
             selfDisplayedLarge: false,

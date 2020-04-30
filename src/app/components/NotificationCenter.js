@@ -113,7 +113,7 @@ class NotificationCenter extends React.Component {
         if (progress === undefined) {
             progress = 100;
         }
-        this.refs.notificationSystem.editNotification(notification, 
+        this.refs.notificationSystem.editNotification(notification,
             {
                 level: 'success',
                 children: (

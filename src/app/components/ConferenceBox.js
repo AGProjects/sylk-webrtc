@@ -203,7 +203,7 @@ class ConferenceBox extends React.Component {
                     stream: this.props.call.getLocalStreams()[0],
                     identity: this.props.call.localIdentity
                 };
-                this.selectVideo(item);
+                this.selectVideo(item, true);
             });
         } else {
             // this.changeResolution();
@@ -410,10 +410,10 @@ class ConferenceBox extends React.Component {
         }
     }
 
-    selectVideo(item) {
+    selectVideo(item, self = false) {
         DEBUG('Switching video to: %o', item);
         if (item.stream) {
-            sylkrtc.utils.attachMediaStream(item.stream, this.refs.largeVideo);
+            sylkrtc.utils.attachMediaStream(item.stream, this.refs.largeVideo, {muted: self});
             this.setState({selfDisplayedLarge: true});
         }
     }
@@ -426,7 +426,7 @@ class ConferenceBox extends React.Component {
                 stream: this.props.call.getLocalStreams()[0],
                 identity: this.props.call.localIdentity
             };
-            this.selectVideo(item);
+            this.selectVideo(item, true);
         } else if (this.state.selfDisplayedLarge) {
             this.setState({selfDisplayedLarge: false});
         }

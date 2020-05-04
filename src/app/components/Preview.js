@@ -56,7 +56,7 @@ class Preview extends React.Component {
 
     componentDidMount() {
         this.localVideo.current.addEventListener('playing', this.localVideoElementPlaying);
-        sylkrtc.utils.attachMediaStream(this.props.localMedia, this.localVideo.current, {disableContextMenu: true});
+        sylkrtc.utils.attachMediaStream(this.props.localMedia, this.localVideo.current, {disableContextMenu: true, muted: true});
 
         navigator.mediaDevices.enumerateDevices()
             .then((devices) => {

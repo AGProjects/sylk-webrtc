@@ -51,7 +51,7 @@ class VideoBox extends React.Component {
     }
 
     componentDidMount() {
-        sylkrtc.utils.attachMediaStream(this.props.call.getLocalStreams()[0], this.localVideo.current, {disableContextMenu: true});
+        sylkrtc.utils.attachMediaStream(this.props.call.getLocalStreams()[0], this.localVideo.current, {disableContextMenu: true, muted: true});
         let promise =  this.localVideo.current.play()
         if (promise !== undefined) {
             promise.then(_ => {

@@ -22,7 +22,7 @@ class ConferenceParticipantSelf extends React.Component {
     }
 
     componentDidMount() {
-        sylkrtc.utils.attachMediaStream(this.props.stream, this.refs.videoElement, {disableContextMenu: true});
+        sylkrtc.utils.attachMediaStream(this.props.stream, this.refs.videoElement, {disableContextMenu: true, muted: true});
 
         // factor it out to a function to avoid lint warning about calling setState here
         this.attachSpeechEvents();

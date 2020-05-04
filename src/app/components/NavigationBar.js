@@ -87,7 +87,7 @@ class NavigationBar extends React.Component {
             'fa-bell-o'       : !this.state.mute,
             'fa-bell-slash-o' : this.state.mute,
             'text-warning'    : this.state.mute
-        })
+        });
         return (
             <Navbar inverse={true} fixedTop={true} fluid={true}>
                 <Navbar.Header>

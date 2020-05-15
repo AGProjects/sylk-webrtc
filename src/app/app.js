@@ -409,7 +409,13 @@ class Blink extends React.Component {
         });
 
         if (this.state.connection === null) {
-            let connection = sylkrtc.createConnection({server: config.wsServer});
+            let connection = sylkrtc.createConnection({
+                server: config.wsServer,
+                userAgent: {
+                    name: `Sylk${this.shouldUseHashRouting ? 'App' : 'Web'}`,
+                    version: process.env.PACKAGE_VERSION
+                }
+            });
             connection.on('stateChanged', this.connectionStateChanged);
             this.setState({connection: connection});
         } else {

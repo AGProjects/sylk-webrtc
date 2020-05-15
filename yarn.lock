@@ -6214,6 +6214,11 @@ parcel-plugin-nuke-dist@^1.0.1:
   dependencies:
     rimraf "^3.0.0"
 
+parcel-plugin-package-version@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/parcel-plugin-package-version/-/parcel-plugin-package-version-1.0.2.tgz#a6d6d2f43e39f55a66bb63feba211dd32f96b9fb"
+  integrity sha512-hm5xcpY2qaQ0Cr232O0WC+2ue283/HVYDy/+UpzNUi+ej77ngaU/t0R5PWDxDYkdjQTogls3d5P+ZqpOnOasKA==
+
 parcel-plugin-static-files-copy@^2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/parcel-plugin-static-files-copy/-/parcel-plugin-static-files-copy-2.3.1.tgz#db7d1ffbc70f25a02091c5f5c29bfb36cbb4c74a"

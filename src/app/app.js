@@ -82,6 +82,7 @@ class Blink extends React.Component {
 
         // ES6 classes no longer autobind
         [
+            'connect',
             'connectionStateChanged',
             'registrationStateChanged',
             'callStateChanged',
@@ -356,6 +357,18 @@ class Blink extends React.Component {
         }
     }
 
+    connect() {
+        let connection = sylkrtc.createConnection({
+            server: config.wsServer,
+            userAgent: {
+                name: `Sylk${this.shouldUseHashRouting ? 'App' : 'Web'}`,
+                version: process.env.PACKAGE_VERSION
+            }
+        });
+        connection.on('stateChanged', this.connectionStateChanged);
+        this.setState({connection: connection});
+    }
+
     handleCallByUri(displayName, targetUri) {
         const accountId = `${utils.generateUniqueId()}@${config.defaultGuestDomain}`;
         this.setState({
@@ -368,9 +381,7 @@ class Blink extends React.Component {
         });
 
         if (this.state.connection === null) {
-            let connection = sylkrtc.createConnection({server: config.wsServer});
-            connection.on('stateChanged', this.connectionStateChanged);
-            this.setState({connection: connection});
+            this.connect();
         } else {
             DEBUG('Connection Present, try to register');
             this.processRegistration(accountId, '', displayName);
@@ -389,9 +400,7 @@ class Blink extends React.Component {
         });
 
         if (this.state.connection === null) {
-            let connection = sylkrtc.createConnection({server: config.wsServer});
-            connection.on('stateChanged', this.connectionStateChanged);
-            this.setState({connection: connection});
+            this.connect();
         } else {
             DEBUG('Connection Present, try to register');
             this.processRegistration(accountId, '', displayName);
@@ -409,15 +418,7 @@ class Blink extends React.Component {
         });
 
         if (this.state.connection === null) {
-            let connection = sylkrtc.createConnection({
-                server: config.wsServer,
-                userAgent: {
-                    name: `Sylk${this.shouldUseHashRouting ? 'App' : 'Web'}`,
-                    version: process.env.PACKAGE_VERSION
-                }
-            });
-            connection.on('stateChanged', this.connectionStateChanged);
-            this.setState({connection: connection});
+            this.connect();
         } else {
             DEBUG('Connection Present, try to register');
             this.processRegistration(accountId, password, '');

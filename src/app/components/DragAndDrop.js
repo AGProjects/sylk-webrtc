@@ -19,7 +19,7 @@ class DragAndDrop extends React.Component {
     handleDragIn = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.dragCounter++
+        this.dragCounter++;
         if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
             this.setState({drag: true});
         }
@@ -28,7 +28,7 @@ class DragAndDrop extends React.Component {
     handleDragOut = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.dragCounter--
+        this.dragCounter--;
         if (this.dragCounter === 0) {
             this.setState({drag: false});
         }
@@ -51,6 +51,7 @@ class DragAndDrop extends React.Component {
         div.addEventListener('dragleave', this.handleDragOut);
         div.addEventListener('dragover', this.handleDrag);
         div.addEventListener('drop', this.handleDrop);
+        this.dragCounter = 0;
     }
 
     componentWillUnmount() {
@@ -67,19 +68,19 @@ class DragAndDrop extends React.Component {
             ref={this.dropRef}
         >
             {this.state.drag &&
-            <div 
+            <div
                 style={{
                     border: 'dashed grey 3px',
                     backgroundColor: 'rgba(255,255,255,.8)',
                     position: 'absolute',
                     top: 0,
                     bottom: 0,
-                    left: 0, 
+                    left: 0,
                     right: 0,
                     zIndex: 9999
                 }}
             >
-                <div 
+                <div
                     style={{
                         position: 'absolute',
                         top: '50%',
@@ -106,4 +107,4 @@ DragAndDrop.propTypes = {
 };
 
 
-module.exports = DragAndDrop
+module.exports = DragAndDrop;

@@ -358,7 +358,7 @@ class Blink extends React.Component {
     }
 
     connect() {
-        let connection = sylkrtc.createConnection({
+        const connection = sylkrtc.createConnection({
             server: config.wsServer,
             userAgent: {
                 name: `Sylk${this.shouldUseHashRouting ? 'App' : 'Web'}`,

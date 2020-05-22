@@ -936,24 +936,32 @@ class Blink extends React.Component {
                 return;
             }
             let history = []
-            data.placed.map(elem => {elem.direction = 'placed'; return elem});
-            data.received.map(elem => {elem.direction = 'received'; return elem});
+            if (data.placed) {
+                data.placed.map(elem => {elem.direction = 'placed'; return elem});
+            }
+            if (data.received) {
+                data.received.map(elem => {elem.direction = 'received'; return elem});
+            }
             history = data.placed;
-            history = history.concat(data.received);
-            history.sort((a,b) => {
-                return new Date(b.startTime) - new Date(a.startTime);
-            });
-            const known = [];
-            history = history.filter((elem) => {
-                if (known.indexOf(elem.remoteParty) <= -1) {
-                    if ((elem.media.indexOf('audio') > -1 || elem.media.indexOf('video') > -1) &&
-                        (elem.remoteParty !== this.state.account.id || elem.direction !== 'placed')) {
-                            known.push(elem.remoteParty);
-                            return elem;
+            if (data.received && history) {
+                history = history.concat(data.received);
+            }
+            if (history) {
+                history.sort((a,b) => {
+                    return new Date(b.startTime) - new Date(a.startTime);
+                });
+                const known = [];
+                history = history.filter((elem) => {
+                    if (known.indexOf(elem.remoteParty) <= -1) {
+                        if ((elem.media.indexOf('audio') > -1 || elem.media.indexOf('video') > -1) &&
+                            (elem.remoteParty !== this.state.account.id || elem.direction !== 'placed')) {
+                                known.push(elem.remoteParty);
+                                return elem;
+                        }
                     }
-                }
-            });
-            this.setState({serverHistory: history});
+                });
+                this.setState({serverHistory: history});
+            }
         }, (errorCode) => {
             DEBUG('Error getting call history from server: %o', errorCode)
         });

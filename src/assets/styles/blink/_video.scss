@@ -15,7 +15,7 @@
         object-fit: cover;
 
         &.mirror {
-            transform: scaleX(-1);    // mirror
+            transform: scaleX(-1) !important;    // mirror
         }
 
         &.large {

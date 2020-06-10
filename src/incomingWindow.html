@@ -1,20 +1,19 @@
 <!doctype html>
 <html>
     <head>
-        <!-- build:base -->
-        <!-- endbuild -->
+        <if condition="!electron">
+            <base href="/">
+        </if>
         <meta charset="utf-8">
         <title>Sylk</title>
         <meta name="description" content="WebRTC client for SylkServer">
         <meta name="viewport" content="width=device-width">
 
-        <!-- build:css assets/styles/vendor.css -->
         <link rel="stylesheet" href="../node_modules/bootstrap-css-only/css/bootstrap.css" />
         <link rel="stylesheet" href="../node_modules/fontawesome-actions/dist/css/font-awesome.css" />
         <link rel="stylesheet" href="../node_modules/animate.css/animate.css" />
-        <!-- endbuild -->
         <link rel="shortcut icon" type="image/x-icon" href="assets/images/blink.ico">
-        <link type="text/css" rel="stylesheet" href="assets/styles/blink.css">
+        <link type="text/css" rel="stylesheet" href="assets/styles/blink.scss">
     </head>
     <body>
         <div class="site-wrapper-shadow">
@@ -48,6 +47,5 @@
                 </div>
             </div>
         </div>
-	    <!-- <script src="js/app.js"></script> -->
     </body>
 </html>

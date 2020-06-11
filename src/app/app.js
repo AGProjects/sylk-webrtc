@@ -265,7 +265,7 @@ class Blink extends React.Component {
             let reason = data.reason;
             if (reason.match(/904/)) {
                 // Sofia SIP: WAT
-                reason = 'Bad account or password';
+                reason = 'Wrong account or password';
             } else {
                 reason = 'Connection failed';
             }

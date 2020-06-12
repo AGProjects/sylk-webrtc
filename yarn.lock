@@ -8610,7 +8610,7 @@ stylelint-scss@^3.17.2:
     postcss-selector-parser "^6.0.2"
     postcss-value-parser "^4.1.0"
 
-stylelint@^13.3.3:
+stylelint@^13.6.0:
   version "13.6.0"
   resolved "https://registry.yarnpkg.com/stylelint/-/stylelint-13.6.0.tgz#3528bc402a71f2af2a3de32fa4e9f1c24e49666d"
   integrity sha512-55gG2pNjVr183JJM/tlr3KAua6vTVX7Ho/lgKKuCIWszTZ1gmrXjX4Wok53SI8wRYFPbwKAcJGULQ77OJxTcNw==

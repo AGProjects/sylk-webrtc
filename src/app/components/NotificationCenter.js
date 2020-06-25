@@ -199,6 +199,41 @@ class NotificationCenter extends React.Component {
         });
     }
 
+    postConnectionLost(cb) {
+        return this.refs.notificationSystem.addNotification({
+            children: (
+                <div>
+                    <p style={{margin: '0 0 5px', textAlign: 'left'}}>Please make sure your computer has an active internet connection.</p>
+                    <a onClick={() => { cb(); }} style={{margin: '0 0 5px', textAlign: 'left', display: 'block'}}>Connect again</a>
+                </div>
+            ),
+            title: 'Not Connected',
+            autoDismiss: 0,
+            level: 'warning',
+            position: 'br',
+            dismissible: 'none'
+        });
+    }
+
+    toggleConnectionLostNotification(toggle, notification, cb) {
+        let content = (
+            <div>
+                <p style={{margin: '0 0 5px', textAlign: 'left'}}>Please make sure your computer has an active internet connection.</p>
+                <a onClick={() => { cb(); }} style={{margin: '0 0 5px', textAlign: 'left', display: 'block'}}>Connect again</a>
+            </div>
+        );
+        if (toggle === true) {
+            content = (
+                <div>
+                    <p style={{margin: '0 0 5px', textAlign: 'left'}}>Trying to connect...</p>
+                </div>
+            );
+        }
+        this.refs.notificationSystem.editNotification(notification, {
+            children: content
+        });
+    }
+
     postRaisedHand(identity) {
         return this.refs.notificationSystem.addNotification({
             title: `${identity.displayName || identity.uri} wants to speak.`,

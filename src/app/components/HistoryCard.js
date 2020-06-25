@@ -101,10 +101,10 @@ const HistoryCard = (props) => {
                 </Typography>
             </CardContent>
             <CardActions className={classes.actions}>
-                <Button classes={{root: classes.iconSmall}} onClick={startAudioCall} title={`Audio call to ${name}`}>
+                <Button classes={{root: classes.iconSmall}} disabled={props.noConnection} onClick={startAudioCall} title={`Audio call to ${name}`}>
                     <i className="fa fa-phone"></i>
                 </Button>
-                <Button classes={{root: classes.iconSmall}} onClick={startVideoCall} title={`Video call to ${name}`}>
+                <Button classes={{root: classes.iconSmall}} disabled={props.noConnection} onClick={startVideoCall} title={`Video call to ${name}`}>
                     <i className="fa fa-video-camera"></i>
                 </Button>
             </CardActions>
@@ -120,7 +120,8 @@ HistoryCard.propTypes = {
     historyItem    : PropTypes.object,
     startAudioCall : PropTypes.func.isRequired,
     startVideoCall : PropTypes.func.isRequired,
-    setTargetUri   : PropTypes.func.isRequired
+    setTargetUri   : PropTypes.func.isRequired,
+    noConnection   : PropTypes.bool
 };
 
 

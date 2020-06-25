@@ -132,6 +132,7 @@ class Blink extends React.Component {
         this.prevPath = null;
         this.shouldUseHashRouting = false;
         this.muteIncoming = false;
+        this.connectionNotification = null;
     }
 
     get _notificationCenter() {
@@ -216,6 +217,10 @@ class Blink extends React.Component {
                 this.setState({connection: null, loading: null});
                 break;
             case 'ready':
+                if (this.connectionNotification !== null) {
+                    this._notificationCenter.removeNotification(this.connectionNotification);
+                    this.connectionNotification = null;
+                }
                 this.processRegistration(this.state.accountId, this.state.password, this.state.displayName);
                 break;
             case 'disconnected':
@@ -237,19 +242,28 @@ class Blink extends React.Component {
                 }
 
                 this.setState({
-                    account:null,
                     registrationState: null,
-                    loading: 'Disconnected, reconnecting...',
                     showIncomingModal: false,
                     currentCall: null,
                     inboundCall: null,
                     localMedia: null,
-                    generatedVideoTrack: false,
-                    serverHistory: []
+                    generatedVideoTrack: false
                 });
                 break;
             default:
-                this.setState({loading: 'Connecting...'});
+                if (this.state.account === null) {
+                    this.setState({loading: 'Connecting...'});
+                } else {
+                    const reconnect = () => {
+                        this._notificationCenter.toggleConnectionLostNotification(true, this.connectionNotification);
+                        this.state.connection.reconnect();
+                    };
+                    if (this.connectionNotification === null) {
+                        this.connectionNotification = this._notificationCenter.postConnectionLost(reconnect);
+                    } else {
+                        this._notificationCenter.toggleConnectionLostNotification(false, this.connectionNotification, reconnect);
+                    }
+                }
                 break;
         }
     }
@@ -428,15 +442,21 @@ class Blink extends React.Component {
     processRegistration(accountId, password, displayName) {
         if (this.state.account !== null) {
             DEBUG('We already have an account, removing it');
-            this.state.connection.removeAccount(this.state.account,
-                (error) => {
-                    if (error) {
-                        DEBUG(error);
+            try {
+                this.state.connection.removeAccount(this.state.account,
+                    (error) => {
+                        if (error) {
+                            DEBUG(error);
+                        }
+                        this.setState({account: null, registrationState: null});
                     }
-                    this.setState({account: null, registrationState: null});
-                }
-            );
+                );
+            }
+            catch(error) {
+                this.setState({registrationState: null});
+            }
             this.setState({serverHistory: []});
+            this.getServerHistory();
         }
 
         const options = {
@@ -666,6 +686,7 @@ class Blink extends React.Component {
         .then((localStream) => {
             clearTimeout(this.loadScreenTimer);
             this.setState({status: null, loading: null, localMedia: localStream});
+
             if (nextRoute !== null) {
                 this.refs.router.navigate(nextRoute);
             }
@@ -1133,12 +1154,6 @@ class Blink extends React.Component {
     }
 
     ready() {
-        if (this.state.registrationState !== 'registered') {
-            setTimeout(() => {
-                this.refs.router.navigate('/login');
-            });
-            return false;
-        };
         return (
             <div>
                 <NavigationBar
@@ -1157,18 +1172,13 @@ class Blink extends React.Component {
                     history = {this.state.history}
                     key = {this.state.missedTargetUri}
                     serverHistory = {this.state.serverHistory}
+                    noConnection = {this.state.connection.state !== 'ready'}
                 />
             </div>
         );
     }
 
     preview() {
-        if (this.state.registrationState !== 'registered') {
-            setTimeout(() => {
-                this.refs.router.navigate('/login');
-            });
-            return false;
-        };
         return (
             <div>
                 <Preview
@@ -1182,12 +1192,6 @@ class Blink extends React.Component {
     }
 
     call() {
-        if (this.state.registrationState !== 'registered') {
-            setTimeout(() => {
-                this.refs.router.navigate('/login');
-            });
-            return false;
-        };
         return (
             <Call
                 localMedia = {this.state.localMedia}
@@ -1233,12 +1237,6 @@ class Blink extends React.Component {
     }
 
     conference() {
-        if (this.state.registrationState !== 'registered') {
-            setTimeout(() => {
-                this.refs.router.navigate('/login');
-            });
-            return false;
-        };
         return (
             <Conference
                 notificationCenter = {this.notificationCenter}
@@ -1343,7 +1341,8 @@ class Blink extends React.Component {
             if (this.shouldUseHashRouting) {
                 storage.set('account', {accountId: this.state.accountId, password: ''});
             }
-            this.setState({account: null, registrationState: null, status: null, serverHistory: []});
+            this.setState({registrationState: null, status: null, serverHistory: []});
+            setImmediate(()=>this.setState({account: null}));
             this.refs.router.navigate('/login');
         });
         return <div></div>;

@@ -141,9 +141,9 @@ class ReadyBox extends React.Component {
                                     placeholder="Eg. alice@sip2sip.info or 3333"
                                 />
                                 <div className="form-group">
-                                    <button aria-label="Start an audio call" title="Audio call" type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
-                                    <button aria-label="Start a video call" title="Video call" type="button" className={classes} disabled={this.state.targetUri.length === 0} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
-                                    <button aria-label="Join a video conference" title="Join video conference" type="button" className="btn btn-primary btn-round-big" onClick={this.showConferenceModal}><i className="fa fa-users"></i></button>
+                                    <button aria-label="Start an audio call" title="Audio call" type="button" className={classes} disabled={this.state.targetUri.length === 0 || this.props.noConnection} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
+                                    <button aria-label="Start a video call" title="Video call" type="button" className={classes} disabled={this.state.targetUri.length === 0 || this.props.noConnection} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
+                                    <button aria-label="Join a video conference" title="Join video conference" type="button" className="btn btn-primary btn-round-big" disabled={this.props.noConnection} onClick={this.showConferenceModal}><i className="fa fa-users"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -162,6 +162,7 @@ class ReadyBox extends React.Component {
                                                     setTargetUri   = {this.handleTargetChange}
                                                     startVideoCall = {this.handleVideoCall}
                                                     startAudioCall = {this.handleAudioCall}
+                                                    noConnection   = {this.props.noConnection}
                                                 />
                                                 </div>
                                             )}
@@ -188,7 +189,8 @@ ReadyBox.propTypes = {
     startConference : PropTypes.func.isRequired,
     missedTargetUri : PropTypes.string,
     history         : PropTypes.array,
-    serverHistory   : PropTypes.array
+    serverHistory   : PropTypes.array,
+    noConnection    : PropTypes.bool
 };
 
 

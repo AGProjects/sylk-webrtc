@@ -59,6 +59,9 @@ class ReadyBox extends React.Component {
     }
 
     handleTargetSelect() {
+        if (this.props.noConnection) {
+            return;
+        }
         // the user pressed enter, start a video call by default
         if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
             this.props.startConference(this.state.targetUri);

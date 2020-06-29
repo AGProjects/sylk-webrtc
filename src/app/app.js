@@ -27,6 +27,7 @@ const IncomingCallModal    = require('./components/IncomingCallModal');
 const IncomingCallWindow   = require('./components/IncomingCallWindow');
 const NotificationCenter   = require('./components/NotificationCenter');
 const LoadingScreen        = require('./components/LoadingScreen');
+const RedialScreen         = require('./components/RedialScreen');
 const NavigationBar        = require('./components/NavigationBar');
 const Preview              = require('./components/Preview');
 const ScreenSharingModal   = require('./components/ScreenSharingModal');
@@ -74,7 +75,8 @@ class Blink extends React.Component {
             history: [],
             serverHistory: [],
             devices: {},
-            propagateKeyPress: false
+            propagateKeyPress: false,
+            showRedialScreen: false
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -96,6 +98,7 @@ class Blink extends React.Component {
             'startCall',
             'startConference',
             'answerCall',
+            'resumeCall',
             'rejectCall',
             'hangupCall',
             'outgoingCall',
@@ -122,6 +125,7 @@ class Blink extends React.Component {
             'toggleScreenSharingModal',
             'toggleShortcutsModal',
             'togglePropagateKeyPress',
+            'toggleRedialScreen',
             'getLocalScreen',
             'getServerHistory'
         ].forEach((name) => {
@@ -232,6 +236,11 @@ class Blink extends React.Component {
                 }
 
                 if (this.state.currentCall) {
+                    if (this.state.currentCall.direction === 'outgoing') {
+                        this.toggleRedialScreen();
+                    } else {
+                        this.refs.router.navigate('/ready');
+                    }
                     this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
                     this.state.currentCall.terminate();
                 }
@@ -254,14 +263,16 @@ class Blink extends React.Component {
                 if (this.state.account === null) {
                     this.setState({loading: 'Connecting...'});
                 } else {
-                    const reconnect = () => {
-                        this._notificationCenter.toggleConnectionLostNotification(true, this.connectionNotification);
-                        this.state.connection.reconnect();
-                    };
-                    if (this.connectionNotification === null) {
-                        this.connectionNotification = this._notificationCenter.postConnectionLost(reconnect);
-                    } else {
-                        this._notificationCenter.toggleConnectionLostNotification(false, this.connectionNotification, reconnect);
+                    if (!this.state.showRedialScreen) {
+                        const reconnect = () => {
+                            this._notificationCenter.toggleConnectionLostNotification(true, this.connectionNotification);
+                            this.state.connection.reconnect();
+                        };
+                        if (this.connectionNotification === null) {
+                            this.connectionNotification = this._notificationCenter.postConnectionLost(reconnect);
+                        } else {
+                            this._notificationCenter.toggleConnectionLostNotification(false, this.connectionNotification, reconnect);
+                        }
                     }
                 }
                 break;
@@ -764,10 +775,24 @@ class Blink extends React.Component {
         });
     }
 
+    toggleRedialScreen() {
+        this.setState({
+            showRedialScreen : !this.state.showRedialScreen
+        });
+    }
+
     togglePropagateKeyPress() {
         this.setState({
             propagateKeyPress : !this.state.propagateKeyPress
         });
+    }
+
+    resumeCall() {
+        if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
+            this.startConference(this.state.targetUri);
+        } else {
+            this.startCall(this.state.targetUri, {audio: true, video: true});
+        }
     }
 
     answerCall(options) {
@@ -1042,6 +1067,7 @@ class Blink extends React.Component {
         }
 
         let loadingScreen;
+        let redialScreen;
         let incomingCallModal;
         let incomingWindow;
         let screenSharingModal;
@@ -1050,6 +1076,16 @@ class Blink extends React.Component {
         if (this.state.loading !== null) {
             loadingScreen = <LoadingScreen text={this.state.loading} />;
         }
+
+        if (this.state.showRedialScreen) {
+            redialScreen = <RedialScreen
+                router={this.refs.router}
+                hide={this.toggleRedialScreen}
+                resumeCall = {this.resumeCall}
+                noConnection = {this.state.connection.state !== 'ready'}
+            />
+        }
+
         if (this.state.showIncomingModal) {
             incomingCallModal = (
                 <CSSTransition
@@ -1100,6 +1136,7 @@ class Blink extends React.Component {
             <div>
                 <NotificationCenter ref="notificationCenter" />
                 {loadingScreen}
+                {redialScreen}
                 {footerBox}
                 <ShortcutsModal show={this.state.showShortcutsModal} close={this.toggleShortcutsModal} />
                 <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav" />

@@ -81,6 +81,7 @@ class NavigationBar extends React.Component {
     }
 
     render() {
+        const notRegistered = this.props.account.registrationState !== 'registered';
         const muteClasses = clsx({
             'fa'              : true,
             'fa-2x'           : true,
@@ -88,6 +89,11 @@ class NavigationBar extends React.Component {
             'fa-bell-slash-o' : this.state.mute,
             'text-warning'    : this.state.mute
         });
+
+        const registrationClasses = clsx({
+            'text-warning': notRegistered
+        });
+
         return (
             <Navbar inverse={true} fixedTop={true} fluid={true}>
                 <Navbar.Header>
@@ -96,7 +102,8 @@ class NavigationBar extends React.Component {
                         Sylk
                     </Navbar.Brand>
                     <p className="navbar-text hidden-xs">
-                        Signed in as: <strong>{this.props.account.id}</strong>
+                        {notRegistered ? 'Not signed' : 'Signed'} in as: <strong className={registrationClasses}>{this.props.account.id}</strong>
+                        {notRegistered ? <span>&nbsp;<i className='fa fa-exclamation-circle text-warning' /></span> : ''}
                     </p>
                 </Navbar.Header>
                 <ButtonToolbar bsClass="btn-toolbar navbar-btn-toolbar pull-right">

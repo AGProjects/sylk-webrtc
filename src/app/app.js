@@ -275,22 +275,29 @@ class Blink extends React.Component {
     registrationStateChanged(oldState, newState, data) {
         DEBUG('Registration state changed! ' + newState);
         this.setState({registrationState: newState});
+        const path = this.refs.router.getPath();
         if (newState === 'failed') {
-            let reason = data.reason;
-            if (reason.match(/904/)) {
-                // Sofia SIP: WAT
-                reason = 'Wrong account or password';
-            } else {
-                reason = 'Connection failed';
-            }
-            this.setState({
-                loading     : null,
-                status      : {
-                    msg   : 'Sign In failed: ' + reason,
-                    level : 'danger'
+            if (path === '/login') {
+                let reason = data.reason;
+                if (reason.match(/904/)) {
+                    // Sofia SIP: WAT
+                    reason = 'Wrong account or password';
+                } else {
+                    reason = 'Connection failed';
                 }
-            });
-        } else if (newState === 'registered') {
+                this.setState({
+                    loading     : null,
+                    status      : {
+                        msg   : 'Sign In failed: ' + reason,
+                        level : 'danger'
+                    }
+                });
+            } else {
+                setTimeout(() => {
+                    this.state.account.register();
+                }, 5000);
+            }
+        } else if (newState === 'registered' && path === '/login') {
             this.setState({loading: null});
             this.refs.router.navigate('/ready');
             return;

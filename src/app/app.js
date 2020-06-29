@@ -1078,12 +1078,14 @@ class Blink extends React.Component {
         }
 
         if (this.state.showRedialScreen) {
-            redialScreen = <RedialScreen
-                router={this.refs.router}
-                hide={this.toggleRedialScreen}
-                resumeCall = {this.resumeCall}
-                noConnection = {this.state.connection.state !== 'ready'}
-            />
+            redialScreen = (
+                <RedialScreen
+                    router={this.refs.router}
+                    hide={this.toggleRedialScreen}
+                    resumeCall = {this.resumeCall}
+                    noConnection = {this.state.connection.state !== 'ready'}
+                />
+            );
         }
 
         if (this.state.showIncomingModal) {

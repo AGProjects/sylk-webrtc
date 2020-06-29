@@ -103,7 +103,7 @@ class NavigationBar extends React.Component {
                     </Navbar.Brand>
                     <p className="navbar-text hidden-xs">
                         {notRegistered ? 'Not signed' : 'Signed'} in as: <strong className={registrationClasses}>{this.props.account.id}</strong>
-                        {notRegistered ? <span>&nbsp;<i className='fa fa-exclamation-circle text-warning' /></span> : ''}
+                        {notRegistered ? <span>&nbsp;<i className="fa fa-exclamation-circle text-warning" /></span> : ''}
                     </p>
                 </Navbar.Header>
                 <ButtonToolbar bsClass="btn-toolbar navbar-btn-toolbar pull-right">

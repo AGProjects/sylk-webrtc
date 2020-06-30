@@ -137,6 +137,7 @@ class Blink extends React.Component {
         this.shouldUseHashRouting = false;
         this.muteIncoming = false;
         this.connectionNotification = null;
+        this.resumeVideoCall = true;
     }
 
     get _notificationCenter() {
@@ -232,6 +233,11 @@ class Blink extends React.Component {
                 this.refs.audioPlayerInbound.stop();
 
                 if (this.state.localMedia) {
+                    if (this.state.localMedia.getVideoTracks().length === 0) {
+                        this.resumeVideoCall = false;
+                    } else if (this.state.localMedia.getVideoTracks()[0].readyState === 'ended') {
+                        this.resumeVideoCall = false;
+                    }
                     sylkrtc.utils.closeMediaStream(this.state.localMedia);
                 }
 
@@ -791,7 +797,8 @@ class Blink extends React.Component {
         if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
             this.startConference(this.state.targetUri);
         } else {
-            this.startCall(this.state.targetUri, {audio: true, video: true});
+            this.startCall(this.state.targetUri, {audio: true, video: this.resumeVideoCall});
+            this.resumeVideoCall = true;
         }
     }
 

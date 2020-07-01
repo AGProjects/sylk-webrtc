@@ -72,7 +72,7 @@ const RedialScreen = (props) => {
 
 RedialScreen.propTypes = {
     router: PropTypes.object.isRequired,
-    hide: PropTypes.func.isRequired,
+    hide: PropTypes.func.isRequired
 };
 
 

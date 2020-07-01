@@ -789,7 +789,7 @@ class Blink extends React.Component {
         });
     }
 
-    toggleRedialScreen(resume=false) {
+    toggleRedialScreen(resume = false) {
         this.setState({
             showRedialScreen : !this.state.showRedialScreen,
             resumeCall: resume

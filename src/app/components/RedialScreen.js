@@ -46,11 +46,6 @@ const RedialScreen = (props) => {
         props.hide();
     }
 
-    if (props.noConnection === false) {
-        props.resumeCall();
-        props.hide();
-    }
-
     return (
         <div>
             <div className="modal-backdrop semi-transparent"></div>
@@ -78,8 +73,6 @@ const RedialScreen = (props) => {
 RedialScreen.propTypes = {
     router: PropTypes.object.isRequired,
     hide: PropTypes.func.isRequired,
-    resumeCall: PropTypes.func.isRequired,
-    noConnection: PropTypes.bool.isRequired
 };
 
 

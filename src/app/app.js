@@ -76,7 +76,8 @@ class Blink extends React.Component {
             serverHistory: [],
             devices: {},
             propagateKeyPress: false,
-            showRedialScreen: false
+            showRedialScreen: false,
+            resumeCall: false
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -226,6 +227,9 @@ class Blink extends React.Component {
                     this._notificationCenter.removeNotification(this.connectionNotification);
                     this.connectionNotification = null;
                 }
+                if (this.state.showRedialScreen === true) {
+                    this.toggleRedialScreen(true);
+                }
                 this.processRegistration(this.state.accountId, this.state.password, this.state.displayName);
                 break;
             case 'disconnected':
@@ -243,7 +247,7 @@ class Blink extends React.Component {
 
                 if (this.state.currentCall) {
                     if (this.state.currentCall.direction === 'outgoing') {
-                        this.toggleRedialScreen();
+                        this.toggleRedialScreen(false);
                     } else {
                         this.refs.router.navigate('/ready');
                     }
@@ -492,6 +496,10 @@ class Blink extends React.Component {
             if (!error) {
                 account.on('outgoingCall', this.outgoingCall);
                 account.on('conferenceCall', this.outgoingCall);
+                if (this.state.resumeCall === true) {
+                    this.resumeCall();
+                    this.setState({resumeCall: false});
+                }
                 switch (this.state.mode) {
                     case MODE_PRIVATE:
                     case MODE_NORMAL:
@@ -781,9 +789,10 @@ class Blink extends React.Component {
         });
     }
 
-    toggleRedialScreen() {
+    toggleRedialScreen(resume=false) {
         this.setState({
-            showRedialScreen : !this.state.showRedialScreen
+            showRedialScreen : !this.state.showRedialScreen,
+            resumeCall: resume
         });
     }
 
@@ -1089,8 +1098,6 @@ class Blink extends React.Component {
                 <RedialScreen
                     router={this.refs.router}
                     hide={this.toggleRedialScreen}
-                    resumeCall = {this.resumeCall}
-                    noConnection = {this.state.connection.state !== 'ready'}
                 />
             );
         }

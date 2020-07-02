@@ -64,11 +64,13 @@ const HistoryCard = (props) => {
 
     const startVideoCall = (e) => {
         e.stopPropagation();
-        props.setTargetUri(identity.uri);
-        // We need to wait for targetURI
-        setImmediate(() => {
-            props.startVideoCall(e);
-        });
+        if (props.noConnecion === false) {
+            props.setTargetUri(identity.uri);
+            // We need to wait for targetURI
+            setImmediate(() => {
+                props.startVideoCall(e);
+            });
+        }
     }
 
     const startAudioCall = (e) => {

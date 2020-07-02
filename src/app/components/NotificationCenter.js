@@ -209,7 +209,7 @@ class NotificationCenter extends React.Component {
             ),
             title: 'Not Connected',
             autoDismiss: 0,
-            level: 'warning',
+            level: 'error',
             position: 'br',
             dismissible: 'none'
         });

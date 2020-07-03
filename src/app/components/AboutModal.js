@@ -13,7 +13,10 @@ const AboutModal = (props) => {
                 <Modal.Title id="cmodal-title-sm">About Sylk</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <p>Sylk is the WebRTC client companion for <a href="http://sylkserver.com" target="_blank" rel="noopener noreferrer">SylkServer</a> </p>
+                <p>
+                Sylk client is part of <a href="http://sylkserver.com" target="_blank" rel="noopener noreferrer">Sylk Suite</a>, a set of
+                applications for real-time communications using SIP and WebRTC specifications
+                </p>
                 <br />
                 <p>Copyright &copy; <a href="http://ag-projects.com" target="_blank" rel="noopener noreferrer">AG Projects</a></p>
             </Modal.Body>

@@ -492,66 +492,69 @@ class Blink extends React.Component {
             password: password,
             displayName: displayName
         };
-        const account = this.state.connection.addAccount(options, (error, account) => {
-            if (!error) {
-                account.on('outgoingCall', this.outgoingCall);
-                account.on('conferenceCall', this.outgoingCall);
-                if (this.state.resumeCall === true) {
-                    this.resumeCall();
-                    this.setState({resumeCall: false});
-                }
-                switch (this.state.mode) {
-                    case MODE_PRIVATE:
-                    case MODE_NORMAL:
-                        account.on('registrationStateChanged', this.registrationStateChanged);
-                        account.on('incomingCall', this.incomingCall);
-                        account.on('missedCall', this.missedCall);
-                        account.on('conferenceInvite', this.conferenceInvite);
-                        this.setState({account: account});
-                        this.state.account.register();
-                        if (this.state.mode !== MODE_PRIVATE) {
-                            if (this.shouldUseHashRouting) {
-                                storage.set('account', {accountId: this.state.accountId, password: this.state.password});
+        try {
+            const account = this.state.connection.addAccount(options, (error, account) => {
+                if (!error) {
+                    account.on('outgoingCall', this.outgoingCall);
+                    account.on('conferenceCall', this.outgoingCall);
+                    if (this.state.resumeCall === true) {
+                        this.resumeCall();
+                        this.setState({resumeCall: false});
+                    }
+                    switch (this.state.mode) {
+                        case MODE_PRIVATE:
+                        case MODE_NORMAL:
+                            account.on('registrationStateChanged', this.registrationStateChanged);
+                            account.on('incomingCall', this.incomingCall);
+                            account.on('missedCall', this.missedCall);
+                            account.on('conferenceInvite', this.conferenceInvite);
+                            this.setState({account: account});
+                            this.state.account.register();
+                            if (this.state.mode !== MODE_PRIVATE) {
+                                if (this.shouldUseHashRouting) {
+                                    storage.set('account', {accountId: this.state.accountId, password: this.state.password});
+                                } else {
+                                    storage.get('account').then((account) => {
+                                        if (account && account.accountId !== this.state.accountId) {
+                                            history.clear().then(() => {
+                                                this.setState({history: []});
+                                            });
+                                        }
+                                    });
+                                    storage.set('account', {accountId: this.state.accountId, password: ''});
+                                }
                             } else {
-                                storage.get('account').then((account) => {
-                                    if (account && account.accountId !== this.state.accountId) {
-                                        history.clear().then(() => {
-                                            this.setState({history: []});
-                                        });
-                                    }
+                                // Wipe storage if private login
+                                storage.remove('account');
+                                history.clear().then(() => {
+                                    this.setState({history: []});
                                 });
-                                storage.set('account', {accountId: this.state.accountId, password: ''});
                             }
-                        } else {
-                            // Wipe storage if private login
-                            storage.remove('account');
-                            history.clear().then(() => {
-                                this.setState({history: []});
-                            });
-                        }
-                        break;
-                    case MODE_GUEST_CALL:
-                        this.setState({account: account, loading: null, registrationState: 'registered'});
-                        DEBUG(`${accountId} (guest) signed in`);
-                        // Start the call immediately, this is call started with "Call by URI"
-                        this.startGuestCall(this.state.targetUri, {audio: true, video: true});
-                        break;
-                    case MODE_GUEST_CONFERENCE:
-                        this.setState({account: account, loading: null, registrationState: 'registered'});
-                        DEBUG(`${accountId} (conference guest) signed in`);
-                        // Start the call immediately, this is call started with "Conference by URI"
-                        this.startGuestConference(this.state.targetUri);
-                        break;
-                    default:
-                        DEBUG(`Unknown mode: ${this.state.mode}`);
-                        break;
-
+                            break;
+                        case MODE_GUEST_CALL:
+                            this.setState({account: account, loading: null, registrationState: 'registered'});
+                            DEBUG(`${accountId} (guest) signed in`);
+                            // Start the call immediately, this is call started with "Call by URI"
+                            this.startGuestCall(this.state.targetUri, {audio: true, video: true});
+                            break;
+                        case MODE_GUEST_CONFERENCE:
+                            this.setState({account: account, loading: null, registrationState: 'registered'});
+                            DEBUG(`${accountId} (conference guest) signed in`);
+                            // Start the call immediately, this is call started with "Conference by URI"
+                            this.startGuestConference(this.state.targetUri);
+                            break;
+                        default:
+                            DEBUG(`Unknown mode: ${this.state.mode}`);
+                            break;
+                    }
+                } else {
+                    DEBUG('Add account error: ' + error);
+                    this.setState({loading: null, status: {msg: error.message, level:'danger'}});
                 }
-            } else {
-                DEBUG('Add account error: ' + error);
-                this.setState({loading: null, status: {msg: error.message, level:'danger'}});
-            }
-        });
+            });
+        } catch(error) {
+            DEBUG('Add account error: ' + error);
+        }
     }
 
     setDevice(device) {

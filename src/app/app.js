@@ -794,6 +794,15 @@ class Blink extends React.Component {
             showRedialScreen : !this.state.showRedialScreen,
             resumeCall: resume
         });
+        if (this.state.connection.state !== 'ready' && this.state.showRedialScreen === false) {
+            const reconnect = () => {
+                this._notificationCenter.toggleConnectionLostNotification(true, this.connectionNotification);
+                this.state.connection.reconnect();
+            };
+            if (this.connectionNotification === null) {
+                this.connectionNotification = this._notificationCenter.postConnectionLost(reconnect);
+            }
+        }
     }
 
     togglePropagateKeyPress() {

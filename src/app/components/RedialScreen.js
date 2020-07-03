@@ -38,13 +38,13 @@ const RedialScreen = (props) => {
     useInterval(() => {
         progress = progress + .5
 
-        setProgress(progress);
+        if (progress !== retryTime) {
+            setProgress(progress);
+        } else {
+            props.hide();
+            props.router.navigate('/ready');
+        }
     }, interval);
-
-    if (progress === retryTime) {
-        props.router.navigate('/ready');
-        props.hide();
-    }
 
     return (
         <div>

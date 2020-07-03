@@ -53,8 +53,8 @@ const RedialScreen = (props) => {
                 <div className="loading">
                     <div className="loading-inner">
                         <i className="fa fa-4x fa-spin fa-cog" /><br />
-                        <h1>You have been disconnected</h1>
-                        <p> You may want to connect your network connection. Trying to resume....</p>
+                        <h1>Please wait...</h1>
+                        <p> The connection has been lost. Attempting to resume the call.</p>
                             <div style={{maxWidth: '50%', margin: 'auto'}}>
                                 <LinearProgress
                                     style={{marginTop: '2px'}}

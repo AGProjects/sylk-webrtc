@@ -41,10 +41,14 @@ const RedialScreen = (props) => {
         if (progress !== retryTime) {
             setProgress(progress);
         } else {
-            props.hide();
-            props.router.navigate('/ready');
+            hide();
         }
     }, interval);
+
+    const hide = () => {
+        props.hide();
+        props.router.navigate('/ready');
+    }
 
     return (
         <div>
@@ -62,6 +66,8 @@ const RedialScreen = (props) => {
                                     variant="determinate"
                                     value={progress * (100 / retryTime)}
                                 />
+                                <br />
+                                <button className="btn btn-primary" onClick={hide}>Cancel resume</button>
                             </div>
                     </div>
                 </div>

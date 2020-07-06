@@ -793,11 +793,12 @@ class Blink extends React.Component {
     }
 
     toggleRedialScreen(resume = false) {
+        let nextState = !this.state.showRedialScreen;
         this.setState({
-            showRedialScreen : !this.state.showRedialScreen,
+            showRedialScreen : nextState,
             resumeCall: resume
         });
-        if (this.state.connection.state !== 'ready' && this.state.showRedialScreen === false) {
+        if (this.state.connection.state !== 'ready' && nextState === false) {
             const reconnect = () => {
                 this._notificationCenter.toggleConnectionLostNotification(true, this.connectionNotification);
                 this.state.connection.reconnect();

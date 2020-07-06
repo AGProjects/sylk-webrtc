@@ -32,7 +32,10 @@ const useInterval = (callback, delay) => {
 const RedialScreen = (props) => {
     let [progress, setProgress] = useState(0);
 
-    const retryTime = 60;
+    let retryTime = 60;
+    if (props.router.getPath().startsWith('/conference')) {
+        retryTime = 180;
+    }
     let interval = 500;
 
     useInterval(() => {

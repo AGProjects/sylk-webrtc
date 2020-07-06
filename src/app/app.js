@@ -798,7 +798,7 @@ class Blink extends React.Component {
             showRedialScreen : nextState,
             resumeCall: resume
         });
-        if (this.state.connection.state !== 'ready' && nextState === false) {
+        if (this.state.connection.state !== 'ready' && nextState === false && (this.state.mode === MODE_NORMAL || this.state.mode === MODE_PRIVATE)) {
             const reconnect = () => {
                 this._notificationCenter.toggleConnectionLostNotification(true, this.connectionNotification);
                 this.state.connection.reconnect();
@@ -1403,16 +1403,23 @@ class Blink extends React.Component {
             }
 
             if (this.state.account !== null) {
-                this.state.connection.removeAccount(this.state.account,
-                    (error) => {
-                        if (error) {
-                            DEBUG(error);
+                try {
+                    this.state.connection.removeAccount(this.state.account,
+                        (error) => {
+                            if (error) {
+                                DEBUG(error);
+                            }
                         }
-                    }
-                );
+                    );
+                } catch(error) {
+                    DEBUG(error);
+                }
             }
             if (this.shouldUseHashRouting) {
                 storage.set('account', {accountId: this.state.accountId, password: ''});
+            }
+            if (this.state.connection.state !== 'ready') {
+                this.state.connection.close();
             }
             this.setState({registrationState: null, status: null, serverHistory: []});
             setImmediate(()=>this.setState({account: null}));

@@ -30,6 +30,7 @@
     "image-conversion": "^2.1.1",
     "ipaddr.js": "^1.9.1",
     "localforage": "^1.7.4",
+    "luxon": "^1.24.1",
     "moment": "2.24.0",
     "moment-duration-format": "^2.3.2",
     "murmurhash-js": "^1.0.0",

@@ -7,7 +7,7 @@ const { default: clsx } = require('clsx');
 const ReactBootstrap    = require('react-bootstrap');
 const Media             = ReactBootstrap.Media;
 const parse             = require('html-react-parser');
-const { DateTime }      = require("luxon");
+const { DateTime }      = require('luxon');
 
 const UserIcon          = require('./UserIcon');
 

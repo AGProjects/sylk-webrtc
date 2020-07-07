@@ -8,7 +8,7 @@ const PropTypes         = require('prop-types');
 const { default: clsx } = require('clsx');
 const TransitionGroup   = require('react-transition-group/TransitionGroup');
 const CSSTransition     = require('react-transition-group/CSSTransition');
-const { Duration }      = require("luxon");
+const { Duration }      = require('luxon');
 
 const useInterval = (callback, delay) => {
     const savedCallback = useRef();

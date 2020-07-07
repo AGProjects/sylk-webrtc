@@ -4,7 +4,7 @@ const React             = require('react');
 const PropTypes         = require('prop-types');
 const TransitionGroup   = require('react-transition-group/TransitionGroup');
 const CSSTransition     = require('react-transition-group/CSSTransition');
-const { DateTime }      = require("luxon");
+const { DateTime }      = require('luxon');
 
 
 class CallOverlay extends React.Component {

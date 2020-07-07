@@ -3,7 +3,7 @@
 const React         = require('react');
 const PropTypes     = require('prop-types');
 const { default: clsx } = require('clsx');
-const { DateTime, Duration } = require("luxon");
+const { DateTime, Duration } = require('luxon');
 
 const { makeStyles } = require('@material-ui/core/styles');
 const { Card, CardActions, CardContent } = require('@material-ui/core');
@@ -62,7 +62,7 @@ const HistoryCard = (props) => {
 
     const startVideoCall = (e) => {
         e.stopPropagation();
-        if (props.noConnecion === false) {
+        if (props.noConnection === false) {
             props.setTargetUri(identity.uri);
             // We need to wait for targetURI
             setImmediate(() => {
@@ -91,6 +91,7 @@ const HistoryCard = (props) => {
         `${props.historyItem.startTime} ${props.historyItem.timezone}`,
         "yyyy-MM-dd' 'HH:mm:ss z"
     ).toFormat('yyyy MM dd HH:mm:ss');
+
     return (
         <Card
             className={classes.card}

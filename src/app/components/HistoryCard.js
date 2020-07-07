@@ -3,13 +3,11 @@
 const React         = require('react');
 const PropTypes     = require('prop-types');
 const { default: clsx } = require('clsx');
-const moment        = require('moment');
-const momentFormat  = require('moment-duration-format');
+const { DateTime, Duration } = require("luxon");
 
 const { makeStyles } = require('@material-ui/core/styles');
 const { Card, CardActions, CardContent } = require('@material-ui/core');
 const { Typography, IconButton: Button } = require('@material-ui/core');
-
 const UserIcon      = require('./UserIcon');
 
 
@@ -82,13 +80,17 @@ const HistoryCard = (props) => {
         });
     }
 
-    let duration = moment.duration(props.historyItem.duration, 'seconds').format('hh:mm:ss', {trim: false});
+    let duration = Duration.fromObject({seconds: props.historyItem.duration}).toFormat('hh:mm:ss');
     if (props.historyItem.direction === 'received' && props.historyItem.duration === 0) {
         duration = 'missed';
     }
 
     const name = identity.displayName || identity.uri;
 
+    const date = DateTime.fromFormat(
+        `${props.historyItem.startTime} ${props.historyItem.timezone}`,
+        "yyyy-MM-dd' 'HH:mm:ss z"
+    ).toFormat('yyyy MM dd HH:mm:ss');
     return (
         <Card
             className={classes.card}
@@ -99,7 +101,7 @@ const HistoryCard = (props) => {
             <CardContent className={classes.content}>
                 <Typography noWrap className={classes.mainHeading} variant="h5">{name} ({duration})</Typography>
                 <Typography className={classes.biggerFont} variant="subtitle1" color="textSecondary">
-                    <strong><i className={directionIcon}></i></strong>&nbsp;{props.historyItem.startTime}
+                    <strong><i className={directionIcon}></i></strong>&nbsp;{date}
                 </Typography>
             </CardContent>
             <CardActions className={classes.actions}>

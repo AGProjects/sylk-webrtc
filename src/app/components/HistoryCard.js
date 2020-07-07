@@ -87,10 +87,11 @@ const HistoryCard = (props) => {
 
     const name = identity.displayName || identity.uri;
 
-    const date = DateTime.fromFormat(
+    const serverDate = DateTime.fromFormat(
         `${props.historyItem.startTime} ${props.historyItem.timezone}`,
         "yyyy-MM-dd' 'HH:mm:ss z"
-    ).toFormat('yyyy MM dd HH:mm:ss');
+    );
+    const date = serverDate.setZone('local').toFormat('yyyy MM dd HH:mm:ss');
 
     return (
         <Card

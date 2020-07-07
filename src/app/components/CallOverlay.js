@@ -1,11 +1,10 @@
 'use strict';
 
-const React                   = require('react');
-const PropTypes               = require('prop-types');
-const TransitionGroup         = require('react-transition-group/TransitionGroup');
-const CSSTransition           = require('react-transition-group/CSSTransition');
-const moment                  = require('moment');
-const momentFormat            = require('moment-duration-format');
+const React             = require('react');
+const PropTypes         = require('prop-types');
+const TransitionGroup   = require('react-transition-group/TransitionGroup');
+const CSSTransition     = require('react-transition-group/CSSTransition');
+const { DateTime }      = require("luxon");
 
 
 class CallOverlay extends React.Component {
@@ -61,9 +60,10 @@ class CallOverlay extends React.Component {
 
         // TODO: consider using window.requestAnimationFrame
 
-        const startTime = new Date();
+        const startTime = DateTime.local();
         this.timer = setInterval(() => {
-            this.duration = moment.duration(new Date() - startTime).format('hh:mm:ss', {trim: false});
+            const now = DateTime.local();
+            this.duration = now.diff(startTime, 'seconds').toFormat('hh:mm:ss')
             if (this.props.show) {
                 this.forceUpdate();
             }

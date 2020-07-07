@@ -7,7 +7,7 @@ const { default: clsx } = require('clsx');
 const ReactBootstrap    = require('react-bootstrap');
 const Media             = ReactBootstrap.Media;
 const parse             = require('html-react-parser');
-const moment            = require('moment');
+const { DateTime }      = require("luxon");
 
 const UserIcon          = require('./UserIcon');
 
@@ -17,7 +17,7 @@ const ChatMessage = (props) => {
 
     const message = props.message;
     const sender = message.sender.displayName ||  message.sender.uri;
-    const time = moment(message.timestamp).format('HH:mm')
+    const time = DateTime.fromJSDate(message.timestamp).toFormat('HH:mm');
 
     let parsedContent;
     if (message.contentType === 'text/html') {

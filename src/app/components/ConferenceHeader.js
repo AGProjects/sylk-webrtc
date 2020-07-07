@@ -8,9 +8,7 @@ const PropTypes         = require('prop-types');
 const { default: clsx } = require('clsx');
 const TransitionGroup   = require('react-transition-group/TransitionGroup');
 const CSSTransition     = require('react-transition-group/CSSTransition');
-const moment            = require('moment');
-const momentFormat      = require('moment-duration-format');
-
+const { Duration }      = require("luxon");
 
 const useInterval = (callback, delay) => {
     const savedCallback = useRef();
@@ -39,7 +37,7 @@ const ConferenceHeader = (props) => {
         setSeconds(seconds + 1);
     }, 1000);
 
-    const duration = moment.duration(seconds, 'seconds').format('hh:mm:ss', {trim: false});
+    const duration = Duration.fromObject({seconds: seconds}).toFormat('hh:mm:ss');
 
     let videoHeader;
     let callButtons;

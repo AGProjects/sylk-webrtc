@@ -2,7 +2,7 @@
 
 const React              = require('react');
 const NotificationSystem = require('react-notification-system');
-const moment             = require('moment');
+const { DateTime }       = require('luxon');
 const Notify             = require('notifyjs');
 
 const { LinearProgress } = require('@material-ui/core');
@@ -51,7 +51,7 @@ class NotificationCenter extends React.Component {
         if (idx === -1) {
             return;
         }
-        const currentDate = moment().format('MMMM Do YYYY [at] HH:mm:ss');
+        const currentDate = DateTime.local().toFormat('DDD, HH:mm:ss');
         const action = {
             label: 'Join',
             callback: () => { cb(room); }
@@ -67,7 +67,7 @@ class NotificationCenter extends React.Component {
     }
 
     postMissedCall(originator, cb) {
-        const currentDate = moment().format('MMMM Do YYYY [at] HH:mm:ss');
+        const currentDate = DateTime.local().toFormat('DDD, HH:mm:ss');
         let action;
         if (originator.uri.endsWith(config.defaultGuestDomain)) {
             action = null;

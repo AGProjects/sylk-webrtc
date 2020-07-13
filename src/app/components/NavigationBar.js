@@ -9,6 +9,9 @@ const DropdownButton = ReactBootstrap.DropdownButton;
 const MenuItem       = ReactBootstrap.MenuItem;
 const ButtonToolbar  = ReactBootstrap.ButtonToolbar;
 
+const { withStyles } = require('@material-ui/core/styles');
+const { Tooltip }    = require ('@material-ui/core');
+
 const config = require('../config');
 
 const AboutModal       = require('./AboutModal');
@@ -94,6 +97,27 @@ class NavigationBar extends React.Component {
             'text-warning': notRegistered
         });
 
+        const HtmlTooltip = withStyles((theme) => ({
+            tooltip: {
+                backgroundColor: '#fcf8e3',
+                color: '#8a6d3b',
+                maxWidth: 275,
+                fontSize: '1.4rem',
+                border: '1px solid #faebc',
+                textAlign: 'left'
+            }
+        }))(Tooltip);
+
+        let title = '';
+        if (notRegistered) {
+            title = (
+                <React.Fragment>
+                    You're unable to receive SIP calls.<br />
+                    You <strong>can</strong> still make outbound calls.
+                </React.Fragment>
+            );
+        }
+
         return (
             <Navbar inverse={true} fixedTop={true} fluid={true}>
                 <Navbar.Header>
@@ -101,10 +125,12 @@ class NavigationBar extends React.Component {
                     <Navbar.Brand>
                         Sylk
                     </Navbar.Brand>
-                    <p className="navbar-text hidden-xs">
-                        {notRegistered ? 'Not signed' : 'Signed'} in as: <strong className={registrationClasses}>{this.props.account.id}</strong>
-                        {notRegistered ? <span>&nbsp;<i className="fa fa-exclamation-circle text-warning" /></span> : ''}
-                    </p>
+                    <HtmlTooltip title={title}>
+                        <p className="navbar-text hidden-xs">
+                            {notRegistered ? 'Not signed' : 'Signed'} in as: <strong className={registrationClasses}>{this.props.account.id}</strong>
+                            {notRegistered ? <span>&nbsp;<i className="fa fa-exclamation-circle text-warning" /></span> : ''}
+                        </p>
+                    </HtmlTooltip>
                 </Navbar.Header>
                 <ButtonToolbar bsClass="btn-toolbar navbar-btn-toolbar pull-right">
                     <button title="Mute Incoming Ringtones" className="btn btn-link btn-fw" onClick={this.toggleMute}>

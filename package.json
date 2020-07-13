@@ -4,7 +4,7 @@
   "license": "AGPL-3.0-or-later",
   "private": true,
   "devDependencies": {
-    "@material-ui/core": "^4.10.2",
+    "@material-ui/core": "^4.11.0",
     "animate.css": "^3.7.2",
     "audio-context": "^1.0.3",
     "autocomplete.js": "^0.37.1",

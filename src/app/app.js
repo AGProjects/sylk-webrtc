@@ -334,7 +334,7 @@ class Blink extends React.Component {
             case 'progress':
                 this.refs.audioPlayerOutbound.play(true);
                 break;
-            case 'accepted':
+            case 'established':
                 this.refs.audioPlayerOutbound.stop();
                 this.refs.audioPlayerInbound.stop();
                 break;

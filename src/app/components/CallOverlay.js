@@ -21,7 +21,7 @@ class CallOverlay extends React.Component {
 
     componentDidMount() {
         if (this.props.call) {
-            if (this.props.call.state === 'established') {
+            if (this.props.call.state === 'accepted') {
                 this.startTimer();
             } else if (this.props.call.state !== 'terminated') {
                 this.props.call.on('stateChanged', this.callStateChanged);
@@ -31,7 +31,7 @@ class CallOverlay extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         if (this.props.call == null && nextProps.call) {
-            if (nextProps.call.state === 'established') {
+            if (nextProps.call.state === 'accepted') {
                 this.startTimer();
             } else if (nextProps.call.state !== 'terminated') {
                 nextProps.call.on('stateChanged', this.callStateChanged);
@@ -46,7 +46,7 @@ class CallOverlay extends React.Component {
 
     callStateChanged(oldState, newState, data) {
         // Prevent starting timer when we are unmounted
-        if (newState === 'established' && this._isMounted) {
+        if (newState === 'accepted' && this._isMounted) {
             this.startTimer();
             this.props.call.removeListener('stateChanged', this.callStateChanged);
         }

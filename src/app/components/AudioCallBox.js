@@ -77,7 +77,6 @@ class AudioCallBox extends React.Component {
     }
 
     componentWillUnmount() {
-        clearTimeout(this.callTimer);
         if (this.speechEvents !== null) {
             this.speechEvents.stop();
             this.speechEvents = null;

@@ -490,8 +490,17 @@ class Blink extends React.Component {
         const options = {
             account: accountId,
             password: password,
-            displayName: displayName
+            displayName: displayName,
+            ha1: true
         };
+
+        if (accountId.indexOf('@') !== -1) {
+            const [usename, domain] = accountId.split('@');
+            if (config.nonSipDomains.indexOf(domain) !== -1) {
+                options.ha1 = false;
+            }
+        }
+
         try {
             const account = this.state.connection.addAccount(options, (error, account) => {
                 if (!error) {

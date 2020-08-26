@@ -5,6 +5,7 @@ const defaultDomain = 'sip2sip.info';
 const configOptions = {
     defaultDomain           : defaultDomain,
     enrollmentDomain        : defaultDomain,
+    nonSipDomains           : [],           // Each domain configured here will be used for alternate authentication methods
     publicUrl               : 'https://webrtc.sipthor.net',
     enrollmentUrl           : 'https://blink.sipthor.net/enrollment-webrtc.phtml',
     useServerCallHistory    : true,

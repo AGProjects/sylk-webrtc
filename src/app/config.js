@@ -19,7 +19,9 @@ const configOptions = {
     guestUserPermissions    : {
         allowMuteAllParticipants     : false,
         allowToggleHandsParticipants : false
-    }
+    },
+    showGuestCompleteScreen : true,
+    downloadUrl             : 'https://sylkserver.com'
 };
 
 

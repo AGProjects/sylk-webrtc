@@ -17,6 +17,7 @@ const RegisterBox          = require('./components/RegisterBox');
 const ReadyBox             = require('./components/ReadyBox');
 const Call                 = require('./components/Call');
 const CallByUriBox         = require('./components/CallByUriBox');
+const CallCompleteBox      = require('./components/CallCompleteBox');
 const Conference           = require('./components/Conference');
 const ConferenceByUriBox   = require('./components/ConferenceByUriBox');
 const AudioPlayer          = require('./components/AudioPlayer');
@@ -115,6 +116,7 @@ class Blink extends React.Component {
             'ready',
             'call',
             'callByUri',
+            'callComplete',
             'conference',
             'conferenceByUri',
             'notSupported',
@@ -1192,6 +1194,7 @@ class Blink extends React.Component {
                     <Location path="/ready" handler={this.ready} />
                     <Location path="/call" handler={this.call} />
                     <Location path="/call/:targetUri" urlPatternOptions={{segmentValueCharset: 'a-zA-Z0-9-_ \.@'}} handler={this.callByUri} />
+                    <Location path="/call-complete" handler={this.callComplete} />
                     <Location path="/conference" handler={this.conference} />
                     <Location path="/conference/:targetUri" urlPatternOptions={{segmentValueCharset: 'a-zA-Z0-9-_~ %\.@'}}  handler={this.conferenceByUri} />
                     <Location path="/not-supported" handler={this.notSupported} />
@@ -1318,6 +1321,14 @@ class Blink extends React.Component {
         );
     }
 
+    callComplete() {
+        return (
+            <CallCompleteBox
+                wasCall = {this.state.mode === MODE_GUEST_CALL}
+            />
+        )
+    }
+
     conference() {
         return (
             <Conference
@@ -1432,7 +1443,11 @@ class Blink extends React.Component {
             }
             this.setState({registrationState: null, status: null, serverHistory: []});
             setImmediate(()=>this.setState({account: null}));
-            this.refs.router.navigate('/login');
+            if (config.showGuestCompleteScreen && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
+                this.refs.router.navigate('/call-complete');
+            } else {
+                this.refs.router.navigate('/login');
+            }
         });
         return <div></div>;
     }

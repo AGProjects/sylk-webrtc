@@ -183,6 +183,7 @@ class AudioCallBox extends React.Component {
                     show = {true}
                     remoteIdentity = {this.props.remoteIdentity}
                     call = {this.props.call}
+                    forceTimerStart = {this.props.forceTimerStart}
                 />
                 <audio id="remoteAudio" ref={this.remoteAudio} autoPlay />
                 <div className="call-user-icon">
@@ -224,7 +225,8 @@ AudioCallBox.propTypes = {
     escalateToConference    : PropTypes.func,
     hangupCall              : PropTypes.func,
     mediaPlaying            : PropTypes.func,
-    remoteIdentity          : PropTypes.string
+    remoteIdentity          : PropTypes.string,
+    forceTimerStart         : PropTypes.bool
 };
 
 module.exports = AudioCallBox;

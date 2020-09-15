@@ -21,7 +21,7 @@ class CallOverlay extends React.Component {
 
     componentDidMount() {
         if (this.props.call) {
-            if (this.props.call.state === 'accepted') {
+            if (this.props.call.state === 'accepted' || this.props.forceTimerStart === true) {
                 this.startTimer();
             } else if (this.props.call.state !== 'terminated') {
                 this.props.call.on('stateChanged', this.callStateChanged);
@@ -108,7 +108,8 @@ class CallOverlay extends React.Component {
 CallOverlay.propTypes = {
     show: PropTypes.bool.isRequired,
     remoteIdentity: PropTypes.string.isRequired,
-    call: PropTypes.object
+    call: PropTypes.object,
+    forceTimerStart: PropTypes.bool
 };
 
 

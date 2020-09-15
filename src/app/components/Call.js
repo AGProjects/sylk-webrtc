@@ -29,6 +29,7 @@ class Call extends React.Component {
         this.callStateChanged = this.callStateChanged.bind(this);
         this.hangupCall = this.hangupCall.bind(this);
 
+        this.forceTimerStart = false;
         // If current call is available on mount we must have incoming
         if (this.props.currentCall != null) {
             this.props.currentCall.on('stateChanged', this.callStateChanged);
@@ -61,9 +62,10 @@ class Call extends React.Component {
                 if (this.props.localMedia.getVideoTracks().length !== 0) {
                     currentCall.getLocalStreams()[0].getVideoTracks()[0].stop();
                 }
+                if (oldState === 'accepted') {
+                    this.forceTimerStart = true;
+                }
                 this.setState({audioOnly: true});
-            } else {
-                this.forceUpdate();
             }
             currentCall.removeListener('stateChanged', this.callStateChanged);
         // Switch to video earlier. The callOverlay has a handle on
@@ -77,6 +79,8 @@ class Call extends React.Component {
             if (this.state.audioOnly && this.props.localMedia.getVideoTracks().length !== 0) {
                 DEBUG('Media type changed to video on accepted');
                 this.setState({audioOnly: false});
+            } else {
+                this.forceUpdate();
             }
         }
     }
@@ -127,10 +131,11 @@ class Call extends React.Component {
                         call = {this.props.currentCall}
                         mediaPlaying = {this.mediaPlaying}
                         escalateToConference = {this.props.escalateToConference}
+                        forceTimerStart = {this.forceTimerStart}
                     />
                 );
             } else {
-                if (this.props.currentCall != null && this.props.currentCall.state === 'established') {
+                if (this.props.currentCall != null && this.props.currentCall.state === 'accepted') {
                     box = (
                         <VideoBox
                             call = {this.props.currentCall}

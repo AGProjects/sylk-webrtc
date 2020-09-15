@@ -96,6 +96,7 @@ class Blink extends React.Component {
             'setFocusEvents',
             'handleCallByUri',
             'handleConferenceByUri',
+            'handleRetry',
             'handleRegistration',
             'startCall',
             'startConference',
@@ -141,6 +142,7 @@ class Blink extends React.Component {
         this.muteIncoming = false;
         this.connectionNotification = null;
         this.resumeVideoCall = true;
+        this.isRetry = false;
     }
 
     get _notificationCenter() {
@@ -373,10 +375,14 @@ class Blink extends React.Component {
                     reason = 'Connection failed';
                 }
                 this._notificationCenter.postSystemNotification('Call Terminated', {body: reason, timeout: callSuccesfull ? 5 : 10});
+                const resetTargetUri = (callSuccesfull || config.useServerCallHistory) && (this.state.mode !== MODE_GUEST_CALL || this.state.mode !== MODE_GUEST_CONFERENCE);
 
+                if (!resetTargetUri) {
+                    this.failureReason = reason;
+                }
                 this.setState({
                     currentCall         : null,
-                    targetUri           : callSuccesfull || config.useServerCallHistory ? '' : this.state.targetUri,
+                    targetUri           : resetTargetUri ? '' : this.state.targetUri,
                     showIncomingModal   : false,
                     inboundCall         : null,
                     localMedia          : null,
@@ -448,6 +454,23 @@ class Blink extends React.Component {
         } else {
             DEBUG('Connection Present, try to register');
             this.processRegistration(accountId, '', displayName);
+        }
+    }
+
+    handleRetry() {
+        const accountId = `${utils.generateUniqueId()}@${config.defaultGuestDomain}`;
+        this.isRetry = true;
+        this.setState({
+            accountId      : accountId,
+            password       : '',
+            loading        : 'Connecting...'
+        });
+
+        if (this.state.connection === null) {
+            this.connect();
+        } else {
+            DEBUG('Connection Present, try to register');
+            this.processRegistration(accountId, '', this.state.displayName);
         }
     }
 
@@ -776,7 +799,11 @@ class Blink extends React.Component {
 
     startGuestCall(targetUri, options) {
         this.setState({targetUri: targetUri});
-        this.getLocalMedia(Object.assign({audio: true, video: true}, options));
+        if (this.isRetry) {
+            this.getLocalMedia({audio: true, video: true}, `/call/${targetUri}`);
+        } else {
+            this.getLocalMedia(Object.assign({audio: true, video: true}, options));
+        }
     }
 
     switchScreensharing() {
@@ -883,7 +910,11 @@ class Blink extends React.Component {
 
     startGuestConference(targetUri) {
         this.setState({targetUri: targetUri});
-        this.getLocalMedia({audio: true, video: true});
+        if (this.isRetry) {
+            this.getLocalMedia({audio: true, video: true}, `/conference/${targetUri}`);
+        } else {
+            this.getLocalMedia({audio: true, video: true});
+        }
     }
 
     toggleMute() {
@@ -1325,6 +1356,9 @@ class Blink extends React.Component {
         return (
             <CallCompleteBox
                 wasCall = {this.state.mode === MODE_GUEST_CALL}
+                targetUri = {this.state.targetUri}
+                failureReason = {this.failureReason}
+                retryHandler = {this.handleRetry}
             />
         )
     }
@@ -1443,6 +1477,7 @@ class Blink extends React.Component {
             }
             this.setState({registrationState: null, status: null, serverHistory: []});
             setImmediate(()=>this.setState({account: null}));
+            this.isRetry = false;
             if (config.showGuestCompleteScreen && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
                 this.refs.router.navigate('/call-complete');
             } else {

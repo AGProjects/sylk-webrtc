@@ -2,6 +2,7 @@
 
 const React          = require('react');
 const useState       = React.useState;
+const useEffect      = React.useEffect;
 const PropTypes      = require('prop-types');
 const ReactBootstrap = require('react-bootstrap');
 const Modal          = ReactBootstrap.Modal;
@@ -11,6 +12,10 @@ const config          = require('../config');
 
 const ConferenceModal = (props) => {
     const [conferenceTargetUri, setConferenceTargetUri] = useState('');
+
+    useEffect(() => {
+            setConferenceTargetUri(props.conference);
+    }, [props.conference]);
 
     const join = (event) => {
         event.preventDefault();
@@ -63,7 +68,8 @@ const ConferenceModal = (props) => {
 
 ConferenceModal.propTypes = {
     show: PropTypes.bool.isRequired,
-    handleConferenceCall: PropTypes.func.isRequired
+    handleConferenceCall: PropTypes.func.isRequired,
+    conference: PropTypes.string
 };
 
 

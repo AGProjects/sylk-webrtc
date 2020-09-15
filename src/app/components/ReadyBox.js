@@ -34,6 +34,7 @@ class ReadyBox extends React.Component {
         this.showConferenceModal = this.showConferenceModal.bind(this);
         this.handleConferenceCall = this.handleConferenceCall.bind(this);
         this.handleResize = this.handleResize.bind(this);
+        this.conference = '';
     }
 
     componentDidMount() {
@@ -55,6 +56,15 @@ class ReadyBox extends React.Component {
     }
 
     handleTargetChange(value) {
+        if (value.startsWith(config.publicUrl)) {
+            const url = new URL(value);
+            if (url.pathname.startsWith('/conference')) {
+                this.conference = url.pathname.split('/').pop();
+                this.setState({showConferenceModal: true});
+            } else if (url.pathname.startsWith('/call')) {
+                value = url.pathname.split('/').pop();
+            }
+        }
         this.setState({targetUri: value});
     }
 
@@ -100,6 +110,7 @@ class ReadyBox extends React.Component {
 
     handleConferenceCall(targetUri) {
         this.setState({showConferenceModal: false});
+        this.conference = '';
         if (targetUri) {
             this.props.startConference(targetUri);
         }
@@ -180,6 +191,7 @@ class ReadyBox extends React.Component {
                 <ConferenceModal
                     show={this.state.showConferenceModal}
                     handleConferenceCall={this.handleConferenceCall}
+                    conference={this.conference}
                 />
             </div>
         );

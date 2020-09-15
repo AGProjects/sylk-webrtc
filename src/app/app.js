@@ -375,10 +375,12 @@ class Blink extends React.Component {
                     reason = 'Connection failed';
                 }
                 this._notificationCenter.postSystemNotification('Call Terminated', {body: reason, timeout: callSuccesfull ? 5 : 10});
-                const resetTargetUri = (callSuccesfull || config.useServerCallHistory) && (this.state.mode !== MODE_GUEST_CALL || this.state.mode !== MODE_GUEST_CONFERENCE);
-
-                if (!resetTargetUri) {
-                    this.failureReason = reason;
+                let resetTargetUri = callSuccesfull || config.useServerCallHistory;
+                if (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE) {
+                    if (callSuccesfull === false ) {
+                        resetTargetUri = false;
+                        this.failureReason = reason;
+                    }
                 }
                 this.setState({
                     currentCall         : null,

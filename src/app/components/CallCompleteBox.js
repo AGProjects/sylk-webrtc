@@ -14,7 +14,7 @@ const CallCompleteBox = (props) => {
                 <Logo />
                 { props.targetUri === ''
                     ? <div>
-                        <p className="lead">We hope you enjoyed this {props.wasCall === true ? 'call' : 'conference'}.<br />If you did, you can try using Sylk Client appliction:</p>
+                        <p className="lead">We hope you enjoyed this {props.wasCall === true ? 'call' : 'conference'}.<br />If you did, you can try using Sylk Client application:</p>
                         <a className="btn btn-primary btn-lg" href={config.downloadUrl} target="_blank" rel="noopener noreferrer">Download</a>
                     </div>
                     : <div>

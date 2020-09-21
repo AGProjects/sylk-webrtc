@@ -388,7 +388,8 @@ class Blink extends React.Component {
                     showIncomingModal   : false,
                     inboundCall         : null,
                     localMedia          : null,
-                    generatedVideoTrack : false
+                    generatedVideoTrack : false,
+                    previousTargetUri   : this.state.targetUri
                 });
                 this.setFocusEvents(false);
                 this.participantsToInvite = null;
@@ -465,7 +466,8 @@ class Blink extends React.Component {
         this.setState({
             accountId      : accountId,
             password       : '',
-            loading        : 'Connecting...'
+            loading        : 'Connecting...',
+            targetUri      : this.state.targetUri || this.state.previousTargetUri
         });
 
         if (this.state.connection === null) {

@@ -1,0 +1,102 @@
+
+
+  * Fix for redialing after succesfull guest calls/conferences
+  * Added call/join button to 'normal' call complete screen
+  * Don't mute guest users on joining the conference
+  * Don't capture shortcut keys in conference if ctrl is pressed
+  * Fixed restart condition for complete screen
+  * Parse call and conference invite url in readyBox
+  * Added possibility to restart guest call to use/conference in case of failure
+  * Fixed starting timer on video and audio calls
+  * Added exit screen for guest calls and conferences
+  * Added support for alternate authentication methods based on domain
+  * Added tooltip if registration fails
+  * Display date in History card in local timezone
+  * Fixed behaviour when losing connection in guest calls/conferences
+  * Use a bigger resume time when a connection is lost in conference
+  * Added cancel button to redial screen
+  * Catch error when trying to add account
+  * Prevent error if not resuming call after connection loss
+  * Prevent call on dblclick when there is no connection
+  * Reordered redial so it happens when the account is on the new connection
+  * Fixed resuming calls with original media types
+  * Redial last call/conference if connection is restored within retryTime
+  * Prevent 'Enter' to start a call when there is no connection
+  * Reregister on failed registration and update navbar
+  * Show notification, instead of connecting screen in case of connection loss
+  * Added missing incoming call window to Sylk App
+  * Fixed some history bugs
+  * Moved createConnection to connect function
+  * Added extra userAgent information
+  * Fix audio loop when promote self as speaker
+  * Added muted to attachMediaStream
+
+2.7.0
+
+  * Added extra actions menu to conferences
+  * Mute participant on join if there are active speakers
+  * Added menu item to view shortcuts
+  * Added keybord shortcuts and help for actions in calls/conferences
+  * Add target to links in HTML chat messages
+  * Fixed changing full screen icon on full screen
+  * Correct password field check
+  * Matched label with the form field
+  * Fixed typo in electron build command
+  * Fixed emoji picker
+  * Use @material-ui/core
+  * Removed gulp build chain and all required dependencies
+  * Updated TLS certificate
+  * Switched from gulp to parceljs build-chain 
+
+2.6.1
+
+  * Only post chat message notification if there is 1 new message
+  * Make mute-all-but-self button present if there are only guests present
+  * Allow guests to control 'raised-hands' if there are only guest present
+  * Added more transparency to the chat drawer
+
+
+2.6.0
+
+
+ * Added raise-your-hand feature to conferences, with timeline ordering
+    Registered users can promote those who raised the hand as speaker
+ * Added 'mute all, except yourself' feature for registered users
+ * Added default muting for guest participants in a conference
+ * Improve full screen visibility by removed overlapping thumbnails in certain cases
+   If there is 1 active speaker and the participants >= 2 thumbnails will not
+   overlap with the main video.
+   If there is 1 participant and 1 active speaker the thumbnail will not overlap
+   the display name/uri of the main video.
+
+2.3.2
+
+  * Fixed error on sign out in electron app
+  * Fixed high CPU usage in electron app
+  * Synced button order between audio, video and conference call
+
+
+2.3.0
+
+  * Add auto login at startup
+  * Added file-sharing support for multiparty conferences
+  * Purge old data when changing accounts
+
+
+2.2.0
+
+ * Added screen sharing sessions for one to one calls
+   Added screen sharing to multi-party conferencing 
+ * Added possibility to answer video calls audio only
+ * Allow starting audio only calls if a video camera not detected
+ * Replaced Google Stun server with SIP2SIP stun server
+ * Bug fixes
+
+
+2.0.0
+
+ * The bandwidth usage has been optimised in such a way that independent of
+   the number of participants present in the conference, the bandwidth
+   required by each participant is not greater than for a direct video call
+   between two participants.
+

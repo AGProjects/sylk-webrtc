@@ -19,7 +19,7 @@ const CallCompleteBox = (props) => {
                         <hr style={{width:'40%'}}/>
                         <p className="lead">Or you can {props.wasCall === true ? 'call' : 'join'} again:</p>
                         <button className="btn btn-primary btn-lg" onClick={props.retryHandler}>
-                            <i className="fa fa-sign-in" />&nbsp;{props.wasCall? 'Call' : 'Join'}
+                            <i className="fa fa-sign-in" />&nbsp;{props.wasCall ? 'Call' : 'Join'}
                         </button>
                     </div>
                     : <div>

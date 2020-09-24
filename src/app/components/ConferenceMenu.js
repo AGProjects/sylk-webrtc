@@ -55,7 +55,7 @@ const ConferenceMenu = (props) => {
 ConferenceMenu.propTypes = {
     show: PropTypes.bool.isRequired,
     close: PropTypes.func.isRequired,
-    anchor: PropTypes.element.isRequired,
+    anchor: PropTypes.object,
     toggleShortcuts: PropTypes.func
 };
 

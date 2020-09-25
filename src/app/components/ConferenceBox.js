@@ -1087,7 +1087,7 @@ class ConferenceBox extends React.Component {
                     close={this.toggleChat}
                     anchor="left"
                     transparent={true}
-                    wide={true}
+                    size="wide"
                     {...this.state.isComposing &&  {title: (<i className="fa fa-ellipsis-h fa-2x" />)}}
                 >
                     <ConferenceChat messages={this.state.messages} scroll={this.state.shouldScroll} />

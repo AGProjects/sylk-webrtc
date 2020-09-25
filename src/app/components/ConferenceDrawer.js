@@ -10,26 +10,45 @@ const { Drawer, Toolbar, Typography, Divider } = require('@material-ui/core');
 
 
 const styleSheet = makeStyles({
+    // Anchors
     paper: {
-        width: 350,
-        backgroundColor: grey[100],
         borderRight: 0
     },
     paperLeft: {
-        width: 350,
-        backgroundColor: grey[100],
         borderLeft: 0
     },
-    paperLeftTransparent: {
-        width: 350,
-        backgroundColor: fade(grey[100], .85),
-        borderLeft: 0
+    // Sizes
+    paperSmall: {
+        width: 55,
+        '& .drawer-body': {
+            padding: '0'
+        }
     },
-    paperLeftTransparentWide: {
-        width: 450,
-        backgroundColor: fade(grey[100], .85),
-        borderLeft: 0
+    paperNormal: {
+        width: 350
     },
+    paperWide: {
+        width: 450
+    },
+    paperFullWidth: {
+        width: '100%'
+    },
+    // Transparent or not
+    paperNotTransparent: {
+        backgroundColor: grey[100]
+    },
+    paperTransparent: {
+        backgroundColor: fade(grey[100], .85)
+    },
+    // Utils
+    paperAdjustedForRightDrawer: {
+        width: 'calc(100% - 405px)',
+        borderRight: 0
+    },
+    paperAdjustedForSmallLeftDrawer: {
+        marginLeft: 55
+    },
+
     title: {
         flex: '0 1 auto'
     },
@@ -45,10 +64,16 @@ const styleSheet = makeStyles({
 const ConferenceDrawer = (props) => {
     const classes = styleSheet();
     const paperClass = clsx(
-        {[`${classes.paper}`]: props.anchor !== 'left' && !props.transparent && !props.wide},
-        {[`${classes.paperLeft}`]: props.anchor === 'left' && !props.transparent && !props.wide},
-        {[`${classes.paperLeftTransparent}`]: props.anchor === 'left' && props.transparent && !props.wide},
-        {[`${classes.paperLeftTransparentWide}`]: props.anchor === 'left' && props.transparent && props.wide}
+        {[`${classes.paper}`]: props.anchor !== 'left'},
+        {[`${classes.paperLeft}`]: props.anchor === 'left'},
+        {[`${classes.paperTransparent}`]: props.transparent},
+        {[`${classes.paperNotTransparent}`]: !props.transparent},
+        {[`${classes.paperSmall}`]: props.size === 'small'},
+        {[`${classes.paperNormal}`]: props.size === 'normal' || ! props.size},
+        {[`${classes.paperWide}`]: props.size === 'wide'},
+        {[`${classes.paperFullWidth}`]: props.size === 'full'},
+        {[`${classes.paperAdjustedForSmallLeftDrawer}`]: props.anchor === 'left' && (props.position === 'middle' || props.position === 'right')},
+        {[`${classes.paperAdjustedForRightDrawer}`]: props.anchor === 'left' && props.position === 'middle'},
     );
 
     const chevronIcon = clsx({
@@ -57,15 +82,17 @@ const ConferenceDrawer = (props) => {
         'fa-chevron-left'   : props.anchor === 'left'
     });
 
-    const closeButton = (
-        <button type="button" className="close" onClick={props.close}>
-            <span aria-hidden="true">
-                <i className={chevronIcon}></i>
-            </span>
-            <span className="sr-only">Close</span>
-        </button>
-    );
-
+    let closeButton;
+    if (props.showClose !== false) {
+        closeButton = (
+            <button type="button" className="close" onClick={props.close}>
+                <span aria-hidden="true">
+                    <i className={chevronIcon}></i>
+                </span>
+                <span className="sr-only">Close</span>
+            </button>
+        );
+    }
     const title = (
         <Typography className={classes.title} type="title" gutterBottom color="inherit" noWrap>
             {props.title}
@@ -103,7 +130,9 @@ ConferenceDrawer.propTypes = {
     close       : PropTypes.func.isRequired,
     anchor      : PropTypes.string,
     transparent : PropTypes.bool,
-    wide        : PropTypes.bool,
+    size        : PropTypes.string,
+    position    : PropTypes.string,
+    showClose   : PropTypes.bool,
     title       : PropTypes.object,
     children    : PropTypes.node
 };

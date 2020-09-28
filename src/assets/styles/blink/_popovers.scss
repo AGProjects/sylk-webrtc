@@ -1,3 +1,7 @@
 .popover {
     color: $gray;
+
+    &.on-top {
+        z-index: 2000;
+    }
 }

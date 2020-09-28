@@ -242,6 +242,28 @@
             border-width: 0;
         }
 
+        &.avatar-normal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: $black-transparent;
+        }
+
+        &.contains-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+
+            .controls {
+                right: unset;
+                left: unset;
+                bottom: unset;
+                margin-top: 144px;
+                box-shadow: none;
+                padding-left: 0;
+            }
+        }
         .controls {
             position: absolute;
             right: 0;

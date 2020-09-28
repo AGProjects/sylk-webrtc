@@ -42,6 +42,10 @@ const ConferenceHeader = (props) => {
     let videoHeader;
     let callButtons;
 
+    const mainClasses = clsx({
+        'top-overlay': true,
+        'on-top': props.onTop
+    });
     if (props.show) {
         const participantCount = props.participants.length + 1;
         const callDetail = (
@@ -64,13 +68,19 @@ const ConferenceHeader = (props) => {
             'electron-margin': electron
         });
 
+
+        const headerClasses = clsx({
+            'call-header': true,
+            'solid-background': props.transparent === false
+        });
+
         videoHeader = (
             <CSSTransition
                 key="header"
                 classNames="videoheader"
                 timeout={{ enter: 300, exit: 300}}
             >
-                <div key="header" className="call-header">
+                <div key="header" className={headerClasses}>
                     <div className="container-fluid">
                         <div className={leftButtonClasses}>
                             {props.buttons.top.left}
@@ -100,7 +110,7 @@ const ConferenceHeader = (props) => {
     }
 
     return (
-        <div className="top-overlay">
+        <div className={mainClasses}>
             <TransitionGroup>
                 {videoHeader}
                 {callButtons}
@@ -113,7 +123,9 @@ ConferenceHeader.propTypes = {
     show: PropTypes.bool.isRequired,
     remoteIdentity: PropTypes.string.isRequired,
     participants: PropTypes.array.isRequired,
-    buttons: PropTypes.object.isRequired
+    buttons: PropTypes.object.isRequired,
+    transparent: PropTypes.bool,
+    onTop: PropTypes.bool
 };
 
 

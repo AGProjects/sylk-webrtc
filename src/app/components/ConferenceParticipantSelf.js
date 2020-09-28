@@ -81,7 +81,7 @@ class ConferenceParticipantSelf extends React.Component {
             'poster' : !this.state.hasVideo,
             'fit'    : this.state.hasVideo && this.state.sharesScreen,
             'conference-active' : this.state.active,
-            'hide' : this.props.audioPreferred || !this.state.hasVideo
+            'hide' : !this.state.hasVideo
         });
 
         let muteIcon
@@ -98,7 +98,7 @@ class ConferenceParticipantSelf extends React.Component {
                 {muteIcon}
                 <OverlayTrigger placement="top" overlay={tooltip}>
                     <div className="participant-container">
-                        {(this.props.audioPreferred || !this.state.hasVideo) && <UserIcon identity={this.props.identity} active={this.state.active}  carousel />}
+                        {(!this.state.hasVideo) && <UserIcon identity={this.props.identity} active={this.state.active}  carousel />}
                         <video ref="videoElement" className={classes} poster="assets/images/transparent-1px.png" autoPlay muted />
                     </div>
                 </OverlayTrigger>
@@ -112,8 +112,7 @@ ConferenceParticipantSelf.propTypes = {
     identity: PropTypes.object.isRequired,
     audioMuted: PropTypes.bool.isRequired,
     generatedVideoTrack: PropTypes.bool,
-    audioOnly: PropTypes.bool,
-    audioPreferred: PropTypes.bool
+    audioOnly: PropTypes.bool
 };
 
 

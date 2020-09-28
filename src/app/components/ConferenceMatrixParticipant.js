@@ -86,7 +86,7 @@ class ConferenceMatrixParticipant extends React.Component {
         if (streams.length > 0) {
             sylkrtc.utils.attachMediaStream(streams[0], this.videoElement.current, {muted: this.props.isLocal});
             this.setState({hasVideo: streams[0].getVideoTracks().length > 0});
-            if (this.props.pauseVideo) {
+            if (this.props.pauseVideo && !this.props.isLocal) {
                 this.props.participant.pauseVideo();
             }
             const options = {

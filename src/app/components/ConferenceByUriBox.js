@@ -11,7 +11,7 @@ const { withStyles }    = require('@material-ui/core/styles');
 const { Switch, FormGroup, FormControl, FormControlLabel, Typography } = require('@material-ui/core');
 
 const Conference = require('./Conference');
-
+const Logo = require('./Logo');
 
 const styles = {
     label: {
@@ -149,7 +149,8 @@ class ConferenceByUriBox extends React.Component {
 
             content = (
                 <div>
-                    <h2>You&#39;re about to join a conference!<br/><strong>{friendlyName}</strong></h2>
+                    <Logo />
+                    <h2>Join conference room:<br/><strong>{friendlyName}</strong></h2>
                     <form className="form-guest" onSubmit={this.handleSubmit}>
                         <label className="sr-only">Name</label>
                         <div className="input-group">

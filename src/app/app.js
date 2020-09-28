@@ -441,15 +441,19 @@ class Blink extends React.Component {
         }
     }
 
-    handleConferenceByUri(displayName, targetUri) {
+    handleConferenceByUri(displayName, targetUri, extraOptions = {}) {
         const accountId = `${utils.generateUniqueId()}@${config.defaultGuestDomain}`;
+        const mediaConstraints = extraOptions.mediaConstraints || {audio: true, video: true};
+        const lowBandwidth = extraOptions.lowBandwidth || false;
         this.setState({
             accountId      : accountId,
             password       : '',
             displayName    : displayName,
             mode           : MODE_GUEST_CONFERENCE,
             targetUri      : targetUri,
-            loading        : 'Connecting...'
+            loading        : 'Connecting...',
+            lowBandwidth   : lowBandwidth,
+            preferredGuestMedia : mediaConstraints
         });
 
         if (this.state.connection === null) {
@@ -859,7 +863,11 @@ class Blink extends React.Component {
 
     resumeCall() {
         if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
-            this.startConference(this.state.targetUri);
+            this.startConference(this.state.targetUri, {
+                mediaConstraints: {audio: true, video: this.resumeVideoCall},
+                roomMedia: this.state.roomMedia,
+                lowBandwidth: this.state.lowBandwidth
+            });
         } else {
             this.startCall(this.state.targetUri, {audio: true, video: this.resumeVideoCall});
             this.resumeVideoCall = true;
@@ -907,17 +915,20 @@ class Blink extends React.Component {
         this.startConference(uri);
     }
 
-    startConference(targetUri) {
-        this.setState({targetUri: targetUri});
-        this.getLocalMedia({audio: true, video: true}, '/conference');
+    startConference(targetUri, extraOptions = {}) {
+        const mediaConstraints = extraOptions.mediaConstraints || {audio: true, video: true};
+        const roomMedia = extraOptions.roomMedia || {audio: true, video: true};
+        const lowBandwidth = extraOptions.lowBandwidth || false;
+        this.setState({targetUri: targetUri, roomMedia: roomMedia, lowBandwidth: lowBandwidth});
+        this.getLocalMedia(mediaConstraints, '/conference');
     }
 
     startGuestConference(targetUri) {
         this.setState({targetUri: targetUri});
         if (this.isRetry) {
-            this.getLocalMedia({audio: true, video: true}, `/conference/${targetUri}`);
+            this.getLocalMedia(this.state.preferredGuestMedia, `/conference/${targetUri}`);
         } else {
-            this.getLocalMedia({audio: true, video: true});
+            this.getLocalMedia(this.state.preferredGuestMedia);
         }
     }
 
@@ -1381,6 +1392,8 @@ class Blink extends React.Component {
                 generatedVideoTrack = {this.state.generatedVideoTrack}
                 propagateKeyPress = {this.togglePropagateKeyPress}
                 toggleShortcuts = {this.toggleShortcutsModal}
+                roomMedia={this.state.roomMedia}
+                lowBandwidth={this.state.lowBandwidth}
             />
         )
     }

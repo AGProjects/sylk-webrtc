@@ -7,7 +7,8 @@ const sylkrtc           = require('sylkrtc');
 const hark              = require('hark');
 const { default: clsx }  = require('clsx');
 
-const HandIcon = require('./HandIcon')
+const HandIcon = require('./HandIcon');
+const UserIcon = require('./UserIcon');
 
 class ConferenceMatrixParticipant extends React.Component {
     constructor(props) {
@@ -21,6 +22,7 @@ class ConferenceMatrixParticipant extends React.Component {
         this.speechEvents = null;
 
         this.videoElement = React.createRef();
+        this.iconElement = React.createRef();
 
         // ES6 classes no longer autobind
         [
@@ -37,6 +39,9 @@ class ConferenceMatrixParticipant extends React.Component {
 
     componentDidMount() {
         this.maybeAttachStream();
+        if (!this.props.pauseVideo && this.props.participant.videoPaused) {
+            this.props.participant.resumeVideo();
+        }
         this.videoElement.current.oncontextmenu = (e) => {
             // disable right click for video elements
             e.preventDefault();
@@ -81,6 +86,9 @@ class ConferenceMatrixParticipant extends React.Component {
         if (streams.length > 0) {
             sylkrtc.utils.attachMediaStream(streams[0], this.videoElement.current, {muted: this.props.isLocal});
             this.setState({hasVideo: streams[0].getVideoTracks().length > 0});
+            if (this.props.pauseVideo) {
+                this.props.participant.pauseVideo();
+            }
             const options = {
                 interval: 150,
                 play: false
@@ -103,7 +111,15 @@ class ConferenceMatrixParticipant extends React.Component {
         const remoteVideoClasses = clsx({
             'remote-video'      : true,
             'large'             : this.props.large,
-            'conference-active' : this.state.active
+            'conference-active' : this.state.active && this.props.audioOnly === false,
+            'contains-avatar'   : this.props.audioOnly,
+            'avatar-normal'     : !this.state.hasVideo && !this.props.audioOnly,
+            'hide'              : this.props.audioOnly && this.props.pauseVideo === false
+        });
+        const videoClasses = clsx({
+            'video'  : true,
+            'hide'   : this.props.audioOnly || !this.state.hasVideo,
+            'fadeOut': !this.state.hasVideo
         });
         const participantInfo = (
             <div className="controls">
@@ -131,7 +147,8 @@ class ConferenceMatrixParticipant extends React.Component {
             <div className={remoteVideoClasses}>
                 {activeIcon}
                 {participantInfo}
-                <div className="video">
+                {(this.props.pauseVideo === true || !this.state.hasVideo) && <UserIcon identity={this.props.participant.identity} active={this.state.active} large />}
+                <div className={videoClasses}>
                     <video poster="assets/images/transparent-1px.png" className={classes} ref={this.videoElement} autoPlay muted={this.props.isLocal}/>
                 </div>
             </div>
@@ -147,7 +164,9 @@ ConferenceMatrixParticipant.propTypes = {
     large: PropTypes.bool,
     isLocal: PropTypes.bool,
     isGeneratedTrack: PropTypes.bool,
-    handleHandSelected: PropTypes.func
+    handleHandSelected: PropTypes.func,
+    audioOnly: PropTypes.bool,
+    pauseVideo: PropTypes.bool
 };
 
 

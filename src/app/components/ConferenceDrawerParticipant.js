@@ -1,26 +1,45 @@
 'use strict';
 
 const React             = require('react');
+const useState          = React.useState;
 const PropTypes         = require('prop-types');
 const ReactBootstrap    = require('react-bootstrap');
 const Label             = ReactBootstrap.Label;
 const Media             = ReactBootstrap.Media;
 const ButtonGroup       = ReactBootstrap.ButtonGroup;
+const hark              = require('hark');
 
 const UserIcon  = require('./UserIcon');
 const HandIcon  = require('./HandIcon');
 
 
 const ConferenceDrawerParticipant = (props) => {
+    let [active, setActive] = useState(false);
+
     let tag = ''
     if (props.isLocal) {
         tag = <Label bsStyle="primary">Myself</Label>;
     }
 
+    const streams = props.participant.streams;
+    if (props.enableSpeakingIndication && streams.length > 0) {
+        const options = {
+            interval: 150,
+            play: false
+        };
+
+        const speechEvents = hark(streams[0], options);
+        speechEvents.on('speaking', () => {
+            setActive(true);
+        });
+       speechEvents.on('stopped_speaking', () => {
+            setActive(false);
+       });
+    }
     return (
         <Media className="text-left">
             <Media.Left>
-                <UserIcon identity={props.participant.identity} />
+                <UserIcon identity={props.participant.identity} active={active} small={true} />
             </Media.Left>
             <Media.Body className="vertical-center">
                 <Media.Heading>{props.participant.identity.displayName || props.participant.identity.uri}</Media.Heading>
@@ -44,7 +63,8 @@ ConferenceDrawerParticipant.propTypes = {
     raisedHand: PropTypes.number.isRequired,
     handleHandSelected: PropTypes.func.isRequired,
     disableHandToggle: PropTypes.bool,
-    isLocal: PropTypes.bool
+    isLocal: PropTypes.bool,
+    enableSpeakingIndication: PropTypes.bool
 };
 
 

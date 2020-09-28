@@ -103,6 +103,9 @@ class ConferenceDrawerSpeakerSelection extends React.Component {
             }
         });
 
+        if (participantsLeft.length === 1) {
+            participantsLeft.pop();
+        }
         if (participantsRight.length !== 0) {
             participantsRight.unshift(<MenuItem key="divider" divider />);
         }

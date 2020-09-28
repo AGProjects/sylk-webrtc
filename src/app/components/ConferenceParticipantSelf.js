@@ -8,7 +8,7 @@ const OverlayTrigger    = ReactBootstrap.OverlayTrigger;
 const sylkrtc           = require('sylkrtc');
 const hark              = require('hark');
 const { default: clsx } = require('clsx');
-
+const UserIcon = require('./UserIcon');
 
 class ConferenceParticipantSelf extends React.Component {
     constructor(props) {
@@ -29,6 +29,9 @@ class ConferenceParticipantSelf extends React.Component {
         this.refs.videoElement.onresize = (event) => {
             this.handleResize(event)
         };
+        if (this.props.audioOnly) {
+            this.props.stream
+        }
     }
 
     handleResize(event) {
@@ -76,8 +79,9 @@ class ConferenceParticipantSelf extends React.Component {
         const classes = clsx({
             'mirror' : this.state.hasVideo && !this.state.sharesScreen && !this.props.generatedVideoTrack,
             'poster' : !this.state.hasVideo,
-            'fit'    : this.state.sharesScreen,
-            'conference-active' : this.state.active
+            'fit'    : this.state.hasVideo && this.state.sharesScreen,
+            'conference-active' : this.state.active,
+            'hide' : this.props.audioPreferred || !this.state.hasVideo
         });
 
         let muteIcon
@@ -90,10 +94,11 @@ class ConferenceParticipantSelf extends React.Component {
         }
 
         return (
-            <div>
+            <div style={this.props.audioOnly === true ? {display: 'none'} : {}}>
                 {muteIcon}
                 <OverlayTrigger placement="top" overlay={tooltip}>
                     <div className="participant-container">
+                        {(this.props.audioPreferred || !this.state.hasVideo) && <UserIcon identity={this.props.identity} active={this.state.active}  carousel />}
                         <video ref="videoElement" className={classes} poster="assets/images/transparent-1px.png" autoPlay muted />
                     </div>
                 </OverlayTrigger>
@@ -106,7 +111,9 @@ ConferenceParticipantSelf.propTypes = {
     stream: PropTypes.object.isRequired,
     identity: PropTypes.object.isRequired,
     audioMuted: PropTypes.bool.isRequired,
-    generatedVideoTrack: PropTypes.bool
+    generatedVideoTrack: PropTypes.bool,
+    audioOnly: PropTypes.bool,
+    audioPreferred: PropTypes.bool
 };
 
 

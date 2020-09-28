@@ -9,8 +9,9 @@ const sylkrtc           = require('sylkrtc');
 const hark              = require('hark');
 const { default: clsx } = require('clsx');
 
-
 const HandIcon = require('./HandIcon');
+const UserIcon = require('./UserIcon');
+
 
 class ConferenceParticipant extends React.Component {
     constructor(props) {
@@ -80,6 +81,9 @@ class ConferenceParticipant extends React.Component {
         const streams = this.props.participant.streams;
         if (streams.length > 0) {
             sylkrtc.utils.attachMediaStream(streams[0], this.videoElement.current);
+            if (this.props.pauseVideo) {
+                this.props.participant.pauseVideo();
+            }
             this.setState({hasVideo: streams[0].getVideoTracks().length > 0});
             const options = {
                 interval: 150,
@@ -112,7 +116,8 @@ class ConferenceParticipant extends React.Component {
 
         const classes = clsx({
             'poster' : !this.state.hasVideo,
-            'conference-active' : this.state.active
+            'conference-active' : this.state.active,
+            'hide': !this.state.hasVideo
         });
 
         let muteButton;
@@ -151,6 +156,7 @@ class ConferenceParticipant extends React.Component {
                 />
                 <OverlayTrigger placement="top" overlay={tooltip}>
                     <div className="participant-container">
+                        {(this.props.pauseVideo === true || !this.state.hasVideo) && <UserIcon identity={this.props.participant.identity} active={this.state.active} carousel />}
                         <video ref={this.videoElement} className={classes} poster="assets/images/transparent-1px.png" autoPlay />
                     </div>
                 </OverlayTrigger>
@@ -163,7 +169,8 @@ ConferenceParticipant.propTypes = {
     participant: PropTypes.object.isRequired,
     raisedHand: PropTypes.number.isRequired,
     handleHandSelected: PropTypes.func.isRequired,
-    disableHandToggle: PropTypes.bool
+    disableHandToggle: PropTypes.bool,
+    pauseVideo: PropTypes.bool
 };
 
 

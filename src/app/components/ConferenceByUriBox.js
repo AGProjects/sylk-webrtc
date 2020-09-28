@@ -4,20 +4,62 @@ const React      = require('react');
 const PropTypes  = require('prop-types');
 const  { default: clsx } = require('clsx');
 
+const ReactBootstrap = require('react-bootstrap');
+const Popover        = ReactBootstrap.Popover;
+const OverlayTrigger = ReactBootstrap.OverlayTrigger;
+const { withStyles }    = require('@material-ui/core/styles');
+const { Switch, FormGroup, FormControl, FormControlLabel, Typography } = require('@material-ui/core');
+
 const Conference = require('./Conference');
 
+
+const styles = {
+    label: {
+        fontFamily: 'inherit',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginLeft: 0
+    },
+    labelText: {
+        fontFamily: 'inherit',
+        fontSize: '14px'
+    },
+    group: {
+        fontFamily: 'inherit',
+        width: '100%'
+    }
+};
+
+const GreenSwitch = withStyles({
+    switchBase: {
+        '&$checked': {
+            color: '#5cb85c'
+        },
+        '&$checked + $track': {
+            backgroundColor: '#5cb85c'
+        }
+    },
+    checked: {},
+    track: {}
+})(Switch);
 
 class ConferenceByUriBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            displayName: ''
+            displayName: '',
+            lowBandwidth: false,
+            preferredMedia: {
+                audio: true,
+                video: true
+            }
         };
 
         this._notificationCenter = null;
 
         // ES6 classes no longer autobind
         this.handleDisplayNameChange = this.handleDisplayNameChange.bind(this);
+        this.handleAudio = this.handleAudio.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.callStateChanged = this.callStateChanged.bind(this);
     }
@@ -42,6 +84,12 @@ class ConferenceByUriBox extends React.Component {
         this.setState({displayName: event.target.value});
     }
 
+    handleAudio(event) {
+        let preferredMedia = Object.assign({}, this.state.preferredMedia);
+        preferredMedia.video = !event.target.checked;
+        this.setState({preferredMedia});
+    }
+
     handleSubmit(event) {
         event.preventDefault();
         let displayName;
@@ -55,7 +103,11 @@ class ConferenceByUriBox extends React.Component {
                 displayName = displayName.slice(0, -1);
             }
         }
-        this.props.handler(displayName, this.props.targetUri);
+        let preferredMedia = Object.assign({}, this.state.preferredMedia);
+        if (this.state.lowBandwidth) {
+            preferredMedia.video = false;
+        }
+        this.props.handler(displayName, this.props.targetUri, {lowBandwidth: this.state.lowBandwidth, mediaConstraints: preferredMedia});
     }
 
     render() {
@@ -75,6 +127,7 @@ class ConferenceByUriBox extends React.Component {
                     participantIsGuest = {true}
                     propagateKeyPress = {this.props.propagateKeyPress}
                     toggleShortcuts = {this.props.toggleShortcuts}
+                    lowBandwidth = {this.state.lowBandwidth}
                 />
             );
         } else {
@@ -87,6 +140,12 @@ class ConferenceByUriBox extends React.Component {
             });
 
             const friendlyName = this.props.targetUri.split('@')[0];
+
+            const popoverBottom = (
+                <Popover id="popover-positioned-bottom" title="Low Bandwith mode">
+                        <Typography align="left">Low bandwidth mode means you will participate with audio and chat. Screensharing and video is not available.</Typography>
+                </Popover>
+            );
 
             content = (
                 <div>
@@ -103,6 +162,45 @@ class ConferenceByUriBox extends React.Component {
                             />
                         </div>
                         <br />
+                        <FormControl className={this.props.classes.group} component="fieldset">
+                            <FormGroup row>
+                                <FormControlLabel
+                                    control={
+                                        <GreenSwitch
+                                            checked={!this.state.preferredMedia.video}
+                                            onChange={this.handleAudio}
+                                            color="primary"
+                                            name="video-support"
+                                            classes={{colorPrimary: this.props.classes.colorPrimary}}
+                                            inputProps={{'aria-label': 'turn off my video'}}
+                                        />
+                                    }
+                                    className={this.props.classes.label}
+                                    label={<Typography className={this.props.classes.labelText}>Turn off my video</Typography>}
+                                    labelPlacement="start"
+                                />
+                            </FormGroup>
+                        </FormControl>
+                        <OverlayTrigger trigger="hover" placement="top" overlay={popoverBottom}>
+                        <FormControl className={this.props.classes.group} component="fieldset">
+                            <FormGroup row>
+                                <FormControlLabel
+                                    control={
+                                        <GreenSwitch
+                                            checked={this.state.lowBandwidth}
+                                            onChange={(event) => this.setState({lowBandwidth: event.target.checked})}
+                                            color="primary"
+                                            name="low-bandwith"
+                                            inputProps={{'aria-label': 'enable low bandwidth mode'}}
+                                        />
+                                    }
+                                    className={this.props.classes.label}
+                                    label={<Typography className={this.props.classes.labelText}>Enable low-bandwidth mode</Typography>}
+                                    labelPlacement="start"
+                                />
+                            </FormGroup>
+                        </FormControl>
+                            </OverlayTrigger>
                         <button type="submit" className={classes}><i className="fa fa-sign-in"></i> Join</button>
                     </form>
                 </div>
@@ -120,6 +218,7 @@ class ConferenceByUriBox extends React.Component {
 }
 
 ConferenceByUriBox.propTypes = {
+    classes             : PropTypes.object.isRequired,
     notificationCenter  : PropTypes.func.isRequired,
     handler             : PropTypes.func.isRequired,
     hangupCall          : PropTypes.func.isRequired,
@@ -134,4 +233,4 @@ ConferenceByUriBox.propTypes = {
 };
 
 
-module.exports = ConferenceByUriBox;
+module.exports = withStyles(styles)(ConferenceByUriBox);

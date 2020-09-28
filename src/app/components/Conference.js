@@ -34,14 +34,13 @@ class Conference extends React.Component {
         const options = {
             pcConfig: {iceServers: config.iceServers},
             localStream: this.props.localMedia,
-            audio: true,
-            video: true,
             offerOptions: {
                 offerToReceiveAudio: false,
                 offerToReceiveVideo: false
             },
             initialParticipants: this.props.participantsToInvite
         };
+        Object.assign(options, this.props.roomMedia);
         const confCall = this.props.account.joinConference(this.props.targetUri.toLowerCase(), options);
         confCall.on('stateChanged', this.confStateChanged);
     }
@@ -54,6 +53,7 @@ class Conference extends React.Component {
         assert(this.props.currentCall == null, 'currentCall is not null');
         this.start();
     }
+
 
     render() {
         let box;
@@ -71,6 +71,7 @@ class Conference extends React.Component {
                         participantIsGuest = {this.props.participantIsGuest}
                         propagateKeyPress = {this.props.propagateKeyPress}
                         toggleShortcuts = {this.props.toggleShortcuts}
+                        lowBandwidth = {this.props.lowBandwidth}
                     />
                 );
             } else {
@@ -107,7 +108,9 @@ Conference.propTypes = {
     participantsToInvite    : PropTypes.array,
     generatedVideoTrack     : PropTypes.bool,
     muteAudioFromStart      : PropTypes.bool,
-    participantIsGuest      : PropTypes.bool
+    participantIsGuest      : PropTypes.bool,
+    roomMedia               : PropTypes.object,
+    lowBandwidth: PropTypes.bool
 };
 
 

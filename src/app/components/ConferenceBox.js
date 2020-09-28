@@ -37,6 +37,7 @@ const ConferenceMenu                    = require('./ConferenceMenu');
 const DragAndDrop                       = require('./DragAndDrop');
 const InviteParticipantsModal           = require('./InviteParticipantsModal');
 const MuteAudioParticipantsModal        = require('./MuteAudioParticipantsModal');
+const UserIcon                          = require('./UserIcon');
 
 const DEBUG = debug('blinkrtc:ConferenceBox');
 
@@ -76,7 +77,7 @@ class ConferenceBox extends React.Component {
         this.state = {
             callOverlayVisible: true,
             audioMuted: false,
-            videoMuted: false,
+            videoMuted: this.shouldVideoMute(),
             participants: props.call.participants.slice(),
             showInviteModal: false,
             showMuteAudioParticipantsModal: false,
@@ -96,7 +97,8 @@ class ConferenceBox extends React.Component {
             newMessages: 0,
             shouldScroll: false,
             chatEditorFocus: false,
-            menuAnchor: null
+            menuAnchor: null,
+            lowBandwidth: props.lowBandwidth
         };
 
         const friendlyName = this.props.remoteIdentity.split('@')[0];
@@ -217,6 +219,11 @@ class ConferenceBox extends React.Component {
             this.muteGuestAudioOnJoin();
         }
 
+        if (this.props.call.supportsVideo === false) {
+            this.haveVideo = false;
+            this.toggleChat();
+            this.toggleDrawer();
+        }
         // Keyboard shortcuts
         document.addEventListener('keydown', this.onKeyDown);
     }
@@ -232,6 +239,19 @@ class ConferenceBox extends React.Component {
         });
         this.exitFullscreen();
         document.removeEventListener('keydown', this.onKeyDown);
+    }
+
+    shouldVideoMute() {
+        if (this.props.call.supportsVideo === false) {
+            const localStream = this.props.call.getLocalStreams()[0];
+            if (localStream.getVideoTracks().length > 0) {
+                const track = localStream.getVideoTracks()[0];
+                track.enabled = false;
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
 
     onParticipantJoined(p) {
@@ -269,13 +289,24 @@ class ConferenceBox extends React.Component {
     onConfigureRoom(config) {
         const newState = {};
         newState.activeSpeakers = config.activeParticipants;
+        const oldParticipants = this.state.activeSpeakers.slice();
         this.setState(newState);
 
         if (config.activeParticipants.length === 0) {
             this.logEvent.info('set speakers to', ['Nobody'], config.originator);
+            oldParticipants.forEach((participant) => {
+                if (this.props.lowBandwidth) {
+                    participant.pauseVideo();
+                }
+            });
         } else {
             const speakers = config.activeParticipants.map((p) => {return p.identity.displayName || p.identity.uri});
             this.logEvent.info('set speakers to', speakers, config.originator);
+            config.activeParticipants.forEach((participant) => {
+                if (participant.videoPaused) {
+                    participant.resumeVideo();
+                }
+            });
         }
         this.maybeSwitchLargeVideo();
     }
@@ -467,7 +498,7 @@ class ConferenceBox extends React.Component {
 
     handleShareOverlayExited() {
         // re-arm the buttons and overlay timeout
-        if (!this.state.showDrawer) {
+        if (!this.state.showDrawer || !this.props.call.supportsVideo) {
             this.armOverlayTimer();
         }
         this.setState({shareOverlayVisible: false});
@@ -742,7 +773,8 @@ class ConferenceBox extends React.Component {
             'fadeIn'        : true,
             'large'         : true,
             'mirror'        : !this.props.call.sharingScreen && !this.props.generatedVideoTrack,
-            'fit'           : this.props.call.sharingScreen
+            'fit'           : this.props.call.sharingScreen,
+            'hide'          : this.props.call.supportsVideo === false || !this.haveVideo
         });
 
         let matrixClasses = clsx({
@@ -758,7 +790,7 @@ class ConferenceBox extends React.Component {
         const remoteIdentity = this.props.remoteIdentity.split('@')[0];
 
         const shareOverlay = (
-            <Popover id="shareOverlay" title="Join me, maybe?">
+            <Popover id="shareOverlay" bsClass={this.props.call.supportsVideo ? 'popover' : 'on-top popover'} title="Join me, maybe?">
                 <p>
                     Invite other online users of this service, share <strong><a href={this.callUrl} target="_blank" rel="noopener noreferrer">this link</a></strong> with others or email, so they can easily join this conference.
                 </p>
@@ -824,15 +856,17 @@ class ConferenceBox extends React.Component {
         }
 
         const topLeftButtons = [];
-        if (this.state.newMessages !== 0) {
-            topLeftButtons.push(
-                <Badge key="chatBadge" badgeContent={this.state.newMessages} color="primary" classes={{badge: this.props.classes.badge}} overlap="circle">
+        if (this.props.call.supportsVideo === true) {
+            if (this.state.newMessages !== 0) {
+                topLeftButtons.push(
+                    <Badge key="chatBadge" badgeContent={this.state.newMessages} color="primary" classes={{badge: this.props.classes.badge}} overlap="circle">
+                        <button key="chatButton" type="button" title="Open Chat" className={commonButtonTopClasses} onClick={this.toggleChat}> <i className="fa fa-comments fa-2x"></i> </button>
+                    </Badge>);
+            } else {
+                topLeftButtons.push(
                     <button key="chatButton" type="button" title="Open Chat" className={commonButtonTopClasses} onClick={this.toggleChat}> <i className="fa fa-comments fa-2x"></i> </button>
-                </Badge>);
-        } else {
-            topLeftButtons.push(
-                <button key="chatButton" type="button" title="Open Chat" className={commonButtonTopClasses} onClick={this.toggleChat}> <i className="fa fa-comments fa-2x"></i> </button>
-            );
+                );
+            }
         }
         topLeftButtons.push(
             <button key="handButton" type="button" title="Raise Hand" className={commonButtonTopClasses} onClick={this.handleToggleHand}> <i className={handClasses}></i> </button>
@@ -877,13 +911,17 @@ class ConferenceBox extends React.Component {
 
         const bottomButtons = [];
         bottomButtons.push(
-            <OverlayTrigger key="shareOverlay" ref="shareOverlay" trigger="click" placement="bottom" overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
+            <OverlayTrigger key="shareOverlay" ref="shareOverlay" trigger="click" placement={this.props.call.supportsVideo ? 'bottom' : 'right'} overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
                 <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-user-plus"></i> </button>
             </OverlayTrigger>
         );
-        bottomButtons.push(<button key="muteVideo" type="button" title="Mute/unmute video" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>);
+        if (this.props.call.supportsVideo === true) {
+            bottomButtons.push(<button key="muteVideo" type="button" title="Mute/unmute video" className={commonButtonClasses} onClick={this.muteVideo} disabled={!this.haveVideo}> <i className={muteVideoButtonIcons}></i> </button>);
+        }
         bottomButtons.push(<button key="muteAudio" type="button" title="Mute/unmute audio" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>);
-        bottomButtons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen} disabled={!this.haveVideo}><i className={screenSharingButtonIcons}></i></button>);
+        if (this.props.call.supportsVideo === true) {
+            bottomButtons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen} disabled={!this.haveVideo}><i className={screenSharingButtonIcons}></i></button>);
+        }
         bottomButtons.push(
             <label key="shareFiles" htmlFor="outlined-button-file">
                 <IconButton title="Share files" component="span" disableRipple={true} className={shareButtonClasses}>
@@ -892,7 +930,9 @@ class ConferenceBox extends React.Component {
             </label>
         );
         bottomButtons.push(<button key="hangupButton" type="button" title="Leave conference" className="btn btn-round btn-danger" onClick={this.hangup}> <i className="fa fa-phone rotate-135"></i> </button>);
-        buttons.bottom = bottomButtons;
+        if (this.props.call.supportsVideo === true) {
+            buttons.bottom = bottomButtons;
+        }
 
         if (!this.state.callOverlayVisible) {
             watermark = (
@@ -917,6 +957,8 @@ class ConferenceBox extends React.Component {
                         identity={this.props.call.localIdentity}
                         audioMuted={this.state.audioMuted}
                         generatedVideoTrack={this.props.generatedVideoTrack}
+                        audioOnly={!this.props.call.supportsVideo}
+                        audioPreferred={this.state.lowBandwidth}
                     />
                 );
             }
@@ -931,11 +973,12 @@ class ConferenceBox extends React.Component {
         drawerParticipants.push(
             <ConferenceDrawerParticipant
                 key="myself"
-                participant={{identity: this.props.call.localIdentity, publisherId: this.props.call.id}}
+                participant={{identity: this.props.call.localIdentity, publisherId: this.props.call.id, streams: this.props.call.getLocalStreams()}}
                 isLocal={true}
                 raisedHand={this.state.raisedHands.findIndex((element) => {return element.id === this.props.call.id})}
                 handleHandSelected={this.handleHandSelected}
                 disableHandToggle={disableHandToggle}
+                enableSpeakingIndication={!this.props.call.supportsVideo}
             />
         );
 
@@ -945,6 +988,9 @@ class ConferenceBox extends React.Component {
             videos.push(
                 <video ref="largeVideo" key="largeVideo" className={largeVideoClasses} poster="assets/images/transparent-1px.png" autoPlay muted />
             );
+            if (this.props.call.getLocalStreams()[0].getVideoTracks().length === 0) {
+                videos.push(<UserIcon key="icon" identity={this.props.call.localIdentity} large />)
+            }
         } else {
             const activeSpeakers = this.state.activeSpeakers;
             const activeSpeakersCount = activeSpeakers.length;
@@ -970,6 +1016,7 @@ class ConferenceBox extends React.Component {
                             raisedHand={raisedHand}
                             handleHandSelected={this.handleHandSelected}
                             disableHandToggle={disableHandToggle}
+                            pauseVideo={false}
                         />
                     );
                 });
@@ -984,6 +1031,7 @@ class ConferenceBox extends React.Component {
                                 raisedHand={this.state.raisedHands.indexOf(p)}
                                 handleHandSelected={this.handleHandSelected}
                                 disableHandToggle={disableHandToggle}
+                                pauseVideo={this.state.lowBandwidth}
                             />
                         );
                     }
@@ -1016,6 +1064,8 @@ class ConferenceBox extends React.Component {
                             raisedHand={this.state.raisedHands.indexOf(p)}
                             handleHandSelected={this.handleHandSelected}
                             disableHandToggle={disableHandToggle}
+                            audioOnly={!this.props.call.supportsVideo || this.state.lowBandwidth}
+                            pauseVideo={this.state.lowBandwidth}
                         />
                     );
 
@@ -1062,6 +1112,8 @@ class ConferenceBox extends React.Component {
                         remoteIdentity={remoteIdentity}
                         participants={this.state.participants}
                         buttons={buttons}
+                        onTop={this.props.call.supportsVideo === false}
+                        transparent={this.props.call.supportsVideo === true}
                     />
                     <TransitionGroup>
                         {watermark}
@@ -1083,22 +1135,41 @@ class ConferenceBox extends React.Component {
                     />
                 </div>
                 <ConferenceDrawer
+                    show={!this.props.call.supportsVideo}
+                    anchor="left"
+                    size="small"
+                    showClose={false}
+                    close = {() => {}}
+                >
+                    {bottomButtons}
+                </ConferenceDrawer>
+                <ConferenceDrawer
                     show={this.state.showChat}
                     close={this.toggleChat}
                     anchor="left"
-                    transparent={true}
-                    size="wide"
+                    transparent={this.props.call.supportsVideo}
+                    size={this.props.call.supportsVideo ? 'wide' : 'full'}
+                    {...!this.props.call.supportsVideo && { position: this.state.showDrawer || this.state.showFiles ? 'middle' : 'right'}}
+                    showClose={this.props.call.supportsVideo}
                     {...this.state.isComposing &&  {title: (<i className="fa fa-ellipsis-h fa-2x" />)}}
                 >
                     <ConferenceChat messages={this.state.messages} scroll={this.state.shouldScroll} />
                     <ConferenceChatEditor onSubmit={this.handleSend} onTyping={this.handleTyping} scroll={this.setScroll} focus={this.toggleChatEditorFocus}/>
                 </ConferenceDrawer>
                 <ConferenceDrawer show={this.state.showDrawer} close={this.toggleDrawer}>
-                    <ConferenceDrawerSpeakerSelection
-                        participants={this.state.participants.concat([{id: this.props.call.id, publisherId: this.props.call.id, identity: this.props.call.localIdentity}])}
-                        selected={this.handleActiveSpeakerSelected}
-                        activeSpeakers={this.state.activeSpeakers}
-                    />
+                    {this.props.call.supportsVideo &&
+                        <ConferenceDrawerSpeakerSelection
+                            participants={this.state.participants.concat(
+                                [{
+                                    id: this.props.call.id,
+                                    publisherId: this.props.call.id,
+                                    identity: this.props.call.localIdentity
+                                }]
+                            )}
+                            selected={this.handleActiveSpeakerSelected}
+                            activeSpeakers={this.state.activeSpeakers}
+                        />
+                    }
                     {onlyGuestsPresent || !this.props.participantIsGuest || config.guestUserPermissions.allowMuteAllParticipants ?
                         <ConferenceDrawerMute
                             muteEverybody={this.toggleMuteAudioParticipantsModal}
@@ -1107,7 +1178,9 @@ class ConferenceBox extends React.Component {
                     <ConferenceDrawerParticipantList>
                         {drawerParticipants}
                     </ConferenceDrawerParticipantList>
-                    <ConferenceDrawerLog log={this.state.eventLog} />
+                    {this.props.call.supportsVideo &&
+                        <ConferenceDrawerLog log={this.state.eventLog} />
+                    }
                 </ConferenceDrawer>
                 <ConferenceDrawer show={this.state.showFiles} close={this.toggleFiles}>
                     <ConferenceDrawerFiles
@@ -1130,7 +1203,8 @@ ConferenceBox.propTypes = {
     hangup              : PropTypes.func,
     remoteIdentity      : PropTypes.string,
     generatedVideoTrack : PropTypes.bool,
-    participantIsGuest  : PropTypes.bool
+    participantIsGuest  : PropTypes.bool,
+    lowBandwidth: PropTypes.bool
 };
 
 ReactMixin(ConferenceBox.prototype, FullscreenMixin);

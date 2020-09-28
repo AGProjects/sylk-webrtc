@@ -181,7 +181,7 @@ class ConferenceByUriBox extends React.Component {
                                 />
                             </FormGroup>
                         </FormControl>
-                        <OverlayTrigger trigger="hover" placement="top" overlay={popoverBottom}>
+                        <OverlayTrigger trigger={['hover', 'focus']} placement="top" overlay={popoverBottom}>
                         <FormControl className={this.props.classes.group} component="fieldset">
                             <FormGroup row>
                                 <FormControlLabel

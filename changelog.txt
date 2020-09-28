@@ -1,22 +1,39 @@
+Version 2.9.0
 
-
+  * Implemented audio/chat only conferences
+  * Extended join conferencing options
+  * Refactored conference drawer
   * Fix for redialing after succesfull guest calls/conferences
   * Added call/join button to 'normal' call complete screen
   * Don't mute guest users on joining the conference
-  * Don't capture shortcut keys in conference if ctrl is pressed
-  * Fixed restart condition for complete screen
+  * Don't capture shortcut keys in conference if Ctrl is pressed
+
+
+Version 2.8.4
+
+  * Fixed restart condition in completed screen
   * Parse call and conference invite url in readyBox
   * Added possibility to restart guest call to use/conference in case of failure
   * Fixed starting timer on video and audio calls
   * Added exit screen for guest calls and conferences
   * Added support for alternate authentication methods based on domain
+
+
+Version 2.8.2
+
+  * Support early media
+
+
+Version 2.8.0
+
   * Added tooltip if registration fails
+  * Possibly fixed timezone in history card
   * Display date in History card in local timezone
   * Fixed behaviour when losing connection in guest calls/conferences
   * Use a bigger resume time when a connection is lost in conference
-  * Added cancel button to redial screen
-  * Catch error when trying to add account
+  * Update About panel
   * Prevent error if not resuming call after connection loss
+  * Make 'No Connection' notification an error
   * Prevent call on dblclick when there is no connection
   * Reordered redial so it happens when the account is on the new connection
   * Fixed resuming calls with original media types
@@ -24,14 +41,26 @@
   * Prevent 'Enter' to start a call when there is no connection
   * Reregister on failed registration and update navbar
   * Show notification, instead of connecting screen in case of connection loss
-  * Added missing incoming call window to Sylk App
-  * Fixed some history bugs
-  * Moved createConnection to connect function
+
+
+Version 2.7.3
+
   * Added extra userAgent information
+
+
+Version 2.7.2
+
   * Fix audio loop when promote self as speaker
   * Added muted to attachMediaStream
 
-2.7.0
+
+Version 2.7.1
+
+  * Fix audio loop when promote self as speaker
+  * Added muted to attachMediaStream
+
+
+Version 2.7.0
 
   * Added extra actions menu to conferences
   * Mute participant on join if there are active speakers
@@ -48,7 +77,8 @@
   * Updated TLS certificate
   * Switched from gulp to parceljs build-chain 
 
-2.6.1
+
+Version 2.6.1
 
   * Only post chat message notification if there is 1 new message
   * Make mute-all-but-self button present if there are only guests present
@@ -56,8 +86,7 @@
   * Added more transparency to the chat drawer
 
 
-2.6.0
-
+Version 2.6.0
 
  * Added raise-your-hand feature to conferences, with timeline ordering
     Registered users can promote those who raised the hand as speaker
@@ -69,21 +98,22 @@
    If there is 1 participant and 1 active speaker the thumbnail will not overlap
    the display name/uri of the main video.
 
-2.3.2
+
+Version 2.3.2
 
   * Fixed error on sign out in electron app
   * Fixed high CPU usage in electron app
   * Synced button order between audio, video and conference call
 
 
-2.3.0
+Version 2.3.0
 
   * Add auto login at startup
   * Added file-sharing support for multiparty conferences
   * Purge old data when changing accounts
 
 
-2.2.0
+Version 2.2.0
 
  * Added screen sharing sessions for one to one calls
    Added screen sharing to multi-party conferencing 
@@ -93,7 +123,7 @@
  * Bug fixes
 
 
-2.0.0
+Version 2.0.0
 
  * The bandwidth usage has been optimised in such a way that independent of
    the number of participants present in the conference, the bandwidth

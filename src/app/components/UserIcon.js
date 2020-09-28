@@ -18,11 +18,20 @@ const styleSheet = makeStyles({
         fontFamily: 'Helvetica Neue ,Helvetica, Arial, sans-serif',
         textTransform: 'uppercase'
     },
+    margin: {
+        margin: '5px'
+    },
     card: {
         width: '70px',
         height: '70px',
         fontSize: '2.5rem',
         margin: '10px'
+    },
+    carousel: {
+        width: '80px',
+        height: '80px',
+        fontSize: '2.85rem',
+        margin: 'auto'
     },
     large: {
         width: '144px',
@@ -31,7 +40,10 @@ const styleSheet = makeStyles({
         margin: 'auto'
     },
     shadow: {
-        boxShadow: '0 0 10px 2px #999'
+        boxShadow: '0 0 2px 2px #999'
+    },
+    shadowSmall: {
+        boxShadow: '0 0 5px 2px #999'
     }
 });
 
@@ -45,7 +57,10 @@ const UserIcon = (props) => {
         classes.drawerAvatar,
         {[`${classes.card}`]: props.card},
         {[`${classes.large}`]: props.large},
-        {[`${classes.shadow}`]: props.active}
+        {[`${classes.shadow}`]: props.active},
+        {[`${classes.shadowSmall}`]: props.active && props.small},
+        {[`${classes.carousel}`]: props.carousel},
+        {[`${classes.margin}`]: props.small}
     );
 
     if (props.identity.uri === 'anonymous@anonymous.invalid') {
@@ -63,6 +78,8 @@ UserIcon.propTypes = {
     identity: PropTypes.object.isRequired,
     large: PropTypes.bool,
     card: PropTypes.bool,
+    carousel: PropTypes.bool,
+    small: PropTypes.bool,
     active: PropTypes.bool
 };
 

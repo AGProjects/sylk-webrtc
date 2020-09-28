@@ -247,6 +247,7 @@ class ConferenceBox extends React.Component {
             if (localStream.getVideoTracks().length > 0) {
                 const track = localStream.getVideoTracks()[0];
                 track.enabled = false;
+                track.stop();
                 return true;
             }
         } else {

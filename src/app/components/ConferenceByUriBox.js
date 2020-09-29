@@ -143,7 +143,7 @@ class ConferenceByUriBox extends React.Component {
 
             const popoverBottom = (
                 <Popover id="popover-positioned-bottom" title="Low Bandwidth mode">
-                        <Typography align="left">Low bandwidth mode means you will participate with audio and chat. Screensharing and video is not available.</Typography>
+                        <Typography align="left">In low bandwidth mode you will participate with audio and chat. Video and screen-sharing are not available.</Typography>
                 </Popover>
             );
 
@@ -196,7 +196,7 @@ class ConferenceByUriBox extends React.Component {
                                         />
                                     }
                                     className={this.props.classes.label}
-                                    label={<Typography className={this.props.classes.labelText}>Enable low-bandwidth mode</Typography>}
+                                    label={<Typography className={this.props.classes.labelText}>Low-bandwidth mode</Typography>}
                                     labelPlacement="start"
                                 />
                             </FormGroup>

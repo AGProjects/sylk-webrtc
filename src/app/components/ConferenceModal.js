@@ -155,7 +155,7 @@ const ConferenceModal = (props) => {
                                 id="panel1a-header"
                                 expandIcon={<i className="fa fa-chevron-down" />}
                             >
-                                <Typography align="left" className={classes.heading}>Conference options</Typography>
+                                <Typography align="left" className={classes.heading}>Advanced</Typography>
                             </AccordionSummary>
                             <Tabs
                                 value={tab}
@@ -187,12 +187,12 @@ const ConferenceModal = (props) => {
                                             />
                                         </FormGroup>
                                     </FormControl>
-                                    <Typography align="left" className={classes.secondaryHeading}>Low bandwidth mode means you will participate with audio and chat. Screensharing and video is not available.</Typography>
+                                    <Typography align="left" className={classes.secondaryHeading}>In low bandwidth mode you will participate with audio and chat. Video and screen-sharing are not available.</Typography>
                                 </AccordionDetails>
                             }
                             { tab === 'room' &&
                                 <AccordionDetails className={classes.details}>
-                                    <Typography align="left" className={classes.secondaryHeading}>These options only apply when you are creating a room</Typography>
+                                    <Typography align="left" className={classes.secondaryHeading}>These options apply only when you are the first participant</Typography>
                                     <FormControl className={classes.group} component="fieldset">
                                         <FormGroup row>
                                             {/*<FormControlLabel

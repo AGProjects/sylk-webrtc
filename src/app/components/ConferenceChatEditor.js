@@ -87,6 +87,8 @@ const ConferenceChatEditor = (props) => {
                     setName('');
                     setType('text/plain');
                     while (target.firstChild) target.removeChild(target.firstChild);
+                } else {
+                    setName(target.innerText);
                 }
                 break;
             case 27:
@@ -105,7 +107,7 @@ const ConferenceChatEditor = (props) => {
                     if (timer !== null) {
                         clearTimeout(timer);
                     }
-                    if (name !== '') {
+                    if (name !== '' && name !== '\n') {
                         if (type === 'text/html') {
                             DEBUG('Sending HTML content');
                             props.onSubmit(name, type);

@@ -76,7 +76,7 @@ const ConferenceDrawer = (props) => {
         {[`${classes.paperFullWidth}`]: props.size === 'full'},
         {[`${classes.paperAdjustedForSmallLeftDrawer}`]: props.anchor === 'left' && (props.position === 'middle' || props.position === 'right')},
         {[`${classes.paperAdjustedForSmallLeftDrawerFull}`]: props.anchor === 'left' && props.size === 'full' && props.position === 'right'},
-        {[`${classes.paperAdjustedForRightDrawer}`]: props.anchor === 'left' && props.position === 'middle'},
+        {[`${classes.paperAdjustedForRightDrawer}`]: props.anchor === 'left' && props.position === 'middle'}
     );
 
     const chevronIcon = clsx({

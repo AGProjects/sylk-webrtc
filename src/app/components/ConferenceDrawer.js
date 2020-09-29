@@ -21,7 +21,7 @@ const styleSheet = makeStyles({
     paperSmall: {
         width: 55,
         '& .drawer-body': {
-            padding: '0'
+            padding: '0 !important'
         }
     },
     paperNormal: {

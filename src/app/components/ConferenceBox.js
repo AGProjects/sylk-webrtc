@@ -371,7 +371,7 @@ class ConferenceBox extends React.Component {
 
     onKeyDown(event) {
         if (!this.state.showInviteModal && !this.state.chatEditorFocus) {
-            if (event.ctrlKey) {
+            if (event.ctrlKey || event.metaKey) {
                 return;
             }
             switch (event.which) {

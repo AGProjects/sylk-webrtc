@@ -1433,6 +1433,7 @@ class Blink extends React.Component {
                 generatedVideoTrack = {this.state.generatedVideoTrack}
                 propagateKeyPress = {this.togglePropagateKeyPress}
                 toggleShortcuts = {this.toggleShortcutsModal}
+                lowBandwidth = {this.state.lowBandwidth}
             />
         );
     }

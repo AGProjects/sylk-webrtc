@@ -48,7 +48,7 @@ class ConferenceByUriBox extends React.Component {
         super(props);
         this.state = {
             displayName: '',
-            lowBandwidth: false,
+            lowBandwidth: props.lowBandwidth || false,
             preferredMedia: {
                 audio: true,
                 video: true
@@ -230,7 +230,8 @@ ConferenceByUriBox.propTypes = {
     localMedia          : PropTypes.object,
     account             : PropTypes.object,
     currentCall         : PropTypes.object,
-    generatedVideoTrack : PropTypes.bool
+    generatedVideoTrack : PropTypes.bool,
+    lowBandwidth        : PropTypes.bool
 };
 
 

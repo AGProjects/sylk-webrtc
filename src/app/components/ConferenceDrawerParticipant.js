@@ -40,7 +40,7 @@ const ConferenceDrawerParticipant = (props) => {
                 speechEvents = null;
             }
         };
-    }, []);
+    }, [props.enableSpeakingIndication, props.participant]);
 
     let tag = ''
     if (props.isLocal) {

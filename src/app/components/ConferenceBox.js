@@ -376,7 +376,9 @@ class ConferenceBox extends React.Component {
             switch (event.which) {
                 case 67:    // c/C
                     event.preventDefault();
-                    this.toggleChat();
+                    if (this.props.call.supportsVideo === true && !this.props.lowBandwidth) {
+                        this.toggleChat();
+                    }
                     break;
                 case 77:    // m/M
                     this.muteAudio(event)

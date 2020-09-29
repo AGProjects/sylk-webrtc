@@ -48,7 +48,9 @@ const styleSheet = makeStyles({
     paperAdjustedForSmallLeftDrawer: {
         marginLeft: 55
     },
-
+    paperAdjustedForSmallLeftDrawerFull: {
+        width: 'calc(100% - 55px)',
+    },
     title: {
         flex: '0 1 auto'
     },
@@ -73,6 +75,7 @@ const ConferenceDrawer = (props) => {
         {[`${classes.paperWide}`]: props.size === 'wide'},
         {[`${classes.paperFullWidth}`]: props.size === 'full'},
         {[`${classes.paperAdjustedForSmallLeftDrawer}`]: props.anchor === 'left' && (props.position === 'middle' || props.position === 'right')},
+        {[`${classes.paperAdjustedForSmallLeftDrawerFull}`]: props.anchor === 'left' && props.size === 'full' && props.position === 'right'},
         {[`${classes.paperAdjustedForRightDrawer}`]: props.anchor === 'left' && props.position === 'middle'},
     );
 

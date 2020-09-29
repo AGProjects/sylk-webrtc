@@ -97,8 +97,7 @@ class ConferenceBox extends React.Component {
             newMessages: 0,
             shouldScroll: false,
             chatEditorFocus: false,
-            menuAnchor: null,
-            lowBandwidth: props.lowBandwidth
+            menuAnchor: null
         };
 
         const friendlyName = this.props.remoteIdentity.split('@')[0];
@@ -219,7 +218,7 @@ class ConferenceBox extends React.Component {
             this.muteGuestAudioOnJoin();
         }
 
-        if (this.props.call.supportsVideo === false || this.state.lowBandwidth) {
+        if (this.props.call.supportsVideo === false || this.props.lowBandwidth) {
             this.haveVideo = false;
             this.toggleChat();
             this.toggleDrawer();
@@ -488,7 +487,7 @@ class ConferenceBox extends React.Component {
 
     handleShareOverlayExited() {
         // re-arm the buttons and overlay timeout
-        if (!this.state.showDrawer || !this.props.call.supportsVideo || !this.state.lowBandwidth) {
+        if (!this.state.showDrawer || !this.props.call.supportsVideo || !this.props.lowBandwidth) {
             this.armOverlayTimer();
         }
         this.setState({shareOverlayVisible: false});
@@ -758,7 +757,7 @@ class ConferenceBox extends React.Component {
 
         let watermark;
 
-        let chatLayout = this.props.call.supportsVideo === false || this.state.lowBandwidth;
+        let chatLayout = this.props.call.supportsVideo === false || this.props.lowBandwidth;
 
         const largeVideoClasses = clsx({
             'animated'      : true,
@@ -1007,7 +1006,7 @@ class ConferenceBox extends React.Component {
                             raisedHand={raisedHand}
                             handleHandSelected={this.handleHandSelected}
                             disableHandToggle={disableHandToggle}
-                            pauseVideo={this.state.lowBandwidth}
+                            pauseVideo={this.props.lowBandwidth}
                         />
                     );
                 });
@@ -1022,7 +1021,7 @@ class ConferenceBox extends React.Component {
                                 raisedHand={this.state.raisedHands.indexOf(p)}
                                 handleHandSelected={this.handleHandSelected}
                                 disableHandToggle={disableHandToggle}
-                                pauseVideo={this.state.lowBandwidth}
+                                pauseVideo={this.props.lowBandwidth}
                             />
                         );
                     }
@@ -1056,7 +1055,7 @@ class ConferenceBox extends React.Component {
                             handleHandSelected={this.handleHandSelected}
                             disableHandToggle={disableHandToggle}
                             audioOnly={chatLayout}
-                            pauseVideo={this.state.lowBandwidth}
+                            pauseVideo={this.props.lowBandwidth}
                         />
                     );
 

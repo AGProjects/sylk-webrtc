@@ -2,6 +2,7 @@
 
 const React             = require('react');
 const useState          = React.useState;
+const useEffect         = React.useEffect;
 const PropTypes         = require('prop-types');
 const ReactBootstrap    = require('react-bootstrap');
 const Label             = ReactBootstrap.Label;
@@ -16,26 +17,36 @@ const HandIcon  = require('./HandIcon');
 const ConferenceDrawerParticipant = (props) => {
     let [active, setActive] = useState(false);
 
+    React.useEffect(() => {
+        const streams = props.participant.streams;
+        let speechEvents = null;
+        if (props.enableSpeakingIndication && streams.length > 0) {
+            const options = {
+                interval: 150,
+                play: false
+            };
+
+            speechEvents = hark(streams[0], options);
+            speechEvents.on('speaking', () => {
+                setActive(true);
+            });
+            speechEvents.on('stopped_speaking', () => {
+                setActive(false);
+            });
+        }
+        return () => {
+            if (speechEvents !== null) {
+                speechEvents.stop();
+                speechEvents = null;
+            }
+        };
+    }, []);
+
     let tag = ''
     if (props.isLocal) {
         tag = <Label bsStyle="primary">Myself</Label>;
     }
 
-    const streams = props.participant.streams;
-    if (props.enableSpeakingIndication && streams.length > 0) {
-        const options = {
-            interval: 150,
-            play: false
-        };
-
-        const speechEvents = hark(streams[0], options);
-        speechEvents.on('speaking', () => {
-            setActive(true);
-        });
-       speechEvents.on('stopped_speaking', () => {
-            setActive(false);
-       });
-    }
     return (
         <Media className="text-left">
             <Media.Left>

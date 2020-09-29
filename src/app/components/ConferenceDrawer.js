@@ -49,7 +49,7 @@ const styleSheet = makeStyles({
         marginLeft: 55
     },
     paperAdjustedForSmallLeftDrawerFull: {
-        width: 'calc(100% - 55px)',
+        width: 'calc(100% - 55px)'
     },
     title: {
         flex: '0 1 auto'

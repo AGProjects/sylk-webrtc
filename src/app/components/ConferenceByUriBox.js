@@ -142,7 +142,7 @@ class ConferenceByUriBox extends React.Component {
             const friendlyName = this.props.targetUri.split('@')[0];
 
             const popoverBottom = (
-                <Popover id="popover-positioned-bottom" title="Low Bandwith mode">
+                <Popover id="popover-positioned-bottom" title="Low Bandwidth mode">
                         <Typography align="left">Low bandwidth mode means you will participate with audio and chat. Screensharing and video is not available.</Typography>
                 </Popover>
             );

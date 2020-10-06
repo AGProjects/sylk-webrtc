@@ -20,7 +20,8 @@ const ConferenceDrawerParticipant = (props) => {
     React.useEffect(() => {
         const streams = props.participant.streams;
         let speechEvents = null;
-        if (props.enableSpeakingIndication && streams.length > 0) {
+
+        if (props.enableSpeakingIndication && streams.length > 0 && streams[0].getAudioTracks().length !== 0) {
             const options = {
                 interval: 150,
                 play: false

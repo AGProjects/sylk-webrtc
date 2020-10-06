@@ -16,9 +16,9 @@ const HandIcon  = require('./HandIcon');
 
 const ConferenceDrawerParticipant = (props) => {
     let [active, setActive] = useState(false);
+    const streams = props.participant.streams;
 
     React.useEffect(() => {
-        const streams = props.participant.streams;
         let speechEvents = null;
 
         if (props.enableSpeakingIndication && streams.length > 0 && streams[0].getAudioTracks().length !== 0) {
@@ -41,7 +41,7 @@ const ConferenceDrawerParticipant = (props) => {
                 speechEvents = null;
             }
         };
-    }, [props.enableSpeakingIndication, props.participant]);
+    }, [streams.length]);
 
     let tag = ''
     if (props.isLocal) {

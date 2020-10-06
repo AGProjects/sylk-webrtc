@@ -1035,6 +1035,7 @@ class ConferenceBox extends React.Component {
                             raisedHand={this.state.raisedHands.indexOf(p)}
                             handleHandSelected={this.handleHandSelected}
                             disableHandToggle={disableHandToggle}
+                            enableSpeakingIndication={chatLayout}
                         />
                     );
                 });
@@ -1068,6 +1069,7 @@ class ConferenceBox extends React.Component {
                             raisedHand={this.state.raisedHands.indexOf(p)}
                             handleHandSelected={this.handleHandSelected}
                             disableHandToggle={disableHandToggle}
+                            enableSpeakingIndication={chatLayout}
                         />
                     );
                 });

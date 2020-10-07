@@ -16,32 +16,33 @@ const HandIcon  = require('./HandIcon');
 
 const ConferenceDrawerParticipant = (props) => {
     let [active, setActive] = useState(false);
+    let [speech, setSpeech] = useState(null);
     const streams = props.participant.streams;
 
     React.useEffect(() => {
-        let speechEvents = null;
-
-        if (props.enableSpeakingIndication && streams.length > 0 && streams[0].getAudioTracks().length !== 0) {
-            const options = {
-                interval: 150,
-                play: false
-            };
-
-            speechEvents = hark(streams[0], options);
-            speechEvents.on('speaking', () => {
-                setActive(true);
-            });
-            speechEvents.on('stopped_speaking', () => {
-                setActive(false);
-            });
-        }
         return () => {
-            if (speechEvents !== null) {
-                speechEvents.stop();
-                speechEvents = null;
+            if (speech !== null) {
+                speech.stop();
+                setSpeech(null);
             }
         };
-    }, [streams.length]);
+    },[speech]);
+
+    if (speech === null && props.enableSpeakingIndication && streams.length > 0 && streams[0].getAudioTracks().length !== 0) {
+        const options = {
+            interval: 150,
+            play: false
+        };
+
+        const speechEvents = hark(streams[0], options);
+        speechEvents.on('speaking', () => {
+            setActive(true);
+        });
+        speechEvents.on('stopped_speaking', () => {
+            setActive(false);
+        });
+        setSpeech(speechEvents);
+    }
 
     let tag = ''
     if (props.isLocal) {

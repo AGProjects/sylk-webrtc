@@ -1016,6 +1016,11 @@ class Blink extends React.Component {
 
     conferenceInvite(data) {
         DEBUG('Conference invite from %o to %s', data.originator, data.room);
+        if (this.state.currentCall && this.state.targetUri === data.room) {
+            DEBUG('Skipped conference invite since you are already in the room: %s', data.room);
+            return
+        }
+
         this._notificationCenter.postSystemNotification('Conference invite', {body: `From ${data.originator.displayName || data.originator.uri} for room ${data.room}`, timeout: 15, silent: false});
         this._notificationCenter.postConferenceInvite(data.originator, data.room, () => {
             if (this.state.currentCall !== null) {

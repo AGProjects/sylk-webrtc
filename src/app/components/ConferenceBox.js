@@ -1100,7 +1100,7 @@ class ConferenceBox extends React.Component {
                     type="file"
                     onChange={this.handleFiles}
                 />
-                <div className={containerClasses} onMouseMove={this.showOverlay}>
+                <div className={containerClasses} onMouseMove={this.showOverlay} onTouchEnd={this.showOverlay}>
                     <ConferenceHeader
                         show={this.state.callOverlayVisible}
                         remoteIdentity={remoteIdentity}

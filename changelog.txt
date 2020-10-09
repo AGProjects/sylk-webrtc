@@ -1,3 +1,13 @@
+Version 2.9.1 / Fri Oct  9 07:00:20 -03 2020
+
+  * Show conference overlay on mobile browsers that do not support onMouseMove
+  * Don't act on conference invite when you are already in the room
+  * Raised sylkrtc.js dependency
+  * Fixed linting warnings and prevent not needed rendering/attaching
+  * Fixed speaking indication in sidebar in chatlayout
+  * Fixed reconnecting low bandwith participants
+
+
 Version 2.9.0
 
   * Implemented audio/chat only conferences

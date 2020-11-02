@@ -15,6 +15,8 @@ const { autoUpdater } = require('electron-updater')
 const ProgressBar = require('electron-progressbar');
 const log = require('electron-log');
 
+const storage = require('electron-json-storage');
+
 let updater = null;
 log.transports.file.level = 'debug';
 autoUpdater.autoDownload = false;
@@ -240,6 +242,10 @@ function createMainWindow() {
 
     ipc.on('buttonClick', function(event, arg) {
         mainWindow.webContents.send('buttonClick',arg);
+    });
+
+    ipc.on('getStorage', () => {
+        mainWindow.webContents.send("storagePath", storage.getDataPath('userData'));
     });
 
     // open links with default browser

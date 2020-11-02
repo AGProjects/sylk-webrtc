@@ -154,7 +154,15 @@ class Blink extends React.Component {
     }
 
     componentWillMount() {
-        storage.initialize();
+        // Check if we should use hash routing
+        if (typeof window.process !== 'undefined') {
+            console.log(window.process);
+            if (window.process.versions.electron !== '') {
+                this.shouldUseHashRouting = true;
+            }
+        }
+
+        storage.initialize(this.shouldUseHashRouting);
 
         if (window.location.hash.startsWith('#!/')) {
             this.redirectTo = window.location.hash.replace('#!', '');
@@ -172,12 +180,6 @@ class Blink extends React.Component {
 
         }
 
-        // Check if we should use hash routing
-        if (typeof window.process !== 'undefined') {
-            if (window.process.versions.electron !== '') {
-                this.shouldUseHashRouting = true;
-            }
-        }
         history.load().then((entries) => {
             if (entries) {
                 this.setState({history: entries});

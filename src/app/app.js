@@ -355,7 +355,7 @@ class Blink extends React.Component {
                     reason = 'Hangup';
                     callSuccesfull = true;
                 } else if (reason.match(/403/)) {
-                    reason = 'This domain is not served here';
+                    reason = 'Forbidden';
                 } else if (reason.match(/404/)) {
                     reason = 'User not found';
                 } else if (reason.match(/408/)) {

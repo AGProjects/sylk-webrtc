@@ -62,10 +62,14 @@ const ConferenceChatEditor = (props) => {
             let data = e.clipboardData.getData('text/html');
             if (data === '') {
                 DEBUG('No HTML data on clipboard');
-                setImmediate(()=> {
-                    setName(`<pre>${target.innerHTML}</pre>`);
-                });
-                target.focus();
+                if (target.innerHTML !== '') {
+                    setImmediate(()=> {
+                        setName(`<pre>${target.innerHTML}</pre>`);
+                    });
+                    target.focus();
+                } else {
+                    DEBUG('No data on clipboard');
+                }
             } else {
                 DEBUG('HTML data on clipboard, we will use it');
                 e.preventDefault();
@@ -129,7 +133,7 @@ const ConferenceChatEditor = (props) => {
             case 91:
                 break;
             default:
-                if (event.which !== 86 && !event.ctrlKey && event.which !== 224) {
+                if (!(event.ctrlKey || event.which === 224)) {
                     setTimeout(() => {
                         if (target.innerHTML === '<br>') {
                             DEBUG('Editor is empty');

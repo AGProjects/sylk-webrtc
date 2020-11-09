@@ -7,6 +7,7 @@ const { default: clsx } = require('clsx');
 const ReactBootstrap    = require('react-bootstrap');
 const Media             = ReactBootstrap.Media;
 const parse             = require('html-react-parser');
+const linkifyUrls       = require('linkify-urls');
 const { DateTime }      = require('luxon');
 
 const UserIcon          = require('./UserIcon');
@@ -33,7 +34,20 @@ const ChatMessage = (props) => {
         const image = `data:${message.contentType};base64,${btoa(message.content)}`
         parsedContent = (<img className="img-responsive" src={image} />);
     } else if (message.contentType === 'text/plain') {
-        parsedContent = (<pre>{message.content}</pre>)
+        parsedContent = (
+            <pre>
+                {
+                    parse(
+                        linkifyUrls(message.content, {
+                            attributes: {
+                                target : '_blank',
+                                rel    : 'noopener noreferrer'
+                            }
+                        })
+                    )
+                }
+            </pre>
+        );
     }
 
 

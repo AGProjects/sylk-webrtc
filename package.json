@@ -1,6 +1,6 @@
 {
   "name": "Sylk",
-  "version": "2.9.2",
+  "version": "2.9.3",
   "license": "AGPL-3.0-or-later",
   "private": true,
   "devDependencies": {

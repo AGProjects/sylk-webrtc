@@ -156,7 +156,6 @@ class Blink extends React.Component {
     componentWillMount() {
         // Check if we should use hash routing
         if (typeof window.process !== 'undefined') {
-            console.log(window.process);
             if (window.process.versions.electron !== '') {
                 this.shouldUseHashRouting = true;
             }

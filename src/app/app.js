@@ -1067,6 +1067,10 @@ class Blink extends React.Component {
             return;
         }
 
+        if (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE) {
+            return;
+        }
+
         DEBUG('Requesting call history from server');
         let getServerCallHistory = new DigestAuthRequest(
             'GET',
@@ -1124,7 +1128,7 @@ class Blink extends React.Component {
                 return false;
             }
 
-            if (config.useServerCallHistory && nextPath === '/ready' && this.state.registrationState === 'registered' && (this.state.mode !== MODE_GUEST_CALL && this.state.mode !== MODE_GUEST_CONFERENCE)) {
+            if (config.useServerCallHistory && nextPath === '/ready' && this.state.registrationState === 'registered') {
                 this.getServerHistory();
             }
             // Press back in ready after a login, prevent initial navigation

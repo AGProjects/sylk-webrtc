@@ -20,6 +20,10 @@ const ChatMessage = (props) => {
     const sender = message.sender.displayName ||  message.sender.uri;
     const time = DateTime.fromJSDate(message.timestamp).toFormat('HH:mm');
 
+    const htmlEntities = (str) => {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
     let parsedContent;
     if (message.contentType === 'text/html') {
         parsedContent = parse(message.content.trim(), {
@@ -34,22 +38,16 @@ const ChatMessage = (props) => {
         const image = `data:${message.contentType};base64,${btoa(message.content)}`
         parsedContent = (<img className="img-responsive" src={image} />);
     } else if (message.contentType === 'text/plain') {
-        const linkfiedContent = linkifyUrls(message.content, {
+        const linkfiedContent = linkifyUrls(htmlEntities(message.content), {
             attributes: {
                 target : '_blank',
                 rel    : 'noopener noreferrer'
             }
         })
 
-        if (message.type === 'status') {
-            parsedContent = (
-                <pre>{linkfiedContent}</pre>
-            );
-        } else {
-            parsedContent = (
-                <pre>{parse(linkfiedContent)}</pre>
-            );
-        }
+        parsedContent = (
+            <pre>{parse(linkfiedContent)}</pre>
+        );
     }
 
 

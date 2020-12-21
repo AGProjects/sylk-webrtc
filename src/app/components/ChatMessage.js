@@ -34,20 +34,22 @@ const ChatMessage = (props) => {
         const image = `data:${message.contentType};base64,${btoa(message.content)}`
         parsedContent = (<img className="img-responsive" src={image} />);
     } else if (message.contentType === 'text/plain') {
-        parsedContent = (
-            <pre>
-                {
-                    parse(
-                        linkifyUrls(message.content, {
-                            attributes: {
-                                target : '_blank',
-                                rel    : 'noopener noreferrer'
-                            }
-                        })
-                    )
-                }
-            </pre>
-        );
+        const linkfiedContent = linkifyUrls(message.content, {
+            attributes: {
+                target : '_blank',
+                rel    : 'noopener noreferrer'
+            }
+        })
+
+        if (message.type === 'status') {
+            parsedContent = (
+                <pre>{linkfiedContent}</pre>
+            );
+        } else {
+            parsedContent = (
+                <pre>{parse(linkfiedContent)}</pre>
+            );
+        }
     }
 
 

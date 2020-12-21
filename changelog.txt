@@ -1,3 +1,24 @@
+Version 2.9.4 Mon Dec 21 10:35:01 -03 2020
+
+  * Fixed bug in chat message parsing
+  * Fixed getting history on reconnection as guest
+  * Replace htmlenties in plain text messages, we can parse the status again
+  * Raised html-react-parser dependency
+
+
+Version 2.9.3 Mon Nov  9 07:18:32 -03 2020
+
+  * Added link parsing to plain text chat messages
+  * Fixed 'v' key in chat editor and ignore empty paste
+  * Fixed description for 403 response code
+
+
+Version 2.9.2  Wed Nov  4 08:37:53 -03 2020
+
+  * Refresh dependencies
+  * Added json storage for electron
+
+
 Version 2.9.1 / Fri Oct  9 07:00:20 -03 2020
 
   * Show conference overlay on mobile browsers that do not support onMouseMove

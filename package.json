@@ -26,7 +26,7 @@
     "eslint-plugin-react-hooks": "^3.0.0",
     "fontawesome-actions": "^0.17.0",
     "hark": "^1.1.6",
-    "html-react-parser": "^0.13.0",
+    "html-react-parser": "^1.0.0",
     "image-conversion": "^2.1.1",
     "ipaddr.js": "^1.9.1",
     "linkify-urls": "^2.2.0",

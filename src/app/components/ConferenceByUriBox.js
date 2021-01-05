@@ -9,9 +9,14 @@ const Popover        = ReactBootstrap.Popover;
 const OverlayTrigger = ReactBootstrap.OverlayTrigger;
 const { withStyles }    = require('@material-ui/core/styles');
 const { Switch, FormGroup, FormControl, FormControlLabel, Typography } = require('@material-ui/core');
+const { ButtonGroup } = require('@material-ui/core');
+const { Popper, ClickAwayListener, Paper, Grow } = require('@material-ui/core');
+const { MenuItem, MenuList, ListItemIcon } = require('@material-ui/core');
 
 const Conference = require('./Conference');
+const { Button } = require('../MaterialUIAsBootstrap');
 const Logo = require('./Logo');
+
 
 const styles = {
     label: {
@@ -27,6 +32,15 @@ const styles = {
     group: {
         fontFamily: 'inherit',
         width: '100%'
+    },
+    buttonCaret: {
+        padding: '10px 12px',
+        width: 'auto',
+        marginLeft: '-1px'
+    },
+    menuItem: {
+        display: 'inherit',
+        fontSize: '16px'
     }
 };
 
@@ -52,7 +66,8 @@ class ConferenceByUriBox extends React.Component {
             preferredMedia: {
                 audio: true,
                 video: true
-            }
+            },
+            open: false
         };
 
         this._notificationCenter = null;
@@ -60,8 +75,12 @@ class ConferenceByUriBox extends React.Component {
         // ES6 classes no longer autobind
         this.handleDisplayNameChange = this.handleDisplayNameChange.bind(this);
         this.handleAudio = this.handleAudio.bind(this);
+        this.handleToggle = this.handleToggle.bind(this);
+        this.handleClose = this.handleClose.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.callStateChanged = this.callStateChanged.bind(this);
+
+        this.anchorRef = React.createRef();
     }
 
     componentDidMount() {
@@ -86,8 +105,22 @@ class ConferenceByUriBox extends React.Component {
 
     handleAudio(event) {
         let preferredMedia = Object.assign({}, this.state.preferredMedia);
-        preferredMedia.video = !event.target.checked;
-        this.setState({preferredMedia});
+        preferredMedia.video = false;
+        this.setState({preferredMedia, open: false});
+        event.persist();
+        setImmediate(() => {this.handleSubmit(event)});
+    }
+
+    handleToggle(event) {
+        event.currentTarget.blur();
+        this.setState({open: !this.state.open});
+    }
+
+    handleClose(event) {
+        if (this.anchorRef.current && this.anchorRef.current.contains(event.target)) {
+            return;
+        }
+        this.setState({open: false});
     }
 
     handleSubmit(event) {
@@ -138,6 +171,11 @@ class ConferenceByUriBox extends React.Component {
                 'btn-block'  : true,
                 'btn-primary': true
             });
+            const caretClasses = clsx({
+                'fa'           : true,
+                'fa-caret-down': !this.state.open,
+                'fa-caret-up'  : this.state.open
+            });
 
             const friendlyName = this.props.targetUri.split('@')[0];
 
@@ -163,46 +201,80 @@ class ConferenceByUriBox extends React.Component {
                             />
                         </div>
                         <br />
-                        <FormControl className={this.props.classes.group} component="fieldset">
-                            <FormGroup row>
-                                <FormControlLabel
-                                    control={
-                                        <GreenSwitch
-                                            checked={!this.state.preferredMedia.video}
-                                            onChange={this.handleAudio}
-                                            color="primary"
-                                            name="video-support"
-                                            classes={{colorPrimary: this.props.classes.colorPrimary}}
-                                            inputProps={{'aria-label': 'turn off my video'}}
-                                        />
-                                    }
-                                    className={this.props.classes.label}
-                                    label={<Typography className={this.props.classes.labelText}>Turn off my video</Typography>}
-                                    labelPlacement="start"
-                                />
-                            </FormGroup>
-                        </FormControl>
                         <OverlayTrigger trigger={['hover', 'focus']} placement="top" overlay={popoverBottom}>
-                        <FormControl className={this.props.classes.group} component="fieldset">
-                            <FormGroup row>
-                                <FormControlLabel
-                                    control={
-                                        <GreenSwitch
-                                            checked={this.state.lowBandwidth}
-                                            onChange={(event) => this.setState({lowBandwidth: event.target.checked})}
-                                            color="primary"
-                                            name="low-bandwith"
-                                            inputProps={{'aria-label': 'enable low bandwidth mode'}}
-                                        />
-                                    }
-                                    className={this.props.classes.label}
-                                    label={<Typography className={this.props.classes.labelText}>Low-bandwidth mode</Typography>}
-                                    labelPlacement="start"
-                                />
-                            </FormGroup>
-                        </FormControl>
-                            </OverlayTrigger>
-                        <button type="submit" className={classes}><i className="fa fa-sign-in"></i> Join</button>
+                            <FormControl className={this.props.classes.group} component="fieldset">
+                                <FormGroup row>
+                                    <FormControlLabel
+                                        control={
+                                            <GreenSwitch
+                                                checked={this.state.lowBandwidth}
+                                                onChange={(event) => this.setState({lowBandwidth: event.target.checked})}
+                                                color="primary"
+                                                name="low-bandwith"
+                                                inputProps={{'aria-label': 'enable low bandwidth mode'}}
+                                            />
+                                        }
+                                        className={this.props.classes.label}
+                                        label={<Typography className={this.props.classes.labelText}>Low-bandwidth mode</Typography>}
+                                        labelPlacement="start"
+                                    />
+                                </FormGroup>
+                            </FormControl>
+                        </OverlayTrigger>
+                        <ButtonGroup variant="contained" fullWidth disableElevation ref={this.anchorRef} aria-label="split button">
+                            <Button
+                                size="large"
+                                type="submit"
+                            >
+                                <i className="fa fa-sign-in"></i> Join
+                            </Button>
+                            <Button
+                                className={this.props.classes.buttonCaret}
+                                aria-controls={open ? 'split-button-menu' : undefined}
+                                aria-expanded={open ? 'true' : undefined}
+                                aria-label="select join without video"
+                                aria-haspopup="menu"
+                                onClick={this.handleToggle}
+                                size="large"
+                            >
+                                <i className={caretClasses}></i>
+                            </Button>
+                        </ButtonGroup>
+                        <Popper
+                            open={this.state.open}
+                            anchorEl={this.anchorRef.current}
+                            role={undefined}
+                            placement="bottom-start"
+                            transition
+                            disablePortal
+                            style={{marginTop: '8px', width: '300px'}}
+                        >
+                            {({ TransitionProps, placement }) => (
+                                <Grow
+                                    {...TransitionProps}
+                                    style={{
+                                        transformOrigin: placement === 'bottom-start' ? 'right top' : 'left bottom',
+                                    }}
+                                >
+                                    <Paper style={{width: '100%'}}>
+                                        <ClickAwayListener onClickAway={this.handleClose}>
+                                            <MenuList id="split-button-menu">
+                                                <MenuItem
+                                                    key="join-without-video"
+                                                    onClick={this.handleAudio}
+                                                    className={this.props.classes.menuItem}
+                                                >
+                                                    <ListItemIcon>
+                                                        <i className="fa fa-video-camera-slash"></i>
+                                                    </ListItemIcon>
+                                                    Join without video
+                                                </MenuItem>
+                                            </MenuList>
+                                        </ClickAwayListener>
+                                    </Paper>
+                                </Grow>
+                            )}
+                        </Popper>
                     </form>
                 </div>
             );

@@ -28,18 +28,17 @@ const bsButton = withStyles({
             borderColor: '#204d74'
         },
         '&:focus': {
-	    borderColor: '#122b40',
+            borderColor: '#122b40',
             backgroundColor: '#204d74',
             outlineOffset: '-2px',
             boxShadow: 'inset 0px 3px 5px 0px rgba(0,0,0,.125)'
-        },
+        }
     },
     sizeLarge: {
         padding: '10px 20px',
         fontSize: 18,
         borderRadius: '6px',
-        lineHeight: 1.33333,
-
+        lineHeight: 1.33333
     },
     label: {
         display: 'block'

@@ -132,7 +132,8 @@ class Blink extends React.Component {
             'toggleRedialScreen',
             'getLocalScreen',
             'getServerHistory',
-            'getLocalMediaGuestWrapper'
+            'getLocalMediaGuestWrapper',
+            'getLocalMedia'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -817,7 +818,7 @@ class Blink extends React.Component {
         if (this.isRetry) {
             this.getLocalMedia({audio: true, video: true}, `/call/${targetUri}`);
         } else {
-            this.getLocalMedia(Object.assign({audio: true, video: true}, options));
+            // this.getLocalMedia(Object.assign({audio: true, video: true}, options));
         }
     }
 
@@ -1379,6 +1380,7 @@ class Blink extends React.Component {
                 hangupCall = {this.hangupCall}
                 shareScreen = {this.switchScreensharing}
                 generatedVideoTrack = {this.state.generatedVideoTrack}
+                getLocalMedia = {this.getLocalMedia}
             />
         );
     }

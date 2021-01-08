@@ -5,7 +5,7 @@ const PropTypes  = require('prop-types');
 const { default: clsx } = require('clsx');
 
 const Call       = require('./Call');
-
+const PreMedia   = require('./PreMedia');
 
 class CallByUriBox extends React.Component {
     constructor(props) {
@@ -23,6 +23,9 @@ class CallByUriBox extends React.Component {
     }
 
     componentDidMount() {
+        if (!this.props.localMedia) {
+            this.props.getLocalMedia();
+        }
         this._notificationCenter = this.props.notificationCenter();
     }
 
@@ -51,7 +54,7 @@ class CallByUriBox extends React.Component {
         const validInput = this.state.displayName !== '';
         let content;
 
-        if (this.props.localMedia !== null) {
+        if (this.props.account !== null && this.props.localMedia) {
             content = (
                 <Call
                     localMedia = {this.props.localMedia}
@@ -75,6 +78,9 @@ class CallByUriBox extends React.Component {
 
             content = (
                 <div>
+                    <PreMedia
+                        localMedia={this.props.generatedVideoTrack ? null : this.props.localMedia }
+                    />
                     <h2>You&#39;ve been invited to call<br/><strong>{this.props.targetUri}</strong></h2>
                     <form className="form-guest" onSubmit={this.handleSubmit}>
                         <label className="sr-only">Name</label>
@@ -111,6 +117,7 @@ CallByUriBox.propTypes = {
     notificationCenter  : PropTypes.func.isRequired,
     hangupCall          : PropTypes.func.isRequired,
     shareScreen         : PropTypes.func.isRequired,
+    getLocalMedia       : PropTypes.func.isRequired,
     targetUri           : PropTypes.string,
     localMedia          : PropTypes.object,
     account             : PropTypes.object,

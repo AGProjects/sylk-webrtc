@@ -87,9 +87,10 @@ class ConferenceByUriBox extends React.Component {
         this._notificationCenter = this.props.notificationCenter();
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (!this.props.currentCall && nextProps.currentCall) {
-            nextProps.currentCall.on('stateChanged', this.callStateChanged);
+    componentDidUpdate(prevProps, prevState) {
+        }
+        if (!prevProps.currentCall && this.props.currentCall) {
+            this.props.currentCall.on('stateChanged', this.callStateChanged);
         }
     }
 

@@ -5,6 +5,7 @@ const PropTypes  = require('prop-types');
 const { default: clsx } = require('clsx');
 
 const Call       = require('./Call');
+const FooterBox  = require('./FooterBox');
 const PreMedia   = require('./PreMedia');
 
 class CallByUriBox extends React.Component {
@@ -104,6 +105,7 @@ class CallByUriBox extends React.Component {
 
         return (
             <div className="cover-container">
+                {!this.props.account && this.props.localMedia && <FooterBox />}
                 <div className="inner cover" >
                     {content}
                 </div>

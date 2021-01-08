@@ -324,7 +324,6 @@ class ConferenceByUriBox extends React.Component {
                 <div className="inner cover" >
                     {content}
                 </div>
-                {!this.props.account && this.props.localMedia && <FooterBox />}
             </div>
         );
     }

@@ -13,9 +13,13 @@ const { ButtonGroup } = require('@material-ui/core');
 const { Popper, ClickAwayListener, Paper, Grow } = require('@material-ui/core');
 const { MenuItem, MenuList, ListItemIcon } = require('@material-ui/core');
 
-const Conference = require('./Conference');
 const { Button } = require('../MaterialUIAsBootstrap');
-const Logo = require('./Logo');
+const Conference = require('./Conference');
+const FooterBox  = require('./FooterBox');
+const Logo       = require('./Logo');
+const PreMedia   = require('./PreMedia');
+
+const sylkrtc               = require('sylkrtc');
 
 
 const styles = {
@@ -54,7 +58,9 @@ const GreenSwitch = withStyles({
         }
     },
     checked: {},
-    track: {}
+    track: {
+        backgroundColor: '#aaa'
+    }
 })(Switch);
 
 class ConferenceByUriBox extends React.Component {
@@ -78,17 +84,45 @@ class ConferenceByUriBox extends React.Component {
         this.handleToggle = this.handleToggle.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+
         this.callStateChanged = this.callStateChanged.bind(this);
 
         this.anchorRef = React.createRef();
     }
 
     componentDidMount() {
+        if (!this.props.localMedia) {
+            this.props.getLocalMedia();
+        }
         this._notificationCenter = this.props.notificationCenter();
     }
 
     componentDidUpdate(prevProps, prevState) {
+        if (prevState.lowBandwidth !== this.state.lowBandwidth) {
+            let preferredMedia = Object.assign({}, this.state.preferredMedia);
+            if (this.state.lowBandwidth) {
+                preferredMedia.video = false;
+                setTimeout(() => {
+                    sylkrtc.utils.closeMediaStream(this.props.localMedia);
+                    this.props.getLocalMedia(preferredMedia);
+                }, 200);
+            } else {
+                sylkrtc.utils.closeMediaStream(this.props.localMedia);
+                this.props.getLocalMedia(preferredMedia);
+            }
         }
+
+        if (prevState.preferredMedia.video !== this.state.preferredMedia.video) {
+            if (!this.state.preferredMedia.video) {
+                // Stop and remove the track if you want to join audio only.
+                // If you closeStreams and getLocalMedia and this takes time, joining
+                // will be not working.
+                const track = this.props.localMedia.getVideoTracks()[0];
+                track.stop();
+                this.props.localMedia.removeTrack(track);
+            }
+        }
+
         if (!prevProps.currentCall && this.props.currentCall) {
             this.props.currentCall.on('stateChanged', this.callStateChanged);
         }
@@ -146,8 +180,7 @@ class ConferenceByUriBox extends React.Component {
 
     render() {
         let content;
-
-        if (this.props.localMedia !== null) {
+        if (this.props.account !== null && this.props.localMedia) {
             content = (
                 <Conference
                     notificationCenter = {this.props.notificationCenter}
@@ -188,6 +221,10 @@ class ConferenceByUriBox extends React.Component {
 
             content = (
                 <div>
+                    <PreMedia
+                        localMedia={this.props.generatedVideoTrack ? null : this.props.localMedia }
+                        hide={this.state.lowBandwidth}
+                    />
                     <Logo />
                     <h2>Join conference room:<br/><strong>{friendlyName}</strong></h2>
                     <form className="form-guest" onSubmit={this.handleSubmit}>
@@ -254,7 +291,7 @@ class ConferenceByUriBox extends React.Component {
                                 <Grow
                                     {...TransitionProps}
                                     style={{
-                                        transformOrigin: placement === 'bottom-start' ? 'right top' : 'left bottom',
+                                        transformOrigin: placement === 'bottom-start' ? 'right top' : 'left bottom'
                                     }}
                                 >
                                     <Paper style={{width: '100%'}}>
@@ -286,6 +323,7 @@ class ConferenceByUriBox extends React.Component {
                 <div className="inner cover" >
                     {content}
                 </div>
+                {!this.props.account && this.props.localMedia && <FooterBox />}
             </div>
         );
     }
@@ -299,6 +337,7 @@ ConferenceByUriBox.propTypes = {
     shareScreen         : PropTypes.func.isRequired,
     propagateKeyPress   : PropTypes.func.isRequired,
     toggleShortcuts     : PropTypes.func.isRequired,
+    getLocalMedia       : PropTypes.func.isRequired,
     targetUri           : PropTypes.string,
     localMedia          : PropTypes.object,
     account             : PropTypes.object,

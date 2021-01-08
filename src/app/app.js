@@ -131,7 +131,8 @@ class Blink extends React.Component {
             'togglePropagateKeyPress',
             'toggleRedialScreen',
             'getLocalScreen',
-            'getServerHistory'
+            'getServerHistory',
+            'getLocalMediaGuestWrapper'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -676,6 +677,11 @@ class Blink extends React.Component {
         }
     }
 
+    getLocalMediaGuestWrapper(mediaConstraints={audio: true, video: true}, nextRoute=null) {    // eslint-disable-line space-infix-ops
+        this.setState({mode : MODE_GUEST_CONFERENCE});
+        setImmediate(() => this.getLocalMedia(mediaConstraints, nextRoute));
+    }
+
     getLocalMedia(mediaConstraints={audio: true, video: true}, nextRoute=null) {    // eslint-disable-line space-infix-ops
         DEBUG('getLocalMedia(), mediaConstraints=%o', mediaConstraints);
         const constraints = Object.assign({}, mediaConstraints);
@@ -929,7 +935,7 @@ class Blink extends React.Component {
         if (this.isRetry) {
             this.getLocalMedia(this.state.preferredGuestMedia, `/conference/${targetUri}`);
         } else {
-            this.getLocalMedia(this.state.preferredGuestMedia);
+            // this.getLocalMedia(this.state.preferredGuestMedia);
         }
     }
 
@@ -1444,6 +1450,7 @@ class Blink extends React.Component {
                 propagateKeyPress = {this.togglePropagateKeyPress}
                 toggleShortcuts = {this.toggleShortcutsModal}
                 lowBandwidth = {this.state.lowBandwidth}
+                getLocalMedia = {this.getLocalMediaGuestWrapper}
             />
         );
     }

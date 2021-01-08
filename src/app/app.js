@@ -722,7 +722,7 @@ class Blink extends React.Component {
 
         this.loadScreenTimer = setTimeout(() => {
             this.setState({loading: 'Please allow access to your media devices'});
-        }, 150);
+        }, 750);
 
 
         new Promise((resolve, reject) => {

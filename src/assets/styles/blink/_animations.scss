@@ -84,3 +84,18 @@
         animation: fadeOut ease .3s;
     }
 }
+
+.premedia-display-enter-active {
+    animation: fadeIn  ease .3s;
+}
+
+.premedia-display-exit {
+    &.premedia-display-exit-active {
+        animation: fadeOut ease .5s;
+    }
+}
+
+.premedia-display-exit-done {
+    visibility: hidden;
+    opacity: 0;
+}

@@ -2,6 +2,7 @@
 const { v4: uuidv4 } = require('uuid');
 const SillyNames = require('./SillyNames');
 const MaterialColors = require('./MaterialColors');
+const { Queue } = require('./utils/Queue');
 
 function generateUniqueId() {
     const uniqueId = uuidv4().replace(/-/g, '').slice(0, 16);
@@ -163,3 +164,4 @@ exports.generateMaterialColor = generateMaterialColor;
 exports.generateVideoTrack = generateVideoTrack;
 exports.getWindowHeight = getWindowHeight;
 exports.loadAudio = loadAudio;
+exports.Queue = Queue;

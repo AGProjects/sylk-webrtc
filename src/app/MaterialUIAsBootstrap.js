@@ -9,14 +9,16 @@ const bsButton = withStyles({
         textTransform: 'none',
         fontSize: 14,
         fontFamily: 'inherit',
-        fontWeight: 'bold',
+        fontWeight: 'normal',
         padding: '6px 12px',
         border: '1px solid transparent',
+        lineHeight: 1.42857143,
+        borderRadius: '4px'
+    },
+    contained: {
         backgroundColor: '#337ab7',
         borderColor: '#2e6da4',
         color: '#fff',
-        lineHeight: 1.42857143,
-        borderRadius: '4px',
         '&:hover': {
             backgroundColor: '#286090',
             borderColor: '#204d74',
@@ -37,11 +39,18 @@ const bsButton = withStyles({
     sizeLarge: {
         padding: '10px 20px',
         fontSize: 18,
+        fontWeight: 'bold',
         borderRadius: '6px',
         lineHeight: 1.33333
     },
     label: {
         display: 'block'
+    },
+    text: {
+        borderColor: 'transparent',
+        backgroundColor: 'transparent',
+        color: '#337ab7',
+        boxShadow: 'none'
     }
 })(Button);
 

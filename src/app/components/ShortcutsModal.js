@@ -4,9 +4,10 @@
 const React          = require('react');
 const PropTypes      = require('prop-types');
 const { makeStyles } = require('@material-ui/core/styles');
-const { Dialog, DialogTitle, DialogContent, DialogActions, Divider, Button }   = require('@material-ui/core');
+const { Dialog, DialogTitle, DialogContent, DialogActions, Divider }   = require('@material-ui/core');
 const { List, ListSubheader, ListItem, ListItemText, ListItemSecondaryAction } = require('@material-ui/core');
 
+const { Button } = require('../MaterialUIAsBootstrap');
 
 const styleSheet = makeStyles({
     bigger: {
@@ -19,30 +20,6 @@ const styleSheet = makeStyles({
         '&> li.MuiListSubheader-root': {
             fontSize: '14px',
             textAlign: 'left'
-        }
-    },
-    button: {
-        boxShadow: 'none',
-        textTransform: 'none',
-        fontSize: 14,
-        padding: '6px 12px',
-        border: '1px solid',
-        lineHeight: 1.5,
-        backgroundColor: '#337ab7',
-        borderColor: '#0063cc',
-        color: '#fff',
-        '&:hover': {
-            backgroundColor: '#286090',
-            borderColor: '#204d74',
-            boxShadow: 'none'
-        },
-        '&:active': {
-            boxShadow: 'none',
-            backgroundColor: '#286090',
-            borderColor: '#204d74'
-        },
-        '&:focus': {
-            boxShadow: '0 0 0 0.2rem rgba(0,123,255,.5)'
         }
     }
 });
@@ -100,7 +77,7 @@ const ShortcutsModal = (props) => {
                 </List>
             </DialogContent>
             <DialogActions>
-                <Button onClick={props.close} className={classes.button} title="close">
+                <Button variant="contained" onClick={props.close} title="close">
                     Close
                 </Button>
             </DialogActions>

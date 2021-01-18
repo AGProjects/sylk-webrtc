@@ -21,16 +21,27 @@ const ChatMessage = (props) => {
     const time = DateTime.fromJSDate(message.timestamp).toFormat('HH:mm');
 
     const htmlEntities = (str) => {
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    };
 
     let parsedContent;
     if (message.contentType === 'text/html') {
         parsedContent = parse(message.content.trim(), {
-            replace: ({attribs}) => {
-                if (attribs && attribs.href) {
-                    attribs.target = '_blank';
+            replace: (domNode) => {
+                if (domNode.attribs && domNode.attribs.href) {
+                    domNode.attribs.target = '_blank';
                     return;
+                }
+                if (domNode.type === 'text') {
+                    if (!domNode.parent || (domNode.parent.type === 'tag' && domNode.parent.name !== 'a')) {
+                        let url = linkifyUrls(htmlEntities(domNode.data), {
+                            attributes: {
+                                target : '_blank',
+                                rel    : 'noopener noreferrer'
+                            },
+                        });
+                        return (<span>{parse(url)}</span>);
+                    }
                 }
             }
         });

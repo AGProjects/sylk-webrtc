@@ -42,7 +42,7 @@ const ChatMessage = (props) => {
                                 attributes: {
                                     target : '_blank',
                                     rel    : 'noopener noreferrer'
-                                },
+                                }
                             });
                             return (<span>{parse(url)}</span>);
                         }

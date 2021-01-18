@@ -26,6 +26,8 @@ const ChatMessage = (props) => {
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     };
 
+    useEffect(props.scroll, [parsedContent]);
+
     useEffect(() => {
         if (message.contentType === 'text/html') {
             setParsedContent(parse(message.content.trim(), {
@@ -104,6 +106,7 @@ const ChatMessage = (props) => {
 
 ChatMessage.propTypes = {
     message: PropTypes.object.isRequired,
+    scroll: PropTypes.func.isRequired,
     cont: PropTypes.bool
 };
 

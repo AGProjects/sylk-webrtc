@@ -14,7 +14,7 @@ const ConferenceChat = (props) => {
         messagesEndRef.current.scrollIntoView({behavior: 'smooth'})
     }
 
-    useEffect(scrollToBottom, [props.messages, props.scroll]);
+    useEffect(scrollToBottom, [props.scroll]);
 
     let prevMessage = null;
     const entries = props.messages.filter((message) => {
@@ -26,7 +26,7 @@ const ConferenceChat = (props) => {
         }
         prevMessage = message;
         return (
-            <ChatMessage key={idx} message={message} cont={continues} />
+            <ChatMessage key={idx} message={message} cont={continues} scroll={scrollToBottom} />
         )
     });
 

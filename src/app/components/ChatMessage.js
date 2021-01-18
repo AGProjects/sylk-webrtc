@@ -2,6 +2,7 @@
 
 const React         = require('react');
 const useState      = React.useState;
+const useEffect     = React.useEffect;
 const PropTypes     = require('prop-types');
 const { default: clsx } = require('clsx');
 const ReactBootstrap    = require('react-bootstrap');
@@ -15,6 +16,7 @@ const UserIcon          = require('./UserIcon');
 
 const ChatMessage = (props) => {
     let [state, setState] = useState(props.message.state);
+    const [parsedContent, setParsedContent] = useState();
 
     const message = props.message;
     const sender = message.sender.displayName ||  message.sender.uri;
@@ -24,49 +26,51 @@ const ChatMessage = (props) => {
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     };
 
-    let parsedContent;
-    if (message.contentType === 'text/html') {
-        parsedContent = parse(message.content.trim(), {
-            replace: (domNode) => {
-                if (domNode.attribs && domNode.attribs.href) {
-                    domNode.attribs.target = '_blank';
-                    return;
-                }
-                if (domNode.type === 'text') {
-                    if (!domNode.parent || (domNode.parent.type === 'tag' && domNode.parent.name !== 'a')) {
-                        let url = linkifyUrls(htmlEntities(domNode.data), {
-                            attributes: {
-                                target : '_blank',
-                                rel    : 'noopener noreferrer'
-                            },
-                        });
-                        return (<span>{parse(url)}</span>);
+    useEffect(() => {
+        if (message.contentType === 'text/html') {
+            setParsedContent(parse(message.content.trim(), {
+                replace: (domNode) => {
+                    if (domNode.attribs && domNode.attribs.href) {
+                        domNode.attribs.target = '_blank';
+                        return;
+                    }
+                    if (domNode.type === 'text') {
+                        if (!domNode.parent || (domNode.parent.type === 'tag' && domNode.parent.name !== 'a')) {
+                            let url = linkifyUrls(htmlEntities(domNode.data), {
+                                attributes: {
+                                    target : '_blank',
+                                    rel    : 'noopener noreferrer'
+                                },
+                            });
+                            return (<span>{parse(url)}</span>);
+                        }
                     }
                 }
-            }
-        });
-    } else if (message.contentType.startsWith('image/')) {
-        const image = `data:${message.contentType};base64,${btoa(message.content)}`
-        parsedContent = (<img className="img-responsive" src={image} />);
-    } else if (message.contentType === 'text/plain') {
-        const linkfiedContent = linkifyUrls(htmlEntities(message.content), {
-            attributes: {
-                target : '_blank',
-                rel    : 'noopener noreferrer'
-            }
-        })
+            }));
+        } else if (message.contentType.startsWith('image/')) {
+            const image = `data:${message.contentType};base64,${btoa(message.content)}`
+            setParsedContent(<img className="img-responsive" src={image} />);
+        } else if (message.contentType === 'text/plain') {
+            const linkfiedContent = linkifyUrls(htmlEntities(message.content), {
+                attributes: {
+                    target : '_blank',
+                    rel    : 'noopener noreferrer'
+                }
+            })
 
-        parsedContent = (
-            <pre>{parse(linkfiedContent)}</pre>
-        );
-    }
+            setParsedContent  (
+                <pre>{parse(linkfiedContent)}</pre>
+            );
+        }
 
 
-    if (message.state === 'pending') {
-        message.on('stateChanged', (oldState, newState) => {
-            setState(newState);
-        });
-    }
+        if (message.state === 'pending') {
+            message.on('stateChanged', (oldState, newState) => {
+                setState(newState);
+            });
+        }
+    }, [message])
+
 
     let theme = clsx({
         'text-left'     : true,

@@ -62,22 +62,15 @@ const ConferenceChatEditor = (props) => {
             let data = e.clipboardData.getData('text/html');
             if (data === '') {
                 DEBUG('No HTML data on clipboard');
-                if (target.innerHTML !== '') {
-                    setImmediate(()=> {
-                        setName(`<pre>${target.innerHTML}</pre>`);
-                    });
-                    target.focus();
-                } else {
-                    DEBUG('No data on clipboard');
-                }
             } else {
-                DEBUG('HTML data on clipboard, we will use it');
-                e.preventDefault();
-                target.innerHTML = data;
-                setName(data);
-                target.focus();
+                DEBUG('HTML data on clipboard, content type will change');
+                setType('text/html');
             }
-            setType('text/html');
+            setTimeout(()=> {
+                setName(`${target.innerHTML}`);
+                editor.current.blur();
+                editor.current.focus();
+            }, 50);
         }
     }
 

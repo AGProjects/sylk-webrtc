@@ -155,7 +155,11 @@ const ConferenceChatEditor = (props) => {
                             DEBUG('__composing__');
                             props.onTyping('active');
                         }
-                        setName(target.innerText);
+                        if (type === 'text/html') {
+                            setName(target.innerHTML);
+                        } else {
+                            setName(target.innerText);
+                        }
                     }, 5);
                 }
                 break;

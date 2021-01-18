@@ -177,10 +177,10 @@ const ConferenceChatEditor = (props) => {
             window.setTimeout(() => {
                 let selection = document.getSelection();
                 let range = document.createRange();
+                range.selectNodeContents(el);
+                range.collapse(false);
 
-                range.setStart(el.childNodes[0], el.innerText.length);
-                range.collapse(true);
-                    selection.removeAllRanges();
+                selection.removeAllRanges();
                 selection.addRange(range);
             }, 1);
         }

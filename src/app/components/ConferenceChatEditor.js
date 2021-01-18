@@ -97,10 +97,14 @@ const ConferenceChatEditor = (props) => {
                 break;
             case 27:
                 // ESC
-                DEBUG('Esc pressed, clear input');
-                setType('text/plain');
-                while (target.firstChild) target.removeChild(target.firstChild);
-                setName('');
+                DEBUG('Esc pressed, clear inputi or close emoji');
+                if (picker) {
+                    setPicker(false);
+                } else {
+                    setType('text/plain');
+                    while (target.firstChild) target.removeChild(target.firstChild);
+                    setName('');
+                }
                 break;
             case 13:
                 // Enter
@@ -124,6 +128,9 @@ const ConferenceChatEditor = (props) => {
                         }
                     } else {
                         break;
+                    }
+                    if (picker) {
+                        setPicker(false);
                     }
                     setType('text/plain');
                     while (target.firstChild) target.removeChild(target.firstChild);
@@ -165,7 +172,6 @@ const ConferenceChatEditor = (props) => {
     const addEmoji = (emoji) => {
         editor.current.innerText = editor.current.innerText + `${emoji.native}`;
         setName(editor.current.innerText);
-        setPicker(false);
         editor.current.focus();
     }
 

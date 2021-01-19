@@ -117,9 +117,11 @@ class ConferenceByUriBox extends React.Component {
                 // Stop and remove the track if you want to join audio only.
                 // If you closeStreams and getLocalMedia and this takes time, joining
                 // will be not working.
-                const track = this.props.localMedia.getVideoTracks()[0];
-                track.stop();
-                this.props.localMedia.removeTrack(track);
+                if (this.props.localMedia.getVideoTracks().length !== 0) {
+                    const track = this.props.localMedia.getVideoTracks()[0];
+                    track.stop();
+                    this.props.localMedia.removeTrack(track);
+                }
             }
         }
 

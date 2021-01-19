@@ -3,7 +3,7 @@
 const { withStyles }    = require('@material-ui/core/styles');
 const { Button } = require('@material-ui/core');
 
-const bsButton = withStyles({
+const BootstrapButton = withStyles({
     root: {
         boxShadow: 'none',
         textTransform: 'none',
@@ -55,4 +55,4 @@ const bsButton = withStyles({
 })(Button);
 
 
-exports.Button = bsButton;
+exports.Button = BootstrapButton;

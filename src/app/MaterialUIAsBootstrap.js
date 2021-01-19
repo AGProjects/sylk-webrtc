@@ -2,6 +2,7 @@
 
 const { withStyles }    = require('@material-ui/core/styles');
 const { Button } = require('@material-ui/core');
+const { InputBase } = require('@material-ui/core');
 
 const BootstrapButton = withStyles({
     root: {
@@ -55,4 +56,29 @@ const BootstrapButton = withStyles({
 })(Button);
 
 
+const BootstrapInputBase = withStyles((theme) => ({
+    root: {
+        'label + &': {
+            marginTop: theme.spacing(3)
+        },
+        fontFamily: 'inherit'
+    },
+    input: {
+        borderRadius: 4,
+        position: 'relative',
+        backgroundColor: theme.palette.background.paper,
+        border: '1px solid #ced4da',
+        fontSize: 14,
+        padding: '10px 26px 10px 12px',
+        transition: theme.transitions.create(['border-color', 'box-shadow']),
+        boxShadow: 'inset 0 1px 1px rgba(0, 0, 0, .075)',
+        '&:focus': {
+            borderRadius: 4,
+            borderColor: '#66afe9',
+            boxShadow: 'inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6)'
+        }
+    }
+}))(InputBase);
+
 exports.Button = BootstrapButton;
+exports.InputBase = BootstrapInputBase;

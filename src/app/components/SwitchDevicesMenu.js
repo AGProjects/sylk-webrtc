@@ -1,4 +1,3 @@
-
 'use strict';
 
 const React         = require('react');
@@ -20,7 +19,7 @@ const DEBUG = debug('blinkrtc:SwitchDevicesMenu');
 const styleSheet = makeStyles((theme) => ({
     paper: {
         marginLeft: props => props.direction === 'right' ? '5px' : '',
-        marginTop: props => props.direction !== 'right' ? '5px' : '',
+        marginTop: props => props.direction !== 'right' && props.direction !== 'up' ? '5px' : '',
         width: '272px'
     },
     item: {
@@ -345,12 +344,12 @@ const SwitchDevicesMenu = (props) => {
                 onClose={props.close}
                 classes={{paper: classes.paper}}
                 anchorOrigin={{
-                    vertical: props.direction && props.direction === 'right' ? 'top' : 'bottom',
+                    vertical: props.direction && (props.direction === 'right' || props.direction === 'up') ? 'top' : 'bottom',
                     horizontal: props.direction && props.direction === 'right' ? 'right' : 'center'
                 }}
                 transformOrigin={{
-                    // vertical: props.direction && props.direction === 'right' ? 'center' : 'top',
-                    vertical: 'top',
+                    vertical: props.direction && props.direction === 'up' ? 'bottom' : 'top',
+ //                   vertical: 'top',
                     horizontal: props.direction && props.direction === 'right' ? 'left' : 'center'
                 }}
                 getContentAnchorEl={null}

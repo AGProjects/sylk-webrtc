@@ -37,6 +37,8 @@ const ConferenceMenu                    = require('./ConferenceMenu');
 const DragAndDrop                       = require('./DragAndDrop');
 const InviteParticipantsModal           = require('./InviteParticipantsModal');
 const MuteAudioParticipantsModal        = require('./MuteAudioParticipantsModal');
+const SwitchDevicesModal                = require('./SwitchDevicesModal');
+const SwitchDevicesMenu                 = require('./SwitchDevicesMenu');
 const UserIcon                          = require('./UserIcon');
 
 const DEBUG = debug('blinkrtc:ConferenceBox');
@@ -85,6 +87,9 @@ class ConferenceBox extends React.Component {
             showFiles: false,
             showChat: false,
             showMenu: false,
+            showSwitchModal: false,
+            showSwitchMenu: false,
+            showAudioSwitchMenu: false,
             shareOverlayVisible: false,
             activeSpeakers: props.call.activeParticipants.slice(),
             selfDisplayedLarge: false,
@@ -97,7 +102,8 @@ class ConferenceBox extends React.Component {
             newMessages: 0,
             shouldScroll: false,
             chatEditorFocus: false,
-            menuAnchor: null
+            menuAnchor: null,
+            switchAnchor: null
         };
 
         const friendlyName = this.props.remoteIdentity.split('@')[0];
@@ -173,6 +179,9 @@ class ConferenceBox extends React.Component {
             'toggleChat',
             'toggleChatEditorFocus',
             'toggleMenu',
+            'toggleSwitchModal',
+            'toggleSwitchMenu',
+            'toggleAudioSwitchMenu',
             'showFiles',
             'setScroll',
             'preventOverlay'
@@ -747,6 +756,46 @@ class ConferenceBox extends React.Component {
         clearTimeout(this.overlayTimer);
     }
 
+    toggleSwitchModal() {
+        this.setState({
+            showSwitchModal : !this.state.showSwitchModal
+        });
+    }
+
+    toggleSwitchMenu(event) {
+        if (!event) {
+            this.setState({
+                showSwitchMenu : !this.state.showSwitchMenu,
+                callOverlayVisible: true
+            });
+        } else {
+            event.currentTarget.blur();
+            this.setState({
+                switchAnchor: event.currentTarget,
+                showSwitchMenu : !this.state.showSwitchMenu,
+                callOverlayVisible: true
+            });
+        }
+        clearTimeout(this.overlayTimer);
+    }
+
+    toggleAudioSwitchMenu(event) {
+        if (!event) {
+            this.setState({
+                showAudioSwitchMenu : !this.state.showAudioSwitchMenu,
+                callOverlayVisible: true
+            });
+        } else {
+            event.currentTarget.blur();
+            this.setState({
+                switchAnchor: event.currentTarget,
+                showAudioSwitchMenu : !this.state.showAudioSwitchMenu,
+                callOverlayVisible: true
+            });
+        }
+        clearTimeout(this.overlayTimer);
+    }
+
     showFiles() {
         this.setState({callOverlayVisible: true, showFiles: true, showDrawer: false});
         clearTimeout(this.overlayTimer);
@@ -902,6 +951,19 @@ class ConferenceBox extends React.Component {
             'fa-upload'             : true
         });
 
+        const menuButtonClasses = clsx({
+            'btn'           : true,
+            'btn-round-xs'  : true,
+            'btn-default'   : true,
+            'overlap'       : true
+        });
+
+        const menuButtonIcons = clsx({
+            'fa'             : true,
+            'fa-caret-down'  : !chatLayout,
+            'fa-caret-right' : chatLayout
+        });
+
         const bottomButtons = [];
         bottomButtons.push(
             <OverlayTrigger key="shareOverlay" ref="shareOverlay" trigger="click" placement={!chatLayout ? 'bottom' : 'right'} overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
@@ -909,9 +971,19 @@ class ConferenceBox extends React.Component {
             </OverlayTrigger>
         );
         if (!chatLayout) {
-            bottomButtons.push(<button key="muteVideo" type="button" title="Mute/unmute video" className={commonButtonClasses} onClick={this.muteVideo} disabled={!this.haveVideo}> <i className={muteVideoButtonIcons}></i> </button>);
+            bottomButtons.push(
+                <div className="btn-container" key="video">
+                    <button key="muteVideo" type="button" title="Mute/unmute video" className={commonButtonClasses} onClick={this.muteVideo} disabled={!this.haveVideo}> <i className={muteVideoButtonIcons}></i> </button>
+                    <button key="videodevices" type="button" title="Select cameras" className={menuButtonClasses} onClick={this.toggleSwitchMenu}> <i className={menuButtonIcons}></i> </button>
+                </div>
+            );
         }
-        bottomButtons.push(<button key="muteAudio" type="button" title="Mute/unmute audio" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>);
+        bottomButtons.push(
+            <div className="btn-container" key="audio">
+                <button key="muteAudio" type="button" title="Mute/unmute audio" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>
+                <button key="audiodevices" type="button" title="Select audio devices" className={menuButtonClasses} onClick={this.toggleAudioSwitchMenu}> <i className={menuButtonIcons}></i> </button>
+            </div>
+        );
         if (!chatLayout) {
             bottomButtons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen} disabled={!this.haveVideo}><i className={screenSharingButtonIcons}></i></button>);
         }
@@ -1091,7 +1163,24 @@ class ConferenceBox extends React.Component {
                     show={this.state.showMenu}
                     anchor={this.state.menuAnchor}
                     toggleShortcuts={this.props.toggleShortcuts}
+                    toggleDevices={this.toggleSwitchModal}
                     close={this.toggleMenu}
+                />
+                <SwitchDevicesMenu
+                    show={this.state.showSwitchMenu}
+                    anchor={this.state.switchAnchor}
+                    close={this.toggleSwitchMenu}
+                    call={this.props.call}
+                    setDevice={this.props.setDevice}
+                />
+                <SwitchDevicesMenu
+                    show={this.state.showAudioSwitchMenu}
+                    anchor={this.state.switchAnchor}
+                    close={this.toggleAudioSwitchMenu}
+                    call={this.props.call}
+                    direction={chatLayout ? 'right' : ''}
+                    setDevice={this.props.setDevice}
+                    audio
                 />
                 <input
                     style={{display:'none'}}
@@ -1182,6 +1271,13 @@ class ConferenceBox extends React.Component {
                         downloadFile={this.downloadFile}
                     />
                 </ConferenceDrawer>
+                <SwitchDevicesModal
+                    show={this.state.showSwitchModal}
+                    close={this.toggleSwitchModal}
+                    call={this.props.call}
+                    disableCameraSelection={chatLayout}
+                    setDevice={this.props.setDevice}
+                />
             </DragAndDrop>
         );
     }
@@ -1189,6 +1285,7 @@ class ConferenceBox extends React.Component {
 
 ConferenceBox.propTypes = {
     notificationCenter  : PropTypes.func.isRequired,
+    setDevice           : PropTypes.func.isRequired,
     shareScreen         : PropTypes.func.isRequired,
     classes             : PropTypes.object.isRequired,
     propagateKeyPress   : PropTypes.func.isRequired,

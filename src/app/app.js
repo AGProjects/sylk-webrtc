@@ -1415,8 +1415,9 @@ class Blink extends React.Component {
                 generatedVideoTrack = {this.state.generatedVideoTrack}
                 propagateKeyPress = {this.togglePropagateKeyPress}
                 toggleShortcuts = {this.toggleShortcutsModal}
-                roomMedia={this.state.roomMedia}
-                lowBandwidth={this.state.lowBandwidth}
+                roomMedia = {this.state.roomMedia}
+                lowBandwidth = {this.state.lowBandwidth}
+                setDevice = {this.setDevice}
             />
         )
     }
@@ -1458,6 +1459,7 @@ class Blink extends React.Component {
                 toggleShortcuts = {this.toggleShortcutsModal}
                 lowBandwidth = {this.state.lowBandwidth}
                 getLocalMedia = {this.getLocalMediaGuestWrapper}
+                setDevice = {this.setDevice}
             />
         );
     }

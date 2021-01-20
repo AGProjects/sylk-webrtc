@@ -26,6 +26,10 @@ const ConferenceMenu = (props) => {
         props.close(event);
     };
 
+    const handleDevices = (event) => {
+        props.toggleDevices();
+        props.close(event);
+    };
     return (
         <div>
             <Menu
@@ -47,6 +51,9 @@ const ConferenceMenu = (props) => {
                 <MenuItem onClick={handleShortcut} className={classes.item}>
                     <ListItemIcon className={classes.icon}><i className="fa fa-keyboard-o fa-fw" /></ListItemIcon> View shortcuts
                 </MenuItem>
+                <MenuItem onClick={handleDevices} className={classes.item}>
+                    <ListItemIcon className={classes.icon}><i className="fa fa-random fa-fw" /></ListItemIcon> Switch Devices
+                </MenuItem>
             </Menu>
         </div>
     );
@@ -56,7 +63,8 @@ ConferenceMenu.propTypes = {
     show: PropTypes.bool.isRequired,
     close: PropTypes.func.isRequired,
     anchor: PropTypes.object,
-    toggleShortcuts: PropTypes.func
+    toggleShortcuts: PropTypes.func,
+    toggleDevices: PropTypes.func
 };
 
 

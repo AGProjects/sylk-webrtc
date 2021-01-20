@@ -72,6 +72,7 @@ class Conference extends React.Component {
                         propagateKeyPress = {this.props.propagateKeyPress}
                         toggleShortcuts = {this.props.toggleShortcuts}
                         lowBandwidth = {this.props.lowBandwidth}
+                        setDevice = {this.props.setDevice}
                     />
                 );
             } else {
@@ -99,6 +100,7 @@ Conference.propTypes = {
     notificationCenter      : PropTypes.func.isRequired,
     account                 : PropTypes.object.isRequired,
     hangupCall              : PropTypes.func.isRequired,
+    setDevice               : PropTypes.func.isRequired,
     shareScreen             : PropTypes.func.isRequired,
     propagateKeyPress       : PropTypes.func.isRequired,
     toggleShortcuts         : PropTypes.func.isRequired,

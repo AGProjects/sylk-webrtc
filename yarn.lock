@@ -2906,6 +2906,11 @@ component-emitter@^1.2.0, component-emitter@^1.2.1:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/component-emitter/-/component-emitter-1.3.0.tgz#16e4070fba8ae29b679f2215853ee181ab2eabc0"
 
+computed-style-to-inline-style@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/computed-style-to-inline-style/-/computed-style-to-inline-style-3.0.0.tgz#9251024463c555c7e1768d77a19eba9b8f418afc"
+  integrity sha1-klECRGPFVcfhdo13oZ66m49Bivw=
+
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"

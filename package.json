@@ -15,6 +15,7 @@
     "babel-preset-react": "^6.24.1",
     "bootstrap-css-only": "^3.3.7",
     "clsx": "^1.1.0",
+    "computed-style-to-inline-style": "^3.0.0",
     "debug": "^4.1.1",
     "digest-auth-request": "tijmenNL/digest-auth-request",
     "electron": "^3.1.12",

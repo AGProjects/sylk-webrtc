@@ -13,6 +13,7 @@ const Picker = require('emoji-mart/dist-modern/components/picker/nimble-picker')
 
 const DEBUG = debug('blinkrtc:ConferenceChatEditor');
 
+const computedStyleToInlineStyle = require('computed-style-to-inline-style');
 
 const ConferenceChatEditor = (props) => {
     const [name, setName] = useState('');
@@ -65,6 +66,28 @@ const ConferenceChatEditor = (props) => {
             } else {
                 DEBUG('HTML data on clipboard, content type will change');
                 setType('text/html');
+                const cleanData = data.replace(/\n|\t/g, '');
+                if (target.innerHTML === '') {
+                    e.preventDefault();
+                    target.innerHTML = cleanData;
+                } else {
+                    e.preventDefault();
+                    const selection = document.getSelection();
+                    selection.deleteFromDocument();
+                    const div = document.createElement('template');
+                    div.innerHTML = cleanData;
+                    selection.getRangeAt(0).insertNode(div.content.cloneNode(true));
+                }
+                computedStyleToInlineStyle(target, {
+                    recursive: true,
+                    properties: [
+                        'font-family',
+                        'font-size',
+                        'margin',
+                        'color',
+                        'background-color'
+                    ]
+                });
             }
             setTimeout(()=> {
                 setName(`${target.innerHTML}`);

@@ -10,6 +10,7 @@ const sylkrtc           = require('sylkrtc');
 const CallOverlay   = require('./CallOverlay');
 const DTMFModal     = require('./DTMFModal');
 const EscalateConferenceModal = require('./EscalateConferenceModal');
+const SwitchDevicesMenu       = require('./SwitchDevicesMenu');
 const UserIcon       = require('./UserIcon');
 
 const DEBUG = debug('blinkrtc:AudioCallBox');
@@ -22,7 +23,8 @@ class AudioCallBox extends React.Component {
             active                      : false,
             audioMuted                  : false,
             showDtmfModal               : false,
-            showEscalateConferenceModal : false
+            showEscalateConferenceModal : false,
+            showAudioSwitchMenu         : false
         };
         this.speechEvents = null;
 
@@ -36,6 +38,7 @@ class AudioCallBox extends React.Component {
             'showDtmfModal',
             'hideDtmfModal',
             'toggleEscalateConferenceModal',
+            'toggleAudioSwitchMenu',
             'escalateToConference',
             'onKeyDown'
         ].forEach((name) => {
@@ -156,6 +159,21 @@ class AudioCallBox extends React.Component {
             showEscalateConferenceModal: !this.state.showEscalateConferenceModal
         });
     }
+
+    toggleAudioSwitchMenu(event) {
+        if (!event) {
+            this.setState({
+                showAudioSwitchMenu : !this.state.showAudioSwitchMenu
+            });
+        } else {
+            event.currentTarget.blur();
+            this.setState({
+                switchAnchor: event.currentTarget,
+                showAudioSwitchMenu : !this.state.showAudioSwitchMenu
+            });
+        }
+    }
+
     render() {
         const commonButtonClasses = clsx({
             'btn'           : true,
@@ -169,6 +187,19 @@ class AudioCallBox extends React.Component {
             'fa-microphone-slash'   : this.state.audioMuted
         });
 
+        const menuButtonClasses = clsx({
+            'btn'          : true,
+            'btn-round-xs' : true,
+            'btn-default'  : true,
+            'overlap'      : true,
+            'overlap-top'  : true
+        });
+
+        const menuButtonIcons = clsx({
+            'fa'           : true,
+            'fa-caret-up'  : true
+        });
+
         let remoteIdentity;
 
         if (this.props.call !== null) {
@@ -179,6 +210,17 @@ class AudioCallBox extends React.Component {
 
         return (
             <div>
+                {this.props.call &&
+                    <SwitchDevicesMenu
+                        show={this.state.showAudioSwitchMenu}
+                        anchor={this.state.switchAnchor}
+                        close={this.toggleAudioSwitchMenu}
+                        call={this.props.call}
+                        setDevice={this.props.setDevice}
+                        direction="up"
+                        audio
+                    />
+                }
                 <CallOverlay
                     show = {true}
                     remoteIdentity = {this.props.remoteIdentity}
@@ -193,9 +235,10 @@ class AudioCallBox extends React.Component {
                     <button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}>
                         <i className="fa fa-user-plus"></i>
                     </button>
-                    <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}>
-                        <i className={muteButtonIconClasses}></i>
-                    </button>
+                    <div className="btn-container" key="audio">
+                        <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIconClasses}></i> </button>
+                        <button key="audiodevices" type="button" title="Select audio devices" className={menuButtonClasses} onClick={this.toggleAudioSwitchMenu}> <i className={menuButtonIcons}></i> </button>
+                    </div>
                     <button key="dtmfButton" type="button" disabled={this.state.callDuration === null} className={commonButtonClasses} onClick={this.showDtmfModal}>
                         <i className="fa fa-fax"></i>
                     </button>
@@ -221,6 +264,7 @@ class AudioCallBox extends React.Component {
 }
 
 AudioCallBox.propTypes = {
+    setDevice               : PropTypes.func.isRequired,
     call                    : PropTypes.object,
     escalateToConference    : PropTypes.func,
     hangupCall              : PropTypes.func,
@@ -228,5 +272,6 @@ AudioCallBox.propTypes = {
     remoteIdentity          : PropTypes.string,
     forceTimerStart         : PropTypes.bool
 };
+
 
 module.exports = AudioCallBox;

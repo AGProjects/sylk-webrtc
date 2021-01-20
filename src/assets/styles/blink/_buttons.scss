@@ -39,16 +39,45 @@
     font-size: 24px;
 }
 
+.btn-round-xs {
+    @extend %btn-round;
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+    padding: 0;
+}
+
 .btn-link,
 .btn-round,
 .btn-round-big,
-.btn-round-xxl {
+.btn-round-xxl,
+.btn-round-xs {
     &:focus {
         &,
         &:active {
             outline: 0;
         }
     }
+}
+
+.overlap {
+    position: absolute;
+    bottom: 0;
+    margin-left: -20px;
+    background-color: $light-gray !important;
+    border: $lighter-gray;
+    box-shadow: 0 1px 4px rgba(0,0,0,.25);
+}
+
+.overlap-top {
+    top: 0;
+    position: absolute;
+    margin-left: -20px;
+}
+
+.btn-container {
+    display: inline-block;
+    position: relative;
 }
 
 .btn-hand {

@@ -132,6 +132,7 @@ class Call extends React.Component {
                         mediaPlaying = {this.mediaPlaying}
                         escalateToConference = {this.props.escalateToConference}
                         forceTimerStart = {this.forceTimerStart}
+                        setDevice = {this.props.setDevice}
                     />
                 );
             } else {
@@ -144,6 +145,7 @@ class Call extends React.Component {
                             hangupCall = {this.hangupCall}
                             escalateToConference = {this.props.escalateToConference}
                             generatedVideoTrack = {this.props.generatedVideoTrack}
+                            setDevice = {this.props.setDevice}
                         />
                     );
                 } else {
@@ -170,6 +172,7 @@ class Call extends React.Component {
 Call.propTypes = {
     account                 : PropTypes.object.isRequired,
     hangupCall              : PropTypes.func.isRequired,
+    setDevice               : PropTypes.func.isRequired,
     shareScreen             : PropTypes.func.isRequired,
     currentCall             : PropTypes.object,
     escalateToConference    : PropTypes.func,

@@ -613,8 +613,11 @@ class Blink extends React.Component {
 
         this.setState({devices: oldDevices});
         storage.set('devices', oldDevices);
-        sylkrtc.utils.closeMediaStream(this.state.localMedia);
-        this.getLocalMedia();
+        const path = this.refs.router.getPath();
+        if (path === '/preview') {
+            sylkrtc.utils.closeMediaStream(this.state.localMedia);
+            this.getLocalMedia();
+        }
     }
 
     getLocalScreen(source) {
@@ -1350,6 +1353,7 @@ class Blink extends React.Component {
                 hangupCall = {this.hangupCall}
                 shareScreen = {this.switchScreensharing}
                 generatedVideoTrack = {this.state.generatedVideoTrack}
+                setDevice = {this.setDevice}
             />
         )
     }
@@ -1381,6 +1385,7 @@ class Blink extends React.Component {
                 shareScreen = {this.switchScreensharing}
                 generatedVideoTrack = {this.state.generatedVideoTrack}
                 getLocalMedia = {this.getLocalMedia}
+                setDevice = {this.setDevice}
             />
         );
     }

@@ -11,6 +11,7 @@ const debug                     = require('debug');
 
 const FullscreenMixin           = require('../mixins/FullScreen');
 const CallOverlay               = require('./CallOverlay');
+const SwitchDevicesMenu         = require('./SwitchDevicesMenu');
 const EscalateConferenceModal   = require('./EscalateConferenceModal');
 
 
@@ -27,7 +28,10 @@ class VideoBox extends React.Component {
             localVideoShow: false,
             remoteVideoShow: false,
             remoteSharesScreen: false,
-            showEscalateConferenceModal: false
+            showEscalateConferenceModal: false,
+            switchAnchor: null,
+            showSwitchMenu: false,
+            showAudioSwitchMenu: false
         };
 
         this.overlayTimer = null;
@@ -44,6 +48,8 @@ class VideoBox extends React.Component {
             'muteVideo',
             'hangupCall',
             'toggleEscalateConferenceModal',
+            'toggleSwitchMenu',
+            'toggleAudioSwitchMenu',
             'escalateToConference'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
@@ -180,7 +186,9 @@ class VideoBox extends React.Component {
 
     showCallOverlay() {
         if (this.state.remoteVideoShow) {
-            this.setState({callOverlayVisible: true});
+            if(this.state.callOverlayVisible) {
+                this.setState({callOverlayVisible: true});
+            }
             this.armOverlayTimer();
         }
     }
@@ -190,6 +198,40 @@ class VideoBox extends React.Component {
             callOverlayVisible          : false,
             showEscalateConferenceModal : !this.state.showEscalateConferenceModal
         });
+    }
+
+    toggleSwitchMenu(event) {
+        if (!event) {
+            this.setState({
+                showSwitchMenu : !this.state.showSwitchMenu,
+                callOverlayVisible: true
+            });
+        } else {
+            event.currentTarget.blur();
+            this.setState({
+                switchAnchor: event.currentTarget,
+                showSwitchMenu : !this.state.showSwitchMenu,
+                callOverlayVisible: true
+            });
+        }
+        clearTimeout(this.overlayTimer);
+    }
+
+    toggleAudioSwitchMenu(event) {
+        if (!event) {
+            this.setState({
+                showAudioSwitchMenu : !this.state.showAudioSwitchMenu,
+                callOverlayVisible: true
+            });
+        } else {
+            event.currentTarget.blur();
+            this.setState({
+                switchAnchor: event.currentTarget,
+                showAudioSwitchMenu : !this.state.showAudioSwitchMenu,
+                callOverlayVisible: true
+            });
+        }
+        clearTimeout(this.overlayTimer);
     }
 
     render() {
@@ -250,11 +292,34 @@ class VideoBox extends React.Component {
                 'btn-default'   : true
             });
 
+            const menuButtonClasses = clsx({
+                'btn'          : true,
+                'btn-round-xs' : true,
+                'btn-default'  : true,
+                'overlap'      : true,
+                'overlap-top'  : true
+            });
+
+            const menuButtonIcons = clsx({
+                'fa'           : true,
+                'fa-caret-up'  : true
+            });
+
             const buttons = [];
 
             buttons.push(<button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}> <i className="fa fa-user-plus"></i> </button>);
-            buttons.push(<button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>);
-            buttons.push(<button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>);
+            buttons.push(
+                <div className="btn-container" key="video">
+                    <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>
+                    <button key="videodevices" type="button" title="Select cameras" className={menuButtonClasses} onClick={this.toggleSwitchMenu}> <i className={menuButtonIcons}></i> </button>
+                </div>
+            );
+            buttons.push(
+                <div className="btn-container" key="audio">
+                    <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>
+                    <button key="audiodevices" type="button" title="Select audio devices" className={menuButtonClasses} onClick={this.toggleAudioSwitchMenu}> <i className={menuButtonIcons}></i> </button>
+                </div>
+            );
             buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen}><i className={screenSharingButtonIcons}></i></button>);
             if (this.isFullscreenSupported()) {
                 buttons.push(<button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
@@ -286,36 +351,56 @@ class VideoBox extends React.Component {
         }
 
         return (
-            <div className="video-container" onMouseMove={this.showCallOverlay}>
-                <CallOverlay
-                    show = {this.state.callOverlayVisible}
-                    remoteIdentity = {this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri}
-                    call = {this.props.call}
-                />
-                <TransitionGroup>
-                    {watermark}
-                </TransitionGroup>
-                <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref={this.remoteVideo} autoPlay />
-                <video id="localVideo" className={localVideoClasses} ref={this.localVideo} autoPlay muted />
-                <TransitionGroup>
-                    {callButtons}
-                </TransitionGroup>
-                <EscalateConferenceModal
-                    show={this.state.showEscalateConferenceModal}
+            <div>
+                <SwitchDevicesMenu
+                    show={this.state.showSwitchMenu}
+                    anchor={this.state.switchAnchor}
+                    close={this.toggleSwitchMenu}
                     call={this.props.call}
-                    close={this.toggleEscalateConferenceModal}
-                    escalateToConference={this.escalateToConference}
+                    setDevice={this.props.setDevice}
+                    direction="up"
                 />
+                <SwitchDevicesMenu
+                    show={this.state.showAudioSwitchMenu}
+                    anchor={this.state.switchAnchor}
+                    close={this.toggleAudioSwitchMenu}
+                    call={this.props.call}
+                    setDevice={this.props.setDevice}
+                    direction="up"
+                    audio
+                />
+                <div className="video-container" onMouseMove={this.showCallOverlay}>
+                    <CallOverlay
+                        show = {this.state.callOverlayVisible}
+                        remoteIdentity = {this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri}
+                        call = {this.props.call}
+                    />
+                    <TransitionGroup>
+                        {watermark}
+                    </TransitionGroup>
+                    <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref={this.remoteVideo} autoPlay />
+                    <video id="localVideo" className={localVideoClasses} ref={this.localVideo} autoPlay muted />
+                    <TransitionGroup>
+                        {callButtons}
+                    </TransitionGroup>
+                    <EscalateConferenceModal
+                        show={this.state.showEscalateConferenceModal}
+                        call={this.props.call}
+                        close={this.toggleEscalateConferenceModal}
+                        escalateToConference={this.escalateToConference}
+                    />
+                </div>
             </div>
         );
     }
 }
 
 VideoBox.propTypes = {
+    setDevice               : PropTypes.func.isRequired,
+    shareScreen             : PropTypes.func.isRequired,
     call                    : PropTypes.object,
     localMedia              : PropTypes.object,
     hangupCall              : PropTypes.func,
-    shareScreen             : PropTypes.func.isRequired,
     escalateToConference    : PropTypes.func,
     generatedVideoTrack     : PropTypes.bool
 };

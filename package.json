@@ -52,7 +52,7 @@
     "react-visibility-sensor": "^5.1.1",
     "sass": "^1.32.5",
     "screenfull": "^5.0.2",
-    "stylelint": "^13.7.2",
+    "stylelint": "^13.9.0",
     "stylelint-config-recess-order": "^2.3.0",
     "stylelint-config-recommended-scss": "^4.2.0",
     "stylelint-config-standard": "^20.0.0",

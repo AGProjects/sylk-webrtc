@@ -7782,9 +7782,10 @@ react-mixin@^5.0.0:
     object-assign "^4.0.1"
     smart-mixin "^2.0.0"
 
-react-notification-system@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/react-notification-system/-/react-notification-system-0.3.0.tgz#f2a29a354c1c0abb85441a2e95ea43d1c57b3bd4"
+react-notification-system@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/react-notification-system/-/react-notification-system-0.4.0.tgz#30db3963a176ee103b4a3bb1494c2b5578d5c024"
+  integrity sha512-5WhXnjkYC07zqXruCiUXDU9iHjVxZlL1zgHpNgXk91A5ghV1AHrWVrJYo1XM4SnwlKy5NLdftkaTl+pTuVFAqw==
   dependencies:
     object-assign "^4.0.1"
     prop-types "^15.5.6"

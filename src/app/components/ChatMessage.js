@@ -7,7 +7,7 @@ const PropTypes     = require('prop-types');
 const { default: clsx } = require('clsx');
 const ReactBootstrap    = require('react-bootstrap');
 const Media             = ReactBootstrap.Media;
-const { default: parse }= require('html-react-parser');
+const { default: parse } = require('html-react-parser');
 const linkifyUrls       = require('linkify-urls');
 const { DateTime }      = require('luxon');
 

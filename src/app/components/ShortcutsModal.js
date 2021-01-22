@@ -62,6 +62,10 @@ const ShortcutsModal = (props) => {
                         <ListItemSecondaryAction><kbd>C</kbd></ListItemSecondaryAction>
                     </ListItem>
                     <ListItem>
+                        <ListItemText>Open or close dialog to switch devices</ListItemText>
+                        <ListItemSecondaryAction><kbd>D</kbd></ListItemSecondaryAction>
+                    </ListItem>
+                    <ListItem>
                         <ListItemText>Cycle through active speakers</ListItemText>
                         <ListItemSecondaryAction><kbd>space</kbd></ListItemSecondaryAction>
                     </ListItem>

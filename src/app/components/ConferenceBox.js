@@ -389,6 +389,10 @@ class ConferenceBox extends React.Component {
                         this.toggleChat();
                     }
                     break;
+                case 68:    // d/D
+                    event.preventDefault();
+                    this.toggleSwitchModal();
+                    break;
                 case 77:    // m/M
                     this.muteAudio(event)
                     break;

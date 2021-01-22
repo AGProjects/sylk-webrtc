@@ -50,7 +50,7 @@
     "react-router-component": "^0.40.0",
     "react-transition-group": "^2.6.0",
     "react-visibility-sensor": "^5.1.1",
-    "sass": "^1.26.10",
+    "sass": "^1.32.5",
     "screenfull": "^5.0.2",
     "stylelint": "^13.7.2",
     "stylelint-config-recess-order": "^2.3.0",

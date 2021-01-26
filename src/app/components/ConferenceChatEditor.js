@@ -127,17 +127,6 @@ const ConferenceChatEditor = (props) => {
     const onKeyDown = (event) => {
         let target = event.currentTarget;
         switch (event.which) {
-            case 8:
-                // Backspace in case of image, delete all
-                if (type.startsWith('image/')) {
-                    event.preventDefault();
-                    setName('');
-                    setType('text/plain');
-                    while (target.firstChild) target.removeChild(target.firstChild);
-                } else {
-                    setName(target.innerText);
-                }
-                break;
             case 27:
                 // ESC
                 DEBUG('Esc pressed, clear input or close emoji');
@@ -160,6 +149,15 @@ const ConferenceChatEditor = (props) => {
                 break;
             case 91:
                 break;
+            case 8:
+                // Backspace in case of image, delete all
+                if (type.startsWith('image/')) {
+                    event.preventDefault();
+                    setName('');
+                    setType('text/plain');
+                    while (target.firstChild) target.removeChild(target.firstChild);
+                    break;
+                }
             default:
                 if (!(event.ctrlKey || event.which === 224)) {
                     setTimeout(() => {

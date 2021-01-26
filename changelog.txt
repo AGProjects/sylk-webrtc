@@ -1,3 +1,16 @@
+Version 3.0.0 Tue Jan 26 11:28:26 -03 2021
+
+  * Added a 'Send' button in the chat input bar
+  * Improved chat copy/paste functionality
+  * Improved chat rendering of HTML messages
+  * Improved handling and sending of multiple emojies
+  * Added shortcut key to switch devices
+  * Added device switch menu/modal to calls and conferences
+  * Added modal component and menu to switch devices
+  * Added premedia view to guest calls and conferences
+  * Replaced guest 'audio only' toggle switch with a dropdown
+
+
 Version 2.9.4 Mon Dec 21 10:35:01 -03 2020
 
   * Fixed bug in chat message parsing

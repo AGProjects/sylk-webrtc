@@ -8,6 +8,7 @@ const PropTypes     = require('prop-types');
 const debug         = require('debug');
 
 const imageConversion   = require('image-conversion');
+const { IconButton }    = require('@material-ui/core');
 const data = require('emoji-mart/data/apple.json');
 const Picker = require('emoji-mart/dist-modern/components/picker/nimble-picker').default;
 const computedStyleToInlineStyle = require('computed-style-to-inline-style');
@@ -97,6 +98,32 @@ const ConferenceChatEditor = (props) => {
         }
     }
 
+    const sendMessage = () => {
+        if (timer !== null) {
+            clearTimeout(timer);
+        }
+        if (name !== '' && name !== '\n') {
+            if (type === 'text/html') {
+                DEBUG('Sending HTML content');
+                props.onSubmit(name, type);
+            } else if (type.startsWith('image/')) {
+                DEBUG('Sending image');
+                props.onSubmit(name, type)
+            } else {
+                DEBUG('Sending text content');
+                props.onSubmit(name)
+            }
+        } else {
+            return;
+        }
+        if (picker) {
+            setPicker(false);
+        }
+        setType('text/plain');
+        while (editor.current.firstChild) editor.current.removeChild(editor.current.firstChild);
+        setName('');
+    }
+
     const onKeyDown = (event) => {
         let target = event.currentTarget;
         switch (event.which) {
@@ -128,29 +155,7 @@ const ConferenceChatEditor = (props) => {
                 if (!event.shiftKey) {
                     event.preventDefault();
                     event.stopPropagation();
-                    if (timer !== null) {
-                        clearTimeout(timer);
-                    }
-                    if (name !== '' && name !== '\n') {
-                        if (type === 'text/html') {
-                            DEBUG('Sending HTML content');
-                            props.onSubmit(name, type);
-                        } else if (type.startsWith('image/')) {
-                            DEBUG('Sending image');
-                            props.onSubmit(name, type)
-                        } else {
-                            DEBUG('Sending text content');
-                            props.onSubmit(name)
-                        }
-                    } else {
-                        break;
-                    }
-                    if (picker) {
-                        setPicker(false);
-                    }
-                    setType('text/plain');
-                    while (target.firstChild) target.removeChild(target.firstChild);
-                    setName('');
+                    sendMessage();
                 }
                 break;
             case 91:
@@ -247,6 +252,16 @@ const ConferenceChatEditor = (props) => {
                         ></div>
                     </div>
                 </div>
+                {name.length !== 0 &&
+                    <IconButton
+                        onClick={() => sendMessage()} variant="text" title="Send"
+                        disableFocusRipple={true}
+                        disableRipple={true}
+                        style={{marginLeft: '-10px', marginRight: '4px', padding: '10px', fontSize: 'inherit'}}
+                    >
+                        <i className="fa fa-paper-plane" aria-hidden="true" ></i>
+                    </IconButton>
+                }
             </div>
         </div>
     );

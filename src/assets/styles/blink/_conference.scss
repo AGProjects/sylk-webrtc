@@ -257,11 +257,11 @@
 
             .controls {
                 right: unset;
-                left: unset;
                 bottom: unset;
+                left: unset;
+                padding-left: 0;
                 margin-top: 144px;
                 box-shadow: none;
-                padding-left: 0;
             }
         }
         .controls {

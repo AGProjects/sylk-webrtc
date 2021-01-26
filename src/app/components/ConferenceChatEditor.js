@@ -113,7 +113,7 @@ const ConferenceChatEditor = (props) => {
                 break;
             case 27:
                 // ESC
-                DEBUG('Esc pressed, clear inputi or close emoji');
+                DEBUG('Esc pressed, clear input or close emoji');
                 if (picker) {
                     setPicker(false);
                 } else {

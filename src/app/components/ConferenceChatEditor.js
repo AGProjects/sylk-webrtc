@@ -10,10 +10,10 @@ const debug         = require('debug');
 const imageConversion   = require('image-conversion');
 const data = require('emoji-mart/data/apple.json');
 const Picker = require('emoji-mart/dist-modern/components/picker/nimble-picker').default;
+const computedStyleToInlineStyle = require('computed-style-to-inline-style');
 
 const DEBUG = debug('blinkrtc:ConferenceChatEditor');
 
-const computedStyleToInlineStyle = require('computed-style-to-inline-style');
 
 const ConferenceChatEditor = (props) => {
     const [name, setName] = useState('');

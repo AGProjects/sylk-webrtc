@@ -18,7 +18,7 @@
     "computed-style-to-inline-style": "^3.0.0",
     "debug": "^4.3.1",
     "digest-auth-request": "tijmenNL/digest-auth-request",
-    "electron": "^3.1.12",
+    "electron": "^9.4.0",
     "electron-builder": "21.0.9",
     "emoji-mart": "^3.0.0",
     "eslint": "^6.8.0",

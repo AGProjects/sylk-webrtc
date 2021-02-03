@@ -186,7 +186,7 @@ class VideoBox extends React.Component {
 
     showCallOverlay() {
         if (this.state.remoteVideoShow) {
-            if(this.state.callOverlayVisible) {
+            if (!this.state.callOverlayVisible) {
                 this.setState({callOverlayVisible: true});
             }
             this.armOverlayTimer();

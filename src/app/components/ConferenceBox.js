@@ -114,7 +114,7 @@ class ConferenceBox extends React.Component {
         }
 
         const emailMessage  = `You can join me in the conference using a Web browser at ${this.callUrl} ` +
-                             'or by using the freely available Sylk WebRTC client app at http://sylkserver.com';
+                             'or Sylk app from https://sylkserver.com';
         const subject       = 'Join me, maybe?';
 
         this.emailLink = `mailto:?subject=${encodeURI(subject)}&body=${encodeURI(emailMessage)}`;

@@ -104,7 +104,15 @@ The version number can be set in app/package.json
     make app-run
 ```
 
-* Build macOS DMG package
+* Build macOS DMG package. To publish a DMG outside the app store the
+  applications needs to be notarized. If you have a .env file containing your
+  appleid and password, it will attempt to notarize the app. You should
+  generate an app-specific password for this. The file should look like:
+
+```
+APPLE_ID=YOUR_APPLE_ID
+APPLE_ID_PASSWORD=YOUR_CUSTOM_PASSOWRD_FOR_THE_APP
+```
 
 ```
     make pkg-osx

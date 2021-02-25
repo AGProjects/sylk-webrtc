@@ -7,3 +7,4 @@
 (^|/)dist($|/)
 (^|/)dist-electron($|/)
 (^|/)app/www($|/)
+(^|/).env($|/)

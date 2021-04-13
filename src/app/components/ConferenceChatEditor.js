@@ -64,6 +64,18 @@ const ConferenceChatEditor = (props) => {
             let data = e.clipboardData.getData('text/html');
             if (data === '') {
                 DEBUG('No HTML data on clipboard');
+                data = e.clipboardData.getData('text/plain');
+                const cleanData = data;
+                if (target.innerHTML === '') {
+                    e.preventDefault();
+                    target.innerText = cleanData;
+                } else {
+                    e.preventDefault();
+                    const selection = document.getSelection();
+                    selection.deleteFromDocument();
+                    const div = document.createTextNode(cleanData);
+                    selection.getRangeAt(0).insertNode(div);
+                }
             } else {
                 DEBUG('HTML data on clipboard, content type will change');
                 setType('text/html');
@@ -91,7 +103,11 @@ const ConferenceChatEditor = (props) => {
                 });
             }
             setTimeout(()=> {
-                setName(`${target.innerHTML}`);
+                if (type === 'text/html') {
+                   setName(`${target.innerHTML}`);
+                } else {
+                   setName(`${target.innerText}`);
+                }
                 editor.current.blur();
                 editor.current.focus();
             }, 50);

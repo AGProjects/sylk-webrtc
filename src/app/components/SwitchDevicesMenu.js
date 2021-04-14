@@ -79,6 +79,8 @@ const SwitchDevicesMenu = (props) => {
                     sylkrtc.utils.closeMediaStream(mediaStreams[key]);
                 }
             });
+            setDevices([]);
+            setMediaStreams({});
             init.current = false;
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps

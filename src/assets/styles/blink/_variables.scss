@@ -14,10 +14,10 @@ $white-less-transparent:  rgba($white, .8);
 
 $bootstrap-danger:       #a94442;
 $bootstrap-danger-bg:    #f2dede;
-$boostrap-danger-border: darken(adjust-hue($bootstrap-danger-bg, -10), 5%);
+$bootstrap-danger-border: darken(adjust-hue($bootstrap-danger-bg, -10), 5%);
 $bootstrap-base:         #428bca;
 $bootstrap-primary:      darken($bootstrap-base, 6.5%); // #337ab7
-$boostrap-link-hover-bg: #f5f5f5;
+$bootstrap-link-hover-bg: #f5f5f5;
 $bootstrap-text-info:    #31708f;
 
 $base-foreground-color: $white;

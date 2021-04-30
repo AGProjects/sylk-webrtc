@@ -95,7 +95,7 @@ const ChatMessage = (props) => {
         <Media className={theme}>
             <Media.Left>
                 <UserIcon identity={message.sender} />
-                </Media.Left>
+            </Media.Left>
             <Media.Body className="vertical-center">
                 <Media.Heading>{sender} <span>{time}</span></Media.Heading>
                 {parsedContent}

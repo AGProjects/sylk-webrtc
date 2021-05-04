@@ -27,6 +27,12 @@ const styleSheet = makeStyles({
         fontSize: '2.5rem',
         margin: '10px'
     },
+    chatContact: {
+        width: '50px',
+        height: '50px',
+        fontSize: '1.5625rem',
+        margin: 0
+    },
     carousel: {
         width: '80px',
         height: '80px',
@@ -56,6 +62,7 @@ const UserIcon = (props) => {
         classes.root,
         classes.drawerAvatar,
         {[`${classes.card}`]: props.card},
+        {[`${classes.chatContact}`]: props.chatContact},
         {[`${classes.large}`]: props.large},
         {[`${classes.shadow}`]: props.active},
         {[`${classes.shadowSmall}`]: props.active && props.small},
@@ -80,7 +87,8 @@ UserIcon.propTypes = {
     card: PropTypes.bool,
     carousel: PropTypes.bool,
     small: PropTypes.bool,
-    active: PropTypes.bool
+    active: PropTypes.bool,
+    chatContact: PropTypes.bool
 };
 
 

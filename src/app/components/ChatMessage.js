@@ -70,7 +70,7 @@ const ChatMessage = (props) => {
         }
 
 
-        if (message.state === 'pending') {
+        if (message instanceof require("events").EventEmitter && message.state === 'pending') {
             message.on('stateChanged', (oldState, newState) => {
                 setState(newState);
             });

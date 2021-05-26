@@ -26,7 +26,11 @@ const ChatMessage = (props) => {
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     };
 
-    useEffect(props.scroll, [parsedContent]);
+    useEffect(() => {
+        if(parsedContent !== undefined) {
+            props.scroll()
+        }}, [parsedContent]
+    );
 
     useEffect(() => {
         if (message.contentType === 'text/html') {

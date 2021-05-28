@@ -18,12 +18,17 @@ const VizSensor          = require('react-visibility-sensor').default;
 const UserIcon          = require('./UserIcon');
 
 
-const ChatMessage = (props) => {
-    let [state, setState] = useState(props.message.state);
+const ChatMessage = ({
+    message,
+    scroll,
+    cont,
+    displayed,
+    focus
+}) => {
+    let [state, setState] = useState(message.state);
     const [parsedContent, setParsedContent] = useState();
     const messageRef = useRef(null);
 
-    const message = props.message;
     const sender = message.sender.displayName ||  message.sender.uri;
     const time = DateTime.fromJSDate(message.timestamp).toFormat('HH:mm');
 
@@ -33,7 +38,7 @@ const ChatMessage = (props) => {
 
     useEffect(() => {
         if (parsedContent !== undefined) {
-            props.scroll()
+            scroll()
         }}, [parsedContent]
     );
 
@@ -87,28 +92,28 @@ const ChatMessage = (props) => {
     };
 
     useEffect(() => {
-        if (messageRef.current !== null && props.focus === true) {
+        if (messageRef.current !== null && focus === true) {
             scrollToMessage()
         }
-    }, [props.focus]);
+    }, [focus]);
 
     let theme = clsx({
         'text-left'     : true,
         'pending'       : state === 'pending',
         'text-danger'   : state === 'failed',
-        'continued'     : props.cont && message.type !== 'status',
+        'continued'     : cont && message.type !== 'status',
         'status'        : message.type === 'status'
     });
 
-    const displayed = () => {
-        if (props.displayed) {
-            props.displayed();
+    const isDisplayed = () => {
+        if (displayed) {
+            displayed();
         }
     };
 
-    if (props.cont || message.type === 'status') {
+    if (cont || message.type === 'status') {
         return (
-            <VizSensor partialVisibility={true} onChange={displayed}>
+            <VizSensor partialVisibility={true} onChange={isDisplayed}>
                 <Media className={theme}>
                     <div ref={messageRef} />
                     <Media.Left className="timestamp-continued">
@@ -123,7 +128,7 @@ const ChatMessage = (props) => {
     }
 
     return (
-        <VizSensor partialVisibility={true} onChange={displayed}>
+        <VizSensor partialVisibility={true} onChange={isDisplayed}>
             <Media className={theme}>
                 <div ref={messageRef} />
                 <Media.Left>

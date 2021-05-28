@@ -3,13 +3,17 @@
 const React         = require('react');
 const useState      = React.useState;
 const useEffect     = React.useEffect;
+const useRef        = React.useRef;
 const PropTypes     = require('prop-types');
 const { default: clsx } = require('clsx');
 const ReactBootstrap    = require('react-bootstrap');
 const Media             = ReactBootstrap.Media;
 const { default: parse } = require('html-react-parser');
-const linkifyUrls       = require('linkify-urls');
-const { DateTime }      = require('luxon');
+const linkifyUrls        = require('linkify-urls');
+const { DateTime }       = require('luxon');
+const { Chip }           = require('@material-ui/core');
+const { Lock: LockIcon } = require('@material-ui/icons');
+const VizSensor          = require('react-visibility-sensor').default;
 
 const UserIcon          = require('./UserIcon');
 
@@ -17,6 +21,7 @@ const UserIcon          = require('./UserIcon');
 const ChatMessage = (props) => {
     let [state, setState] = useState(props.message.state);
     const [parsedContent, setParsedContent] = useState();
+    const messageRef = useRef(null);
 
     const message = props.message;
     const sender = message.sender.displayName ||  message.sender.uri;
@@ -27,7 +32,7 @@ const ChatMessage = (props) => {
     };
 
     useEffect(() => {
-        if(parsedContent !== undefined) {
+        if (parsedContent !== undefined) {
             props.scroll()
         }}, [parsedContent]
     );
@@ -70,13 +75,22 @@ const ChatMessage = (props) => {
         }
 
 
-        if (message instanceof require("events").EventEmitter && message.state === 'pending') {
+        if (message instanceof require('events').EventEmitter && message.state === 'pending') {
             message.on('stateChanged', (oldState, newState) => {
                 setState(newState);
             });
         }
     }, [message])
 
+    const scrollToMessage = () => {
+        messageRef.current.scrollIntoView({behavior: 'smooth'})
+    };
+
+    useEffect(() => {
+        if (messageRef.current !== null && props.focus === true) {
+            scrollToMessage()
+        }
+    }, [props.focus]);
 
     let theme = clsx({
         'text-left'     : true,
@@ -86,32 +100,50 @@ const ChatMessage = (props) => {
         'status'        : message.type === 'status'
     });
 
+    const displayed = () => {
+        if (props.displayed) {
+            props.displayed();
+        }
+    };
+
     if (props.cont || message.type === 'status') {
         return (
+            <VizSensor partialVisibility={true} onChange={displayed}>
+                <Media className={theme}>
+                    <div ref={messageRef} />
+                    <Media.Left className="timestamp-continued">
+                        <span>{time}</span>
+                    </Media.Left>
+                    <Media.Body className="vertical-center">
+                        {parsedContent}
+                    </Media.Body>
+                </Media>
+            </VizSensor>
+        );
+    }
+
+    return (
+        <VizSensor partialVisibility={true} onChange={displayed}>
             <Media className={theme}>
+                <div ref={messageRef} />
+                <Media.Left>
+                    <UserIcon identity={message.sender} />
+                </Media.Left>
                 <Media.Body className="vertical-center">
+                    <Media.Heading>{sender} <span>{time}</span></Media.Heading>
                     {parsedContent}
                 </Media.Body>
             </Media>
-        );
-    }
-    return (
-        <Media className={theme}>
-            <Media.Left>
-                <UserIcon identity={message.sender} />
-            </Media.Left>
-            <Media.Body className="vertical-center">
-                <Media.Heading>{sender} <span>{time}</span></Media.Heading>
-                {parsedContent}
-            </Media.Body>
-        </Media>
+        </VizSensor>
     );
 };
 
 ChatMessage.propTypes = {
     message: PropTypes.object.isRequired,
     scroll: PropTypes.func.isRequired,
-    cont: PropTypes.bool
+    cont: PropTypes.bool,
+    displayed: PropTypes.func,
+    focus: PropTypes.bool
 };
 
 

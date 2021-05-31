@@ -12,11 +12,23 @@ const { default: parse } = require('html-react-parser');
 const linkifyUrls        = require('linkify-urls');
 const { DateTime }       = require('luxon');
 const { Chip }           = require('@material-ui/core');
+const { makeStyles }     = require('@material-ui/core/styles');
 const { Lock: LockIcon } = require('@material-ui/icons');
 const VizSensor          = require('react-visibility-sensor').default;
 
 const UserIcon          = require('./UserIcon');
 
+
+const styleSheet = makeStyles((theme) => ({
+    chipSmall: {
+        height: 18,
+        fontSize: 11,
+    },
+    iconSmall: {
+        width: 12,
+        height: 12
+    }
+}));
 
 const ChatMessage = ({
     message,
@@ -25,6 +37,7 @@ const ChatMessage = ({
     displayed,
     focus
 }) => {
+    const classes = styleSheet(props);
     let [state, setState] = useState(message.state);
     const [parsedContent, setParsedContent] = useState();
     const messageRef = useRef(null);
@@ -76,6 +89,17 @@ const ChatMessage = ({
 
             setParsedContent  (
                 <pre>{parse(linkfiedContent)}</pre>
+            );
+        } else if (message.contentType === 'text/rsa-public-key') {
+            setParsedContent(
+                <Chip
+                    component="span"
+                    classes={{sizeSmall: classes.chipSmall, iconSmall: classes.iconSmall}}
+                    variant="outlined"
+                    size="small"
+                    icon={<LockIcon />}
+                    label="Public key"
+                />
             );
         }
 

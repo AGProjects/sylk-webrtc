@@ -38,7 +38,7 @@ const ChatMessage = ({
     focus
 }) => {
     const classes = styleSheet(props);
-    let [state, setState] = useState(message.state);
+    const [state, setState] = useState(message.state);
     const [parsedContent, setParsedContent] = useState();
     const messageRef = useRef(null);
 

@@ -113,8 +113,8 @@
     "mac": {
       "category": "public.app-category.video",
       "extendInfo": {
-          "NSMicrophoneUsageDescription": "Please allow access to the microphone to be able to make calls.",
-          "NSCameraUsageDescription":  "Please allow access to the camera to be able to make video calls."
+        "NSMicrophoneUsageDescription": "Please allow access to the microphone to be able to make calls.",
+        "NSCameraUsageDescription": "Please allow access to the camera to be able to make video calls."
       },
       "hardenedRuntime": true,
       "gatekeeperAssess": false,

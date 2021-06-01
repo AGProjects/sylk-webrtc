@@ -3,9 +3,9 @@
 const React         = require('react');
 const useEffect     = React.useEffect;
 const useRef        = React.useRef;
-const useState        = React.useState;
+const useState      = React.useState;
 const PropTypes     = require('prop-types');
-const ChatMessage   = require('./ChatMessage');
+const Message       = require('./Chat/Message');
 
 
 const ConferenceChat = (props) => {
@@ -30,7 +30,7 @@ const ConferenceChat = (props) => {
             }
             prevMessage = message;
             return (
-                <ChatMessage key={idx} message={message} cont={continues} scroll={scrollToBottom}/>
+                <Message key={idx} message={message} cont={continues} scroll={scrollToBottom} />
             )
         });
         setEntries(entries);

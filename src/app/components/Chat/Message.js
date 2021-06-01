@@ -30,7 +30,7 @@ const styleSheet = makeStyles((theme) => ({
     }
 }));
 
-const ChatMessage = ({
+const Message = ({
     message,
     scroll,
     cont,
@@ -39,6 +39,7 @@ const ChatMessage = ({
 }) => {
     const classes = styleSheet();
     const [state, setState] = useState(message.state);
+    const [dispositionState, setDispositionState] = useState(message.dispositionState);
     const [parsedContent, setParsedContent] = useState();
     const messageRef = useRef(null);
 
@@ -108,6 +109,9 @@ const ChatMessage = ({
             message.on('stateChanged', (oldState, newState) => {
                 setState(newState);
             });
+            message.on('dispositionStateChanged', (oldState, newState) => {
+                setDispositionState(newState);
+            });
         }
     }, [message])
 
@@ -167,7 +171,7 @@ const ChatMessage = ({
     );
 };
 
-ChatMessage.propTypes = {
+Message.propTypes = {
     message: PropTypes.object.isRequired,
     scroll: PropTypes.func.isRequired,
     cont: PropTypes.bool,
@@ -176,4 +180,4 @@ ChatMessage.propTypes = {
 };
 
 
-module.exports = ChatMessage;
+module.exports = Message;

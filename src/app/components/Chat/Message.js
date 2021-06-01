@@ -16,7 +16,7 @@ const { makeStyles }     = require('@material-ui/core/styles');
 const { Lock: LockIcon } = require('@material-ui/icons');
 const VizSensor          = require('react-visibility-sensor').default;
 
-const UserIcon          = require('./UserIcon');
+const UserIcon          = require('../UserIcon');
 
 
 const styleSheet = makeStyles((theme) => ({

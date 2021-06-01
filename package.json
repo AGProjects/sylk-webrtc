@@ -5,6 +5,7 @@
   "private": true,
   "devDependencies": {
     "@material-ui/core": "^4.11.2",
+    "@material-ui/icons": "^4.11.2",
     "animate.css": "^3.7.2",
     "audio-context": "^1.0.3",
     "autocomplete.js": "^0.38.0",

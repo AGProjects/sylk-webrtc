@@ -22,7 +22,7 @@ const UserIcon          = require('./UserIcon');
 const styleSheet = makeStyles((theme) => ({
     chipSmall: {
         height: 18,
-        fontSize: 11,
+        fontSize: 11
     },
     iconSmall: {
         width: 12,
@@ -37,7 +37,7 @@ const ChatMessage = ({
     displayed,
     focus
 }) => {
-    const classes = styleSheet(props);
+    const classes = styleSheet();
     const [state, setState] = useState(message.state);
     const [parsedContent, setParsedContent] = useState();
     const messageRef = useRef(null);

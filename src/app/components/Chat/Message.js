@@ -39,7 +39,6 @@ const Message = ({
 }) => {
     const classes = styleSheet();
     const [state, setState] = useState(message.state);
-    const [dispositionState, setDispositionState] = useState(message.dispositionState);
     const [parsedContent, setParsedContent] = useState();
     const messageRef = useRef(null);
 
@@ -108,9 +107,6 @@ const Message = ({
         if (message instanceof require('events').EventEmitter && message.state === 'pending') {
             message.on('stateChanged', (oldState, newState) => {
                 setState(newState);
-            });
-            message.on('dispositionStateChanged', (oldState, newState) => {
-                setDispositionState(newState);
             });
         }
     }, [message])

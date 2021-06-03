@@ -13,7 +13,7 @@ const linkifyUrls        = require('linkify-urls');
 const { DateTime }       = require('luxon');
 const { Chip }           = require('@material-ui/core');
 const { makeStyles }     = require('@material-ui/core/styles');
-const { Lock: LockIcon } = require('@material-ui/icons');
+const { Lock: LockIcon, Done: DoneIcon, DoneAll: DoneAllIcon} = require('@material-ui/icons');
 const VizSensor          = require('react-visibility-sensor').default;
 
 const UserIcon          = require('../UserIcon');
@@ -27,6 +27,11 @@ const styleSheet = makeStyles((theme) => ({
     iconSmall: {
         width: 12,
         height: 12
+    },
+    doneIcon: {
+        fontSize: 15,
+        verticalAlign: 'middle',
+        color: 'green'
     }
 }));
 
@@ -135,6 +140,18 @@ const Message = ({
         }
     };
 
+    const statusIcon = () => {
+        if (state === 'accepted') {
+            return (<DoneIcon style={{color: '#888'}} className={classes.doneIcon}/>);
+        }
+        if (state === 'delivered') {
+            return (<DoneIcon className={classes.doneIcon}/>);
+        }
+        if (state === 'displayed') {
+            return (<DoneAllIcon className={classes.doneIcon} />);
+        }
+    };
+
     if (cont || message.type === 'status') {
         return (
             <VizSensor partialVisibility={true} onChange={isDisplayed}>
@@ -146,6 +163,9 @@ const Message = ({
                     <Media.Body className="vertical-center">
                         {parsedContent}
                     </Media.Body>
+                    <Media.Right>
+                        <span className="pull-right" style={{paddingRight: '15px'}}>{statusIcon()}</span>
+                    </Media.Right>
                 </Media>
             </VizSensor>
         );
@@ -159,7 +179,7 @@ const Message = ({
                     <UserIcon identity={message.sender} />
                 </Media.Left>
                 <Media.Body className="vertical-center">
-                    <Media.Heading>{sender} <span>{time}</span></Media.Heading>
+                    <Media.Heading>{sender} <span>{time}</span><span className="pull-right" style={{paddingRight: '15px'}}>{statusIcon()}</span></Media.Heading>
                     {parsedContent}
                 </Media.Body>
             </Media>

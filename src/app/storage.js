@@ -179,7 +179,7 @@ class electronStorage {
     }
 
     removeItem(key) {
-        return this._remove(key,value);
+        return this._remove(key);
     }
 
     instance() {

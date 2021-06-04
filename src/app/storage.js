@@ -181,6 +181,10 @@ class electronStorage {
     removeItem(key) {
         return this._remove(key,value);
     }
+
+    instance() {
+        return this._store;
+    }
 }
 
 
@@ -213,7 +217,17 @@ function remove(key) {
     return store.removeItem(key);
 }
 
+
+function instance() {
+    if (typeof store.instance == 'function') {
+        return store.instance();
+    }
+    return;
+}
+
+
 exports.initialize = initialize;
 exports.set = set;
 exports.get = get;
 exports.remove = remove;
+exports.instance = instance;

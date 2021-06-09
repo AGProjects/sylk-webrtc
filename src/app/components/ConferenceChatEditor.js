@@ -19,14 +19,20 @@ const DEBUG = debug('blinkrtc:ConferenceChatEditor');
 const ConferenceChatEditor = (props) => {
     const [name, setName] = useState('');
     const [picker, setPicker] = useState(false);
-    const [type, setType] = useState('text/plain');
+    const [type, _setType] = useState('text/plain');
     const [timer, setTimer] = useState(null);
 
     const editor = useRef(null);
+    const typeRef = useRef('text/plain');
 
     useEffect(() => {
         return () => clearTimeout(timer);
     }, [props.onSubmit, timer]);
+
+    const setType = type => {
+        typeRef.current = type
+        _setType(type);
+    }
 
     const togglePicker = () => {
         setPicker(!picker);
@@ -103,10 +109,10 @@ const ConferenceChatEditor = (props) => {
                 });
             }
             setTimeout(()=> {
-                if (type === 'text/html') {
-                   setName(`${target.innerHTML}`);
+                if (type === 'text/html' || typeRef.current == 'text/html') {
+                    setName(`${target.innerHTML}`);
                 } else {
-                   setName(`${target.innerText}`);
+                    setName(`${target.innerText}`);
                 }
                 editor.current.blur();
                 editor.current.focus();

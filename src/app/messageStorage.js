@@ -24,14 +24,8 @@ class electronStorage {
     init(account) {
         DEBUG('Initialize electron storage for messages');
         this._initializing = new Promise((resolve, reject) => {
-            // this.ipcRenderer.send('getStorage');
-            // this.ipcRenderer.on('storagePath', (event, storage) => {
-            //     DEBUG('Storage path received');
             const storage = this._store.getDataPath();
-            //     let _store = window.require('electron-json-storage');
             this.options['dataPath'] = `${storage}/messages/${account}/`;
-            //     _store.setDataPath(storage);
-            // });
         })
     }
 
@@ -106,6 +100,20 @@ class electronStorage {
         });
     }
 
+    _clear() {
+        return this.ready().then(() => {
+            return new Promise((resolve, reject) => {
+                this._store.clear(this.options, function(error) {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve();
+                })
+            })
+        });
+    }
+
     getItem(key) {
         return this._get(key);
     }
@@ -116,6 +124,10 @@ class electronStorage {
 
     removeItem(key) {
         return this._remove(key);
+    }
+
+    clear() {
+        return this._clear();
     }
 
     keys() {
@@ -225,6 +237,20 @@ function remove(key) {
 }
 
 
+function dropInstance() {
+    if (store instanceof electronStorage) {
+        return store.clear();
+    }
+    return store.dropInstance();
+}
+
+
+function close() {
+    store = null;
+    return;
+}
+
+
 function add(message) {
     if (store === null) return [];
 
@@ -242,7 +268,6 @@ function add(message) {
         return messages;
     }));
 }
-
 
 // WIP
 // function removeMessage(key, id) {
@@ -391,7 +416,9 @@ exports.set = set;
 exports.get = get;
 exports.add = add;
 exports.remove = remove;
+exports.dropInstance = dropInstance;
 exports.update = update;
+exports.close = close;
 
 exports.updateDisposition = updateDisposition;
 exports.loadLastMessages = loadLastMessages;

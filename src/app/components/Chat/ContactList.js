@@ -114,6 +114,8 @@ const styleSheet = makeStyles((theme) => ({
         overflow: 'auto',
         marginRight: -15,
         paddingRight: 15,
+        marginLeft: -15,
+        paddingLeft: 15,
         scrollbarWidth: 'thin'
     },
     chipSmall: {

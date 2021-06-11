@@ -153,3 +153,25 @@ h6,
     margin: 0 -20px;
     box-shadow: 0 -5px 100px $black-transparent;
 }
+
+
+.chat-image {
+    height: 300px;
+    width: 300px;
+    @include background-image-retina($video-big-poster-image, 300px, 300px);
+    filter: brightness(75%);
+    opacity: .8;
+}
+
+.chat {
+    .conference-drawer {
+        .editor-wrapper {
+            border: 0;
+            box-shadow: none;
+        }
+        .top-editor-wrapper {
+            border-top: 1px solid rgba(0, 0, 0, 0.12);
+            padding-top: 10px;
+        }
+    }
+}

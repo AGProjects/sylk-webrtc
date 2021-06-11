@@ -124,6 +124,12 @@
             border: 0;
         }
 
+        .text-danger {
+             pre {
+                color: inherit !important;
+            }
+        }
+
         .continued {
             margin-top: 0;
             margin-left: 65px;

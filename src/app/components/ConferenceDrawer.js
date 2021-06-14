@@ -9,57 +9,85 @@ const { grey }              = require('@material-ui/core/colors');
 const { Drawer, Toolbar, Typography, Divider } = require('@material-ui/core');
 
 
-const styleSheet = makeStyles({
-    // Anchors
-    paper: {
-        borderRight: 0
-    },
-    paperLeft: {
-        borderLeft: 0
-    },
-    // Sizes
-    paperSmall: {
-        width: 55,
-        '& .drawer-body': {
-            padding: '0 !important'
+const styleSheet = makeStyles(theme => {
+    return {
+        // Anchors
+        paper: {
+            borderRight: 0
+        },
+        paperLeft: {
+            borderLeft: 0
+        },
+        // Sizes
+        paperSmall: {
+            width: 55,
+            '& .drawer-body': {
+                padding: '0 !important'
+            }
+        },
+        paperNormal: {
+            width: 350
+        },
+
+        paperNormalWide: {
+            width: 400
+        },
+
+        paperWide: {
+            width: 450
+        },
+        paperFullWidth: {
+            width: '100%'
+        },
+        // Transparent or not
+        paperNotTransparent: {
+            backgroundColor: grey[100]
+        },
+        paperTransparent: {
+            backgroundColor: fade(grey[100], .85)
+        },
+        // Utils
+        paperAdjustedForRightDrawer: {
+            width: 'calc(100% - 405px)',
+            borderRight: 0
+        },
+        paperAdjustedForSmallLeftDrawer: {
+            marginLeft: 55
+        },
+        paperAdjustedForSmallLeftDrawerFull: {
+            width: 'calc(100% - 55px)'
+        },
+
+        paperAdjustedForLeftDrawer: {
+            marginLeft: 400
+        },
+
+
+        paperAdjustedForLeftDrawerFull: {
+            width: 'calc(100% - 400px)'
+        },
+
+        [theme.breakpoints.down('sm')]: {
+            paperNormalWide: {
+                width: '100%'
+            },
+            paperAdjustedForLeftDrawer: {
+                margin: 0
+            },
+            paperAdjustedForLeftDrawerFull: {
+                width: '100%'
+            }
+        },
+        title: {
+            flex: '0 1 auto'
+        },
+        grow: {
+            flex: '1 1 auto'
+        },
+        toolbar: {
+            minHeight: '50px',
+            height: 50
         }
-    },
-    paperNormal: {
-        width: 350
-    },
-    paperWide: {
-        width: 450
-    },
-    paperFullWidth: {
-        width: '100%'
-    },
-    // Transparent or not
-    paperNotTransparent: {
-        backgroundColor: grey[100]
-    },
-    paperTransparent: {
-        backgroundColor: fade(grey[100], .85)
-    },
-    // Utils
-    paperAdjustedForRightDrawer: {
-        width: 'calc(100% - 405px)',
-        borderRight: 0
-    },
-    paperAdjustedForSmallLeftDrawer: {
-        marginLeft: 55
-    },
-    paperAdjustedForSmallLeftDrawerFull: {
-        width: 'calc(100% - 55px)'
-    },
-    title: {
-        flex: '0 1 auto'
-    },
-    grow: {
-        flex: '1 1 auto'
-    },
-    toolbar: {
-        minHeight: '50px',
-        height: 50
     }
 });
 
@@ -69,14 +97,17 @@ const ConferenceDrawer = (props) => {
         {[`${classes.paper}`]: props.anchor !== 'left'},
         {[`${classes.paperLeft}`]: props.anchor === 'left'},
         {[`${classes.paperTransparent}`]: props.transparent},
-        {[`${classes.paperNotTransparent}`]: !props.transparent},
+        {[`${classes.paperNotTransparent}`]: !props.transparent && !props.noBackgroundColor},
         {[`${classes.paperSmall}`]: props.size === 'small'},
         {[`${classes.paperNormal}`]: props.size === 'normal' || ! props.size},
         {[`${classes.paperWide}`]: props.size === 'wide'},
+        {[`${classes.paperNormalWide}`]: props.size === 'normalWide'},
         {[`${classes.paperFullWidth}`]: props.size === 'full'},
         {[`${classes.paperAdjustedForSmallLeftDrawer}`]: props.anchor === 'left' && (props.position === 'middle' || props.position === 'right')},
         {[`${classes.paperAdjustedForSmallLeftDrawerFull}`]: props.anchor === 'left' && props.size === 'full' && props.position === 'right'},
-        {[`${classes.paperAdjustedForRightDrawer}`]: props.anchor === 'left' && props.position === 'middle'}
+        {[`${classes.paperAdjustedForRightDrawer}`]: props.anchor === 'left' && props.position === 'middle'},
+        {[`${classes.paperAdjustedForLeftDrawer}`]: props.anchor === 'right' && props.position === 'full'},
+        {[`${classes.paperAdjustedForLeftDrawerFull}`]: props.anchor === 'right' && props.size === 'full' && props.position === 'full'}
     );
 
     const chevronIcon = clsx({

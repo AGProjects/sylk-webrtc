@@ -26,7 +26,7 @@ const useMenuStyles = makeStyles({
     }
 });
 
-const CustomContentMenu = ({anchorEl, open, children, onClose}) => {
+const CustomContentMenu = ({anchorEl, open, children, onClose, keepMounted}) => {
     const menuClasses = useMenuStyles();
     const id = open ? 'faked-reference-popper' : undefined;
 
@@ -56,7 +56,7 @@ const CustomContentMenu = ({anchorEl, open, children, onClose}) => {
 }
 
 CustomContentMenu.propTypes = {
-    anchorEl    : PropTypes.object.isRequired,
+    anchorEl    : PropTypes.object,
     open        : PropTypes.bool.isRequired,
     children    : PropTypes.node.isRequired,
     onClose     : PropTypes.func.isRequired,

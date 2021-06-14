@@ -22,7 +22,6 @@ const {
     Grid,
     Typography,
     Divider,
-    Menu,
     MenuItem,
     Chip
 } = require('@material-ui/core');

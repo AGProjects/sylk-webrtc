@@ -58,7 +58,7 @@ const Message = ({
     useEffect(() => {
         if (parsedContent !== undefined) {
             scroll()
-        }}, [parsedContent]
+        }}, [parsedContent, scroll]
     );
 
     useEffect(() => {
@@ -115,7 +115,7 @@ const Message = ({
                 setState(newState);
             });
         }
-    }, [message])
+    }, [message, classes])
 
     const scrollToMessage = () => {
         messageRef.current.scrollIntoView({behavior: 'smooth'})

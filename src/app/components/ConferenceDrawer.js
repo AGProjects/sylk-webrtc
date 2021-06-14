@@ -168,7 +168,8 @@ ConferenceDrawer.propTypes = {
     position    : PropTypes.string,
     showClose   : PropTypes.bool,
     title       : PropTypes.object,
-    children    : PropTypes.node
+    children    : PropTypes.node,
+    noBackgroundColor: PropTypes.bool
 };
 
 

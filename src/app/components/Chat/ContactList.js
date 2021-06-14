@@ -26,13 +26,14 @@ const {
     MenuItem,
     Chip
 } = require('@material-ui/core');
-const { 
-    Lock: LockIcon, 
-    Done: DoneIcon, 
-    DoneAll: DoneAllIcon 
+const {
+    Lock: LockIcon,
+    Done: DoneIcon,
+    DoneAll: DoneAllIcon
 } = require('@material-ui/icons');
 
 const UserIcon = require('../UserIcon');
+const CustomContextMenu = require('../CustomContextMenu');
 
 const DEBUG = debug('blinkrtc:ContactList');
 
@@ -135,15 +136,15 @@ const styleSheet = makeStyles((theme) => ({
         fontSize: '14px',
         fontFamily: 'inherit',
         color: '#333',
-        minHeight: 0,
+        minHeight: 0
     }
 }));
 
 const ContactList = (props) => {
     const classes = styleSheet(props);
     const [filteredMessages, setFilteredMessages] = useState([]);
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const contactRef = React.useRef(null);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const contactRef = useRef(null);
 
     useEffect(() => {
         if (props.filter !== '') {
@@ -279,16 +280,16 @@ const ContactList = (props) => {
                     <Divider component="li" key="divider" variant="inset"/>
                 </React.Fragment>
             }
-            <Menu
-                anchorEl = {anchorEl}
+            <CustomContextMenu
                 open = {Boolean(anchorEl)}
+                anchorEl={anchorEl}
                 onClose = {handleClose}
                 keepMounted
             >
                 <MenuItem className={classes.item} onClick={() => {props.removeChat(contactRef.current); handleClose()}}>
                     Remove Chat
                 </MenuItem>
-            </Menu>
+            </CustomContextMenu>
         {contacts.map(contact => (
             [
                 <ListItem
@@ -296,7 +297,24 @@ const ContactList = (props) => {
                     alignItems = "flex-start"
                     key = {contact.uri}
                     onClick = {()=>switchChat(contact.uri)}
-                    onContextMenu = {(event)=>{event.preventDefault(); contactRef.current = contact.uri; setAnchorEl(event.currentTarget);}}
+                    onContextMenu = {(e) => {
+                        e.preventDefault();
+                        contactRef.current = contact.uri;
+                        const { clientX, clientY } = e;
+                        const virtualElement = {
+                            clientWidth: 0,
+                            clientHeight: 0,
+                            getBoundingClientRect: () => ({
+                                width: 0,
+                                height: 0,
+                                top: clientY,
+                                right: clientX,
+                                bottom: clientY,
+                                left: clientX
+                            })
+                        };
+                        setAnchorEl(virtualElement);
+                    }}
                     disableGutters
                 >
                     <ListItemAvatar style={{minWidth: 60, marginTop:0}}>

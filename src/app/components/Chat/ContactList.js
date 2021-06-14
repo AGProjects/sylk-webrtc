@@ -11,10 +11,10 @@ const PropTypes         = require('prop-types');
 const xss               = require('xss');
 const { DateTime }      = require('luxon');
 const { makeStyles }    = require('@material-ui/core/styles');
-const { 
+const {
     ListSubheader,
-    List, 
-    ListItem, 
+    List,
+    ListItem,
     ListItemAvatar,
     ListItemSecondaryAction,
     ListItemText,
@@ -371,7 +371,7 @@ const ContactList = (props) => {
                                             </Grid>
                                             <Grid item>
                                                 <Typography className={classes.date}>
-                                                    {message && statusIcon(contact.message)}
+                                                    {message && statusIcon(message)}
                                                     {message && formatTime(message)}
                                                 </Typography>
                                             </Grid>

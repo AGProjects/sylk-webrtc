@@ -45,7 +45,8 @@ const MessageList = ({
     focus,
     hasMore,
     displayed,
-    loadMoreMessages
+    loadMoreMessages,
+    contactCache
 }) => {
     const [entries, setEntries] = useState([])
     const [display, setDisplay] = useState(false);
@@ -111,14 +112,15 @@ const MessageList = ({
                         }}
                         focus = {focus === message.id}
                         message = {message}
-                        cont = {continues} 
+                        cont = {continues}
                         scroll = {scrollToBottom}
+                        contactCache = {contactCache}
                     />
                 </React.Fragment>
             )
         });
         setEntries(entries);
-    }, [messages, focus, displayed, scrollToBottom]);
+    }, [messages, focus, displayed, scrollToBottom, contactCache]);
 
     useEffect(() => {
         const canLoadMore = () => {
@@ -179,7 +181,8 @@ MessageList.propTypes = {
     focus: PropTypes.string,
     loadMoreMessages: PropTypes.func.isRequired,
     hasMore: PropTypes.func.isRequired,
-    displayed: PropTypes.func.isRequired
+    displayed: PropTypes.func.isRequired,
+    contactCache: PropTypes.object
 };
 
 

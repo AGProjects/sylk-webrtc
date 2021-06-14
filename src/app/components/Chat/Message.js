@@ -40,7 +40,8 @@ const Message = ({
     scroll,
     cont,
     displayed,
-    focus
+    focus,
+    contactCache
 }) => {
     const classes = styleSheet();
     const [state, setState] = useState(message.state);
@@ -152,6 +153,13 @@ const Message = ({
         }
     };
 
+    const getDisplayName = (uri) => {
+        if (contactCache !== undefined && contactCache.has(uri)) {
+                return {uri: uri, displayName: contactCache.get(uri)};
+        }
+        return {uri: uri};
+    };
+
     if (cont || message.type === 'status') {
         return (
             <VizSensor partialVisibility={true} onChange={isDisplayed}>
@@ -176,10 +184,10 @@ const Message = ({
             <Media className={theme}>
                 <div ref={messageRef} />
                 <Media.Left>
-                    <UserIcon identity={message.sender} />
+                    <UserIcon identity={getDisplayName(message.sender.uri)} />
                 </Media.Left>
                 <Media.Body className="vertical-center">
-                    <Media.Heading>{sender} <span>{time}</span><span className="pull-right" style={{paddingRight: '15px'}}>{statusIcon()}</span></Media.Heading>
+                    <Media.Heading>{getDisplayName(message.sender.uri).displayName || sender} <span>{time}</span><span className="pull-right" style={{paddingRight: '15px'}}>{statusIcon()}</span></Media.Heading>
                     {parsedContent}
                 </Media.Body>
             </Media>
@@ -192,7 +200,8 @@ Message.propTypes = {
     scroll: PropTypes.func.isRequired,
     cont: PropTypes.bool,
     displayed: PropTypes.func,
-    focus: PropTypes.bool
+    focus: PropTypes.bool,
+    contactCache: PropTypes.object
 };
 
 

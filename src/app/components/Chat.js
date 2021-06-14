@@ -222,7 +222,7 @@ const Chat = (props) => {
                 noBackgroundColor
                 showClose = {false}
             >
-            { selectedUri !== '' 
+            { selectedUri !== ''
                 ? <React.Fragment>
                     <Toolbar className={classes.toolbar} style={{marginLeft:'-15px', marginTop: '-15px', marginRight: '-15px'}}>
                         { matches &&
@@ -245,6 +245,7 @@ const Chat = (props) => {
                         focus = {focus}
                         key = {selectedUri}
                         hasMore = {() => props.messageStorage.hasMore(selectedUri)}
+                        contactCache = {contactCache.current}
                         displayed = {(uri, id, timestamp, state) => {
                             props.account.sendDispositionNotification(
                                 uri,

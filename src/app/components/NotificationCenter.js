@@ -167,16 +167,21 @@ class NotificationCenter extends React.Component {
 
     postNewMessage(message, cb) {
         const sender = message.sender.displayName || message.sender.uri;
-        return this.refs.notificationSystem.addNotification({
-            title: `Chat message from ${sender}`,
+        const notification = {
+            title: `Message from ${sender}`,
             autoDismiss: 10,
             level: 'info',
-            position: 'bl',
-            action: {
+            position: 'bl'
+        };
+
+        if (cb)  {
+            notification['action'] = {
                 label: 'Show Chat',
                 callback: () => { cb(); }
             }
-        });
+        }
+
+        return this.refs.notificationSystem.addNotification(notification);
     }
 
     postMutedOnStart() {

@@ -73,7 +73,7 @@ const Chat = (props) => {
     }
 
     const componentJustMounted = useRef(true);
-    
+
     useEffect(() => {
         setSelectedUri(props.focusOn)
     }, [props.focusOn]);

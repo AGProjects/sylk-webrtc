@@ -17,9 +17,18 @@
 
 .navbar-btn-toolbar {
     margin-top: ($navbar-height - 31 - zero($navbar-height - 38)) / 2; // 40 -> 7/2, 50 -> 7/2
+
+    button.active {
+        padding-top: 6 + ($navbar-height - 31 - zero($navbar-height - 38)) / 2; // 40 -> 7/2, 50 -> 7/2
+        padding-bottom: 4 + ($navbar-height - 31 - zero($navbar-height - 38)) / 2; // 40 -> 7/2, 50 -> 7/2
+        margin-top: -($navbar-height - 31 - zero($navbar-height - 38)) / 2; // 40 -> 7/2, 50 -> 7/2
+        color: #fff;
+        background-color: rgb(8, 8, 8);
+    }
 }
 
 .navbar {
+    z-index: 1201;
     min-height: $navbar-height;
 
     button {

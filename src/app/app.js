@@ -585,6 +585,12 @@ class Blink extends React.Component {
                                             history.clear().then(() => {
                                                 this.setState({history: []});
                                             });
+                                            messageStorage.initialize(account.accountId, storage.instance(), this.shouldUseHashRouting);
+                                            DEBUG('Clearing message storage for: %s', account.accountId);
+                                            messageStorage.dropInstance().then(() => {
+                                                messageStorage.close();
+                                                this.setState({oldMessages: {}});
+                                            });
                                         }
                                     });
                                     storage.set('account', {accountId: this.state.accountId, password: ''});

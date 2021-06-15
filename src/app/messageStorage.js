@@ -56,7 +56,6 @@ class electronStorage {
             .then(() => {
                 // DEBUG('Store is ready to query');
                 return new Promise((resolve, reject) => {
-                    DEBUG('Fetch: ' + key);
                     this._store.get(key, this.options, function(error, data) {
                         if (error) {
                             reject(error);
@@ -140,7 +139,7 @@ class electronStorage {
                             reject(error);
                             return;
                         }
-                        if (JSON.stringify(data) === JSON.stringify({})) {
+                        if (JSON.stringify(data) === JSON.stringify([])) {
                             resolve(null);
                         } else {
                             resolve(data);
@@ -160,8 +159,8 @@ class electronStorage {
                             reject(error);
                             return;
                         }
-                        if (JSON.stringify(data) === JSON.stringify({})) {
-                            resolve(null);
+                        if (JSON.stringify(data) === JSON.stringify([])) {
+                            resolve();
                         } else {
                             let itertionNumber = 1;
                             for (const key of data) {
@@ -181,7 +180,6 @@ class electronStorage {
 
                                         if (result !== void 0) {
                                             resolve(result);
-                                            return;
                                         }
                                     }
                                 });
@@ -348,14 +346,16 @@ function loadLastMessages() {
 
     const lastMessages = {};
     return store.keys().then((keys) => {
-        for (let key of keys) {
-            store.getItem(key).then((messages) => {
-                if (messages) {
-                    lastMessages[key] = messages.slice(-30).map(message => JSON.parse(message, _parseDates));
-                    // lastMessages[key] = messages.map(message => JSON.parse(message, parseDates));
-                    lastIdLoaded.set(key, lastMessages[key][0].id);
-                }
-            })
+        if (keys) {
+            for (let key of keys) {
+                store.getItem(key).then((messages) => {
+                    if (messages) {
+                        lastMessages[key] = messages.slice(-30).map(message => JSON.parse(message, _parseDates));
+                        // lastMessages[key] = messages.map(message => JSON.parse(message, parseDates));
+                        lastIdLoaded.set(key, lastMessages[key][0].id);
+                    }
+                })
+            }
         }
         return lastMessages
     });

@@ -18,6 +18,7 @@ const ReadyBox             = require('./components/ReadyBox');
 const Call                 = require('./components/Call');
 const CallByUriBox         = require('./components/CallByUriBox');
 const CallCompleteBox      = require('./components/CallCompleteBox');
+const Chat                 = require('./components/Chat');
 const Conference           = require('./components/Conference');
 const ConferenceByUriBox   = require('./components/ConferenceByUriBox');
 const AudioPlayer          = require('./components/AudioPlayer');
@@ -37,6 +38,7 @@ const ShortcutsModal       = require('./components/ShortcutsModal');
 const utils     = require('./utils');
 const config    = require('./config');
 const storage   = require('./storage');
+const messageStorage   = require('./messageStorage');
 const history   = require('./history');
 
 // attach debugger to the window for console access
@@ -62,6 +64,8 @@ class Blink extends React.Component {
             registrationState: null,
             currentCall: null,
             connection: null,
+            contactCache: new Map(),
+            oldMessages: {},
             inboundCall: null,
             showIncomingModal: false,
             showScreenSharingModal: false,
@@ -107,6 +111,10 @@ class Blink extends React.Component {
             'outgoingCall',
             'incomingCall',
             'missedCall',
+            'incomingMessage',
+            'messageStateChanged',
+            'sendingMessage',
+            'sendingDispositionNotification',
             'toggleMute',
             'conferenceInvite',
             'notificationCenter',
@@ -118,6 +126,7 @@ class Blink extends React.Component {
             'call',
             'callByUri',
             'callComplete',
+            'chat',
             'conference',
             'conferenceByUri',
             'notSupported',
@@ -145,6 +154,7 @@ class Blink extends React.Component {
         this.connectionNotification = null;
         this.resumeVideoCall = true;
         this.isRetry = false;
+        this.lastMessageFocus = '';
     }
 
     get _notificationCenter() {
@@ -169,7 +179,7 @@ class Blink extends React.Component {
             this.redirectTo = window.location.hash.replace('#!', '');
         } else {
             // Disallowed routes, they will rendirect to /login
-            const disallowedRoutes = new Set(['/', '/ready','/call','/preview']);
+            const disallowedRoutes = new Set(['/', '/ready','/call','/chat', '/preview']);
 
             if (disallowedRoutes.has(window.location.pathname)) {
                 this.redirectTo = '/login';
@@ -191,6 +201,13 @@ class Blink extends React.Component {
         storage.get('devices').then((devices) => {
             if (devices) {
                 this.setState({devices: devices});
+            }
+        });
+
+        // Load contact cache
+        storage.get('contactCache').then((cache) => {
+            if (cache) {
+                this.setState({contactCache: new Map(cache)})
             }
         });
     }
@@ -553,6 +570,10 @@ class Blink extends React.Component {
                             account.on('incomingCall', this.incomingCall);
                             account.on('missedCall', this.missedCall);
                             account.on('conferenceInvite', this.conferenceInvite);
+                            account.on('message', this.incomingMessage);
+                            account.on('sendingMessage', this.sendingMessage);
+                            account.on('sendingDispositionNotification', this.sendingDispositionNotification);
+                            account.on('messageStateChanged', this.messageStateChanged);
                             this.setState({account: account});
                             this.state.account.register();
                             if (this.state.mode !== MODE_PRIVATE) {
@@ -568,8 +589,23 @@ class Blink extends React.Component {
                                     });
                                     storage.set('account', {accountId: this.state.accountId, password: ''});
                                 }
+                                // Load messages
+                                messageStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
+                                messageStorage.loadLastMessages().then((cache) =>
+                                        this.setState({oldMessages: cache})
+                                );
                             } else {
                                 // Wipe storage if private login
+                                storage.get('account').then((account) => {
+                                    if (account && account.accountId !== this.state.accountId) {
+                                        messageStorage.initialize(account.accountId, storage.instance(), this.shouldUseHashRouting);
+                                        DEBUG('Clearing message storage for: %s', account.accountId);
+                                        messageStorage.dropInstance().then(() => {
+                                            messageStorage.close();
+                                            this.setState({oldMessages: {}});
+                                        });
+                                    }
+                                });
                                 storage.remove('account');
                                 history.clear().then(() => {
                                     this.setState({history: []});
@@ -1025,6 +1061,85 @@ class Blink extends React.Component {
         }
     }
 
+    incomingMessage(message) {
+        DEBUG('Incoming Message from: %s', message.sender.uri);
+        messageStorage.add(message);
+
+        if (message.sender.displayName !== null
+            && (!this.state.contactCache.has(message.sender.uri)
+            || (this.state.contactCache.has(message.sender.uri)
+                && this.state.contactCache.get(message.sender.uri) !== message.sender.displayName)
+            )
+        ) {
+            DEBUG('Updating contact cache');
+            const oldContactCache = new Map(this.state.contactCache);
+            oldContactCache.set(message.sender.uri, message.sender.displayName)
+            this.setState({contactCache: oldContactCache})
+            storage.set('contactCache', Array.from(oldContactCache));
+        }
+        const path = this.refs.router.getPath();
+        if (path !== '/chat') {
+            this._notificationCenter.postNewMessage(message, () => {
+                if (this.state.currentCall === null) {
+                    this.lastMessageFocus = message.sender.uri;
+                    setTimeout(() => {
+                        this.lastMessageFocus = '';
+                    }, 150);
+                    this.refs.router.navigate('/chat');
+                }
+            });
+        }
+    }
+
+    messageStateChanged(message) {
+        DEBUG('Message state changed: %o', message);
+        messageStorage.update(message);
+        let found = false;
+        for (const [key, messages] of Object.entries(this.state.oldMessages)) {
+            const newMessages = messages.map(loadedMessage => {
+                if (message.messageId === loadedMessage.id && message.state !== loadedMessage.state) {
+                    loadedMessage.state = message.state;
+                    found = true;
+                    DEBUG('Updating state for loaded messages');
+                }
+                return loadedMessage;
+            });
+            if (found) {
+                const oldMessages = Object.assign({}, this.state.oldMessages);
+                oldMessages[key] = newMessages;
+                this.setState({oldMessages: oldMessages});
+                break;
+            }
+        };
+    }
+
+    sendingMessage(message) {
+        messageStorage.add(message);
+    }
+
+    sendingDispositionNotification(id, state, error) {
+        if (!error) {
+            messageStorage.updateDisposition(id, state);
+            let found = false;
+            for (const [key, messages] of Object.entries(this.state.oldMessages)) {
+                const newMessages = messages.map(message => {
+                    if (message.id === id && message.dispositionState !== state) {
+                        message.dispositionState = state;
+                        found = true;
+                        DEBUG('Updating dispositionState for loaded messages');
+                    }
+                    return message;
+                });
+                if (found) {
+                    const oldMessages = Object.assign({}, this.state.oldMessages);
+                    oldMessages[key] = newMessages;
+                    this.setState({oldMessages: oldMessages});
+                    break;
+                }
+            };
+        }
+    }
+
     conferenceInvite(data) {
         DEBUG('Conference invite from %o to %s', data.originator, data.room);
         if (this.state.currentCall && this.state.targetUri === data.room) {
@@ -1261,6 +1376,7 @@ class Blink extends React.Component {
                     <Location path="/call" handler={this.call} />
                     <Location path="/call/:targetUri" urlPatternOptions={{segmentValueCharset: 'a-zA-Z0-9-_ \.@'}} handler={this.callByUri} />
                     <Location path="/call-complete" handler={this.callComplete} />
+                    <Location path="/chat" handler={this.chat} />
                     <Location path="/conference" handler={this.conference} />
                     <Location path="/conference/:targetUri" urlPatternOptions={{segmentValueCharset: 'a-zA-Z0-9-_~ %\.@'}}  handler={this.conferenceByUri} />
                     <Location path="/not-supported" handler={this.notSupported} />
@@ -1314,6 +1430,7 @@ class Blink extends React.Component {
                     preview = {this.startPreview}
                     toggleMute = {this.toggleMute}
                     toggleShortcuts = {this.toggleShortcutsModal}
+                    router = {this.refs.router}
                 />
                 <ReadyBox
                     account   = {this.state.account}
@@ -1398,6 +1515,48 @@ class Blink extends React.Component {
                 failureReason = {this.failureReason}
                 retryHandler = {this.handleRetry}
             />
+        )
+    }
+
+    chat() {
+        return (
+            <div>
+                <NavigationBar
+                    notificationCenter = {this.notificationCenter}
+                    account = {this.state.account}
+                    logout = {this.logout}
+                    preview = {this.startPreview}
+                    toggleMute = {this.toggleMute}
+                    toggleShortcuts = {this.toggleShortcutsModal}
+                    router = {this.refs.router}
+                />
+                <Chat
+                    key = {this.state.account}
+                    account  = {this.state.account}
+                    contactCache = {this.state.contactCache}
+                    oldMessages = {this.state.oldMessages}
+                    startCall = {this.startCall}
+                    messageStorage = {messageStorage}
+                    propagateKeyPress = {this.togglePropagateKeyPress}
+                    focusOn = {this.lastMessageFocus}
+                    removeChat = {(contact) => {
+                        messageStorage.remove(contact);
+                        let oldMessages = Object.assign({}, this.state.oldMessages);
+                        delete oldMessages[contact];
+                        this.state.account.removeChat(contact);
+                        this.setState({oldMessages: oldMessages});
+                    }}
+                    loadMoreMessages = {(key) => {
+                        messageStorage.loadMoreMessages(key).then((cache) => {
+                            if (cache) {
+                                const oldMessages = Object.assign({}, this.state.oldMessages);
+                                oldMessages[key] = cache.concat(oldMessages[key]);
+                                this.setState({oldMessages: oldMessages});
+                            }
+                        });
+                    }}
+                />
+            </div>
         )
     }
 
@@ -1516,10 +1675,12 @@ class Blink extends React.Component {
             if (this.shouldUseHashRouting) {
                 storage.set('account', {accountId: this.state.accountId, password: ''});
             }
+            messageStorage.close()
+
             if (this.state.connection.state !== 'ready') {
                 this.state.connection.close();
             }
-            this.setState({registrationState: null, status: null, serverHistory: []});
+            this.setState({registrationState: null, status: null, serverHistory: [], oldMessages: {}});
             setImmediate(()=>this.setState({account: null}));
             this.isRetry = false;
             if (config.showGuestCompleteScreen && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {

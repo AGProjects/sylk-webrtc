@@ -165,8 +165,6 @@ class electronStorage {
                         } else {
                             let itertionNumber = 1;
                             for (const key of data) {
-                                DEBUG(key);
-
                                 this._store.get(key, this.options, function(error, value) {
                                     if (error) {
                                         reject(error);
@@ -175,7 +173,6 @@ class electronStorage {
                                     if (JSON.stringify(value) === JSON.stringify({})) {
                                         resolve(null);
                                     } else {
-                                        DEBUG(value);
                                         let result = iterator(
                                             value,
                                             key,
@@ -184,11 +181,11 @@ class electronStorage {
 
                                         if (result !== void 0) {
                                             resolve(result);
+                                            return;
                                         }
                                     }
                                 });
                             }
-                            resolve();
                         }
                     });
                 });

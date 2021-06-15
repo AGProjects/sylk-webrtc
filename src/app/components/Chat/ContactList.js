@@ -212,7 +212,7 @@ const ContactList = (props) => {
                 stripIgnoreTag: true, // filter out all HTML not in the whitelist
                 stripIgnoreTagBody: ['script'] // the script tag is a special case, we need
                 // to filter out its content
-            });
+            }).replace(/&nbsp;/g, ' ');
             return content;
         } else if (contentType === 'text/plain') {
             return message.content;

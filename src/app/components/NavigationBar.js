@@ -158,7 +158,7 @@ class NavigationBar extends React.Component {
                         <i className="fa fa-phone fa-2x" />
                     </button>
                     <button title="Chat screen" className={chatNavButtonClasses} onClick={() => this.props.router.navigate('/chat')}>
-                        <i className='fa fa-comments fa-2x' />
+                        <i className="fa fa-comments fa-2x" />
                     </button>
                     <button title="Mute Incoming Ringtones" className="btn btn-link btn-fw" onClick={this.toggleMute}>
                         <i className={muteClasses}></i>

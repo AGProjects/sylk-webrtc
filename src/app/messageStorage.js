@@ -94,7 +94,7 @@ class electronStorage {
                         reject(error);
                         return;
                     }
-                    resolve(value);
+                    resolve();
                 })
             })
         });

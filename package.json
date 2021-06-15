@@ -39,7 +39,7 @@
     "murmurhash-js": "^1.0.0",
     "notifyjs": "^3.0.0",
     "npm-run-all": "^4.1.5",
-    "parcel-bundler": "^1.12.4",
+    "parcel-bundler": "^1.12.5",
     "parcel-plugin-nuke-dist": "^1.0.1",
     "parcel-plugin-package-version": "^1.0.2",
     "parcel-plugin-static-files-copy": "^2.5.0",

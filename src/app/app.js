@@ -344,6 +344,11 @@ class Blink extends React.Component {
             }
         } else if (newState === 'registered' && path === '/login') {
             this.setState({loading: null});
+            // Load messages
+            messageStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
+            messageStorage.loadLastMessages().then((cache) =>
+                this.setState({oldMessages: cache})
+            );
             this.refs.router.navigate('/ready');
             return;
         } else {
@@ -595,11 +600,6 @@ class Blink extends React.Component {
                                     });
                                     storage.set('account', {accountId: this.state.accountId, password: ''});
                                 }
-                                // Load messages
-                                messageStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
-                                messageStorage.loadLastMessages().then((cache) =>
-                                        this.setState({oldMessages: cache})
-                                );
                             } else {
                                 // Wipe storage if private login
                                 storage.get('account').then((account) => {

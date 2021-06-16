@@ -345,7 +345,7 @@ const ContactList = (props) => {
                         secondary = {contact.message && parseContent(contact.message)}
                     />
                 </ListItem>,
-                <Divider component="li" key={`divider_${contact.uri}`}/>
+                <Divider style={props.selectedUri === contact.uri ? {background: 'transparent'} : {}} component="li" key={`divider_${contact.uri}`}/>
             ]
         ))}
         {props.filter && filteredMessages.length !== 0 && 

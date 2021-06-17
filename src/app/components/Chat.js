@@ -43,6 +43,11 @@ const styleSheet = makeStyles((theme) => ({
         display: 'block',
         fontSize: '16px',
         fontFamily: 'inherit'
+    },
+    toolbarName: {
+        paddingLeft: 5,
+        fontWeight: 'normal',
+        color: '#888'
     }
 }));
 
@@ -237,6 +242,7 @@ const Chat = (props) => {
                         <UserIcon identity={getDisplayName(selectedUri)} active={false} small={true}/>
                         <Typography className={classes.title} variant="h6" noWrap>
                             {getDisplayName(selectedUri).displayName || selectedUri}
+                            {getDisplayName(selectedUri).displayName && <span className={classes.toolbarName}>({selectedUri})</span>}
                         </Typography>
                         <IconButton className="fa fa-phone" onClick={()=> props.startCall(selectedUri, {video: false})} />
                         <IconButton className="fa fa-video-camera" onClick={()=>props.startCall(selectedUri)} />

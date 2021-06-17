@@ -79,6 +79,9 @@ const Chat = (props) => {
     }, [props.focusOn]);
 
     useEffect(() => {
+        if (props.account === null) {
+            return
+        }
         DEBUG('Loading messages');
         const incomingMessage = (message) => {
             DEBUG('Incoming Message from: %s', message.sender.uri);

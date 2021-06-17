@@ -528,13 +528,33 @@ class Blink extends React.Component {
     processRegistration(accountId, password, displayName) {
         if (this.state.account !== null) {
             DEBUG('We already have an account, removing it');
+
+            // Preserve messages from account
+            if (accountId === this.state.accountId) {
+                const oldMessages = Object.assign({}, this.state.oldMessages);
+                for (let message of this.state.account.messages) {
+                    const senderUri = message.sender.uri;
+                    const receiver = message.receiver;
+                    let key = receiver;
+                    if (message.state === 'received') {
+                        key = senderUri;
+                    }
+                    if (!oldMessages[key]) {
+                        oldMessages[key] = [];
+                    }
+                    oldMessages[key].push(message);
+                };
+            } else {
+                const oldMessages = {};
+            }
+
             try {
                 this.state.connection.removeAccount(this.state.account,
                     (error) => {
                         if (error) {
                             DEBUG(error);
                         }
-                        this.setState({account: null, registrationState: null});
+                        this.setState({account: null, registrationState: null, oldMessages: oldMessages});
                     }
                 );
             }

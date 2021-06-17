@@ -154,6 +154,7 @@ class Blink extends React.Component {
         this.connectionNotification = null;
         this.resumeVideoCall = true;
         this.isRetry = false;
+        this.entryPath = '';
         this.lastMessageFocus = '';
     }
 
@@ -273,7 +274,7 @@ class Blink extends React.Component {
                     if (this.state.currentCall.direction === 'outgoing') {
                         this.toggleRedialScreen(false);
                     } else {
-                        this.refs.router.navigate('/ready');
+                        this.refs.router.navigate(this.entryPath);
                     }
                     this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
                     this.state.currentCall.terminate();
@@ -418,8 +419,7 @@ class Blink extends React.Component {
                 });
                 this.setFocusEvents(false);
                 this.participantsToInvite = null;
-
-                this.refs.router.navigate('/ready');
+                this.refs.router.navigate(this.entryPath);
 
                 break;
             default:
@@ -974,7 +974,7 @@ class Blink extends React.Component {
             if (this.state.localMedia != null) {
                 sylkrtc.utils.closeMediaStream(this.state.localMedia);
             }
-            this.refs.router.navigate('/ready');
+            this.refs.router.navigate(this.entryPath);
         }
     }
 
@@ -1302,6 +1302,11 @@ class Blink extends React.Component {
             } else if (nextPath === '/ready' && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
                 this.refs.router.navigate('/logout');
                 this.forceUpdate();
+            }
+
+            // Preserve entry path
+            if (nextPath === '/ready' || nextPath === '/chat') {
+                this.entryPath = nextPath;
             }
         }
         this.prevPath = nextPath;

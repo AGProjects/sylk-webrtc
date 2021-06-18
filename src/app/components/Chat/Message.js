@@ -44,7 +44,7 @@ const Message = ({
     contactCache
 }) => {
     const classes = styleSheet();
-    const [state, setState] = useState(message.state);
+    const [state, setState] = useState('');
     const [parsedContent, setParsedContent] = useState();
     const messageRef = useRef(null);
 
@@ -115,6 +115,7 @@ const Message = ({
                 setState(newState);
             });
         }
+        setState(message.state);
     }, [message, classes])
 
     const scrollToMessage = () => {

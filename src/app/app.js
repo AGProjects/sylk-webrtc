@@ -536,7 +536,7 @@ class Blink extends React.Component {
                 let messages = this.state.account.messages;
                 let index = 0;
                 for (let message of messages.reverse()) {
-                    if (message.state === 'pending' || message.state==='failed') {
+                    if (message.state === 'pending' || message.state === 'failed') {
                         index = index + 1;
                         pendingFailedMessages.push(message);
                     } else {
@@ -560,8 +560,8 @@ class Blink extends React.Component {
                     oldMessages[key].push(message);
                     counter += 1;
                 };
-                DEBUG("Old messages to save: %s", counter);
-                DEBUG("Messages to send again: %s", pendingFailedMessages.length);
+                DEBUG('Old messages to save: %s', counter);
+                DEBUG('Messages to send again: %s', pendingFailedMessages.length);
             }
             try {
                 this.state.connection.removeAccount(this.state.account,

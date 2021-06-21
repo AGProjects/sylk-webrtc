@@ -1,9 +1,10 @@
 'use strict';
 
-const React         = require('react');
+const React          = require('react');
 const {useEffect, useState, useRef} = React;
-const debug         = require('debug');
+const debug          = require('debug');
 const PropTypes      = require('prop-types');
+const cloneDeep      = require('lodash/cloneDeep');
 const { makeStyles } = require('@material-ui/core/styles');
 const { Toolbar, Divider, Typography } = require('@material-ui/core');
 const { IconButton, useMediaQuery } = require('@material-ui/core');
@@ -18,19 +19,6 @@ const ConferenceChatEditor = require('./ConferenceChatEditor');
 const utils           = require('../utils');
 const DEBUG = debug('blinkrtc:Chat');
 
-
-const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
-
-const parseDates = (key, value) => {
-    if (typeof value === 'string' && dateFormat.test(value)) {
-        return new Date(value);
-    }
-    return value;
-}
-
-const copyObject = (object) => {
-    return JSON.parse(JSON.stringify(object), parseDates)
-}
 
 const styleSheet = makeStyles((theme) => ({
     toolbar: {
@@ -90,7 +78,8 @@ const Chat = (props) => {
         DEBUG('Loading messages');
         const incomingMessage = (message) => {
             DEBUG('Incoming Message from: %s', message.sender.uri);
-            let oldMessages = Object.assign({}, messagesRef.current);
+
+            let oldMessages = cloneDeep(messagesRef.current);
             if (!oldMessages[message.sender.uri]) {
                 oldMessages[message.sender.uri] = [];
             }
@@ -109,7 +98,7 @@ const Chat = (props) => {
             setMessages(oldMessages);
         };
 
-        const newMessages = Object.assign({}, copyObject(props.oldMessages));
+        const newMessages = cloneDeep(props.oldMessages);
         for (let message of props.account.messages) {
             const senderUri = message.sender.uri;
             const receiver = message.receiver;
@@ -143,7 +132,7 @@ const Chat = (props) => {
         // Remove entries with 0 messages from contact list
         if (selectedUri) {
             if (messages[selectedUri].length === 0) {
-                const oldMessages = Object.assign({}, messages);
+                const oldMessages = cloneDeep(messages);
                 delete oldMessages[selectedUri];
                 setMessages(oldMessages);
             }
@@ -180,7 +169,7 @@ const Chat = (props) => {
 
     const handleMessage = (content, type) => {
         let message = props.account.sendMessage(selectedUri, content, type)
-        const oldMessages = Object.assign({}, messages);
+        const oldMessages = cloneDeep(messages);
         if (!oldMessages[selectedUri]) {
              oldMessages[selectedUri] = [];
         }
@@ -195,7 +184,7 @@ const Chat = (props) => {
             const target = utils.normalizeUri(input.current.value, defaultDomain);
             setSelectedUri(target);
             DEBUG('Starting new chat to: %s', target);
-            let oldMessages = Object.assign({}, messages);
+            let oldMessages = cloneDeep(messages);
             if (!oldMessages[target]) {
                 oldMessages[target] = [];
             }

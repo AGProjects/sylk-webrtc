@@ -421,7 +421,6 @@ class Blink extends React.Component {
                 this.setFocusEvents(false);
                 this.participantsToInvite = null;
                 this.refs.router.navigate(this.entryPath);
-
                 break;
             default:
                 break;
@@ -527,13 +526,28 @@ class Blink extends React.Component {
     }
 
     processRegistration(accountId, password, displayName) {
+        let pendingFailedMessages = [];
+        let oldMessages = {};
         if (this.state.account !== null) {
             DEBUG('We already have an account, removing it');
-
             // Preserve messages from account
             if (accountId === this.state.accountId) {
-                const oldMessages = Object.assign({}, this.state.oldMessages);
-                for (let message of this.state.account.messages) {
+                oldMessages = cloneDeep(this.state.oldMessages);
+                let messages = this.state.account.messages;
+                let index = 0;
+                for (let message of messages.reverse()) {
+                    if (message.state === 'pending' || message.state==='failed') {
+                        index = index + 1;
+                        pendingFailedMessages.push(message);
+                    } else {
+                        break;
+                    }
+                }
+                if (index !== 0) {
+                    messages = this.state.account.messages.slice(0, -index);
+                }
+                let counter = 0;
+                for (let message of messages) {
                     const senderUri = message.sender.uri;
                     const receiver = message.receiver;
                     let key = receiver;
@@ -544,18 +558,18 @@ class Blink extends React.Component {
                         oldMessages[key] = [];
                     }
                     oldMessages[key].push(message);
+                    counter += 1;
                 };
-            } else {
-                const oldMessages = {};
+                DEBUG("Old messages to save: %s", counter);
+                DEBUG("Messages to send again: %s", pendingFailedMessages.length);
             }
-
             try {
                 this.state.connection.removeAccount(this.state.account,
                     (error) => {
                         if (error) {
                             DEBUG(error);
                         }
-                        this.setState({account: null, registrationState: null, oldMessages: oldMessages});
+                        this.setState({account: null, registrationState: null});
                     }
                 );
             }
@@ -592,6 +606,9 @@ class Blink extends React.Component {
                     switch (this.state.mode) {
                         case MODE_PRIVATE:
                         case MODE_NORMAL:
+                            for (let message of pendingFailedMessages.reverse()) {
+                                account.sendMessage(message.receiver, message.content, message.contentType)
+                            }
                             account.on('registrationStateChanged', this.registrationStateChanged);
                             account.on('incomingCall', this.incomingCall);
                             account.on('missedCall', this.missedCall);
@@ -600,7 +617,7 @@ class Blink extends React.Component {
                             account.on('sendingMessage', this.sendingMessage);
                             account.on('sendingDispositionNotification', this.sendingDispositionNotification);
                             account.on('messageStateChanged', this.messageStateChanged);
-                            this.setState({account: account});
+                            this.setState({account: account, oldMessages: oldMessages});
                             this.state.account.register();
                             if (this.state.mode !== MODE_PRIVATE) {
                                 if (this.shouldUseHashRouting) {

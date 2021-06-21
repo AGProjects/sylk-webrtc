@@ -1106,15 +1106,14 @@ class Blink extends React.Component {
         }
         const path = this.refs.router.getPath();
         if (path !== '/chat') {
-            this._notificationCenter.postNewMessage(message, () => {
-                if (this.state.currentCall === null) {
+            if (this.state.currentCall === null) {
+                this._notificationCenter.postNewMessage(message, () => {
                     this.lastMessageFocus = message.sender.uri;
-                    setTimeout(() => {
-                        this.lastMessageFocus = '';
-                    }, 150);
                     this.refs.router.navigate('/chat');
-                }
-            });
+                });
+            } else {
+                this._notificationCenter.postNewMessage(message);
+            }
         }
     }
 

@@ -55,14 +55,14 @@ const IncomingCallModal = (props) => {
     if (props.call.mediaTypes.video) {
         callType = 'video';
         answerButtons.push(<li key="videoAnswerButton">
-            <button id="accept" className="btn btn-success btn-round-xxl" onClick={answer} autoFocus><i className="fa fa-video-camera"></i></button>
+            <button id="accept" className="btn btn-success btn-round-xxl" onClick={answer} autoFocus={props.autoFocus}><i className="fa fa-video-camera"></i></button>
             <br />
             {buttonText.shift()}
         </li>);
     }
 
     answerButtons.push(<li key="audioAnwerButton">
-        <button id="audio" className="btn btn-success btn-round-xxl" onClick={answerAudioOnly} autoFocus={!props.call.mediaTypes.video}><i className="fa fa-phone"></i></button>
+        <button id="audio" className="btn btn-success btn-round-xxl" onClick={answerAudioOnly} autoFocus={!props.call.mediaTypes.video && props.autoFocus}><i className="fa fa-phone"></i></button>
         <br />
         {buttonText.shift()}
     </li>);
@@ -104,6 +104,7 @@ IncomingCallModal.propTypes = {
     call     : PropTypes.object,
     onAnswer : PropTypes.func.isRequired,
     onHangup : PropTypes.func.isRequired,
+    autoFocus: PropTypes.bool.isRequired,
     compact  : PropTypes.bool
 };
 

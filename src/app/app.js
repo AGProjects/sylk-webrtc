@@ -1349,6 +1349,7 @@ class Blink extends React.Component {
                         call = {this.state.inboundCall}
                         onAnswer = {this.answerCall}
                         onHangup = {this.rejectCall}
+                        autoFocus = {this.state.propagateKeyPress === false}
                     />
                 </CSSTransition>
             );
@@ -1364,6 +1365,7 @@ class Blink extends React.Component {
                             call = {this.state.inboundCall}
                             onAnswer = {this.answerCall}
                             onHangup = {this.rejectCall}
+                            autoFocus = {this.state.propagateKeyPress === false}
                             compact = {true}
                         />
                     </IncomingCallWindow>

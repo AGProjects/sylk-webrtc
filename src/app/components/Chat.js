@@ -140,6 +140,7 @@ const Chat = (props) => {
 
         if (uri !== selectedUri) {
             setSelectedUri(uri);
+            props.lastContactSelected(uri);
             if (id) {
                 DEBUG('Focus message: %s', id);
                 setFocus(id);
@@ -314,7 +315,8 @@ Chat.propTypes = {
     oldMessages         : PropTypes.object.isRequired,
     propagateKeyPress   : PropTypes.func.isRequired,
     removeChat          : PropTypes.func.isRequired,
-    startCall           : PropTypes.func.isRequired
+    startCall           : PropTypes.func.isRequired,
+    lastContactSelected : PropTypes.func.isRequired
 };
 
 

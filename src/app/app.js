@@ -1575,6 +1575,9 @@ class Blink extends React.Component {
                         let oldMessages = cloneDeep(this.state.oldMessages);
                         delete oldMessages[contact];
                         this.state.account.removeChat(contact);
+                        if (this.lastMessageFocus === contact) {
+                            this.lastMessageFocus = '';
+                        }
                         this.setState({oldMessages: oldMessages});
                     }}
                     loadMoreMessages = {(key) => {
@@ -1585,6 +1588,9 @@ class Blink extends React.Component {
                                 this.setState({oldMessages: oldMessages});
                             }
                         });
+                    }}
+                    lastContactSelected = {(uri) => {
+                        this.lastMessageFocus = uri;
                     }}
                 />
             </div>

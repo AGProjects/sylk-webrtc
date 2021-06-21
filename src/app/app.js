@@ -10,6 +10,7 @@ const TransitionGroup           = require('react-transition-group/TransitionGrou
 const CSSTransition             = require('react-transition-group/CSSTransition');
 const adapter                   = require('webrtc-adapter');
 const sylkrtc                   = require('sylkrtc');
+const cloneDeep                 = require('lodash/cloneDeep');
 const debug                     = require('debug');
 const DigestAuthRequest         = require('digest-auth-request');
 
@@ -1121,8 +1122,9 @@ class Blink extends React.Component {
         DEBUG('Message state changed: %o', message);
         messageStorage.update(message);
         let found = false;
-        for (const [key, messages] of Object.entries(this.state.oldMessages)) {
-            const newMessages = messages.map(loadedMessage => {
+        const oldMessages = cloneDeep(this.state.oldMessages);
+        for (const [key, messages] of Object.entries(oldMessages)) {
+            const newMessages = cloneDeep(messages).map(loadedMessage => {
                 if (message.messageId === loadedMessage.id && message.state !== loadedMessage.state) {
                     loadedMessage.state = message.state;
                     found = true;
@@ -1131,7 +1133,6 @@ class Blink extends React.Component {
                 return loadedMessage;
             });
             if (found) {
-                const oldMessages = Object.assign({}, this.state.oldMessages);
                 oldMessages[key] = newMessages;
                 this.setState({oldMessages: oldMessages});
                 break;
@@ -1147,8 +1148,9 @@ class Blink extends React.Component {
         if (!error) {
             messageStorage.updateDisposition(id, state);
             let found = false;
-            for (const [key, messages] of Object.entries(this.state.oldMessages)) {
-                const newMessages = messages.map(message => {
+            const oldMessages = cloneDeep(this.state.oldMessages);
+            for (const [key, messages] of Object.entries(oldMessages)) {
+                const newMessages = cloneDeep(messages).map(message => {
                     if (message.id === id && message.dispositionState !== state) {
                         message.dispositionState = state;
                         found = true;
@@ -1157,7 +1159,6 @@ class Blink extends React.Component {
                     return message;
                 });
                 if (found) {
-                    const oldMessages = Object.assign({}, this.state.oldMessages);
                     oldMessages[key] = newMessages;
                     this.setState({oldMessages: oldMessages});
                     break;
@@ -1572,7 +1573,7 @@ class Blink extends React.Component {
                     focusOn = {this.lastMessageFocus}
                     removeChat = {(contact) => {
                         messageStorage.remove(contact);
-                        let oldMessages = Object.assign({}, this.state.oldMessages);
+                        let oldMessages = cloneDeep(this.state.oldMessages);
                         delete oldMessages[contact];
                         this.state.account.removeChat(contact);
                         this.setState({oldMessages: oldMessages});
@@ -1580,7 +1581,7 @@ class Blink extends React.Component {
                     loadMoreMessages = {(key) => {
                         messageStorage.loadMoreMessages(key).then((cache) => {
                             if (cache) {
-                                const oldMessages = Object.assign({}, this.state.oldMessages);
+                                let oldMessages = cloneDeep(this.state.oldMessages);
                                 oldMessages[key] = cache.concat(oldMessages[key]);
                                 this.setState({oldMessages: oldMessages});
                             }

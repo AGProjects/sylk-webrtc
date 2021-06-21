@@ -96,7 +96,7 @@ const Message = ({
             setParsedContent  (
                 <pre>{parse(linkfiedContent)}</pre>
             );
-        } else if (message.contentType === 'text/rsa-public-key') {
+        } else if (message.contentType === 'text/pgp-public-key') {
             setParsedContent(
                 <Chip
                     component="span"

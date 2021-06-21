@@ -152,7 +152,7 @@ const ContactList = (props) => {
                     [],
                     Object.values(props.messages)
                 ).filter(contact =>
-                    contact.content.indexOf(props.filter) !== -1 && contact.contentType !== 'text/rsa-public-key'
+                    contact.content.indexOf(props.filter) !== -1 && contact.contentType !== 'text/pgp-public-key'
                 )
             );
         } else {
@@ -216,7 +216,7 @@ const ContactList = (props) => {
             return content;
         } else if (contentType === 'text/plain') {
             return message.content;
-        } else if (contentType === 'text/rsa-public-key') {
+        } else if (contentType === 'text/pgp-public-key') {
             return (
                 <Chip
                     component = "span"

@@ -264,24 +264,30 @@ function add(message) {
     }));
 }
 
-// WIP
-// function removeMessage(key, id) {
-//     if (store === null) return {};
-//
-//     let messages = [];
-//     return Queue.enqueue(() => store.getItem(key).then((storedMessages) => {
-//         if (storedMessages) {
-//             messages = messages.map((storedMessage) => {
-//                 storedMessage = JSON.parse(storedMessage, _parseDates);
-//                 if (id !== storedMessage.id) {
-//                     return JSON.stringify(storedMessage);
-//                 }
-//             });
-//             set(key, messages);
-//         }
-//         return messages;
-//     }));
-// }
+
+function removeMessage(message) {
+    if (store === null) return {};
+
+    let messages = [];
+
+    let contact = message.receiver;
+    if (message.state === 'received') {
+        contact = message.sender.uri;
+    }
+    return Queue.enqueue(() => get(contact).then((storedMessages) => {
+        if (storedMessages) {
+            messages = storedMessages.filter((storedMessage) => {
+                storedMessage = JSON.parse(storedMessage, _parseDates);
+                if (message.id !== storedMessage.id) {
+                    return true;
+                }
+                return false;
+            });
+            set(contact, messages);
+        }
+        return messages;
+    }));
+}
 
 
 function update(message) {
@@ -420,5 +426,5 @@ exports.close = close;
 exports.updateDisposition = updateDisposition;
 exports.loadLastMessages = loadLastMessages;
 exports.loadMoreMessages = loadMoreMessages;
-// exports.removeMessage = removeMessage;
+exports.removeMessage = removeMessage;
 exports.hasMore = hasMore;

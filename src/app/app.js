@@ -157,6 +157,7 @@ class Blink extends React.Component {
         this.isRetry = false;
         this.entryPath = '';
         this.lastMessageFocus = '';
+        this.retransmittedMessages = [];
     }
 
     get _notificationCenter() {
@@ -543,6 +544,7 @@ class Blink extends React.Component {
                         break;
                     }
                 }
+                this.retransmittedMessages = pendingFailedMessages;
                 if (index !== 0) {
                     messages = this.state.account.messages.slice(0, -index);
                 }
@@ -606,9 +608,6 @@ class Blink extends React.Component {
                     switch (this.state.mode) {
                         case MODE_PRIVATE:
                         case MODE_NORMAL:
-                            for (let message of pendingFailedMessages.reverse()) {
-                                account.sendMessage(message.receiver, message.content, message.contentType)
-                            }
                             account.on('registrationStateChanged', this.registrationStateChanged);
                             account.on('incomingCall', this.incomingCall);
                             account.on('missedCall', this.missedCall);
@@ -617,6 +616,27 @@ class Blink extends React.Component {
                             account.on('sendingMessage', this.sendingMessage);
                             account.on('sendingDispositionNotification', this.sendingDispositionNotification);
                             account.on('messageStateChanged', this.messageStateChanged);
+                            setTimeout(() => {
+                                const oldMessages1 = cloneDeep(this.state.oldMessages);
+
+                                for (let message of pendingFailedMessages.reverse()) {
+                                    if (message.state === 'pending' || message.state === 'error') {
+                                        messageStorage.removeMessage(message).then(()=> {
+                                            DEBUG('Message removed: %o', message.id);
+                                        });
+                                        DEBUG('Retransmitting: %o', message);
+                                        account.sendMessage(message.receiver, message.content, message.contentType)
+                                    } else {
+                                        const receiver = message.receiver;
+                                        let key = receiver;
+                                        if (!oldMessages1[key]) {
+                                            oldMessages1[key] = [];
+                                        }
+                                        oldMessages1[key].push(message);
+                                    }
+                                }
+                                this.setState({oldMessages: oldMessages1});
+                            }, 1000);
                             this.setState({account: account, oldMessages: oldMessages});
                             this.state.account.register();
                             if (this.state.mode !== MODE_PRIVATE) {
@@ -1107,6 +1127,11 @@ class Blink extends React.Component {
 
     incomingMessage(message) {
         DEBUG('Incoming Message from: %s', message.sender.uri);
+        if (this.retransmittedMessages.findIndex(m => message.id === m.id) !== -1) {
+            DEBUG('Message was previously removed, not adding: %s', message.id);
+            return;
+        }
+
         messageStorage.add(message);
 
         if (message.sender.displayName !== null

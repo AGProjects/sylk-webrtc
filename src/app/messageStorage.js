@@ -133,7 +133,6 @@ class electronStorage {
         return this.ready()
             .then(() => {
                 return new Promise((resolve, reject) => {
-                    DEBUG('Fetching keys');
                     this._store.keys(this.options, function(error, data) {
                         if (error) {
                             reject(error);
@@ -154,21 +153,14 @@ class electronStorage {
             .then(() => {
                 return new Promise((resolve, reject) => {
                     // getAll has a bug, it splits the object on .
-                    this._store.keys(this.options, (error, data) => {
-                        if (error) {
-                            reject(error);
-                            return;
-                        }
+                    this.keys().then(data => {
                         if (JSON.stringify(data) === JSON.stringify([])) {
                             resolve();
                         } else {
                             let itertionNumber = 1;
+                            let promises = [];
                             for (const key of data) {
-                                this._store.get(key, this.options, function(error, value) {
-                                    if (error) {
-                                        reject(error);
-                                        return;
-                                    }
+                                promises.push(this._get(key).then((value) => {
                                     if (JSON.stringify(value) === JSON.stringify({})) {
                                         resolve(null);
                                     } else {
@@ -182,9 +174,18 @@ class electronStorage {
                                             resolve(result);
                                         }
                                     }
-                                });
+                                }).catch(error => {
+                                    reject(error);
+                                    return;
+                                }));
                             }
+                            Promise.all(promises).then(() => {
+                                resolve();
+                            });
                         }
+                    }).catch(error => {
+                        reject(error);
+                        return;
                     });
                 });
         });

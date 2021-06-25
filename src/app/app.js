@@ -409,6 +409,7 @@ class Blink extends React.Component {
                         resetTargetUri = false;
                         this.failureReason = reason;
                     }
+                    this.entryPath = '/ready';
                 }
                 this.setState({
                     currentCall         : null,

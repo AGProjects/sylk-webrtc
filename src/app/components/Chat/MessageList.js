@@ -46,7 +46,8 @@ const MessageList = ({
     hasMore,
     displayed,
     loadMoreMessages,
-    contactCache
+    contactCache,
+    removeMessage
 }) => {
     const [entries, setEntries] = useState([])
     const [display, setDisplay] = useState(false);
@@ -115,12 +116,13 @@ const MessageList = ({
                         cont = {continues}
                         scroll = {scrollToBottom}
                         contactCache = {contactCache}
+                        removeMessage = {() => removeMessage(message)}
                     />
                 </React.Fragment>
             )
         });
         setEntries(entries);
-    }, [messages, focus, displayed, scrollToBottom, contactCache]);
+    }, [messages, focus, displayed, scrollToBottom, contactCache, removeMessage]);
 
     useEffect(() => {
         const canLoadMore = () => {

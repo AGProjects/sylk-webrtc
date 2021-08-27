@@ -11,11 +11,12 @@ const Media             = ReactBootstrap.Media;
 const { default: parse } = require('html-react-parser');
 const linkifyUrls        = require('linkify-urls');
 const { DateTime }       = require('luxon');
-const { Chip }           = require('@material-ui/core');
+const { Chip, MenuItem } = require('@material-ui/core');
 const { makeStyles }     = require('@material-ui/core/styles');
 const { Lock: LockIcon, Done: DoneIcon, DoneAll: DoneAllIcon} = require('@material-ui/icons');
 const VizSensor          = require('react-visibility-sensor').default;
 
+const CustomContextMenu = require('../CustomContextMenu');
 const UserIcon          = require('../UserIcon');
 
 
@@ -32,6 +33,12 @@ const styleSheet = makeStyles((theme) => ({
         fontSize: 15,
         verticalAlign: 'middle',
         color: 'green'
+    },
+    item: {
+        fontSize: '14px',
+        fontFamily: 'inherit',
+        color: '#333',
+        minHeight: 0
     }
 }));
 
@@ -41,12 +48,14 @@ const Message = ({
     cont,
     displayed,
     focus,
-    contactCache
+    contactCache,
+    removeMessage
 }) => {
     const classes = styleSheet();
     const [state, setState] = useState('');
     const [parsedContent, setParsedContent] = useState();
     const messageRef = useRef(null);
+    const [anchorEl, setAnchorEl] = useState(null);
 
     const sender = message.sender.displayName ||  message.sender.uri;
     const time = DateTime.fromJSDate(message.timestamp).toFormat('HH:mm');
@@ -161,10 +170,42 @@ const Message = ({
         return {uri: uri};
     };
 
+    const handleContextMenu = (e) => {
+	e.preventDefault();
+	const { clientX, clientY } = e;
+	const virtualElement = {
+            clientWidth: 0,
+            clientHeight: 0,
+            getBoundingClientRect: () => ({
+                width: 0,
+                height: 0,
+                top: clientY,
+		right: clientX,
+                bottom: clientY,
+                left: clientX
+            })
+        };
+	setAnchorEl(virtualElement);
+    }
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
     if (cont || message.type === 'status') {
         return (
             <VizSensor partialVisibility={true} onChange={isDisplayed}>
-                <Media className={theme}>
+                <Media className={theme} onContextMenu = {handleContextMenu}>
+                    <CustomContextMenu
+                        open = {Boolean(anchorEl)}
+                        anchorEl={anchorEl}
+                        onClose = {handleClose}
+                        keepMounted
+                    >
+                        <MenuItem className={classes.item} onClick={() => {removeMessage(); handleClose()}}>
+                            Remove Message
+                        </MenuItem>
+                    </CustomContextMenu>
+
                     <div ref={messageRef} />
                     <Media.Left className="timestamp-continued">
                         <span>{time}</span>
@@ -182,7 +223,17 @@ const Message = ({
 
     return (
         <VizSensor partialVisibility={true} onChange={isDisplayed}>
-            <Media className={theme}>
+            <Media className={theme} onContextMenu = {handleContextMenu}>
+                <CustomContextMenu
+                    open = {Boolean(anchorEl)}
+                    anchorEl={anchorEl}
+                    onClose = {handleClose}
+                    keepMounted
+                >
+                    <MenuItem className={classes.item} onClick={() => {removeMessage(); handleClose()}}>
+                        Remove Message
+                    </MenuItem>
+                </CustomContextMenu>
                 <div ref={messageRef} />
                 <Media.Left>
                     <UserIcon identity={getDisplayName(message.sender.uri)} />

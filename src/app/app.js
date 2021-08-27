@@ -1702,7 +1702,7 @@ class Blink extends React.Component {
                         messageStorage.remove(contact);
                         let oldMessages = cloneDeep(this.state.oldMessages);
                         delete oldMessages[contact];
-                        this.state.account.removeChat(contact);
+                        this.state.account.removeConversation(contact);
                         if (this.lastMessageFocus === contact) {
                             this.lastMessageFocus = '';
                         }
@@ -1720,6 +1720,23 @@ class Blink extends React.Component {
                     lastContactSelected = {(uri) => {
                         this.lastMessageFocus = uri;
                     }}
+                    removeMessage = {(message) => {
+                        messageStorage.removeMessage(message).then(()=> {
+                            DEBUG('Message removed: %o', message.id);
+                        });
+                        let oldMessages = cloneDeep(this.state.oldMessages);
+                        let contact = message.receiver;
+                        if (message.state === 'received') {
+                            contact = message.sender.uri;
+                        }
+                        this.state.account.removeMessage(message);
+                        if (oldMessages[contact]) {
+                            oldMessages[contact] = oldMessages[contact].filter(loadedMessage => loadedMessage.id !== message.id);
+                        }
+                        this.setState({oldMessages: oldMessages});
+                    }}
+                    isLoadingMessages = {this.state.messagesLoading}
+
                 />
             </div>
         )

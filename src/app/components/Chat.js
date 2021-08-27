@@ -275,6 +275,7 @@ const Chat = (props) => {
                                 timestamp,
                                 state
                             )}}
+                        removeMessage= {(message) => props.removeMessage(message)}
                     />
                     <ConferenceChatEditor
                         onSubmit = {handleMessage}

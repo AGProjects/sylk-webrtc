@@ -257,6 +257,18 @@ function add(message) {
     Queue.enqueue(() => get(contact).then((messages) => {
         if (!messages) {
             messages = [];
+        } else {
+            let hasId = false;
+            messages.forEach((storedMessage) => {
+                storedMessage = JSON.parse(storedMessage, _parseDates);
+                if (message.id === storedMessage.id) {
+                    DEBUG('NOT Saving message in storage: %o', message);
+                    hasId = true;
+                }
+            });
+            if (hasId) {
+                return
+            }
         }
         messages.push(JSON.stringify(message));
         DEBUG('Saving message in storage: %o', message);

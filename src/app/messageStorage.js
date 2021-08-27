@@ -364,20 +364,23 @@ function loadLastMessages() {
     if (store === null) return {};
 
     const lastMessages = {};
-    return store.keys().then((keys) => {
+    const promises = [];
+    return Queue.enqueue(() => store.keys().then((keys) => {
         if (keys) {
             for (let key of keys) {
-                store.getItem(key).then((messages) => {
+                promises.push(store.getItem(key).then((messages) => {
                     if (messages) {
                         lastMessages[key] = messages.slice(-30).map(message => JSON.parse(message, _parseDates));
                         // lastMessages[key] = messages.map(message => JSON.parse(message, parseDates));
                         lastIdLoaded.set(key, lastMessages[key][0].id);
                     }
-                })
+                }))
             }
         }
-        return lastMessages
-    });
+        return Promise.all(promises).then(() => {
+            return lastMessages;
+        });
+    }));
 }
 
 

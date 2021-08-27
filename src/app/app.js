@@ -1216,6 +1216,8 @@ class Blink extends React.Component {
             }
             if (fetchedMessage.contentType === 'application/sylk-message-remove') {
                 const message = fetchedMessage.content;
+                message.id = message.message_id;
+                message.receiver = message.contact;
                 messageStorage.removeMessage(message).then(()=> {
                     DEBUG('Message removed: %o', message.id);
                 });

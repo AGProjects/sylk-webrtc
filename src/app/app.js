@@ -347,12 +347,10 @@ class Blink extends React.Component {
                     this.state.account.register();
                 }, 5000);
             }
-        } else if (newState === 'registered' && path === '/login') {
-            this.setState({loading: null});
-            this.refs.router.navigate('/ready');
-            return;
         } else if (newState === 'registered') {
-            // Load messages
+            if (path === '/login') {
+                this.setState({loading: null});
+            }
             messageStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
             messageStorage.loadLastMessages().then((cache) => {
                 storage.get('lastMessageId').then(id =>
@@ -360,6 +358,10 @@ class Blink extends React.Component {
                 );
                 this.setState({oldMessages: cache})
             });
+            if (path === '/login') {
+                this.refs.router.navigate('/ready');
+                return;
+            }
         } else {
             this.setState({status: null });
         }
@@ -1178,7 +1180,7 @@ class Blink extends React.Component {
         }
         for (const [key, messages] of Object.entries(oldMessages)) {
             const newMessages = cloneDeep(messages).map(loadedMessage => {
-                if (message.messageId === loadedMessage.id && message.state !== loadedMessage.state) {
+                if (message.messageId === loadedMessage.id && message.state !== loadedMessage.state && loadedMessage.state != 'displayed') {
                     loadedMessage.state = message.state;
                     found = true;
                     DEBUG('Updating state for loaded messages');

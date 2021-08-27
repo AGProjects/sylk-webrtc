@@ -349,16 +349,17 @@ class Blink extends React.Component {
             }
         } else if (newState === 'registered' && path === '/login') {
             this.setState({loading: null});
+            this.refs.router.navigate('/ready');
+            return;
+        } else if (newState === 'registered') {
             // Load messages
             messageStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
             messageStorage.loadLastMessages().then((cache) => {
                 storage.get('lastMessageId').then(id =>
                     this.state.account.syncConversations(id)
-                )
+                );
                 this.setState({oldMessages: cache})
             });
-            this.refs.router.navigate('/ready');
-            return;
         } else {
             this.setState({status: null });
         }

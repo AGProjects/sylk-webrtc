@@ -98,6 +98,26 @@ const Chat = (props) => {
             setMessages(oldMessages);
         };
 
+        const outgoingMessage = (message) => {
+            const oldMessages = cloneDeep(messagesRef.current);
+            if (!oldMessages[message.receiver]) {
+                oldMessages[message.receiver] = [];
+            }
+            oldMessages[message.receiver].push(message);
+            setMessages(oldMessages);
+        };
+
+        const removeMessage = (message) => {
+            const oldMessages = cloneDeep(messagesRef.current);
+            let key = message.receiver;
+            if (message.state === 'received') {
+                key = message.sender.uri;
+            }
+            if (oldMessages[key]) {
+                oldMessages[key] = oldMessages[key].filter(loadedMessage => loadedMessage.id !== message.id);
+                setMessages(oldMessages);
+            }
+        };
         const newMessages = cloneDeep(props.oldMessages);
         for (let message of props.account.messages) {
             const senderUri = message.sender.uri;
@@ -116,6 +136,8 @@ const Chat = (props) => {
         setShow(true);
         props.account.on('incomingMessage', incomingMessage);
         props.account.on('messageStateChanged', messageStateChanged);
+        props.account.on('outgoingMessage', outgoingMessage);
+        props.account.on('removeMessage', removeMessage);
 
         componentJustMounted.current = false;
         return () => {
@@ -123,6 +145,8 @@ const Chat = (props) => {
             setShow(false);
             props.account.removeListener('incomingMessage', incomingMessage);
             props.account.removeListener('messageStateChanged', messageStateChanged);
+            props.account.removeListener('outgoingMessage', outgoingMessage);
+            props.account.removeListener('removeMessage', removeMessage);
         }
     }, [props.account, props.oldMessages]);
 

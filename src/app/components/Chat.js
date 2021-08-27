@@ -114,15 +114,14 @@ const Chat = (props) => {
 
         setMessages(newMessages);
         setShow(true);
-
-        props.account.on('message', incomingMessage);
+        props.account.on('incomingMessage', incomingMessage);
         props.account.on('messageStateChanged', messageStateChanged);
 
         componentJustMounted.current = false;
         return () => {
             DEBUG('Running leave hook');
             setShow(false);
-            props.account.removeListener('message', incomingMessage);
+            props.account.removeListener('incomingMessage', incomingMessage);
             props.account.removeListener('messageStateChanged', messageStateChanged);
         }
     }, [props.account, props.oldMessages]);

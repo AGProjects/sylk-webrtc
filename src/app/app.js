@@ -613,7 +613,7 @@ class Blink extends React.Component {
                             account.on('incomingCall', this.incomingCall);
                             account.on('missedCall', this.missedCall);
                             account.on('conferenceInvite', this.conferenceInvite);
-                            account.on('message', this.incomingMessage);
+                            account.on('incomingMessage', this.incomingMessage);
                             account.on('sendingMessage', this.sendingMessage);
                             account.on('sendingDispositionNotification', this.sendingDispositionNotification);
                             account.on('messageStateChanged', this.messageStateChanged);

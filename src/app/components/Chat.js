@@ -339,6 +339,7 @@ Chat.propTypes = {
     oldMessages         : PropTypes.object.isRequired,
     propagateKeyPress   : PropTypes.func.isRequired,
     removeChat          : PropTypes.func.isRequired,
+    removeMessage       : PropTypes.func.isRequired,
     startCall           : PropTypes.func.isRequired,
     lastContactSelected : PropTypes.func.isRequired
 };

@@ -1193,7 +1193,7 @@ class Blink extends React.Component {
         }
     }
 
-    messageStateChanged(message, fromSync=false) {
+    messageStateChanged(message, fromSync = false) {
         DEBUG('Message state changed: %o', message);
         messageStorage.update(message);
         let found = false;

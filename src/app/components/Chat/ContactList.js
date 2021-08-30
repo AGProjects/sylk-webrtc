@@ -178,7 +178,7 @@ const ContactList = (props) => {
         }).forEach(key => {
             if (props.messages[key] && props.messages[key].length) {
                 let lastItem = props.messages[key][props.messages[key].length - 1]
-                if (lastItem.content.startsWith('?OTRv')){
+                if (lastItem.content.startsWith('?OTRv')) {
                     for (let i = 2; i <= props.messages[key].length; i++) {
                         lastItem = props.messages[key][props.messages[key].length - i]
                         if (lastItem.content.startsWith('?OTRv')) {

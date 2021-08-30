@@ -250,6 +250,7 @@ const Message = ({
 Message.propTypes = {
     message: PropTypes.object.isRequired,
     scroll: PropTypes.func.isRequired,
+    removeMessage: PropTypes.func.isRequired,
     cont: PropTypes.bool,
     displayed: PropTypes.func,
     focus: PropTypes.bool,

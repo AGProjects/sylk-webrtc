@@ -182,6 +182,7 @@ MessageList.propTypes = {
     messages: PropTypes.array.isRequired,
     focus: PropTypes.string,
     loadMoreMessages: PropTypes.func.isRequired,
+    removeMessage: PropTypes.func.isRequired,
     hasMore: PropTypes.func.isRequired,
     displayed: PropTypes.func.isRequired,
     contactCache: PropTypes.object

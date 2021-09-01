@@ -386,7 +386,10 @@ const ContactList = (props) => {
                                                     style = {{flexGrow: 1}}
                                                 >
                                                     {message.state === 'received'
-                                                        ? getDisplayName(message.sender.uri, props.contactCache).displayName
+                                                        ? (
+                                                            getDisplayName(message.sender.uri, props.contactCache).displayName
+                                                            || getDisplayName(message.sender.uri, props.contactCache).uri
+                                                        )
                                                         : (
                                                             getDisplayName(message.receiver, props.contactCache).displayName
                                                             || getDisplayName(message.receiver, props.contactCache).uri

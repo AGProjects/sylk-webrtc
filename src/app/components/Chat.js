@@ -132,6 +132,10 @@ const Chat = (props) => {
             newMessages[key].push(message);
         };
 
+        for (let contact of Object.keys(newMessages)) {
+            newMessages[contact].sort((a, b) => a.timestamp - b.timestamp);
+        }
+
         setMessages(newMessages);
         setShow(true);
         props.account.on('incomingMessage', incomingMessage);

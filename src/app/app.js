@@ -668,6 +668,36 @@ class Blink extends React.Component {
                             account.on('sendingDispositionNotification', this.sendingDispositionNotification);
                             account.on('messageStateChanged', this.messageStateChanged);
                             account.on('syncConversations', this.messagesFetched);
+                            account.on('readConversation', (contact) => {
+                                const oldMessages = cloneDeep(this.state.oldMessages);
+                                const messages = oldMessages[contact];
+                                let found = false;
+                                const newMessages = cloneDeep(messages).map(message => {
+                                    messageStorage.updateDisposition(message.id, 'displayed');
+                                    if (!(message instanceof require('events').EventEmitter)
+                                        && message.state == 'received'
+                                        && message.dispositionState !== 'displayed'
+                                        && message.dispositionNotification.indexOf('display') !== -1
+                                    ) {
+                                        message.dispositionState = 'displayed';
+                                        DEBUG('Updating dispositionState for loaded message');
+                                        found = true;
+                                    }
+                                    return message;
+                                });
+                                if (found) {
+                                    oldMessages[contact] = newMessages;
+                                }
+                                for (let message of  this.state.account.messages) {
+                                    if (message.sender.uri === contact
+                                        && message.state === 'received'
+                                        && message.dispositionNotification.indexOf('display') !== -1
+                                    ) {
+                                        messageStorage.updateDisposition(message.id, 'displayed');
+                                    }
+                                }
+                                this.setState({oldMessages: oldMessages});
+                            });
                             account.on('removeConversation', (contact) => {
                                 messageStorage.remove(contact)
                                 let oldMessages = cloneDeep(this.state.oldMessages);
@@ -1266,6 +1296,24 @@ class Blink extends React.Component {
                 message.receiver = message.contact;
                 promises.push(messageStorage.removeMessage(message).then(()=> {
                     DEBUG('Message removed: %o', message.id);
+                }));
+                continue;
+            }
+
+            if (fetchedMessage.contentType === 'application/sylk-conversation-read') {
+                const contact = fetchedMessage.content
+                promises.push(messageStorage.loadLastMessages().then(allMessages => {
+                    if (allMessages) {
+                        const messages = allMessages[contact];
+                        for (let message of messages) {
+                            if (message.state == 'received'
+                                && message.dispositionState !== 'displayed'
+                                && message.dispositionNotification.indexOf('display') !== -1
+                            ) {
+                                this.sendingDispositionNotification(message.id, 'displayed')
+                            }
+                        }
+                    }
                 }));
                 continue;
             }

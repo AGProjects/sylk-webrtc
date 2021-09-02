@@ -68,6 +68,7 @@ const Chat = (props) => {
 
     const componentJustMounted = useRef(true);
 
+    this.timer = null
     useEffect(() => {
         setSelectedUri(props.focusOn)
     }, [props.focusOn]);
@@ -289,7 +290,32 @@ const Chat = (props) => {
                                 id,
                                 timestamp,
                                 state
-                            )}}
+                            );
+                            if (this.timer !== null) {
+                                clearTimeout(this.timer);
+                            }
+                            this.timer = setTimeout(() => {
+                            let sendMark = true;
+                            for (let message of messages[uri]) {
+                                if (message.state === 'received'
+                                    && message.dispositionState !== 'displayed'
+                                    && message.dispositionNotification.indexOf('display') !== -1
+                                    && message.id !== id
+                                ) {
+                                    sendMark = false;
+                                    break;
+                                }
+                            }
+                            if (sendMark) {
+                                if (unread === uri) {
+                                    setUnread()
+                                } else {
+                                    setUnread(uri)
+                                }
+                                props.account.markConversationRead(uri);
+                                this.timer = null;
+                            }}, 500);
+                        }}
                         removeMessage= {(message) => props.removeMessage(message)}
                     />
                     <ConferenceChatEditor

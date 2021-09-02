@@ -349,7 +349,7 @@ const ContactList = (props) => {
                         disableTypography
                         primary = {
                             <React.Fragment>
-                                <Grid container spacing={0} justify="space-between" alignItems="baseline" wrap='nowrap'>
+                                <Grid container spacing={0} justify="space-between" alignItems="baseline" wrap="nowrap">
                                     <Grid item zeroMinWidth>
                                         <Typography
                                             variant="h4"

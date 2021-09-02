@@ -43,6 +43,7 @@ const Chat = (props) => {
     const classes = styleSheet(props);
     const [messages, _setMessages] = useState({});
     const [filter, setFilter] = useState('');
+    const [unread, setUnread] = useState('');
 
     const [show, setShow]   = useState(false);
     const [focus, setFocus] = useState('');
@@ -335,6 +336,7 @@ const Chat = (props) => {
                         props.removeChat(contact);
                         setSelectedUri('');
                     }}
+                    unread = {unread}
                 />
             </ConferenceDrawer>
         </div>

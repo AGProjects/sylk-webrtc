@@ -12,6 +12,7 @@ const xss               = require('xss');
 const { DateTime }      = require('luxon');
 const { makeStyles }    = require('@material-ui/core/styles');
 const {
+    Avatar,
     ListSubheader,
     List,
     ListItem,
@@ -198,6 +199,22 @@ const ContactList = (props) => {
         return OrderedKeys;
     }, [props.messages, props.filter, getDisplayName]);
 
+    const numbers = React.useMemo(() => {
+        const tnumbers = {}
+        for (let key of Object.keys(props.messages)) {
+            let counter = 0;
+            for (let message of props.messages[key]) {
+                if (message.state === 'received'
+                    && message.dispositionState !== 'displayed'
+                    && message.dispositionNotification.indexOf('display') !== -1
+                ) {
+                    counter++;
+                }
+            }
+            tnumbers[key] = counter;
+        }
+        return tnumbers
+    }, [props.messages, props.unread]);
 
     const statusIcon = (message) => {
         const state = message.state;
@@ -328,17 +345,17 @@ const ContactList = (props) => {
                         <UserIcon identity={contact} active={false} chatContact={true}/>
                     </ListItemAvatar>
                     <ListItemText
-                        secondaryTypographyProps={{className: classes.root}}
-                        primary={
+                        disableTypography
+                        primary = {
                             <React.Fragment>
-                                <Grid container spacing={2} justify="space-between" alignItems="baseline">
-                                    <Grid item>
+                                <Grid container spacing={0} justify="space-between" alignItems="baseline" wrap='nowrap'>
+                                    <Grid item zeroMinWidth>
                                         <Typography
                                             variant="h4"
                                             className={classes.header}
-                                            style={{flexGrow: 1}}
+                                            style={{flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis'}}
                                         >
-                                        {getHighlightedText(contact.displayName || contact.uri, props.filter)}
+                                            {getHighlightedText(contact.displayName || contact.uri, props.filter)}
                                         </Typography>
                                     </Grid>
                                     <Grid item>
@@ -350,7 +367,27 @@ const ContactList = (props) => {
                                 </Grid>
                             </React.Fragment>
                         }
-                        secondary = {contact.message && parseContent(contact.message)}
+                        secondary = {
+                            <React.Fragment>
+                                <Grid component="span" container spacing={2} justify="space-between" alignItems="baseline" wrap="nowrap">
+                                    <Grid component="span" item zeroMinWidth>
+                                        <Typography
+                                            className={classes.root}
+                                            style={{flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis'}}
+                                        >
+                                        {contact.message && parseContent(contact.message)}
+                                        </Typography>
+                                    </Grid>
+                                    { props.selectedUri !== contact.uri && numbers[contact.uri] !== 0 &&
+                                        <Grid component="span" item>
+                                            <Avatar component="span" style={{backgroundColor: 'rgb(92,184,92)', width: '20px', height:'20px'}}>
+                                                {numbers[contact.uri]}
+                                            </Avatar>
+                                        </Grid>
+                                    }
+                                </Grid>
+                            </React.Fragment>
+                        }
                     />
                 </ListItem>,
                 <Divider style={props.selectedUri === contact.uri ? {background: 'transparent'} : {}} component="li" key={`divider_${contact.uri}`}/>
@@ -426,7 +463,8 @@ ContactList.propTypes = {
     removeChat    : PropTypes.func.isRequired,
     defaultDomain : PropTypes.string.isRequired,
     filter        : PropTypes.string,
-    selectedUri   : PropTypes.string
+    selectedUri   : PropTypes.string,
+    unread        : PropTypes.string
 };
 
 

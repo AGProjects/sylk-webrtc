@@ -6,7 +6,7 @@ const debug          = require('debug');
 const PropTypes      = require('prop-types');
 const cloneDeep      = require('lodash/cloneDeep');
 const { makeStyles } = require('@material-ui/core/styles');
-const { Toolbar, Divider, Typography } = require('@material-ui/core');
+const { CircularProgress, Toolbar, Divider, Typography } = require('@material-ui/core');
 const { IconButton, useMediaQuery } = require('@material-ui/core');
 
 const { default: clsx }     = require('clsx');

@@ -322,6 +322,41 @@ class Blink extends React.Component {
         return this._notificationCenter;
     }
 
+    retransmitMessages() {
+        let num = this.retransmittedMessages.length;
+        if (num !== 0) {
+            this.setState({messagesLoading: true});
+        }
+        for (let message of this.retransmittedMessages.reverse()) {
+            if (message.state === 'pending' || message.state === 'failed') {
+                DEBUG('Try to remove: %o', message.id);
+                messageStorage.removeMessage(message).then(()=> {
+                    DEBUG('Message removed: %o', message.id);
+                });
+                DEBUG('Retransmitting: %o', message);
+                let messagesLoading = true;
+                let newMessage = this.state.account.sendMessage(message.receiver, message.content, message.contentType, {timestamp: message.timestamp}, () => {
+                    const messagesCopy = cloneDeep(this.state.oldMessages)
+                    const contact = message.receiver;
+                    const newMessages = []
+                    if (messagesCopy[contact]) {
+                        for (let i=0; i<messagesCopy[contact].length; i++) {
+                            if (messagesCopy[contact][i].id !== message.id) {
+                                newMessages.push(messagesCopy[contact][i]);
+                            }
+                        }
+                        messagesCopy[contact] = newMessages;
+                        num--;
+                        if (num === 0) {
+                            messagesLoading = false;
+                        }
+                        this.setState({oldMessages: messagesCopy, messagesLoading: messagesLoading});
+                    }
+                });
+            }
+        }
+    }
+
     registrationStateChanged(oldState, newState, data) {
         DEBUG('Registration state changed! ' + newState);
         this.setState({registrationState: newState});
@@ -352,11 +387,17 @@ class Blink extends React.Component {
                 this.setState({loading: null});
             }
             messageStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
+            this.setState({messagesLoading: true})
             messageStorage.loadLastMessages().then((cache) => {
-                storage.get('lastMessageId').then(id =>
-                    this.state.account.syncConversations(id)
-                );
                 this.setState({oldMessages: cache})
+
+                storage.get('lastMessageId').then(id =>
+                    this.state.account.syncConversations(id, (error) => {
+                        if (error) {
+                            this.retransmitMessages();
+                        }
+                    })
+                );
             });
             if (path === '/login') {
                 this.refs.router.navigate('/ready');
@@ -537,13 +578,14 @@ class Blink extends React.Component {
 
     processRegistration(accountId, password, displayName) {
         let pendingFailedMessages = [];
+        this.retransmittedMessages = [];
         let oldMessages = {};
         if (this.state.account !== null) {
             DEBUG('We already have an account, removing it');
             // Preserve messages from account
             if (accountId === this.state.accountId) {
                 oldMessages = cloneDeep(this.state.oldMessages);
-                let messages = this.state.account.messages;
+                const messages = this.state.account.messages;
                 let index = 0;
                 for (let message of messages.reverse()) {
                     if (message.state === 'pending' || message.state === 'failed') {
@@ -554,11 +596,8 @@ class Blink extends React.Component {
                     }
                 }
                 this.retransmittedMessages = pendingFailedMessages;
-                if (index !== 0) {
-                    messages = this.state.account.messages.slice(0, -index);
-                }
-                let counter = 0;
-                for (let message of messages) {
+
+                for (let message of this.state.account.messages) {
                     const senderUri = message.sender.uri;
                     const receiver = message.receiver;
                     let key = receiver;
@@ -568,11 +607,14 @@ class Blink extends React.Component {
                     if (!oldMessages[key]) {
                         oldMessages[key] = [];
                     }
-                    oldMessages[key].push(message);
-                    counter += 1;
+                    if (!oldMessages[key].find(loadedMessage => loadedMessage.id === message.id)) {
+			oldMessages[key].push(message);
+			counter += 1;
+                    }
                 };
                 DEBUG('Old messages to save: %s', counter);
                 DEBUG('Messages to send again: %s', pendingFailedMessages.length);
+
             }
             try {
                 this.state.connection.removeAccount(this.state.account,
@@ -649,27 +691,6 @@ class Blink extends React.Component {
                                 }
                                 this.setState({oldMessages: oldMessages});
                             });
-                            setTimeout(() => {
-                                const oldMessages1 = cloneDeep(this.state.oldMessages);
-
-                                for (let message of pendingFailedMessages.reverse()) {
-                                    if (message.state === 'pending' || message.state === 'error') {
-                                        messageStorage.removeMessage(message).then(()=> {
-                                            DEBUG('Message removed: %o', message.id);
-                                        });
-                                        DEBUG('Retransmitting: %o', message);
-                                        account.sendMessage(message.receiver, message.content, message.contentType)
-                                    } else {
-                                        const receiver = message.receiver;
-                                        let key = receiver;
-                                        if (!oldMessages1[key]) {
-                                            oldMessages1[key] = [];
-                                        }
-                                        oldMessages1[key].push(message);
-                                    }
-                                }
-                                this.setState({oldMessages: oldMessages1});
-                            }, 1000);
                             this.setState({account: account, oldMessages: oldMessages});
                             this.state.account.register();
                             if (this.state.mode !== MODE_PRIVATE) {
@@ -1194,10 +1215,10 @@ class Blink extends React.Component {
     }
 
     messageStateChanged(message, fromSync = false) {
+        const oldMessages = cloneDeep(this.state.oldMessages);
         DEBUG('Message state changed: %o', message);
         messageStorage.update(message);
         let found = false;
-        const oldMessages = cloneDeep(this.state.oldMessages);
         if (message.state === 'accepted' && !fromSync) {
             storage.set('lastMessageId', message.messageId);
         }
@@ -1225,7 +1246,9 @@ class Blink extends React.Component {
     messagesFetched(messages) {
         this.setState({messagesLoading: true})
         DEBUG('Got messages from server: %o', messages);
+        const promises = []
         for (const fetchedMessage of messages) {
+            DEBUG(fetchedMessage)
             storage.set('lastMessageId', fetchedMessage.id);
             if (fetchedMessage.contentType === 'message/imdn') {
                 let decodedContent = fetchedMessage.content;
@@ -1234,20 +1257,20 @@ class Blink extends React.Component {
             }
             if (fetchedMessage.contentType === 'application/sylk-conversation-remove') {
                 const contact = fetchedMessage.content
-                messageStorage.remove(contact);
+                promises.push(messageStorage.remove(contact));
                 continue;
             }
             if (fetchedMessage.contentType === 'application/sylk-message-remove') {
                 const message = fetchedMessage.content;
                 message.id = message.message_id;
                 message.receiver = message.contact;
-                messageStorage.removeMessage(message).then(()=> {
+                promises.push(messageStorage.removeMessage(message).then(()=> {
                     DEBUG('Message removed: %o', message.id);
-                });
+                }));
                 continue;
             }
             let message = Object.assign({}, fetchedMessage);
-            messageStorage.add(fetchedMessage);
+            promises.push(messageStorage.add(fetchedMessage));
             if (message.state == 'received'
                 && message.dispositionNotification.indexOf('positive-delivery') !== -1
                 ) {
@@ -1259,12 +1282,13 @@ class Blink extends React.Component {
                 );
             }
         }
-
-        messageStorage.loadLastMessages().then(messages => {
-            if (messages) {
-                this.setState({oldMessages: messages, messagesLoading: false})
-            }
-        }
+        Promise.all(promises).then(() =>
+            messageStorage.loadLastMessages().then(messages => {
+                if (messages) {
+                    this.setState({oldMessages: messages, messagesLoading: false})
+                }
+                setImmediate(() => this.retransmitMessages());
+            })
         );
     }
 

@@ -9506,7 +9506,7 @@ svgo@^1.0.0, svgo@^1.3.2:
 
 sylkrtc@AGProjects/sylkrtc.js:
   version "1.5.3"
-  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/642f1e01817ff7f7424a899d26dd82f9cfff9d0d"
+  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/9323a3d2cce8dc8fe11cb8c6d8471c8624043167"
   dependencies:
     "@rifflearning/attachmediastream" "^3.0.0"
     blueimp-md5 "^2.13.0"

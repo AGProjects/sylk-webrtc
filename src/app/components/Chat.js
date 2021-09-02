@@ -79,8 +79,7 @@ const Chat = (props) => {
         DEBUG('Loading messages');
         const incomingMessage = (message) => {
             DEBUG('Incoming Message from: %s', message.sender.uri);
-
-            let oldMessages = cloneDeep(messagesRef.current);
+            let oldMessages = Object.assign({}, messagesRef.current);
             if (!oldMessages[message.sender.uri]) {
                 oldMessages[message.sender.uri] = [];
             }

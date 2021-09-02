@@ -340,7 +340,7 @@ class Blink extends React.Component {
                     const contact = message.receiver;
                     const newMessages = []
                     if (messagesCopy[contact]) {
-                        for (let i=0; i<messagesCopy[contact].length; i++) {
+                        for (let i = 0; i < messagesCopy[contact].length; i++) {
                             if (messagesCopy[contact][i].id !== message.id) {
                                 newMessages.push(messagesCopy[contact][i]);
                             }

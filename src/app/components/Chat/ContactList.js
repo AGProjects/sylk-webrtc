@@ -214,6 +214,7 @@ const ContactList = (props) => {
             tnumbers[key] = counter;
         }
         return tnumbers
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.messages, props.unread]);
 
     const statusIcon = (message) => {

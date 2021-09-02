@@ -252,13 +252,24 @@ const Chat = (props) => {
                                 <span className="sr-only">Close</span>
                             </button>
                         }
-                        <UserIcon identity={getDisplayName(selectedUri)} active={false} small={true}/>
-                        <Typography className={classes.title} variant="h6" noWrap>
-                            {getDisplayName(selectedUri).displayName || selectedUri}
-                            {getDisplayName(selectedUri).displayName && <span className={classes.toolbarName}>({selectedUri})</span>}
-                        </Typography>
-                        <IconButton className="fa fa-phone" onClick={()=> props.startCall(selectedUri, {video: false})} />
-                        <IconButton className="fa fa-video-camera" onClick={()=>props.startCall(selectedUri)} />
+			{ props.isLoadingMessages === true
+                            ?
+                                <React.Fragment>
+                                    <CircularProgress style={{ color: '#888', margin: '5px', marginRight: '10px', width: '35px', height:'35px', display: 'block' }} />
+                                    <Typography className={classes.title} variant="h6" noWrap>Updating</Typography>
+                                </React.Fragment>
+                            :
+                                <React.Fragment>
+                                    <UserIcon identity={getDisplayName(selectedUri)} active={false} small={true}/>
+                                        <Typography className={classes.title} variant="h6" noWrap>
+                                            {getDisplayName(selectedUri).displayName || selectedUri}
+                                            {getDisplayName(selectedUri).displayName && <span className={classes.toolbarName}>({selectedUri})</span>}
+                                        </Typography>
+                                        <IconButton className="fa fa-phone" onClick={()=> props.account.syncConversations()} />
+                                        <IconButton className="fa fa-phone" onClick={()=> props.startCall(selectedUri, {video: false})} />
+                                        <IconButton className="fa fa-video-camera" onClick={()=>props.startCall(selectedUri)} />
+                                </React.Fragment>
+                        }
                         <Divider absolute />
                     </Toolbar>
                     <MessageList
@@ -341,7 +352,8 @@ Chat.propTypes = {
     removeChat          : PropTypes.func.isRequired,
     removeMessage       : PropTypes.func.isRequired,
     startCall           : PropTypes.func.isRequired,
-    lastContactSelected : PropTypes.func.isRequired
+    lastContactSelected : PropTypes.func.isRequired,
+    isLoadingMessages   : PropTypes.bool.isRequired
 };
 
 

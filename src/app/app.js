@@ -596,7 +596,7 @@ class Blink extends React.Component {
                     }
                 }
                 this.retransmittedMessages = pendingFailedMessages;
-
+                let counter = 0;
                 for (let message of this.state.account.messages) {
                     const senderUri = message.sender.uri;
                     const receiver = message.receiver;
@@ -608,13 +608,12 @@ class Blink extends React.Component {
                         oldMessages[key] = [];
                     }
                     if (!oldMessages[key].find(loadedMessage => loadedMessage.id === message.id)) {
-			oldMessages[key].push(message);
-			counter += 1;
+                        oldMessages[key].push(message);
+                        counter += 1;
                     }
                 };
                 DEBUG('Old messages to save: %s', counter);
                 DEBUG('Messages to send again: %s', pendingFailedMessages.length);
-
             }
             try {
                 this.state.connection.removeAccount(this.state.account,

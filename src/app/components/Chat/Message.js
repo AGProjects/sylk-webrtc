@@ -11,7 +11,7 @@ const Media             = ReactBootstrap.Media;
 const { default: parse } = require('html-react-parser');
 const linkifyUrls        = require('linkify-urls');
 const { DateTime }       = require('luxon');
-const { Chip, MenuItem } = require('@material-ui/core');
+const { Chip, Divider, MenuItem } = require('@material-ui/core');
 const { makeStyles }     = require('@material-ui/core/styles');
 const { Lock: LockIcon, Done: DoneIcon, DoneAll: DoneAllIcon} = require('@material-ui/icons');
 const VizSensor          = require('react-visibility-sensor').default;
@@ -189,9 +189,22 @@ const Message = ({
 	setAnchorEl(virtualElement);
     }
 
+    const copy = () => {
+        let selection = window.getSelection();
+        if (selection !== '') {
+            selection = message.content;
+        }
+        if ('clipboard' in navigator) {
+            navigator.clipboard.writeText(selection);
+        } else {
+            document.execCommand('copy', true, selection);
+        }
+    };
+
     const handleClose = () => {
         setAnchorEl(null);
     };
+
     if (cont || message.type === 'status') {
         return (
             <VizSensor partialVisibility={true} onChange={isDisplayed}>
@@ -203,6 +216,10 @@ const Message = ({
                             onClose = {handleClose}
                             keepMounted
                         >
+                            <MenuItem className={classes.item} onClick={() => {copy(); handleClose()}}>
+                                Copy
+                            </MenuItem>
+                            <Divider />
                             <MenuItem className={classes.item} onClick={() => {removeMessage(); handleClose()}}>
                                 Remove Message
                             </MenuItem>
@@ -234,6 +251,9 @@ const Message = ({
                         onClose = {handleClose}
                         keepMounted
                     >
+                        <MenuItem className={classes.item} onClick={() => {copy(); handleClose()}}>
+                            Copy
+                        </MenuItem>
                         <Divider />
                         <MenuItem className={classes.item} onClick={() => {removeMessage(); handleClose()}}>
                             Remove Message

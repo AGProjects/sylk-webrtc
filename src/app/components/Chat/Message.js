@@ -49,7 +49,8 @@ const Message = ({
     displayed,
     focus,
     contactCache,
-    removeMessage
+    removeMessage,
+    enableMenu
 }) => {
     const classes = styleSheet();
     const [state, setState] = useState('');
@@ -195,16 +196,18 @@ const Message = ({
         return (
             <VizSensor partialVisibility={true} onChange={isDisplayed}>
                 <Media className={theme} onContextMenu = {handleContextMenu}>
-                    <CustomContextMenu
-                        open = {Boolean(anchorEl)}
-                        anchorEl={anchorEl}
-                        onClose = {handleClose}
-                        keepMounted
-                    >
-                        <MenuItem className={classes.item} onClick={() => {removeMessage(); handleClose()}}>
-                            Remove Message
-                        </MenuItem>
-                    </CustomContextMenu>
+                    {enableMenu &&
+                        <CustomContextMenu
+                            open = {Boolean(anchorEl)}
+                            anchorEl={anchorEl}
+                            onClose = {handleClose}
+                            keepMounted
+                        >
+                            <MenuItem className={classes.item} onClick={() => {removeMessage(); handleClose()}}>
+                                Remove Message
+                            </MenuItem>
+                        </CustomContextMenu>
+                    }
 
                     <div ref={messageRef} />
                     <Media.Left className="timestamp-continued">
@@ -224,16 +227,19 @@ const Message = ({
     return (
         <VizSensor partialVisibility={true} onChange={isDisplayed}>
             <Media className={theme} onContextMenu = {handleContextMenu}>
-                <CustomContextMenu
-                    open = {Boolean(anchorEl)}
-                    anchorEl={anchorEl}
-                    onClose = {handleClose}
-                    keepMounted
-                >
-                    <MenuItem className={classes.item} onClick={() => {removeMessage(); handleClose()}}>
-                        Remove Message
-                    </MenuItem>
-                </CustomContextMenu>
+                {enableMenu &&
+                    <CustomContextMenu
+                        open = {Boolean(anchorEl)}
+                        anchorEl={anchorEl}
+                        onClose = {handleClose}
+                        keepMounted
+                    >
+                        <Divider />
+                        <MenuItem className={classes.item} onClick={() => {removeMessage(); handleClose()}}>
+                            Remove Message
+                        </MenuItem>
+                    </CustomContextMenu>
+                }
                 <div ref={messageRef} />
                 <Media.Left>
                     <UserIcon identity={getDisplayName(message.sender.uri)} />
@@ -254,7 +260,8 @@ Message.propTypes = {
     cont: PropTypes.bool,
     displayed: PropTypes.func,
     focus: PropTypes.bool,
-    contactCache: PropTypes.object
+    contactCache: PropTypes.object,
+    enableMenu: PropTypes.bool
 };
 
 

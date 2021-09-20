@@ -117,6 +117,7 @@ const MessageList = ({
                         scroll = {scrollToBottom}
                         contactCache = {contactCache}
                         removeMessage = {() => removeMessage(message)}
+                        enableMenu
                     />
                 </React.Fragment>
             )

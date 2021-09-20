@@ -39,7 +39,12 @@ const styleSheet = makeStyles((theme) => ({
         fontFamily: 'inherit',
         color: '#333',
         minHeight: 0
-    }
+    },
+    lockIcon: {
+        fontSize: 15,
+        verticalAlign: 'middle',
+        color: '#ccc'
+    },
 }));
 
 const Message = ({
@@ -234,7 +239,10 @@ const Message = ({
                         {parsedContent}
                     </Media.Body>
                     <Media.Right>
-                        <span className="pull-right" style={{paddingRight: '15px'}}>{statusIcon()}</span>
+                        <span className="pull-right" style={{paddingRight: '15px', whiteSpace: 'nowrap'}}>
+                            {message.isSecure && <LockIcon className={classes.lockIcon} />}
+                            {statusIcon()}
+                        </span>
                     </Media.Right>
                 </Media>
             </VizSensor>
@@ -265,7 +273,14 @@ const Message = ({
                     <UserIcon identity={getDisplayName(message.sender.uri)} />
                 </Media.Left>
                 <Media.Body className="vertical-center">
-                    <Media.Heading>{getDisplayName(message.sender.uri).displayName || sender} <span>{time}</span><span className="pull-right" style={{paddingRight: '15px'}}>{statusIcon()}</span></Media.Heading>
+                    <Media.Heading>
+                        {getDisplayName(message.sender.uri).displayName || sender}&nbsp;
+                        <span>{time}</span>
+                        <span className="pull-right" style={{paddingRight: '15px'}}>
+                            {message.isSecure && <LockIcon className={classes.lockIcon} />}
+                            {statusIcon()}
+                        </span>
+                    </Media.Heading>
                     {parsedContent}
                 </Media.Body>
             </Media>

@@ -7999,6 +7999,11 @@ rc@^1.2.1, rc@^1.2.8:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
+react-auth-code-input@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/react-auth-code-input/-/react-auth-code-input-1.2.1.tgz#6042207d2f9688aa06d48594889e5f70675a44be"
+  integrity sha512-+S5yBwi/lv/2/jolaryx1veHXDIomeIL/YOx1HVpqIWFlFz2eXWFNN8aA3RniJmp+YzVc5G04gQlFLpXT8Km+w==
+
 react-bootstrap@^0.33.1:
   version "0.33.1"
   resolved "https://registry.yarnpkg.com/react-bootstrap/-/react-bootstrap-0.33.1.tgz#e072592aa143b9792526281272eca754bc9a4940"

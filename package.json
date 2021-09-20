@@ -47,6 +47,7 @@
     "posthtml-expressions": "^1.7.1",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
+    "react-auth-code-input": "^1.2.1",
     "react-bootstrap": "^0.33.1",
     "react-dom": "^16.14.0",
     "react-mixin": "^5.0.0",

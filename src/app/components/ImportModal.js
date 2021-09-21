@@ -135,9 +135,9 @@ const ImportModal = (props) => {
 ImportModal.propTypes = {
     show: PropTypes.bool.isRequired,
     close: PropTypes.func.isRequired,
-    account: PropTypes.object.isRequired,
-    message: PropTypes.object.isRequired,
-    importKey: PropTypes.func.isRequired
+    importKey: PropTypes.func.isRequired,
+    account: PropTypes.object,
+    message: PropTypes.object
 };
 
 

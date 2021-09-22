@@ -145,7 +145,10 @@ class Blink extends React.Component {
             'getServerHistory',
             'getLocalMediaGuestWrapper',
             'getLocalMedia',
-            'messagesFetched'
+            'messagesFetched',
+            'removeMessage',
+            'readConversation',
+            'removeConversation'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -667,59 +670,9 @@ class Blink extends React.Component {
                             account.on('sendingDispositionNotification', this.sendingDispositionNotification);
                             account.on('messageStateChanged', this.messageStateChanged);
                             account.on('syncConversations', this.messagesFetched);
-                            account.on('readConversation', (contact) => {
-                                const oldMessages = cloneDeep(this.state.oldMessages);
-                                const messages = oldMessages[contact];
-                                let found = false;
-                                const newMessages = cloneDeep(messages).map(message => {
-                                    messageStorage.updateDisposition(message.id, 'displayed');
-                                    if (!(message instanceof require('events').EventEmitter)
-                                        && message.state == 'received'
-                                        && message.dispositionState !== 'displayed'
-                                        && message.dispositionNotification.indexOf('display') !== -1
-                                    ) {
-                                        message.dispositionState = 'displayed';
-                                        DEBUG('Updating dispositionState for loaded message');
-                                        found = true;
-                                    }
-                                    return message;
-                                });
-                                if (found) {
-                                    oldMessages[contact] = newMessages;
-                                }
-                                for (let message of  this.state.account.messages) {
-                                    if (message.sender.uri === contact
-                                        && message.state === 'received'
-                                        && message.dispositionNotification.indexOf('display') !== -1
-                                    ) {
-                                        messageStorage.updateDisposition(message.id, 'displayed');
-                                    }
-                                }
-                                this.setState({oldMessages: oldMessages});
-                            });
-                            account.on('removeConversation', (contact) => {
-                                messageStorage.remove(contact)
-                                let oldMessages = cloneDeep(this.state.oldMessages);
-                                delete oldMessages[contact];
-                                if (this.lastMessageFocus === contact) {
-                                    this.lastMessageFocus = '';
-                                }
-                                this.setState({oldMessages: oldMessages});
-                            });
-                            account.on('removeMessage', (message) => {
-                                messageStorage.removeMessage(message).then(()=> {
-                                    DEBUG('Message removed: %o', message.id);
-                                });
-                                let oldMessages = cloneDeep(this.state.oldMessages);
-                                let contact = message.receiver;
-                                if (message.state === 'received') {
-                                    contact = message.sender.uri;
-                                }
-                                if (oldMessages[contact]) {
-                                    oldMessages[contact] = oldMessages[contact].filter(loadedMessage => loadedMessage.id !== message.id);
-                                }
-                                this.setState({oldMessages: oldMessages});
-                            });
+                            account.on('readConversation', this.readConversation);
+                            account.on('removeConversation', this.removeConversation);
+                            account.on('removeMessage', this.removeMessage);
                             this.setState({account: account, oldMessages: oldMessages});
                             this.state.account.register();
                             if (this.state.mode !== MODE_PRIVATE) {
@@ -1363,6 +1316,62 @@ class Blink extends React.Component {
                 }
             };
         }
+    }
+
+    readConversation(contact) {
+        const oldMessages = cloneDeep(this.state.oldMessages);
+        const messages = oldMessages[contact];
+        let found = false;
+        const newMessages = cloneDeep(messages).map(message => {
+            messageStorage.updateDisposition(message.id, 'displayed');
+            if (!(message instanceof require('events').EventEmitter)
+                && message.state == 'received'
+                && message.dispositionState !== 'displayed'
+                && message.dispositionNotification.indexOf('display') !== -1
+            ) {
+                message.dispositionState = 'displayed';
+                DEBUG('Updating dispositionState for loaded message');
+                found = true;
+            }
+            return message;
+        });
+        if (found) {
+            oldMessages[contact] = newMessages;
+        }
+        for (let message of  this.state.account.messages) {
+            if (message.sender.uri === contact
+                && message.state === 'received'
+                && message.dispositionNotification.indexOf('display') !== -1
+            ) {
+                messageStorage.updateDisposition(message.id, 'displayed');
+            }
+        }
+        this.setState({oldMessages: oldMessages});
+    }
+
+    removeConversation(contact) {
+        messageStorage.remove(contact)
+        let oldMessages = cloneDeep(this.state.oldMessages);
+        delete oldMessages[contact];
+        if (this.lastMessageFocus === contact) {
+            this.lastMessageFocus = '';
+        }
+        this.setState({oldMessages: oldMessages});
+    }
+
+    removeMessage(message) {
+        messageStorage.removeMessage(message).then(()=> {
+            DEBUG('Message removed: %o', message.id);
+        });
+        let oldMessages = cloneDeep(this.state.oldMessages);
+        let contact = message.receiver;
+        if (message.state === 'received') {
+            contact = message.sender.uri;
+        }
+        if (oldMessages[contact]) {
+            oldMessages[contact] = oldMessages[contact].filter(loadedMessage => loadedMessage.id !== message.id);
+        }
+        this.setState({oldMessages: oldMessages});
     }
 
     conferenceInvite(data) {

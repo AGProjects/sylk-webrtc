@@ -267,6 +267,7 @@ function getAll() {
     }));
 }
 
+
 function add(key) {
     if (store === null) return [];
 
@@ -284,8 +285,6 @@ function add(key) {
 }
 
 
-
-
 exports.initialize = initialize;
 exports.set = set;
 exports.get = get;
@@ -293,3 +292,4 @@ exports.add = add;
 exports.remove = remove;
 exports.getAll = getAll;
 exports.close = close;
+exports.dropInstance = dropInstance;

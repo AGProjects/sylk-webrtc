@@ -1272,10 +1272,12 @@ class Blink extends React.Component {
         messageStorage.add(message);
     }
 
+    
     messagesFetched(messages) {
         this.setState({messagesLoading: true})
         DEBUG('Got messages from server: %o', messages);
         const promises = []
+        promises.push(messageStorage.updateIdMap());
         for (const fetchedMessage of messages) {
             DEBUG(fetchedMessage)
             storage.set('lastMessageId', fetchedMessage.id);

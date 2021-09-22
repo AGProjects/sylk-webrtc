@@ -11,7 +11,7 @@ let store = null;
 
 const lastIdLoaded = new Map();
 const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
-
+const idsInStorage = new Map();
 
 class electronStorage {
     constructor(store) {
@@ -229,7 +229,12 @@ function get(key) {
 
 
 function remove(key) {
-    return store.removeItem(key);
+    return new Promise((resolve, reject) => {
+        store.removeItem(key).then(() => {
+            updateIdMap();
+            resolve();
+        });
+    })
 }
 
 
@@ -258,18 +263,19 @@ function add(message) {
         if (!messages) {
             messages = [];
         } else {
-            let hasId = false;
-            messages.forEach((storedMessage) => {
+            if (idsInStorage.get(message.id)) {
+                DEBUG('NOT Saving message in storage: %o', message);
+                return
+            }
+            for (const storedMessage of messages) {
                 storedMessage = JSON.parse(storedMessage, _parseDates);
                 if (message.id === storedMessage.id) {
                     DEBUG('NOT Saving message in storage: %o', message);
-                    hasId = true;
+                    return
                 }
-            });
-            if (hasId) {
-                return
-            }
+            };
         }
+        idsInStorage.set(message.id, message.state);
         messages.push(JSON.stringify(message));
         DEBUG('Saving message in storage: %o', message);
         set(contact, messages);
@@ -294,6 +300,7 @@ function removeMessage(message) {
                 if (message.id !== storedMessage.id) {
                     return true;
                 }
+                idsInStorage.delete(storedMessage.id);
                 return false;
             });
             set(contact, messages);
@@ -305,10 +312,17 @@ function removeMessage(message) {
 
 function update(message) {
     if (store === null) return [];
+    if (message.messageId === undefined) {
+        return;
+    }
 
     let messages = [];
     let found = false;
     Queue.enqueue(() => store.iterate((storedMessages, key) => {
+        let inStorage = idsInStorage.get(message.messageId);
+        if (inStorage && inStorage === message.state) {
+            return
+        }
         messages = storedMessages.map((storedMessage) => {
             storedMessage = JSON.parse(storedMessage, _parseDates);
             if (message.messageId === storedMessage.id && message.state !== storedMessage.state && storedMessage.state !== 'displayed') {
@@ -429,6 +443,15 @@ function hasMore(key) {
     });
 }
 
+function updateIdMap() {
+    idsInStorage.clear();
+    return Queue.enqueue(() => store.iterate((storedMessages, key) => {
+        for (const storedMessage of storedMessages) {
+            storedMessage = JSON.parse(storedMessage, _parseDates);
+            idsInStorage.set(storedMessage.id, storedMessage.state)
+        }
+    }));
+}
 
 exports.initialize = initialize;
 exports.set = set;
@@ -444,3 +467,4 @@ exports.loadLastMessages = loadLastMessages;
 exports.loadMoreMessages = loadMoreMessages;
 exports.removeMessage = removeMessage;
 exports.hasMore = hasMore;
+exports.updateIdMap = updateIdMap;

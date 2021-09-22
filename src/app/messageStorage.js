@@ -311,7 +311,7 @@ function update(message) {
     Queue.enqueue(() => store.iterate((storedMessages, key) => {
         messages = storedMessages.map((storedMessage) => {
             storedMessage = JSON.parse(storedMessage, _parseDates);
-            if (message.messageId === storedMessage.id && message.state !== storedMessage.state) {
+            if (message.messageId === storedMessage.id && message.state !== storedMessage.state && storedMessage.state !== 'displayed') {
                 DEBUG('Updating state for stored message with id: %s', storedMessage.id);
                 storedMessage.state = message.state;
                 found = true;

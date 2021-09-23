@@ -167,7 +167,7 @@ class Blink extends React.Component {
             'getLocalScreen',
             'getServerHistory',
             'getLocalMediaGuestWrapper',
-            'getLocalMedia',
+            'getLocalMedia'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -450,7 +450,7 @@ class Blink extends React.Component {
                     }
                 });
             }).catch(() => {
-                DEBUG("No keys found in storage");
+                DEBUG('No keys found in storage');
                 this.state.account.checkIfKeyExists((publicKey) => {
                     if (publicKey === null) {
                         // There is no key on the server and we have none
@@ -1876,7 +1876,7 @@ class Blink extends React.Component {
                         this.disableMessaging();
                     }}
                     generatePGPKeys = {() => {
-                        this.setState({loading: "Generating keys for PGP encryption"});
+                        this.setState({loading: 'Generating keys for PGP encryption'});
                         setImmediate(() => {
                             this.state.account.generatePGPKeys((result) => {
                                 if (this.state.mode !== MODE_PRIVATE) {

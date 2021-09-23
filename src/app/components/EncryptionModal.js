@@ -42,7 +42,7 @@ const styleSheet = makeStyles({
 
 const password = Math.random().toString().substr(2, 6);
 
-function getContent(step=0) {
+function getContent(step = 0) {
     if (step === 1) {
         return (<React.Fragment>
             Your secret PGP key is being exported.<br/>

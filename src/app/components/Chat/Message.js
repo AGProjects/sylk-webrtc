@@ -44,7 +44,7 @@ const styleSheet = makeStyles((theme) => ({
         fontSize: 15,
         verticalAlign: 'middle',
         color: '#ccc'
-    },
+    }
 }));
 
 const Message = ({

@@ -1970,6 +1970,8 @@ class Blink extends React.Component {
                     toggleMute = {this.toggleMute}
                     toggleShortcuts = {this.toggleShortcutsModal}
                     router = {this.refs.router}
+                    disableMessaging = {this.state.disableMessaging}
+                    exportPrivateKey= {() => this.setState({export: true, showEncryptionModal: true})}
                 />
                 <ReadyBox
                     account   = {this.state.account}
@@ -2068,6 +2070,8 @@ class Blink extends React.Component {
                     toggleMute = {this.toggleMute}
                     toggleShortcuts = {this.toggleShortcutsModal}
                     router = {this.refs.router}
+                    disableMessaging = {this.state.disableMessaging}
+                    exportPrivateKey= {() => this.setState({export: true, showEncryptionModal: true})}
                 />
                 <Chat
                     key = {this.state.account}
@@ -2236,6 +2240,7 @@ class Blink extends React.Component {
             }
             if (this.shouldUseHashRouting) {
                 storage.set('account', {accountId: this.state.accountId, password: ''});
+                storage.set('pgpKeys', {});
             }
             messageStorage.close()
 

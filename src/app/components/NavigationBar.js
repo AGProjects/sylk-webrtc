@@ -64,6 +64,9 @@ class NavigationBar extends React.Component {
             case 'settings':
                 window.open('https://mdns.sipthor.net/sip_settings.phtml', '_blank');
                 break;
+            case 'export':
+                this.props.exportPrivateKey();
+                break;
             default:
                 break;
         }
@@ -154,12 +157,16 @@ class NavigationBar extends React.Component {
                     </HtmlTooltip>
                 </Navbar.Header>
                 <ButtonToolbar bsClass="btn-toolbar navbar-btn-toolbar pull-right">
-                    <button title="Call screen" className={callNavButtonClasses} onClick={()=> this.props.router.navigate('/ready')}>
-                        <i className="fa fa-phone fa-2x" />
-                    </button>
-                    <button title="Chat screen" className={chatNavButtonClasses} onClick={() => this.props.router.navigate('/chat')}>
-                        <i className="fa fa-comments fa-2x" />
-                    </button>
+                    {!this.props.disableMessaging &&
+                        <button title="Call screen" className={callNavButtonClasses} onClick={()=> this.props.router.navigate('/ready')}>
+                            <i className="fa fa-phone fa-2x" />
+                        </button>
+                    }
+                    {!this.props.disableMessaging &&
+                        <button title="Chat screen" className={chatNavButtonClasses} onClick={() => this.props.router.navigate('/chat')}>
+                            <i className="fa fa-comments fa-2x" />
+                        </button>
+                    }
                     <button title="Mute Incoming Ringtones" className="btn btn-link btn-fw" onClick={this.toggleMute}>
                         <i className={muteClasses}></i>
                     </button>
@@ -182,6 +189,9 @@ class NavigationBar extends React.Component {
                         </MenuItem>
                         <MenuItem eventKey="shortcuts">
                             <i className="fa fa-keyboard-o"></i> View shortcuts
+                        </MenuItem>
+                        <MenuItem eventKey="export">
+                            <i className="fa fa-key"></i> Export private key
                         </MenuItem>
                         <MenuItem eventKey="logOut">
                             <i className="fa fa-sign-out"></i> Sign Out
@@ -210,7 +220,9 @@ NavigationBar.propTypes = {
     preview            : PropTypes.func.isRequired,
     toggleMute         : PropTypes.func.isRequired,
     toggleShortcuts    : PropTypes.func.isRequired,
-    router             : PropTypes.object.isRequired
+    router             : PropTypes.object.isRequired,
+    disableMessaging   : PropTypes.bool.isRequired,
+    exportPrivateKey   : PropTypes.func.isRequired
 };
 
 

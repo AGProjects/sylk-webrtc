@@ -771,6 +771,8 @@ class Blink extends React.Component {
                                                 messageStorage.close();
                                                 this.setState({oldMessages: {}});
                                             });
+                                            storage.remove('lastMessageId');
+                                            storage.remove('pgpKeys');
                                         }
                                     });
                                     storage.set('account', {accountId: this.state.accountId, password: ''});
@@ -785,6 +787,8 @@ class Blink extends React.Component {
                                             messageStorage.close();
                                             this.setState({oldMessages: {}});
                                         });
+                                        storage.remove('lastMessageId');
+                                        storage.remove('pgpKeys');
                                     }
                                 });
                                 storage.remove('account');
@@ -2246,7 +2250,8 @@ class Blink extends React.Component {
             }
             if (this.shouldUseHashRouting) {
                 storage.set('account', {accountId: this.state.accountId, password: ''});
-                storage.set('pgpKeys', {});
+                storage.remove('pgpKeys');
+                storage.remove('lastMessageId');
             }
             messageStorage.close()
 

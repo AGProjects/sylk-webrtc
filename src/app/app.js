@@ -1372,13 +1372,13 @@ class Blink extends React.Component {
         DEBUG('Message state changed: %o', message);
         messageStorage.update(message);
         let found = false;
-        if (message.state === 'accepted' && !fromSync) {
-            storage.set('lastMessageId', message.messageId);
+        if (state === 'accepted' && !fromSync) {
+            storage.set('lastMessageId', id);
         }
         for (const [key, messages] of Object.entries(oldMessages)) {
             const newMessages = cloneDeep(messages).map(loadedMessage => {
-                if (message.messageId === loadedMessage.id && message.state !== loadedMessage.state && loadedMessage.state != 'displayed') {
-                    loadedMessage.state = message.state;
+                if (id === loadedMessage.id && state !== loadedMessage.state && loadedMessage.state != 'displayed') {
+                    loadedMessage.state = state;
                     found = true;
                     DEBUG('Updating state for loaded messages');
                 }

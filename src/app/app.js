@@ -88,7 +88,8 @@ class Blink extends React.Component {
             showRedialScreen: false,
             resumeCall: false,
             messagesLoading: false,
-            importMessage: {}
+            importMessage: {},
+            disableMessaging: false
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -118,6 +119,7 @@ class Blink extends React.Component {
             'incomingCall',
             'missedCall',
             'importKey',
+            'disableMessaging',
             'incomingMessage',
             'messageStateChanged',
             'sendingMessage',
@@ -1226,6 +1228,19 @@ class Blink extends React.Component {
             }
             this.loadMessages();
         });
+    }
+
+    disableMessaging() {
+        this.setState({disableMessaging: true});
+        // Remove message events
+        this.state.account.removeListener('incomingMessage', this.incomingMessage);
+        this.state.account.removeListener('sendingMessage', this.sendingMessage);
+        this.state.account.removeListener('sendingDispositionNotification', this.sendingDispositionNotification);
+        this.state.account.removeListener('messageStateChanged', this.messageStateChanged);
+        this.state.account.removeListener('syncConversations', this.syncConversations);
+        this.state.account.removeListener('readConversation', this.readConversation);
+        this.state.account.removeListener('removeConversation', this.removeConversation);
+        this.state.account.removeListener('removeMessage', this.removeMessage);
     }
 
     incomingMessage(message) {

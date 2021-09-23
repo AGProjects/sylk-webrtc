@@ -2120,6 +2120,13 @@ class Blink extends React.Component {
                         this.setState({oldMessages: oldMessages});
                     }}
                     isLoadingMessages = {this.state.messagesLoading}
+                    sendPublicKey = {(uri) => {
+                        storage.get('pgpKeys').then(pgpKeys => {
+                            if (pgpKeys) {
+                                this.state.account.sendMessage(uri, pgpKeys.publicKey, 'text/pgp-public-key');
+                            }
+                        });
+                    }}
 
                 />
             </div>

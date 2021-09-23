@@ -197,11 +197,14 @@ const Chat = (props) => {
     const contactMessages = messages[selectedUri] ? [...messages[selectedUri]] : [];
 
     const handleMessage = (content, type) => {
-        let message = props.account.sendMessage(selectedUri, content, type)
         const oldMessages = cloneDeep(messages);
         if (!oldMessages[selectedUri]) {
              oldMessages[selectedUri] = [];
         }
+        if (oldMessages[selectedUri].length === 0) {
+            props.sendPublicKey(selectedUri);
+        }
+        let message = props.account.sendMessage(selectedUri, content, type);
         oldMessages[selectedUri].push(message);
         setMessages(oldMessages);
     };
@@ -383,7 +386,8 @@ Chat.propTypes = {
     removeMessage       : PropTypes.func.isRequired,
     startCall           : PropTypes.func.isRequired,
     lastContactSelected : PropTypes.func.isRequired,
-    isLoadingMessages   : PropTypes.bool.isRequired
+    isLoadingMessages   : PropTypes.bool.isRequired,
+    sendPublicKey       : PropTypes.func.isRequired
 };
 
 

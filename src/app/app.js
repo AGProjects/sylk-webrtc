@@ -37,6 +37,7 @@ const ScreenSharingModal   = require('./components/ScreenSharingModal');
 const ShortcutsModal       = require('./components/ShortcutsModal');
 const EncryptionModal      = require('./components/EncryptionModal');
 const ImportModal          = require('./components/ImportModal');
+const NewDeviceModal       = require('./components/NewDeviceModal');
 
 const utils     = require('./utils');
 const config    = require('./config');
@@ -93,6 +94,7 @@ class Blink extends React.Component {
             importMessage: {},
             export: false,
             transmitKeys: false,
+            showNewDeviceModal: false,
             disableMessaging: false
         };
         this.state = Object.assign({}, this._initialSstate);
@@ -156,6 +158,7 @@ class Blink extends React.Component {
             'toggleImportModal',
             'togglePropagateKeyPress',
             'toggleRedialScreen',
+            'toggleNewDeviceModal',
             'getLocalScreen',
             'getServerHistory',
             'getLocalMediaGuestWrapper',
@@ -1015,6 +1018,12 @@ class Blink extends React.Component {
         });
     }
 
+    toggleNewDeviceModal() {
+        this.setState({
+            showNewDeviceModal : !this.state.showNewDeviceModal
+        });
+    }
+
     toggleRedialScreen(resume = false) {
         let nextState = !this.state.showRedialScreen;
         this.setState({
@@ -1739,6 +1748,34 @@ class Blink extends React.Component {
                     }}
                     exportKey ={(password) => {
                         this.state.account.exportPrivateKey(password)
+                    }}
+                />
+                <NewDeviceModal
+                    show={this.state.showNewDeviceModal}
+                    close={this.toggleNewDeviceModal}
+                    disableMessaging = {() => {
+                        this.toggleNewDeviceModal();
+                        this.disableMessaging();
+                    }}
+                    generatePGPKeys = {() => {
+                        this.setState({loading: "Generating keys for PGP encryption"});
+                        setImmediate(() => {
+                            this.state.account.generatePGPKeys((result) => {
+                                if (this.state.mode !== MODE_PRIVATE) {
+                                    storage.set('pgpKeys', result);
+                                }
+                                this.toggleNewDeviceModal();
+                                // this.setState({loading: null, transmitKeys: true});
+                                this.setState({loading: null});
+
+                            });
+                            keyStorage.getAll().then(key =>
+                                this.state.account.pgp.addPublicPGPKeys(key)
+                            );
+                            this.state.account.pgp.on('publicKeyAdded', (key) => {
+                                keyStorage.add(key);
+                            });
+                        });
                     }}
                 />
                 <ImportModal

@@ -39,7 +39,8 @@ const ShortcutsModal       = require('./components/ShortcutsModal');
 const utils     = require('./utils');
 const config    = require('./config');
 const storage   = require('./storage');
-const messageStorage   = require('./messageStorage');
+const messageStorage = require('./messageStorage');
+const keyStorage     = require('./keyStorage');
 const history   = require('./history');
 
 // attach debugger to the window for console access
@@ -402,6 +403,8 @@ class Blink extends React.Component {
                     })
                 );
             });
+            keyStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
+
             if (path === '/login') {
                 this.refs.router.navigate('/ready');
                 return;

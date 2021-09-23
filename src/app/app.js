@@ -409,20 +409,73 @@ class Blink extends React.Component {
                 this.setState({loading: null});
             }
             messageStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
-            this.setState({messagesLoading: true})
-            messageStorage.loadLastMessages().then((cache) => {
-                this.setState({oldMessages: cache})
-
-                storage.get('lastMessageId').then(id =>
-                    this.state.account.syncConversations(id, (error) => {
-                        if (error) {
-                            this.retransmitMessages();
-                        }
-                    })
-                );
-            });
             keyStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
 
+            let { privateKey, publicKey, revocationCertificate } = '';
+            storage.get('pgpKeys').then(pgpKeys => {
+                if (pgpKeys) {
+                    privateKey = pgpKeys.privateKey;
+                    publicKey = pgpKeys.publicKey;
+                } else {
+                    return Promise.reject();
+                }
+                this.state.account.checkIfKeyExists((fetchedPublicKey) => {
+                    if (fetchedPublicKey !== publicKey) {
+                        if (fetchedPublicKey == null) {
+                            // We have a key, but the server has not
+                            this.setState({loading: null, transmitKeys: true})
+
+                            this.state.account.addPGPKeys({publicKey, privateKey});
+                            keyStorage.getAll().then(key =>
+                                this.state.account.pgp.addPublicPGPKeys(key)
+                            );
+                            this.state.account.pgp.on('publicKeyAdded', (key) => {
+                                keyStorage.add(key);
+                            });
+                            this.loadMessages();
+                        } else {
+                            // We have a key, but the server has a different key
+                            this.toggleEncryptionModal();
+                        }
+                    } else {
+                        // Our key and the key on the server matches
+                        this.state.account.addPGPKeys({publicKey, privateKey});
+                        keyStorage.getAll().then(key =>
+                            this.state.account.pgp.addPublicPGPKeys(key)
+                        );
+                        this.state.account.pgp.on('publicKeyAdded', (key) => {
+                            keyStorage.add(key);
+                        });
+                        this.loadMessages();
+                    }
+                });
+            }).catch(() => {
+                DEBUG("No keys found in storage");
+                this.state.account.checkIfKeyExists((publicKey) => {
+                    if (publicKey === null) {
+                        // There is no key on the server and we have none
+                        this.setState({loading: 'Generating keys for PGP encryption'})
+                        setImmediate(() => {
+                            this.state.account.generatePGPKeys((result) => {
+                                if (this.state.mode !== MODE_PRIVATE) {
+                                    storage.set('pgpKeys', result);
+                                }
+                                this.setState({loading: null, transmitKeys: true})
+                            });
+                            keyStorage.getAll().then(key =>
+                                this.state.account.pgp.addPublicPGPKeys(key)
+                            );
+                            this.state.account.pgp.on('publicKeyAdded', (key) => {
+                                keyStorage.add(key);
+                            });
+                            this.loadMessages();
+                        });
+                    } else {
+                        this.toggleNewDeviceModal();
+                        // There is a key on the server and we have none
+                    }
+                });
+            });
             if (path === '/login') {
                 this.refs.router.navigate('/ready');
                 return;
@@ -1488,7 +1541,22 @@ class Blink extends React.Component {
                     this.setState({oldMessages: messages, messagesLoading: false})
                 }
                 setImmediate(() => this.retransmitMessages());
+                if (this.state.transmitKeys) {
+                    setImmediate(() => {
+                        storage.get('pgpKeys').then(pgpKeys => {
+                            if (pgpKeys) {
+                                for (let contact of Object.keys(this.state.oldMessages)) {
+                                    if (contact !== this.state.accountId) {
+                                        this.state.account.sendMessage(contact, pgpKeys.publicKey, 'text/pgp-public-key')
+                                    }
+                                }
+                            }
+                        });
+                        this.setState({transmitKeys: false});
+                    });
                 }
+            })
+        );
     }
 
     readConversation(contact) {

@@ -120,6 +120,7 @@ class Blink extends React.Component {
             'missedCall',
             'importKey',
             'disableMessaging',
+            'loadMessages',
             'incomingMessage',
             'messageStateChanged',
             'sendingMessage',
@@ -1241,6 +1242,20 @@ class Blink extends React.Component {
         this.state.account.removeListener('readConversation', this.readConversation);
         this.state.account.removeListener('removeConversation', this.removeConversation);
         this.state.account.removeListener('removeMessage', this.removeMessage);
+    }
+
+    loadMessages() {
+        this.setState({messagesLoading: true})
+        messageStorage.loadLastMessages().then((cache) => {
+            this.setState({oldMessages: cache})
+            storage.get('lastMessageId').then(id =>
+                this.state.account.syncConversations(id, (error) => {
+                    if (error) {
+                        this.retransmitMessages();
+                    }
+                })
+            );
+        });
     }
 
     incomingMessage(message) {

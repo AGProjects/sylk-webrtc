@@ -35,6 +35,7 @@ const NavigationBar        = require('./components/NavigationBar');
 const Preview              = require('./components/Preview');
 const ScreenSharingModal   = require('./components/ScreenSharingModal');
 const ShortcutsModal       = require('./components/ShortcutsModal');
+const ImportModal          = require('./components/ImportModal');
 
 const utils     = require('./utils');
 const config    = require('./config');
@@ -72,6 +73,7 @@ class Blink extends React.Component {
             showIncomingModal: false,
             showScreenSharingModal: false,
             showShortcutsModal: false,
+            showImportModal: false,
             status: null,
             targetUri: '',
             missedTargetUri: '',
@@ -85,7 +87,8 @@ class Blink extends React.Component {
             propagateKeyPress: false,
             showRedialScreen: false,
             resumeCall: false,
-            messagesLoading: false
+            messagesLoading: false,
+            importMessage: {}
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -114,6 +117,7 @@ class Blink extends React.Component {
             'outgoingCall',
             'incomingCall',
             'missedCall',
+            'importKey',
             'incomingMessage',
             'messageStateChanged',
             'sendingMessage',
@@ -140,6 +144,7 @@ class Blink extends React.Component {
             'switchScreensharing',
             'toggleScreenSharingModal',
             'toggleShortcutsModal',
+            'toggleImportModal',
             'togglePropagateKeyPress',
             'toggleRedialScreen',
             'getLocalScreen',
@@ -988,6 +993,12 @@ class Blink extends React.Component {
         });
     }
 
+    toggleImportModal() {
+        this.setState({
+            showImportModal : !this.state.showImportModal
+        });
+    }
+
     toggleRedialScreen(resume = false) {
         let nextState = !this.state.showRedialScreen;
         this.setState({
@@ -1162,6 +1173,59 @@ class Blink extends React.Component {
         } else {
             this.getServerHistory();
         }
+    }
+
+    importKey(message) {
+        let { privateKey, publicKey, revocationCertificate } = '';
+
+        const regexp = /(?<publicKey>-----BEGIN PGP PUBLIC KEY BLOCK-----[^]*-----END PGP PUBLIC KEY BLOCK-----)[^]*(?<privateKey>-----BEGIN PGP PRIVATE KEY BLOCK-----[^]*-----END PGP PRIVATE KEY BLOCK-----)/gi;
+
+        DEBUG(regexp)
+        let match = regexp.exec(message.content);
+        do {
+            if (match === null) {
+                return;
+            }
+            publicKey = match.groups.publicKey;
+            privateKey = match.groups.privateKey;
+            if (privateKey === '' || publicKey === '') {
+                DEBUG('Import failed');
+                return;
+            }
+        } while((match = regexp.exec(message.content)) !== null);
+
+        storage.get('pgpKeys').then(storedKeys => {
+            if (storedKeys && publicKey === storedKeys.publicKey) {
+                DEBUG('Imported key(s) are the same, skipping');
+                this.toggleImportModal()
+                return;
+            }
+            if (this.state.mode !== MODE_PRIVATE) {
+                storage.set('pgpKeys', {publicKey, privateKey});
+            }
+            this.state.account.addPGPKeys({publicKey, privateKey});
+
+            keyStorage.getAll().then(key =>
+                this.state.account.pgp.addPublicPGPKeys(key)
+            );
+            this.state.account.pgp.on('publicKeyAdded', (key) => {
+                keyStorage.add(key);
+            });
+            this.toggleImportModal()
+
+            if (this.state.disableMessaging) {
+                this.state.account.on('incomingMessage', this.incomingMessage);
+                this.state.account.on('sendingMessage', this.sendingMessage);
+                this.state.account.on('sendingDispositionNotification', this.sendingDispositionNotification);
+                this.state.account.on('messageStateChanged', this.messageStateChanged);
+                this.state.account.on('syncConversations', this.syncConversations);
+                this.state.account.on('readConversation', this.readConversation);
+                this.state.account.on('removeConversation', this.removeConversation);
+                this.state.account.on('removeMessage', this.removeMessage);
+                this.setState({disableMessaging: false});
+            }
+            this.loadMessages();
+        });
     }
 
     incomingMessage(message) {
@@ -1604,6 +1668,13 @@ class Blink extends React.Component {
                 {redialScreen}
                 {footerBox}
                 <ShortcutsModal show={this.state.showShortcutsModal} close={this.toggleShortcutsModal} />
+                <ImportModal
+                    importKey = {this.importKey}
+                    message = {this.state.importMessage}
+                    account = {this.state.account}
+                    show = {this.state.showImportModal}
+                    close = {this.toggleImportModal}
+                />
                 <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav" />
                 <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav" />
                 <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />

@@ -119,6 +119,7 @@ class Blink extends React.Component {
             'incomingCall',
             'missedCall',
             'importKey',
+            'useExistingKey',
             'disableMessaging',
             'loadMessages',
             'incomingMessage',
@@ -1228,6 +1229,23 @@ class Blink extends React.Component {
                 this.setState({disableMessaging: false});
             }
             this.loadMessages();
+        });
+    }
+
+    useExistingKey(password) {
+        storage.get('pgpKeys').then(pgpKeys => {
+            if (pgpKeys !== null && pgpKeys.publicKey && pgpKeys.privateKey) {
+                this.state.account.addPGPKeys(pgpKeys);
+                this.state.account.exportPrivateKey(password);
+
+                keyStorage.getAll().then(key =>
+                    this.state.account.pgp.addPublicPGPKeys(key)
+                );
+                this.state.account.pgp.on('publicKeyAdded', (key) => {
+                    keyStorage.add(key);
+                });
+                this.loadMessages();
+            }
         });
     }
 

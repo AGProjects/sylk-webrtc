@@ -35,6 +35,7 @@ const NavigationBar        = require('./components/NavigationBar');
 const Preview              = require('./components/Preview');
 const ScreenSharingModal   = require('./components/ScreenSharingModal');
 const ShortcutsModal       = require('./components/ShortcutsModal');
+const EncryptionModal      = require('./components/EncryptionModal');
 const ImportModal          = require('./components/ImportModal');
 
 const utils     = require('./utils');
@@ -74,6 +75,7 @@ class Blink extends React.Component {
             showScreenSharingModal: false,
             showShortcutsModal: false,
             showImportModal: false,
+            showEncryptionModal: false,
             status: null,
             targetUri: '',
             missedTargetUri: '',
@@ -89,6 +91,8 @@ class Blink extends React.Component {
             resumeCall: false,
             messagesLoading: false,
             importMessage: {},
+            export: false,
+            transmitKeys: false,
             disableMessaging: false
         };
         this.state = Object.assign({}, this._initialSstate);
@@ -148,6 +152,7 @@ class Blink extends React.Component {
             'switchScreensharing',
             'toggleScreenSharingModal',
             'toggleShortcutsModal',
+            'toggleEncryptionModal',
             'toggleImportModal',
             'togglePropagateKeyPress',
             'toggleRedialScreen',
@@ -997,6 +1002,13 @@ class Blink extends React.Component {
         });
     }
 
+    toggleEncryptionModal() {
+        this.setState({
+            showEncryptionModal : !this.state.showEncryptionModal,
+            export: this.state.showEncryptionModal && false
+        });
+    }
+
     toggleImportModal() {
         this.setState({
             showImportModal : !this.state.showImportModal
@@ -1716,6 +1728,19 @@ class Blink extends React.Component {
                 {redialScreen}
                 {footerBox}
                 <ShortcutsModal show={this.state.showShortcutsModal} close={this.toggleShortcutsModal} />
+                <EncryptionModal
+                    show = {this.state.showEncryptionModal}
+                    close = {this.toggleEncryptionModal}
+                    export = {this.state.export}
+                    useExistingKey = {this.useExistingKey}
+                    disableMessaging = {() => {
+                        this.toggleEncryptionModal();
+                        this.disableMessaging();
+                    }}
+                    exportKey ={(password) => {
+                        this.state.account.exportPrivateKey(password)
+                    }}
+                />
                 <ImportModal
                     importKey = {this.importKey}
                     message = {this.state.importMessage}

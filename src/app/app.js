@@ -1879,8 +1879,7 @@ class Blink extends React.Component {
                                     storage.set('pgpKeys', result);
                                 }
                                 this.toggleNewDeviceModal();
-                                // this.setState({loading: null, transmitKeys: true});
-                                this.setState({loading: null});
+                                this.setState({loading: null, transmitKeys: true});
 
                             });
                             keyStorage.getAll().then(key =>

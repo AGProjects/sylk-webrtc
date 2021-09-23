@@ -129,11 +129,14 @@ class Blink extends React.Component {
             'disableMessaging',
             'loadMessages',
             'incomingMessage',
-            'messageStateChanged',
             'outgoingMessage',
             'sendingMessage',
+            'removeMessage',
+            'messageStateChanged',
             'sendingDispositionNotification',
             'syncConversations',
+            'readConversation',
+            'removeConversation',
             'toggleMute',
             'conferenceInvite',
             'notificationCenter',
@@ -165,9 +168,6 @@ class Blink extends React.Component {
             'getServerHistory',
             'getLocalMediaGuestWrapper',
             'getLocalMedia',
-            'removeMessage',
-            'readConversation',
-            'removeConversation'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -694,12 +694,13 @@ class Blink extends React.Component {
                             account.on('incomingMessage', this.incomingMessage);
                             account.on('outgoingMessage', this.outgoingMessage);
                             account.on('sendingMessage', this.sendingMessage);
-                            account.on('sendingDispositionNotification', this.sendingDispositionNotification);
+                            account.on('removeMessage', this.removeMessage);
                             account.on('messageStateChanged', this.messageStateChanged);
+                            account.on('sendingDispositionNotification', this.sendingDispositionNotification);
+
                             account.on('syncConversations', this.syncConversations);
                             account.on('readConversation', this.readConversation);
                             account.on('removeConversation', this.removeConversation);
-                            account.on('removeMessage', this.removeMessage);
                             this.setState({account: account, oldMessages: oldMessages});
                             this.state.account.register();
                             if (this.state.mode !== MODE_PRIVATE) {
@@ -1372,14 +1373,35 @@ class Blink extends React.Component {
         }
     }
 
-    messageStateChanged(message, fromSync = false) {
-        const oldMessages = cloneDeep(this.state.oldMessages);
-        DEBUG('Message state changed: %o', message);
-        messageStorage.update(message);
+    sendingMessage(message) {
+        if (message.contentType !== 'text/pgp-private-key') {
+            messageStorage.add(message);
+        }
+    }
+
+    removeMessage(message) {
+        messageStorage.removeMessage(message).then(()=> {
+            DEBUG('Message removed: %o', message.id);
+        });
+        let oldMessages = cloneDeep(this.state.oldMessages);
+        let contact = message.receiver;
+        if (message.state === 'received') {
+            contact = message.sender.uri;
+        }
+        if (oldMessages[contact]) {
+            oldMessages[contact] = oldMessages[contact].filter(loadedMessage => loadedMessage.id !== message.id);
+        }
+        this.setState({oldMessages: oldMessages});
+    }
+
+    messageStateChanged(id, state, data, fromSync = false) {
+        DEBUG('Message state changed: %o', id);
+        messageStorage.update({messageId: id, state});
         let found = false;
         if (state === 'accepted' && !fromSync) {
             storage.set('lastMessageId', id);
         }
+        const oldMessages = cloneDeep(this.state.oldMessages);
         for (const [key, messages] of Object.entries(oldMessages)) {
             const newMessages = cloneDeep(messages).map(loadedMessage => {
                 if (id === loadedMessage.id && state !== loadedMessage.state && loadedMessage.state != 'displayed') {
@@ -1466,32 +1488,7 @@ class Blink extends React.Component {
                     this.setState({oldMessages: messages, messagesLoading: false})
                 }
                 setImmediate(() => this.retransmitMessages());
-            })
-        );
-    }
-
-    sendingDispositionNotification(id, state, error) {
-        if (!error) {
-            messageStorage.updateDisposition(id, state);
-            let found = false;
-            const oldMessages = cloneDeep(this.state.oldMessages);
-            for (const [key, messages] of Object.entries(oldMessages)) {
-                const newMessages = cloneDeep(messages).map(message => {
-                    if (!(message instanceof require('events').EventEmitter)
-                        && message.id === id && message.dispositionState !== state) {
-                        message.dispositionState = state;
-                        found = true;
-                        DEBUG('Updating dispositionState for loaded messages');
-                    }
-                    return message;
-                });
-                if (found) {
-                    oldMessages[key] = newMessages;
-                    this.setState({oldMessages: oldMessages});
-                    break;
                 }
-            };
-        }
     }
 
     readConversation(contact) {
@@ -1535,20 +1532,6 @@ class Blink extends React.Component {
         this.setState({oldMessages: oldMessages});
     }
 
-    removeMessage(message) {
-        messageStorage.removeMessage(message).then(()=> {
-            DEBUG('Message removed: %o', message.id);
-        });
-        let oldMessages = cloneDeep(this.state.oldMessages);
-        let contact = message.receiver;
-        if (message.state === 'received') {
-            contact = message.sender.uri;
-        }
-        if (oldMessages[contact]) {
-            oldMessages[contact] = oldMessages[contact].filter(loadedMessage => loadedMessage.id !== message.id);
-        }
-        this.setState({oldMessages: oldMessages});
-    }
 
     conferenceInvite(data) {
         DEBUG('Conference invite from %o to %s', data.originator, data.room);

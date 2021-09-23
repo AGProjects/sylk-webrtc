@@ -130,6 +130,7 @@ class Blink extends React.Component {
             'loadMessages',
             'incomingMessage',
             'messageStateChanged',
+            'outgoingMessage',
             'sendingMessage',
             'sendingDispositionNotification',
             'syncConversations',
@@ -686,6 +687,7 @@ class Blink extends React.Component {
                             account.on('missedCall', this.missedCall);
                             account.on('conferenceInvite', this.conferenceInvite);
                             account.on('incomingMessage', this.incomingMessage);
+                            account.on('outgoingMessage', this.outgoingMessage);
                             account.on('sendingMessage', this.sendingMessage);
                             account.on('sendingDispositionNotification', this.sendingDispositionNotification);
                             account.on('messageStateChanged', this.messageStateChanged);
@@ -1328,6 +1330,39 @@ class Blink extends React.Component {
                 });
             } else {
                 this._notificationCenter.postNewMessage(message);
+            }
+        }
+    }
+
+    outgoingMessage(message) {
+        if (message.contentType === 'text/pgp-private-key') {
+            DEBUG('Starting key import');
+
+            const regexp = /(?<publicKey>-----BEGIN PGP PUBLIC KEY BLOCK-----[^]*-----END PGP PUBLIC KEY BLOCK-----)/ig;
+            let publicKey = null
+            let match = regexp.exec(message.content);
+            do {
+                if (match) {
+                    publicKey = match.groups.publicKey;
+                }
+            } while((match = regexp.exec(message.content)) !== null);
+
+            if (publicKey !== null) {
+                storage.get('pgpKeys').then(pgpKeys => {
+                    if (pgpKeys && publicKey === pgpKeys.publicKey.trim()) {
+                        DEBUG('Public keys are the same, aborting');
+                        return;
+                    }
+                    if (this.state.showNewDeviceModal) {
+                        this.toggleNewDeviceModal()
+                    }
+                    this.setState({importMessage: message, showImportModal: true});
+                });
+            } else {
+                if (this.state.showNewDeviceModal) {
+                    this.toggleNewDeviceModal()
+                }
+                this.setState({importMessage: message, showImportModal: true});
             }
         }
     }

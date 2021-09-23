@@ -1506,7 +1506,7 @@ class Blink extends React.Component {
             storage.set('lastMessageId', fetchedMessage.id);
             if (fetchedMessage.contentType === 'message/imdn') {
                 let decodedContent = fetchedMessage.content;
-                this.messageStateChanged({messageId: decodedContent.message_id, state: decodedContent.state}, true);
+                promises.push(messageStorage.update({messageId: decodedContent.message_id, state: decodedContent.state}));
                 continue;
             }
             if (fetchedMessage.contentType === 'application/sylk-conversation-remove') {
@@ -1529,6 +1529,10 @@ class Blink extends React.Component {
                 promises.push(messageStorage.loadLastMessages().then(allMessages => {
                     if (allMessages) {
                         const messages = allMessages[contact];
+                        if (!messages) {
+                            return;
+                        }
+
                         for (let message of messages) {
                             if (message.state == 'received'
                                 && message.dispositionState !== 'displayed'

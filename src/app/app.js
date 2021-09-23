@@ -132,6 +132,7 @@ class Blink extends React.Component {
             'messageStateChanged',
             'sendingMessage',
             'sendingDispositionNotification',
+            'syncConversations',
             'toggleMute',
             'conferenceInvite',
             'notificationCenter',
@@ -163,7 +164,6 @@ class Blink extends React.Component {
             'getServerHistory',
             'getLocalMediaGuestWrapper',
             'getLocalMedia',
-            'messagesFetched',
             'removeMessage',
             'readConversation',
             'removeConversation'
@@ -689,7 +689,7 @@ class Blink extends React.Component {
                             account.on('sendingMessage', this.sendingMessage);
                             account.on('sendingDispositionNotification', this.sendingDispositionNotification);
                             account.on('messageStateChanged', this.messageStateChanged);
-                            account.on('syncConversations', this.messagesFetched);
+                            account.on('syncConversations', this.syncConversations);
                             account.on('readConversation', this.readConversation);
                             account.on('removeConversation', this.removeConversation);
                             account.on('removeMessage', this.removeMessage);
@@ -1362,7 +1362,7 @@ class Blink extends React.Component {
     }
 
     
-    messagesFetched(messages) {
+    syncConversations(messages) {
         this.setState({messagesLoading: true})
         DEBUG('Got messages from server: %o', messages);
         const promises = []

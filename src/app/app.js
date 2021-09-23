@@ -1472,11 +1472,30 @@ class Blink extends React.Component {
         };
     }
 
-    sendingMessage(message) {
-        messageStorage.add(message);
+    sendingDispositionNotification(id, state, error) {
+        if (!error) {
+            messageStorage.updateDisposition(id, state);
+            let found = false;
+            const oldMessages = cloneDeep(this.state.oldMessages);
+            for (const [key, messages] of Object.entries(oldMessages)) {
+                const newMessages = cloneDeep(messages).map(message => {
+                    if (!(message instanceof require('events').EventEmitter)
+                        && message.id === id && message.dispositionState !== state) {
+                        message.dispositionState = state;
+                        found = true;
+                        DEBUG('Updating dispositionState for loaded messages');
+                    }
+                    return message;
+                });
+                if (found) {
+                    oldMessages[key] = newMessages;
+                    this.setState({oldMessages: oldMessages});
+                    break;
+                }
+            };
+        }
     }
 
-    
     syncConversations(messages) {
         this.setState({messagesLoading: true})
         DEBUG('Got messages from server: %o', messages);

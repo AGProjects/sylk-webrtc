@@ -92,7 +92,7 @@ const EncryptionModal = (props) => {
                 >
                     Yes
                 </Button>
-                <Button onClick={props.disableMessaging} variant="text" title="cancel">No</Button>
+                <Button onClick={props.close} variant="text" title="cancel">No</Button>
             </React.Fragment>)}
             {props.export === true && (
                 <Button
@@ -118,7 +118,6 @@ EncryptionModal.propTypes = {
     close: PropTypes.func.isRequired,
     exportKey: PropTypes.func.isRequired,
     useExistingKey: PropTypes.func.isRequired,
-    disableMessaging: PropTypes.func.isRequired,
     export: PropTypes.bool
 };
 

@@ -157,12 +157,12 @@ class NavigationBar extends React.Component {
                     </HtmlTooltip>
                 </Navbar.Header>
                 <ButtonToolbar bsClass="btn-toolbar navbar-btn-toolbar pull-right">
-                    {!this.props.disableMessaging &&
+                    {this.props.enableMessaging &&
                         <button title="Call screen" className={callNavButtonClasses} onClick={()=> this.props.router.navigate('/ready')}>
                             <i className="fa fa-phone fa-2x" />
                         </button>
                     }
-                    {!this.props.disableMessaging &&
+                    {this.props.enableMessaging &&
                         <button title="Chat screen" className={chatNavButtonClasses} onClick={() => this.props.router.navigate('/chat')}>
                             <i className="fa fa-comments fa-2x" />
                         </button>
@@ -221,7 +221,7 @@ NavigationBar.propTypes = {
     toggleMute         : PropTypes.func.isRequired,
     toggleShortcuts    : PropTypes.func.isRequired,
     router             : PropTypes.object.isRequired,
-    disableMessaging   : PropTypes.bool.isRequired,
+    enableMessaging    : PropTypes.bool.isRequired,
     exportPrivateKey   : PropTypes.func.isRequired
 };
 

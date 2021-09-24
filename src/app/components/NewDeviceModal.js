@@ -68,7 +68,7 @@ const NewDeviceModal = (props) => {
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={props.disableMessaging} variant="text" title="ignore">Cancel</Button>
+                <Button onClick={props.close} variant="text" title="ignore">Cancel</Button>
                 <Button variant="contained" onClick={props.generatePGPKeys} title="import">Generate Private Key</Button>
             </DialogActions>
         </Dialog>
@@ -78,7 +78,6 @@ const NewDeviceModal = (props) => {
 NewDeviceModal.propTypes = {
     show: PropTypes.bool.isRequired,
     close: PropTypes.func.isRequired,
-    disableMessaging: PropTypes.func.isRequired,
     generatePGPKeys: PropTypes.func.isRequired
 };
 

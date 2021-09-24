@@ -95,7 +95,7 @@ class Blink extends React.Component {
             export: false,
             transmitKeys: false,
             showNewDeviceModal: false,
-            disableMessaging: false
+            enableMessaging: false
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -126,7 +126,7 @@ class Blink extends React.Component {
             'missedCall',
             'importKey',
             'useExistingKey',
-            'disableMessaging',
+            'enableMessaging',
             'loadMessages',
             'incomingMessage',
             'outgoingMessage',
@@ -432,6 +432,7 @@ class Blink extends React.Component {
                             this.state.account.pgp.on('publicKeyAdded', (key) => {
                                 keyStorage.add(key);
                             });
+                            this.enableMessaging();
                             this.loadMessages();
                         } else {
                             // We have a key, but the server has a different key
@@ -446,6 +447,7 @@ class Blink extends React.Component {
                         this.state.account.pgp.on('publicKeyAdded', (key) => {
                             keyStorage.add(key);
                         });
+                        this.enableMessaging();
                         this.loadMessages();
                     }
                 });
@@ -744,16 +746,7 @@ class Blink extends React.Component {
                             account.on('processingFetchedMessages', ()=> {
                                 this.setState({messagesLoading: true});
                             });
-                            account.on('incomingMessage', this.incomingMessage);
                             account.on('outgoingMessage', this.outgoingMessage);
-                            account.on('sendingMessage', this.sendingMessage);
-                            account.on('removeMessage', this.removeMessage);
-                            account.on('messageStateChanged', this.messageStateChanged);
-                            account.on('sendingDispositionNotification', this.sendingDispositionNotification);
-
-                            account.on('syncConversations', this.syncConversations);
-                            account.on('readConversation', this.readConversation);
-                            account.on('removeConversation', this.removeConversation);
                             this.setState({account: account, oldMessages: oldMessages});
                             this.state.account.register();
                             if (this.state.mode !== MODE_PRIVATE) {
@@ -1303,17 +1296,7 @@ class Blink extends React.Component {
             });
             this.toggleImportModal()
 
-            if (this.state.disableMessaging) {
-                this.state.account.on('incomingMessage', this.incomingMessage);
-                this.state.account.on('sendingMessage', this.sendingMessage);
-                this.state.account.on('sendingDispositionNotification', this.sendingDispositionNotification);
-                this.state.account.on('messageStateChanged', this.messageStateChanged);
-                this.state.account.on('syncConversations', this.syncConversations);
-                this.state.account.on('readConversation', this.readConversation);
-                this.state.account.on('removeConversation', this.removeConversation);
-                this.state.account.on('removeMessage', this.removeMessage);
-                this.setState({disableMessaging: false});
-            }
+            this.enableMessaging();
             this.loadMessages();
         });
     }
@@ -1330,22 +1313,25 @@ class Blink extends React.Component {
                 this.state.account.pgp.on('publicKeyAdded', (key) => {
                     keyStorage.add(key);
                 });
+                this.enableMessaging();
                 this.loadMessages();
             }
         });
     }
 
-    disableMessaging() {
-        this.setState({disableMessaging: true});
-        // Remove message events
-        this.state.account.removeListener('incomingMessage', this.incomingMessage);
-        this.state.account.removeListener('sendingMessage', this.sendingMessage);
-        this.state.account.removeListener('sendingDispositionNotification', this.sendingDispositionNotification);
-        this.state.account.removeListener('messageStateChanged', this.messageStateChanged);
-        this.state.account.removeListener('syncConversations', this.syncConversations);
-        this.state.account.removeListener('readConversation', this.readConversation);
-        this.state.account.removeListener('removeConversation', this.removeConversation);
-        this.state.account.removeListener('removeMessage', this.removeMessage);
+    enableMessaging() {
+        if (!this.state.enableMessaging) {
+            this.setState({enableMessaging: true});
+            // Add message events
+            this.state.account.on('incomingMessage', this.incomingMessage);
+            this.state.account.on('sendingMessage', this.sendingMessage);
+            this.state.account.on('sendingDispositionNotification', this.sendingDispositionNotification);
+            this.state.account.on('messageStateChanged', this.messageStateChanged);
+            this.state.account.on('syncConversations', this.syncConversations);
+            this.state.account.on('readConversation', this.readConversation);
+            this.state.account.on('removeConversation', this.removeConversation);
+            this.state.account.on('removeMessage', this.removeMessage);
+        }
     }
 
     loadMessages() {
@@ -1860,21 +1846,13 @@ class Blink extends React.Component {
                     close = {this.toggleEncryptionModal}
                     export = {this.state.export}
                     useExistingKey = {this.useExistingKey}
-                    disableMessaging = {() => {
-                        this.toggleEncryptionModal();
-                        this.disableMessaging();
-                    }}
-                    exportKey ={(password) => {
+                    exportKey = {(password) => {
                         this.state.account.exportPrivateKey(password)
                     }}
                 />
                 <NewDeviceModal
                     show={this.state.showNewDeviceModal}
                     close={this.toggleNewDeviceModal}
-                    disableMessaging = {() => {
-                        this.toggleNewDeviceModal();
-                        this.disableMessaging();
-                    }}
                     generatePGPKeys = {() => {
                         this.setState({loading: 'Generating keys for PGP encryption'});
                         setImmediate(() => {
@@ -1892,6 +1870,7 @@ class Blink extends React.Component {
                             this.state.account.pgp.on('publicKeyAdded', (key) => {
                                 keyStorage.add(key);
                             });
+                            this.enableMessaging();
                         });
                     }}
                 />
@@ -1973,7 +1952,7 @@ class Blink extends React.Component {
                     toggleMute = {this.toggleMute}
                     toggleShortcuts = {this.toggleShortcutsModal}
                     router = {this.refs.router}
-                    disableMessaging = {this.state.disableMessaging}
+                    enableMessaging = {this.state.enableMessaging}
                     exportPrivateKey= {() => this.setState({export: true, showEncryptionModal: true})}
                 />
                 <ReadyBox
@@ -2073,7 +2052,7 @@ class Blink extends React.Component {
                     toggleMute = {this.toggleMute}
                     toggleShortcuts = {this.toggleShortcutsModal}
                     router = {this.refs.router}
-                    disableMessaging = {this.state.disableMessaging}
+                    enableMessaging = {this.state.enableMessaging}
                     exportPrivateKey= {() => this.setState({export: true, showEncryptionModal: true})}
                 />
                 <Chat

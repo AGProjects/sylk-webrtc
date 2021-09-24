@@ -429,7 +429,7 @@ function hasMore(key) {
     if (store === null) return false;
 
     return store.getItem(key).then((messages) => {
-        if (messages && lastIdLoaded.get('key') !== undefined) {
+        if (messages && lastIdLoaded.get(key) !== undefined) {
             let lastMessages = messages.map(message => JSON.parse(message, _parseDates));
             const matchesId = (element) => element.id === lastIdLoaded.get(key);
             const index = lastMessages.findIndex(matchesId);

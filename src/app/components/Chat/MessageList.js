@@ -144,7 +144,7 @@ const MessageList = ({
             canLoadMore();
             setLoading(false);
         }
-    }, [entries, display, loading, hasMore])
+    }, [entries, display]) // eslint-disable-line react-hooks/exhaustive-deps
 
 
     const loadMore = () => {

@@ -196,7 +196,7 @@ const Message = ({
 
     const copy = () => {
         let selection = window.getSelection();
-        if (selection !== '') {
+        if (selection.toString() === '') {
             selection = message.content;
         }
         if ('clipboard' in navigator) {

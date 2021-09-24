@@ -52,10 +52,10 @@ function getContent(step = 0) {
     return (<React.Fragment>
         Sylk uses end-to-end encryption for messaging to contacts that support this.<br /><br/>
         You have used Sylk on a different device/browser and you have a different PGP key on this device/browser.<br/><br />
-        The PGP key from <strong>this device/brower</strong> can be used for <strong>all</strong> other devices/browsers. This will exporte the key to your other devices/browsers.<br /><br/>
+        The PGP key from <strong>this device/brower</strong> can be used for <strong>all</strong> other devices/browsers. This will export the key to your other devices/browsers.<br /><br/>
         If you <strong>don't</strong> want to use this key, you need to <strong>export</strong> the key from the other device/browser.<br />
         Messaging can't be enabled unless you do either of these steps.<br /><br/>
-        <span className="text-warning"><strong>Would you like to use the secret PGP key across all other devices?</strong></span>
+        <span className="text-warning"><strong>Would you like to use <strong>this</strong> PGP key across all other devices?</strong></span>
     </React.Fragment>);
 }
 

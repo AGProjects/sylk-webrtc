@@ -1439,6 +1439,11 @@ class Blink extends React.Component {
 
     messageStateChanged(id, state, data, fromSync = false) {
         DEBUG('Message state changed: %o', id);
+        if (this.state.importMessage && this.state.importMessage.id === id) {
+            DEBUG('Skipping state update for importKeyMessage: %o', id);
+            return;
+        }
+
         messageStorage.update({messageId: id, state});
         let found = false;
         if (state === 'accepted' && !fromSync) {

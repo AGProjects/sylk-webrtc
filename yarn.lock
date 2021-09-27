@@ -6886,10 +6886,9 @@ onetime@^5.1.0:
   dependencies:
     mimic-fn "^2.1.0"
 
-openpgp@^5.0.0:
+openpgp@tijmenNL/openpgpjs#4eb26e0:
   version "5.0.0"
-  resolved "https://registry.yarnpkg.com/openpgp/-/openpgp-5.0.0.tgz#2da0ee406c8834223ae928a9a214f4811f83f923"
-  integrity sha512-H4Jsj9Bp1KFQ/w520M1d2x45iz9V39Lf+IwIXmUaBmJAMagAt0zanqmWeFzIMJUYmrHTcm6fO/rpc6aftFUHbA==
+  resolved "https://codeload.github.com/tijmenNL/openpgpjs/tar.gz/4eb26e005903e5bfdd3ce91610f4b6586896ce56"
   dependencies:
     asn1.js "^5.0.0"
 
@@ -9523,14 +9522,14 @@ svgo@^1.0.0, svgo@^1.3.2:
 
 sylkrtc@AGProjects/sylkrtc.js:
   version "1.5.3"
-  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/111bfa72692811ad3cb887584383e5133f0c8701"
+  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/657d757cb99ec13fee126c19d33f61e9532aece6"
   dependencies:
     "@rifflearning/attachmediastream" "^3.0.0"
     blueimp-md5 "^2.13.0"
     bowser "^2.7.0"
     debug "^4.1.1"
     dompurify "^2.0.10"
-    openpgp "^5.0.0"
+    openpgp tijmenNL/openpgpjs#4eb26e0
     regenerator-runtime "^0.13.9"
     sdp-transform "^2.3.0"
     uuid "^7.0.3"

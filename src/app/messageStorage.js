@@ -265,9 +265,9 @@ function add(message) {
         } else {
             if (idsInStorage.get(message.id)) {
                 DEBUG('NOT Saving message in storage: %o', message);
-                return
+                return;
             }
-            for (const storedMessage of messages) {
+            for (let storedMessage of messages) {
                 storedMessage = JSON.parse(storedMessage, _parseDates);
                 if (message.id === storedMessage.id) {
                     DEBUG('NOT Saving message in storage: %o', message);
@@ -338,7 +338,7 @@ function update(message) {
     }).then((result) => {
         if (result !== undefined) {
             const [key, messages] = result;
-            DEBUG('Saving stored messages for: %s', key);
+            DEBUG('Saving state stored messages for: %s', key);
             set(key, messages);
             return messages;
         }
@@ -446,7 +446,7 @@ function hasMore(key) {
 function updateIdMap() {
     idsInStorage.clear();
     return Queue.enqueue(() => store.iterate((storedMessages, key) => {
-        for (const storedMessage of storedMessages) {
+        for (let storedMessage of storedMessages) {
             storedMessage = JSON.parse(storedMessage, _parseDates);
             idsInStorage.set(storedMessage.id, storedMessage.state)
         }

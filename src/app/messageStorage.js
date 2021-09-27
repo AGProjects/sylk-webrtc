@@ -154,7 +154,7 @@ class electronStorage {
                 return new Promise((resolve, reject) => {
                     // getAll has a bug, it splits the object on .
                     this.keys().then(data => {
-                        if (JSON.stringify(data) === JSON.stringify([])) {
+                        if (data === null || JSON.stringify(data) === JSON.stringify([])) {
                             resolve();
                         } else {
                             let itertionNumber = 1;

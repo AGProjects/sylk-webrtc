@@ -112,7 +112,7 @@ const ImportModal = (props) => {
             </DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText id="dialog-description" className={classes.fixFont}>
-                        Sylk uses end-to-end encryption for messaging to contacts that support this.
+                        Sylk uses end-to-end encryption for messaging for which it needs a private key.
                     </DialogContentText>
                     { reset === 0 &&
                         <AuthCode
@@ -125,7 +125,8 @@ const ImportModal = (props) => {
                         />
                     }
                     <DialogContentText id="dialog-explain" className={classes.fixFont}>
-                        Your private keys have been sent from your other device/browser. Enter the code shown on the other device or borwser to continue.
+                        A private key has been sent from one of your other devices. 
+                        Enter the pincode shown on the sending device to import it.
                     </DialogContentText>
             </DialogContent>
         </Dialog>

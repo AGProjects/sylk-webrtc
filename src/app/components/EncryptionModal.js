@@ -45,17 +45,16 @@ const password = Math.random().toString().substr(2, 6);
 function getContent(step = 0) {
     if (step === 1) {
         return (<React.Fragment>
-            Your secret PGP key is being exported.<br/>
-            Enter this code when promted on your other device<br/>
+            To replicate messages on multiple devices you need the same private key on all of them.<br/> <br/>
+            Press <strong>Export</strong> and enter this code when prompted on your other device:<br/>
         </React.Fragment>);
     }
     return (<React.Fragment>
-        Sylk uses end-to-end encryption for messaging to contacts that support this.<br /><br/>
-        You have used Sylk on a different device/browser and you have a different PGP key on this device/browser.<br/><br />
-        The PGP key from <strong>this device/brower</strong> can be used for <strong>all</strong> other devices/browsers. This will export the key to your other devices/browsers.<br /><br/>
-        If you <strong>don't</strong> want to use this key, you need to <strong>export</strong> the key from the other device/browser.<br />
+        To decrypt messages, you need a private key from another device. On another device go to  menu option 'Export private key'. <br /><br/>
+        If you chose to generate a new key, previous messages cannot be read on newer devices.
+        <br />
         Messaging can't be enabled unless you do either of these steps.<br /><br/>
-        <span className="text-warning"><strong>Would you like to use <strong>this</strong> PGP key across all other devices?</strong></span>
+        <span className="text-warning"><strong>Would you like to use <strong>this</strong> private key across all other devices?</strong></span>
     </React.Fragment>);
 }
 
@@ -73,7 +72,7 @@ const EncryptionModal = (props) => {
             aria-labelledby="dialog-titile"
             aria-describedby="dialog-description"
         >
-        <DialogTitle id="dialog-title" className={classes.bigger}>Secure messaging</DialogTitle>
+        <DialogTitle id="dialog-title" className={classes.bigger}>Export private key</DialogTitle>
             <DialogContent dividers>
                 <DialogContentText id="dialog-description" className={classes.fixFont}>
                     {getContent(props.export ? 1 : step)}

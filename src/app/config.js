@@ -1,13 +1,13 @@
 'use strict';
 
-const defaultDomain = 'sip2sip.info';
+const defaultDomain = 'sylk.link';
 
 const configOptions = {
     defaultDomain           : defaultDomain,
     enrollmentDomain        : defaultDomain,
     nonSipDomains           : [],           // Each domain configured here will be used for alternate authentication methods
     publicUrl               : 'https://webrtc.sipthor.net',
-    enrollmentUrl           : 'https://blink.sipthor.net/enrollment-webrtc.phtml',
+    enrollmentUrl           : 'https://blink.sipthor.net/enrollment-sylk-mobile.phtml',
     useServerCallHistory    : true,
     serverCallHistoryUrl    : 'https://blink.sipthor.net/settings-webrtc.phtml',
     defaultConferenceDomain : `videoconference.${defaultDomain}`,

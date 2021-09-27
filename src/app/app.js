@@ -1496,9 +1496,9 @@ class Blink extends React.Component {
         DEBUG('Got messages from server: %o', messages);
         const promises = []
         promises.push(messageStorage.updateIdMap());
+        let lastId = '';
         for (const fetchedMessage of messages) {
             DEBUG(fetchedMessage)
-            storage.set('lastMessageId', fetchedMessage.id);
             if (fetchedMessage.contentType === 'message/imdn') {
                 let decodedContent = fetchedMessage.content;
                 promises.push(messageStorage.update({messageId: decodedContent.message_id, state: decodedContent.state}));
@@ -1553,6 +1553,7 @@ class Blink extends React.Component {
                 );
             }
         }
+        promises.push(storage.set('lastMessageId', lastId));
         Promise.all(promises).then(() =>
             messageStorage.loadLastMessages().then(messages => {
                 if (messages) {

@@ -386,7 +386,9 @@ function loadLastMessages() {
                     if (messages) {
                         lastMessages[key] = messages.slice(-30).map(message => JSON.parse(message, _parseDates));
                         // lastMessages[key] = messages.map(message => JSON.parse(message, parseDates));
-                        lastIdLoaded.set(key, lastMessages[key][0].id);
+                        if (lastMessages[key].length !== 0) {
+                            lastIdLoaded.set(key, lastMessages[key][0].id);
+                        }
                     }
                 }))
             }

@@ -125,8 +125,8 @@ const ImportModal = (props) => {
                         />
                     }
                     <DialogContentText id="dialog-explain" className={classes.fixFont}>
-                        A private key has been sent from one of your other devices. 
-                        Enter the pincode shown on the sending device to import it.
+                        A private key has been sent from one of your other devices.
+                        Enter the code shown on the sending device to import it.
                     </DialogContentText>
             </DialogContent>
         </Dialog>

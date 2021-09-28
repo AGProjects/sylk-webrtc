@@ -92,6 +92,10 @@ const ImportModal = (props) => {
             props.account.decryptKeyImport(props.message, value, (result) => {
                 if (result.didDecrypt === true) {
                     setSucess(true);
+                    setTimeout(() => {
+                        props.close();
+                        setSucess(false);
+                    }, 4000);
                     props.importKey(result);
                 } else {
                     setReset(1);

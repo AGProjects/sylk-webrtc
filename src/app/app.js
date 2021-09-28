@@ -1280,7 +1280,7 @@ class Blink extends React.Component {
         storage.get('pgpKeys').then(storedKeys => {
             if (storedKeys && publicKey === storedKeys.publicKey) {
                 DEBUG('Imported key(s) are the same, skipping');
-                this.toggleImportModal()
+                setTimeout(() => this.toggleImportModal(), 4000);
                 return;
             }
             if (this.state.mode !== MODE_PRIVATE) {
@@ -1294,7 +1294,7 @@ class Blink extends React.Component {
             this.state.account.pgp.on('publicKeyAdded', (key) => {
                 keyStorage.add(key);
             });
-            this.toggleImportModal()
+            setTimeout(() => this.toggleImportModal(), 4000);
 
             this.enableMessaging();
             this.loadMessages();

@@ -10,7 +10,9 @@ const {
     DialogContentText,
     DialogTitle,
     IconButton }     = require('@material-ui/core');
-const { Close: CloseIcon  } = require('@material-ui/icons');
+const {
+    Close: CloseIcon,
+    CheckCircleOutline: OkIcon } = require('@material-ui/icons');
 const { default: AuthCode } = require('react-auth-code-input');
 
 
@@ -30,6 +32,11 @@ const styleSheet = makeStyles((theme) => ({
     fixFont: {
         fontFamily: 'inherit',
         fontSize: '14px'
+    },
+    fixFontBigger: {
+        fontFamily: 'inherit',
+        fontSize: '16px',
+        fontWeight: 300
     },
     container: {
         padding: 16
@@ -67,6 +74,10 @@ const styleSheet = makeStyles((theme) => ({
         '&> span > svg': {
             fontSize: 24
         }
+    },
+    okIcon: {
+        fontSize: 75,
+        color: '#3c763d'
     }
 }));
 
@@ -74,11 +85,13 @@ const styleSheet = makeStyles((theme) => ({
 const ImportModal = (props) => {
     const classes = styleSheet();
     const [reset, setReset] = React.useState(0);
+    const [success, setSucess] = React.useState(false);
 
     const verifyPass = (value) =>{
         if (value.length === 6) {
             props.account.decryptKeyImport(props.message, value, (result) => {
                 if (result.didDecrypt === true) {
+                    setSucess(true);
                     props.importKey(result);
                 } else {
                     setReset(1);
@@ -110,24 +123,36 @@ const ImportModal = (props) => {
                     <CloseIcon />
                 </IconButton>
             </DialogTitle>
-                <DialogContent dividers>
-                    <DialogContentText id="dialog-description" className={classes.fixFont}>
-                        Sylk uses end-to-end encryption for messaging for which it needs a private key.
-                    </DialogContentText>
-                    { reset === 0 &&
-                        <AuthCode
-                            allowedCharacters = "^[0-9]"
-                            characters = {6}
-                            containerClassName = {classes.container}
-                            inputClassName = {classes.input}
-                            maxlength = "6"
-                            onChange = {verifyPass}
-                        />
-                    }
-                    <DialogContentText id="dialog-explain" className={classes.fixFont}>
-                        A private key has been sent from one of your other devices.
-                        Enter the code shown on the sending device to import it.
-                    </DialogContentText>
+            <DialogContent dividers>
+                {!success
+                    ?
+                        <React.Fragment>
+                            <DialogContentText id="dialog-description" className={classes.fixFont}>
+                                Sylk uses end-to-end encryption for messaging for which it needs a private key.
+                            </DialogContentText>
+                            {reset === 0 &&
+                                <AuthCode
+                                    allowedCharacters = "^[0-9]"
+                                    characters = {6}
+                                    containerClassName = {classes.container}
+                                    inputClassName = {classes.input}
+                                    maxlength = "6"
+                                    onChange = {verifyPass}
+                                />
+                            }
+                            <DialogContentText id="dialog-explain" className={classes.fixFont}>
+                                A private key has been sent from one of your other devices.
+                                Enter the code shown on the sending device to import it.
+                            </DialogContentText>
+                        </React.Fragment>
+                    :
+                        <React.Fragment>
+                            <OkIcon className={classes.okIcon} />
+                            <DialogContentText id="dialog-description" className={classes.fixFontBigger}>
+                                Key was decrypted successfully
+                            </DialogContentText>
+                        </React.Fragment>
+                }
             </DialogContent>
         </Dialog>
     );

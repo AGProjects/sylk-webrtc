@@ -40,8 +40,6 @@ const styleSheet = makeStyles({
     }
 });
 
-const password = Math.random().toString().substr(2, 6);
-
 function getContent(step = 0) {
     if (step === 1) {
         return (<React.Fragment>
@@ -62,6 +60,13 @@ function getContent(step = 0) {
 const EncryptionModal = (props) => {
     const classes = styleSheet();
     const [step, setStep] = React.useState(0);
+    const [password, setPassword] = React.useState();
+
+    React.useEffect(() => {
+        if (props.show === true) {
+            setPassword(Math.random().toString().substr(2, 6));
+        }
+    }, [props.show]);
 
     return (
         <Dialog

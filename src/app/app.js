@@ -1553,7 +1553,9 @@ class Blink extends React.Component {
                 );
             }
         }
-        promises.push(storage.set('lastMessageId', lastId));
+        if (lastId !== '') {
+            promises.push(storage.set('lastMessageId', lastId));
+        }
         Promise.all(promises).then(() =>
             messageStorage.loadLastMessages().then(messages => {
                 if (messages) {

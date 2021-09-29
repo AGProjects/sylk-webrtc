@@ -37,6 +37,10 @@ const BootstrapButton = withStyles({
             boxShadow: 'inset 0px 3px 5px 0px rgba(0,0,0,.125)'
         }
     },
+    disabled: {
+        border: '1px solid #fff',
+        cursor: 'not-allowed'
+    },
     sizeLarge: {
         padding: '10px 20px',
         fontSize: 18,

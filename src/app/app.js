@@ -460,22 +460,28 @@ class Blink extends React.Component {
                 this.state.account.checkIfKeyExists((publicKey) => {
                     if (publicKey === null) {
                         // There is no key on the server and we have none
-                        this.setState({loading: 'Generating keys for PGP encryption'})
-                        setImmediate(() => {
-                            this.state.account.generatePGPKeys((result) => {
-                                if (this.state.mode !== MODE_PRIVATE) {
+                        if (this.state.mode !== MODE_PRIVATE) {
+                            this.setState({loading: 'Generating keys for PGP encryption'})
+                            setImmediate(() => {
+                                this.state.account.generatePGPKeys((result) => {
                                     storage.set('pgpKeys', result);
-                                }
-                                this.setState({loading: null, transmitKeys: true})
+                                    this.setState({loading: null, transmitKeys: true});
+                                    keyStorage.getAll().then(key =>
+                                        this.state.account.pgp.addPublicPGPKeys(key)
+                                    );
+                                    this.state.account.pgp.on('publicKeyAdded', (key) => {
+                                        keyStorage.add(key);
+                                    });
+                                    this.enableMessaging();
+                                    this.loadMessages();
+                                });
                             });
-                            keyStorage.getAll().then(key =>
-                                this.state.account.pgp.addPublicPGPKeys(key)
-                            );
-                            this.state.account.pgp.on('publicKeyAdded', (key) => {
-                                keyStorage.add(key);
-                            });
+                        } else {
+                            // messaging in private mode without encryption
+                            this.setState({loading: null});
+                            this.enableMessaging();
                             this.loadMessages();
-                        });
+                        }
                     } else {
                         this.toggleNewDeviceModal();
                         // There is a key on the server and we have none
@@ -1872,22 +1878,21 @@ class Blink extends React.Component {
                         this.setState({loading: 'Generating keys for PGP encryption'});
                         setImmediate(() => {
                             this.state.account.generatePGPKeys((result) => {
-                                if (this.state.mode !== MODE_PRIVATE) {
-                                    storage.set('pgpKeys', result);
-                                }
+                                storage.set('pgpKeys', result);
                                 this.toggleNewDeviceModal();
                                 this.setState({loading: null, transmitKeys: true});
 
+                                keyStorage.getAll().then(key =>
+                                    this.state.account.pgp.addPublicPGPKeys(key)
+                                );
+                                this.state.account.pgp.on('publicKeyAdded', (key) => {
+                                    keyStorage.add(key);
+                                });
+                                this.enableMessaging();
                             });
-                            keyStorage.getAll().then(key =>
-                                this.state.account.pgp.addPublicPGPKeys(key)
-                            );
-                            this.state.account.pgp.on('publicKeyAdded', (key) => {
-                                keyStorage.add(key);
-                            });
-                            this.enableMessaging();
                         });
                     }}
+                    private={this.state.mode === MODE_PRIVATE}
                 />
                 <ImportModal
                     importKey = {this.importKey}

@@ -68,8 +68,15 @@ const NewDeviceModal = (props) => {
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={props.close} variant="text" title="ignore">Cancel</Button>
-                <Button variant="contained" onClick={props.generatePGPKeys} title="import">Generate Private Key</Button>
+                <Button onClick={props.close} variant="text" title="Cancel">Cancel</Button>
+                <Button
+                    variant="contained"
+                    onClick={props.generatePGPKeys}
+                    title='Generate keys'
+                    disabled={props.private}
+                >
+                    Generate Private Key
+                </Button>
             </DialogActions>
         </Dialog>
     );
@@ -78,7 +85,8 @@ const NewDeviceModal = (props) => {
 NewDeviceModal.propTypes = {
     show: PropTypes.bool.isRequired,
     close: PropTypes.func.isRequired,
-    generatePGPKeys: PropTypes.func.isRequired
+    generatePGPKeys: PropTypes.func.isRequired,
+    private: PropTypes.bool.isRequired
 };
 
 

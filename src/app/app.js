@@ -412,6 +412,10 @@ class Blink extends React.Component {
             keyStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
 
             let { privateKey, publicKey, revocationCertificate } = '';
+
+            if (this.state.enableMessaging) {
+                this.enableMessaging(true);
+            }
             storage.get('pgpKeys').then(pgpKeys => {
                 if (pgpKeys) {
                     privateKey = pgpKeys.privateKey;
@@ -1317,8 +1321,9 @@ class Blink extends React.Component {
         });
     }
 
-    enableMessaging() {
-        if (!this.state.enableMessaging) {
+    enableMessaging(reenable = false) {
+        if (!this.state.enableMessaging || reenable) {
+            DEBUG("Enable message events");
             this.setState({enableMessaging: true});
             // Add message events
             this.state.account.on('incomingMessage', this.incomingMessage);

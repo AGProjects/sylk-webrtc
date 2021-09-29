@@ -1569,6 +1569,10 @@ class Blink extends React.Component {
                     setImmediate(() => {
                         storage.get('pgpKeys').then(pgpKeys => {
                             if (pgpKeys) {
+                                if (Object.keys(this.state.oldMessages).length === 0) {
+                                    this.state.account.sendMessage('inital_key@to.store.in.sylkserver.info', pgpKeys.publicKey, 'text/pgp-public-key');
+                                    return;
+                                }
                                 for (let contact of Object.keys(this.state.oldMessages)) {
                                     if (contact !== this.state.accountId) {
                                         this.state.account.sendMessage(contact, pgpKeys.publicKey, 'text/pgp-public-key')

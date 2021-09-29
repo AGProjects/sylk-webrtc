@@ -206,6 +206,12 @@ const Message = ({
         }
     };
 
+    const _removeMessage = () => {
+        if (typeof removeMessage === 'function') {
+            removeMessage();
+        }
+    }
+
     const handleClose = () => {
         setAnchorEl(null);
     };
@@ -225,7 +231,7 @@ const Message = ({
                                 Copy
                             </MenuItem>
                             <Divider />
-                            <MenuItem className={classes.item} onClick={() => {removeMessage(); handleClose()}}>
+                            <MenuItem className={classes.item} onClick={() => {_removeMessage(); handleClose()}}>
                                 Remove Message
                             </MenuItem>
                         </CustomContextMenu>
@@ -263,7 +269,7 @@ const Message = ({
                             Copy
                         </MenuItem>
                         <Divider />
-                        <MenuItem className={classes.item} onClick={() => {removeMessage(); handleClose()}}>
+                        <MenuItem className={classes.item} onClick={() => {_removeMessage(); handleClose()}}>
                             Remove Message
                         </MenuItem>
                     </CustomContextMenu>
@@ -291,7 +297,7 @@ const Message = ({
 Message.propTypes = {
     message: PropTypes.object.isRequired,
     scroll: PropTypes.func.isRequired,
-    removeMessage: PropTypes.func.isRequired,
+    removeMessage: PropTypes.func,
     cont: PropTypes.bool,
     displayed: PropTypes.func,
     focus: PropTypes.bool,

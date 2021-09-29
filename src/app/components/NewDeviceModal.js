@@ -35,17 +35,16 @@ const styleSheet = makeStyles({
 
 function getContent() {
     return (<React.Fragment>
-        Sylk uses end-to-end encryption for messaging to contacts that support this.<br/><br/>
-        You signed in before with an other device/browser. Please choose <strong>'Export private key'</strong> on this device.<br /><br />
-        If you lost access to this device/browser, please continue with 'Generate a new private key', or 'Cancel' and messaging will be <strong>disabled</strong>.
+        To decrypt your messages, your private key is required.<br/><br/>
+        Please choose <strong><em>'Export private key'</em></strong> on a device/browser where you signed in before.<br /><br />
+        If you <strong>lost access</strong> to this device/browser, please continue with 'Generate a new private key',
+        or 'Cancel' and messaging will be <strong>disabled</strong>.
+        If you choose to generate a new key, your previous messages cannot be read on newer devices.
     </React.Fragment>);
 }
 
 const NewDeviceModal = (props) => {
     const classes = styleSheet();
-    const [step, setStep] = React.useState(0);
-
-    const input = React.useRef();
 
     return (
         <Dialog
@@ -59,7 +58,7 @@ const NewDeviceModal = (props) => {
             fullWidth={true}
             aria-labelledby="dialog-titile"
             aria-describedby="dialog-description"
-        disableEscapeKeyDown
+            disableEscapeKeyDown
         >
         <DialogTitle id="dialog-title" className={classes.bigger}>New device/browser?</DialogTitle>
                 <DialogContent dividers>

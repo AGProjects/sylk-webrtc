@@ -31,6 +31,7 @@ const IncomingCallWindow   = require('./components/IncomingCallWindow');
 const NotificationCenter   = require('./components/NotificationCenter');
 const LoadingScreen        = require('./components/LoadingScreen');
 const RedialScreen         = require('./components/RedialScreen');
+const MessagesLoadingScreen = require('./components/MessagesLoadingScreen');
 const NavigationBar        = require('./components/NavigationBar');
 const Preview              = require('./components/Preview');
 const ScreenSharingModal   = require('./components/ScreenSharingModal');
@@ -91,6 +92,7 @@ class Blink extends React.Component {
             showRedialScreen: false,
             resumeCall: false,
             messagesLoading: false,
+            messagesLoadingProgress: false,
             importMessage: {},
             export: false,
             transmitKeys: false,
@@ -753,8 +755,15 @@ class Blink extends React.Component {
                             account.on('conferenceInvite', this.conferenceInvite);
 
                             // Messaging handlers
-                            account.on('processingFetchedMessages', ()=> {
-                                this.setState({messagesLoading: true});
+                            account.on('processingFetchedMessages', (progress)=> {
+                                const newState = {};
+                                if (!this.state.messagesLoading) {
+                                    newState.messagesLoading = true;
+                                }
+                                if (progress) {
+                                    newState.messagesLoadingProgress = progress;
+                                }
+                                this.setState(newState);
                             });
                             account.on('outgoingMessage', this.outgoingMessage);
                             this.setState({account: account, oldMessages: oldMessages});
@@ -1568,7 +1577,7 @@ class Blink extends React.Component {
         Promise.all(promises).then(() =>
             messageStorage.loadLastMessages().then(messages => {
                 if (messages) {
-                    this.setState({oldMessages: messages, messagesLoading: false})
+                    this.setState({oldMessages: messages, messagesLoading: false, messagesLoadingProgress: false});
                 }
                 setImmediate(() => this.retransmitMessages());
                 if (this.state.transmitKeys) {
@@ -2075,6 +2084,9 @@ class Blink extends React.Component {
                     enableMessaging = {this.state.enableMessaging}
                     exportPrivateKey= {() => this.setState({export: true, showEncryptionModal: true})}
                 />
+                {this.state.messagesLoadingProgress &&
+                    <MessagesLoadingScreen progress={this.state.messagesLoadingProgress} />
+                }
                 <Chat
                     key = {this.state.account}
                     account  = {this.state.account}

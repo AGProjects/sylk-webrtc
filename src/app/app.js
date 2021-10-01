@@ -319,7 +319,7 @@ class Blink extends React.Component {
                     currentCall: null,
                     inboundCall: null,
                     localMedia: null,
-                    generatedVideoTrack: false
+                    generatedVideoTrack: false,
                 });
                 break;
             default:

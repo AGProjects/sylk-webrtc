@@ -1513,10 +1513,16 @@ class Blink extends React.Component {
         this.setState({messagesLoading: true})
         DEBUG('Got messages from server: %o', messages);
         const promises = []
-        promises.push(messageStorage.updateIdMap());
         let lastId = '';
+
+        if (this.state.messagesLoadingProgress) {
+            this.setState({messagesLoadingProgress: 'storing'});
+        }
+        messageStorage.updateIdMap();
+
         for (const fetchedMessage of messages) {
             DEBUG(fetchedMessage)
+            lastId = fetchedMessage.id;
             if (fetchedMessage.contentType === 'message/imdn') {
                 let decodedContent = fetchedMessage.content;
                 promises.push(messageStorage.update({messageId: decodedContent.message_id, state: decodedContent.state}));

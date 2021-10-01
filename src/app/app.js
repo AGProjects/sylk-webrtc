@@ -442,7 +442,7 @@ class Blink extends React.Component {
                             this.loadMessages();
                         } else {
                             // We have a key, but the server has a different key
-                            this.toggleEncryptionModal();
+                            this.setState({showEncryptionModal: true, export: false});
                         }
                     } else {
                         // Our key and the key on the server matches
@@ -485,7 +485,7 @@ class Blink extends React.Component {
                             this.loadMessages();
                         }
                     } else {
-                        this.toggleNewDeviceModal();
+                        this.setState({showNewDeviceModal: true});
                         // There is a key on the server and we have none
                     }
                 });

@@ -783,7 +783,7 @@ class Blink extends React.Component {
                                                 messageStorage.close();
                                                 this.setState({oldMessages: {}});
                                             });
-                                            storage.remove('lastMessageId');
+                                            storage.remove(`lastMessageId-${account.accountId}`);
                                             storage.remove(`pgpKeys-${account.accountId}`);
                                         }
                                     });
@@ -799,7 +799,7 @@ class Blink extends React.Component {
                                             messageStorage.close();
                                             this.setState({oldMessages: {}});
                                         });
-                                        storage.remove('lastMessageId');
+                                        storage.remove(`lastMessageId-${account.accountId}`);
                                         storage.remove(`pgpKeys-${account.accountId}`);
                                     }
                                 });
@@ -1356,7 +1356,7 @@ class Blink extends React.Component {
         this.setState({messagesLoading: true})
         messageStorage.loadLastMessages().then((cache) => {
             this.setState({oldMessages: cache})
-            storage.get('lastMessageId').then(id =>
+            storage.get(`lastMessageId-${this.state.accountId}`).then(id =>
                 this.state.account.syncConversations(id, (error) => {
                     if (error) {
                         this.retransmitMessages();
@@ -1373,9 +1373,9 @@ class Blink extends React.Component {
             return;
         }
 
+        storage.set(`lastMessageId-${this.state.accountId}`, message.id);
         messageStorage.add(message);
 
-        storage.set('lastMessageId', message.id);
         if (message.sender.displayName !== null
             && (!this.state.contactCache.has(message.sender.uri)
             || (this.state.contactCache.has(message.sender.uri)
@@ -1465,7 +1465,7 @@ class Blink extends React.Component {
         messageStorage.update({messageId: id, state});
         let found = false;
         if (state === 'accepted' && !fromSync) {
-            storage.set('lastMessageId', id);
+            storage.set(`lastMessageId-${this.state.accountId}`, id);
         }
         const oldMessages = cloneDeep(this.state.oldMessages);
         for (const [key, messages] of Object.entries(oldMessages)) {
@@ -1572,7 +1572,7 @@ class Blink extends React.Component {
             }
         }
         if (lastId !== '') {
-            promises.push(storage.set('lastMessageId', lastId));
+            promises.push(storage.set(`lastMessageId-${this.state.accountId}`, lastId));
         }
         Promise.all(promises).then(() =>
             messageStorage.loadLastMessages().then(messages => {
@@ -2262,7 +2262,7 @@ class Blink extends React.Component {
             if (this.shouldUseHashRouting) {
                 storage.set('account', {accountId: this.state.accountId, password: ''});
                 storage.remove(`pgpKeys-${this.state.accountId}`);
-                storage.remove('lastMessageId');
+                storage.remove(`lastMessageId-${this.state.accountId}`);
             }
             messageStorage.close()
 

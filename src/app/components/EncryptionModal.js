@@ -48,9 +48,10 @@ function getContent(step = 0) {
         </React.Fragment>);
     }
     return (<React.Fragment>
-        To decrypt messages, you need a private key from another device. On another device go to  menu option 'Export private key'. <br /><br/>
-        If you chose to generate a new key, previous messages cannot be read on newer devices.
-        <br />
+        You have used Sylk on another device/browser and you have a different PGP key on this device/browser.<br/><br />
+        The PGP key from <strong>this device/brower</strong> can be used for <strong>all</strong> other devices/browsers.
+        If you choose to use this key, previous messages cannot be read on newer devices.<br /><br/>
+        If you <strong>don't</strong> want to use this key, you need to choose <strong><em>Export private key</em></strong> on your other device/browser.<br /><br/>
         Messaging can't be enabled unless you do either of these steps.<br /><br/>
         <span className="text-warning"><strong>Would you like to use <strong>this</strong> private key across all other devices?</strong></span>
     </React.Fragment>);

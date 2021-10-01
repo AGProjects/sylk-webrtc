@@ -1312,7 +1312,7 @@ class Blink extends React.Component {
             this.state.account.pgp.on('publicKeyAdded', (key) => {
                 keyStorage.add(key);
             });
-
+            this.setState({showEncryptionModal: false, export: false});
             this.enableMessaging();
             this.loadMessages();
         });

@@ -447,7 +447,9 @@ function updateIdMap() {
                 storedMessage = JSON.parse(storedMessage, _parseDates);
                 idsInStorage.set(storedMessage.id, storedMessage.state)
             }
-        })
+        }).then(() => {
+            resolve()
+        });
     }))
 }
 

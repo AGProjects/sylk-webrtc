@@ -229,12 +229,10 @@ function get(key) {
 
 
 function remove(key) {
-    return new Promise((resolve, reject) => {
-        store.removeItem(key).then(() => {
-            updateIdMap();
-            resolve();
-        });
-    })
+    return Queue.enqueue(() => store.removeItem(key).then(() => {
+        DEBUG('Removed conversation for %s', key);
+        return;
+    }));
 }
 
 
@@ -263,10 +261,6 @@ function add(message) {
         if (!messages) {
             messages = [];
         } else {
-            if (idsInStorage.get(message.id)) {
-                DEBUG('NOT Saving message in storage: %o', message);
-                return;
-            }
             for (let storedMessage of messages) {
                 storedMessage = JSON.parse(storedMessage, _parseDates);
                 if (message.id === storedMessage.id) {
@@ -320,8 +314,8 @@ function update(message) {
     let found = false;
     Queue.enqueue(() => store.iterate((storedMessages, key) => {
         let inStorage = idsInStorage.get(message.messageId);
-        if (inStorage && inStorage === message.state) {
-            return
+        if (!inStorage || (inStorage && inStorage === message.state)) {
+            return;
         }
         messages = storedMessages.map((storedMessage) => {
             storedMessage = JSON.parse(storedMessage, _parseDates);
@@ -446,13 +440,15 @@ function hasMore(key) {
 }
 
 function updateIdMap() {
-    idsInStorage.clear();
-    return Queue.enqueue(() => store.iterate((storedMessages, key) => {
-        for (let storedMessage of storedMessages) {
-            storedMessage = JSON.parse(storedMessage, _parseDates);
-            idsInStorage.set(storedMessage.id, storedMessage.state)
-        }
-    }));
+    return Queue.enqueue(() => new Promise((resolve) => {
+        idsInStorage.clear();
+        store.iterate((storedMessages, key) => {
+            for (let storedMessage of storedMessages) {
+                storedMessage = JSON.parse(storedMessage, _parseDates);
+                idsInStorage.set(storedMessage.id, storedMessage.state)
+            }
+        })
+    }))
 }
 
 exports.initialize = initialize;

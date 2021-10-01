@@ -418,7 +418,7 @@ class Blink extends React.Component {
             if (this.state.enableMessaging) {
                 this.enableMessaging(true);
             }
-            storage.get('pgpKeys').then(pgpKeys => {
+            storage.get(`pgpKeys-${this.state.accountId}`).then(pgpKeys => {
                 if (pgpKeys) {
                     privateKey = pgpKeys.privateKey;
                     publicKey = pgpKeys.publicKey;
@@ -466,7 +466,7 @@ class Blink extends React.Component {
                             this.setState({loading: 'Generating keys for PGP encryption'})
                             setImmediate(() => {
                                 this.state.account.generatePGPKeys((result) => {
-                                    storage.set('pgpKeys', result);
+                                    storage.set(`pgpKeys-${this.state.accountId}`, result);
                                     this.setState({loading: null, transmitKeys: true});
                                     keyStorage.getAll().then(key =>
                                         this.state.account.pgp.addPublicPGPKeys(key)
@@ -784,7 +784,7 @@ class Blink extends React.Component {
                                                 this.setState({oldMessages: {}});
                                             });
                                             storage.remove('lastMessageId');
-                                            storage.remove('pgpKeys');
+                                            storage.remove(`pgpKeys-${account.accountId}`);
                                         }
                                     });
                                     storage.set('account', {accountId: this.state.accountId, password: ''});
@@ -800,7 +800,7 @@ class Blink extends React.Component {
                                             this.setState({oldMessages: {}});
                                         });
                                         storage.remove('lastMessageId');
-                                        storage.remove('pgpKeys');
+                                        storage.remove(`pgpKeys-${account.accountId}`);
                                     }
                                 });
                                 storage.remove('account');
@@ -1296,13 +1296,13 @@ class Blink extends React.Component {
             }
         } while((match = regexp.exec(message.content)) !== null);
 
-        storage.get('pgpKeys').then(storedKeys => {
+        storage.get(`pgpKeys-${this.state.accountId}`).then(storedKeys => {
             if (storedKeys && publicKey === storedKeys.publicKey) {
                 DEBUG('Imported key(s) are the same, skipping');
                 return;
             }
             if (this.state.mode !== MODE_PRIVATE) {
-                storage.set('pgpKeys', {publicKey, privateKey});
+                storage.set(`pgpKeys-${this.state.accountId}`, {publicKey, privateKey});
             }
             this.state.account.addPGPKeys({publicKey, privateKey});
 
@@ -1319,7 +1319,7 @@ class Blink extends React.Component {
     }
 
     useExistingKey(password) {
-        storage.get('pgpKeys').then(pgpKeys => {
+        storage.get(`pgpKeys-${this.state.accountId}`).then(pgpKeys => {
             if (pgpKeys !== null && pgpKeys.publicKey && pgpKeys.privateKey) {
                 this.state.account.addPGPKeys(pgpKeys);
                 this.state.account.exportPrivateKey(password);
@@ -1415,7 +1415,7 @@ class Blink extends React.Component {
             } while((match = regexp.exec(message.content)) !== null);
 
             if (publicKey !== null) {
-                storage.get('pgpKeys').then(pgpKeys => {
+                storage.get(`pgpKeys-${this.state.accountId}`).then(pgpKeys => {
                     if (pgpKeys && publicKey === pgpKeys.publicKey.trim()) {
                         DEBUG('Public keys are the same, aborting');
                         return;
@@ -1582,7 +1582,7 @@ class Blink extends React.Component {
                 setImmediate(() => this.retransmitMessages());
                 if (this.state.transmitKeys) {
                     setImmediate(() => {
-                        storage.get('pgpKeys').then(pgpKeys => {
+                        storage.get(`pgpKeys-${this.state.accountId}`).then(pgpKeys => {
                             if (pgpKeys) {
                                 if (Object.keys(this.state.oldMessages).length === 0) {
                                     this.state.account.sendMessage('inital_key@to.store.in.sylkserver.info', pgpKeys.publicKey, 'text/pgp-public-key');
@@ -1887,7 +1887,7 @@ class Blink extends React.Component {
                         this.setState({loading: 'Generating keys for PGP encryption'});
                         setImmediate(() => {
                             this.state.account.generatePGPKeys((result) => {
-                                storage.set('pgpKeys', result);
+                                storage.set(`pgpKeys-${this.state.accountId}`, result);
                                 this.toggleNewDeviceModal();
                                 this.setState({loading: null, transmitKeys: true});
 
@@ -2135,7 +2135,7 @@ class Blink extends React.Component {
                     }}
                     isLoadingMessages = {this.state.messagesLoading}
                     sendPublicKey = {(uri) => {
-                        storage.get('pgpKeys').then(pgpKeys => {
+                        storage.get(`pgpKeys-${this.state.accountId}`).then(pgpKeys => {
                             if (pgpKeys) {
                                 this.state.account.sendMessage(uri, pgpKeys.publicKey, 'text/pgp-public-key');
                             }
@@ -2261,7 +2261,7 @@ class Blink extends React.Component {
             }
             if (this.shouldUseHashRouting) {
                 storage.set('account', {accountId: this.state.accountId, password: ''});
-                storage.remove('pgpKeys');
+                storage.remove(`pgpKeys-${this.state.accountId}`);
                 storage.remove('lastMessageId');
             }
             messageStorage.close()

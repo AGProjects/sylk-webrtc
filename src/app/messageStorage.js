@@ -375,7 +375,7 @@ function updateDisposition(id, state) {
 
 
 function loadLastMessages() {
-    if (store === null) return {};
+    if (store === null) return Promise.resolve({});
 
     const lastMessages = {};
     const promises = [];

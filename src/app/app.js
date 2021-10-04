@@ -39,6 +39,7 @@ const ShortcutsModal       = require('./components/ShortcutsModal');
 const EncryptionModal      = require('./components/EncryptionModal');
 const ImportModal          = require('./components/ImportModal');
 const NewDeviceModal       = require('./components/NewDeviceModal');
+const LogoutModal          = require('./components/LogoutModal');
 
 const utils     = require('./utils');
 const config    = require('./config');
@@ -78,6 +79,7 @@ class Blink extends React.Component {
             showShortcutsModal: false,
             showImportModal: false,
             showEncryptionModal: false,
+            showLogoutModal: false,
             status: null,
             targetUri: '',
             missedTargetUri: '',
@@ -166,6 +168,7 @@ class Blink extends React.Component {
             'togglePropagateKeyPress',
             'toggleRedialScreen',
             'toggleNewDeviceModal',
+            'toggleLogoutModal',
             'getLocalScreen',
             'getServerHistory',
             'getLocalMediaGuestWrapper',
@@ -1101,6 +1104,12 @@ class Blink extends React.Component {
         });
     }
 
+    toggleLogoutModal() {
+        this.setState({
+            showLogoutModal : !this.state.showLogoutModal
+        });
+    }
+
     toggleRedialScreen(resume = false) {
         let nextState = !this.state.showRedialScreen;
         this.setState({
@@ -1877,6 +1886,14 @@ class Blink extends React.Component {
                 {redialScreen}
                 {footerBox}
                 <ShortcutsModal show={this.state.showShortcutsModal} close={this.toggleShortcutsModal} />
+                <LogoutModal
+                    show={this.state.showLogoutModal}
+                    close={this.toggleLogoutModal}
+                    logout={(removeData) => {
+                        this.toggleLogoutModal();
+                        this.logout(removeData);
+                    }}
+                />
                 <EncryptionModal
                     show = {this.state.showEncryptionModal}
                     close = {this.toggleEncryptionModal}
@@ -1982,7 +1999,7 @@ class Blink extends React.Component {
                 <NavigationBar
                     notificationCenter = {this.notificationCenter}
                     account = {this.state.account}
-                    logout = {this.logout}
+                    logout = {this.toggleLogoutModal}
                     preview = {this.startPreview}
                     toggleMute = {this.toggleMute}
                     toggleShortcuts = {this.toggleShortcutsModal}
@@ -2082,7 +2099,7 @@ class Blink extends React.Component {
                 <NavigationBar
                     notificationCenter = {this.notificationCenter}
                     account = {this.state.account}
-                    logout = {this.logout}
+                    logout = {this.toggleLogoutModal}
                     preview = {this.startPreview}
                     toggleMute = {this.toggleMute}
                     toggleShortcuts = {this.toggleShortcutsModal}
@@ -2246,12 +2263,24 @@ class Blink extends React.Component {
         );
     }
 
-    logout() {
+    logout(removeData=false) {
         setTimeout(() => {
             if (this.state.registrationState !== null && (this.state.mode === MODE_NORMAL || this.state.mode === MODE_PRIVATE)) {
                 this.state.account.unregister();
             }
 
+            if (removeData === true) {
+                DEBUG('Clearing message storage for: %s', this.state.accountId);
+                Promise.all([messageStorage.dropInstance().then(() => {
+                    messageStorage.close();
+                    DEBUG('Closing storage: %s', this.state.accountId);
+                    this.setState({oldMessages: {}});
+                })]);
+                storage.remove(`pgpKeys-${this.state.accountId}`);
+                storage.remove(`lastMessageId-${this.state.accountId}`);
+            }
+
+            messageStorage.close()
             if (this.state.account !== null) {
                 try {
                     this.state.connection.removeAccount(this.state.account,
@@ -2265,12 +2294,9 @@ class Blink extends React.Component {
                     DEBUG(error);
                 }
             }
-            if (this.shouldUseHashRouting) {
+            if (this.shouldUseHashRouting || removeData === true) {
                 storage.set('account', {accountId: this.state.accountId, password: ''});
-                storage.remove(`pgpKeys-${this.state.accountId}`);
-                storage.remove(`lastMessageId-${this.state.accountId}`);
             }
-            messageStorage.close()
 
             if (this.state.connection.state !== 'ready') {
                 this.state.connection.close();

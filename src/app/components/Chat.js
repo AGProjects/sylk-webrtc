@@ -100,12 +100,14 @@ const Chat = (props) => {
         };
 
         const outgoingMessage = (message) => {
-            const oldMessages = cloneDeep(messagesRef.current);
-            if (!oldMessages[message.receiver]) {
-                oldMessages[message.receiver] = [];
+            if (message.contentType !== 'text/pgp-private-key') {
+                const oldMessages = cloneDeep(messagesRef.current);
+                if (!oldMessages[message.receiver]) {
+                    oldMessages[message.receiver] = [];
+                }
+                oldMessages[message.receiver].push(message);
+                setMessages(oldMessages);
             }
-            oldMessages[message.receiver].push(message);
-            setMessages(oldMessages);
         };
 
         const removeMessage = (message) => {

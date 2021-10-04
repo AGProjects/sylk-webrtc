@@ -118,6 +118,8 @@
         pre {
             padding: 0;
             margin: 0;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 14px;
             word-break: break-word;
             white-space: pre-wrap;
             background: none;
@@ -136,12 +138,23 @@
         }
 
         .status {
+            margin-left: 10px;
             pre {
+                font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
                 font-size: 9px;
                 color: $bootstrap-text-info;
 
                 &::before {
                     content: '\2023';
+                }
+            }
+
+            .media-right {
+                pre {
+                    white-space: nowrap;
+                    &::before {
+                        content: '';
+                    }
                 }
             }
         }

@@ -220,7 +220,7 @@ const Message = ({
         return (
             <VizSensor partialVisibility={true} onChange={isDisplayed}>
                 <Media className={theme} onContextMenu = {handleContextMenu}>
-                    {enableMenu &&
+                    {enableMenu && !message.type === 'status' &&
                         <CustomContextMenu
                             open = {Boolean(anchorEl)}
                             anchorEl={anchorEl}
@@ -238,9 +238,9 @@ const Message = ({
                     }
 
                     <div ref={messageRef} />
-                    <Media.Left className="timestamp-continued">
-                        <span>{time}</span>
-                    </Media.Left>
+                    { message.type !== 'status' &&
+                         <Media.Left className="timestamp-continued"><span>{time}</span></Media.Left>
+                    }
                     <Media.Body className="vertical-center">
                         {parsedContent}
                     </Media.Body>
@@ -248,6 +248,9 @@ const Message = ({
                         <span className="pull-right" style={{paddingRight: '15px', whiteSpace: 'nowrap'}}>
                             {message.isSecure && <LockIcon className={classes.lockIcon} />}
                             {statusIcon()}
+                            { message.type === 'status' &&
+                                <pre>{time}</pre>
+                            }
                         </span>
                     </Media.Right>
                 </Media>

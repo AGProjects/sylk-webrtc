@@ -780,32 +780,12 @@ class Blink extends React.Component {
                                             history.clear().then(() => {
                                                 this.setState({history: []});
                                             });
-                                            messageStorage.initialize(account.accountId, storage.instance(), this.shouldUseHashRouting);
-                                            DEBUG('Clearing message storage for: %s', account.accountId);
-                                            messageStorage.dropInstance().then(() => {
-                                                messageStorage.close();
-                                                this.setState({oldMessages: {}});
-                                            });
-                                            storage.remove(`lastMessageId-${account.accountId}`);
-                                            storage.remove(`pgpKeys-${account.accountId}`);
                                         }
                                     });
                                     storage.set('account', {accountId: this.state.accountId, password: ''});
                                 }
                             } else {
                                 // Wipe storage if private login
-                                storage.get('account').then((account) => {
-                                    if (account && account.accountId !== this.state.accountId) {
-                                        messageStorage.initialize(account.accountId, storage.instance(), this.shouldUseHashRouting);
-                                        DEBUG('Clearing message storage for: %s', account.accountId);
-                                        messageStorage.dropInstance().then(() => {
-                                            messageStorage.close();
-                                            this.setState({oldMessages: {}});
-                                        });
-                                        storage.remove(`lastMessageId-${account.accountId}`);
-                                        storage.remove(`pgpKeys-${account.accountId}`);
-                                    }
-                                });
                                 storage.remove('account');
                                 history.clear().then(() => {
                                     this.setState({history: []});

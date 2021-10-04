@@ -10,7 +10,7 @@ const configOptions = {
     enrollmentUrl           : 'https://blink.sipthor.net/enrollment-sylk-mobile.phtml',
     useServerCallHistory    : true,
     serverCallHistoryUrl    : 'https://blink.sipthor.net/settings-webrtc.phtml',
-    defaultConferenceDomain : `videoconference.sip2sip.info`,
+    defaultConferenceDomain : 'videoconference.sip2sip.info',
     defaultGuestDomain      : `guest.${defaultDomain}`,
     wsServer                : 'wss://webrtc-gateway.sipthor.net:9999/webrtcgateway/ws',
     fileSharingUrl          : 'https://webrtc-gateway.sipthor.net:9999/webrtcgateway/filesharing',

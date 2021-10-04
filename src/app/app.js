@@ -322,7 +322,7 @@ class Blink extends React.Component {
                     currentCall: null,
                     inboundCall: null,
                     localMedia: null,
-                    generatedVideoTrack: false,
+                    generatedVideoTrack: false
                 });
                 break;
             default:
@@ -1327,7 +1327,7 @@ class Blink extends React.Component {
 
     enableMessaging(reenable = false) {
         if (!this.state.enableMessaging || reenable) {
-            DEBUG("Enable message events");
+            DEBUG('Enable message events');
             this.setState({enableMessaging: true});
             // Add message events
             this.state.account.on('incomingMessage', this.incomingMessage);
@@ -2243,7 +2243,7 @@ class Blink extends React.Component {
         );
     }
 
-    logout(removeData=false) {
+    logout(removeData = false) {
         setTimeout(() => {
             if (this.state.registrationState !== null && (this.state.mode === MODE_NORMAL || this.state.mode === MODE_PRIVATE)) {
                 this.state.account.unregister();

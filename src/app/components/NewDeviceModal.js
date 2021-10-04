@@ -71,7 +71,7 @@ const NewDeviceModal = (props) => {
                 <Button
                     variant="contained"
                     onClick={props.generatePGPKeys}
-                    title='Generate keys'
+                    title="Generate keys"
                     disabled={props.private}
                 >
                     Generate Private Key

@@ -1,3 +1,9 @@
+Version 3.3.0 Tue Oct  5 08:06:31 -03 2021
+
+  * Added OpenPGP encryption
+  * Sync messages and keys with mobile version
+  * Various bug fixes
+
 Version 3.2.0 Thu Sep  2 10:57:42 -03 2021
 
   * Added offline messaging support

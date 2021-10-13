@@ -220,7 +220,7 @@ const Message = ({
         return (
             <VizSensor partialVisibility={true} onChange={isDisplayed}>
                 <Media className={theme} onContextMenu = {handleContextMenu}>
-                    {enableMenu && !message.type === 'status' &&
+                    {enableMenu && message.type !== 'status' &&
                         <CustomContextMenu
                             open = {Boolean(anchorEl)}
                             anchorEl={anchorEl}

@@ -66,8 +66,12 @@ const Message = ({
     const sender = message.sender.displayName ||  message.sender.uri;
     const time = DateTime.fromJSDate(message.timestamp).toFormat('HH:mm');
 
-    const htmlEntities = (str) => {
-        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const preHtmlEntities = (str) => {
+        return String(str).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    };
+
+    const postHtmlEntities = (str) => {
+        return String(str).replace(/(?!&amp;)&/g, '&amp;');
     };
 
     useEffect(() => {
@@ -86,13 +90,13 @@ const Message = ({
                     }
                     if (domNode.type === 'text') {
                         if (!domNode.parent || (domNode.parent.type === 'tag' && domNode.parent.name !== 'a')) {
-                            let url = linkifyUrls(htmlEntities(domNode.data), {
+                            let url = linkifyUrls(preHtmlEntities(domNode.data), {
                                 attributes: {
                                     target : '_blank',
                                     rel    : 'noopener noreferrer'
                                 }
                             });
-                            return (<span>{parse(url)}</span>);
+                            return (<span>{parse(postHtmlEntities(url))}</span>);
                         }
                     }
                 }
@@ -101,7 +105,7 @@ const Message = ({
             const image = `data:${message.contentType};base64,${btoa(message.content)}`
             setParsedContent(<img className="img-responsive" src={image} />);
         } else if (message.contentType === 'text/plain') {
-            const linkfiedContent = linkifyUrls(htmlEntities(message.content), {
+            const linkfiedContent = linkifyUrls(preHtmlEntities(message.content), {
                 attributes: {
                     target : '_blank',
                     rel    : 'noopener noreferrer'
@@ -109,7 +113,7 @@ const Message = ({
             })
 
             setParsedContent  (
-                <pre>{parse(linkfiedContent)}</pre>
+                <pre>{parse(postHtmlEntities(linkfiedContent))}</pre>
             );
         } else if (message.contentType === 'text/pgp-public-key') {
             setParsedContent(

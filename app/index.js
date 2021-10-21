@@ -3,6 +3,7 @@ const electron = require('electron');
 const Notification = electron.Notification
 const fs = require('fs');
 const openAboutWindow = require('about-window').default;
+const Badge = require('electron-windows-badge');
 
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
@@ -14,7 +15,6 @@ const shell = electron.shell;
 const { autoUpdater } = require('electron-updater')
 const ProgressBar = require('electron-progressbar');
 const log = require('electron-log');
-
 const storage = require('electron-json-storage');
 
 let updater = null;
@@ -218,7 +218,7 @@ function createMainWindow() {
         windowOptions.frame = false;
     } else if (isLinux) {
         windowOptions.icon = `${__dirname}/www/assets/images/blink-48.png`;
-    } 
+    }
 
     // Create the browser window.
     mainWindow = new BrowserWindow(windowOptions);
@@ -238,6 +238,17 @@ function createMainWindow() {
         ipc.on('minimize', function() {
             mainWindow.minimize();
         });
+        ipc.on('update-badge', function(event, num) {
+            const dock = electron.app.dock;
+            if (num === null || num === 0) {
+                dock.setBadge('');
+            } else {
+                dock.setBadge('' + num);
+            }
+        });
+    } else if (!isLinux) {
+        const badgeOptions = {};
+        new Badge(mainWindow, badgeOptions);
     }
 
     ipc.on('buttonClick', function(event, arg) {
@@ -245,7 +256,7 @@ function createMainWindow() {
     });
 
     ipc.on('getStorage', () => {
-        mainWindow.webContents.send("storagePath", storage.getDataPath('userData'));
+        mainWindow.webContents.send('storagePath', storage.getDataPath('userData'));
     });
 
     // open links with default browser

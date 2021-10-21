@@ -187,6 +187,7 @@ class Blink extends React.Component {
         this.entryPath = '';
         this.lastMessageFocus = '';
         this.retransmittedMessages = [];
+        this.unreadMessages = 0;
     }
 
     get _notificationCenter() {
@@ -1388,6 +1389,10 @@ class Blink extends React.Component {
                 this._notificationCenter.postNewMessage(message);
             }
         }
+
+        setTimeout(() => {
+            this.calculateUnreadMessages(this.state.oldMessages);
+        }, 2000);
     }
 
     outgoingMessage(message) {
@@ -1441,6 +1446,7 @@ class Blink extends React.Component {
         if (oldMessages[contact]) {
             oldMessages[contact] = oldMessages[contact].filter(loadedMessage => loadedMessage.id !== message.id);
         }
+        this.calculateUnreadMessages(oldMessages);
         this.setState({oldMessages: oldMessages});
     }
 
@@ -1495,6 +1501,38 @@ class Blink extends React.Component {
                     break;
                 }
             };
+            if (state !== 'delivered') {
+                this.calculateUnreadMessages(oldMessages);
+            }
+        }
+    }
+
+    calculateUnreadMessages(messages) {
+        let counter = 0;
+        for (let key of Object.keys(messages)) {
+            for (let message of messages[key]) {
+                if (message.state === 'received'
+                    && message.dispositionState !== 'displayed'
+                    && message.dispositionNotification.indexOf('display') !== -1
+                ) {
+                    counter++;
+                }
+            }
+        }
+        for (let message of this.state.account.messages) {
+            if (message.state === 'received'
+                && message.dispositionState !== 'displayed'
+                && message.dispositionNotification.indexOf('display') !== -1
+            ) {
+                counter++;
+            }
+        }
+        this.unreadMessages = counter;
+        DEBUG('There are %s unread messages', this.unreadMessages);
+        if (this.shouldUseHashRouting) {
+            const ipcRenderer = window.require('electron').ipcRenderer;
+            counter = counter === 0 ? null : counter;
+            ipcRenderer.send('update-badge', counter);
         }
     }
 
@@ -1573,6 +1611,7 @@ class Blink extends React.Component {
             messageStorage.loadLastMessages().then(messages => {
                 if (messages) {
                     this.setState({oldMessages: messages, messagesLoading: false, messagesLoadingProgress: false});
+                    this.calculateUnreadMessages(messages);
                 }
                 setImmediate(() => this.retransmitMessages());
                 if (this.state.transmitKeys) {
@@ -1625,6 +1664,7 @@ class Blink extends React.Component {
                 messageStorage.updateDisposition(message.id, 'displayed');
             }
         }
+        this.calculateUnreadMessages(oldMessages);
         this.setState({oldMessages: oldMessages});
     }
 
@@ -1635,6 +1675,7 @@ class Blink extends React.Component {
         if (this.lastMessageFocus === contact) {
             this.lastMessageFocus = '';
         }
+        this.calculateUnreadMessages(oldMessages);
         this.setState({oldMessages: oldMessages});
     }
 
@@ -2249,6 +2290,11 @@ class Blink extends React.Component {
                 this.state.account.unregister();
             }
 
+            this.unreadMessages = 0;
+            if (this.shouldUseHashRouting) {
+                const ipcRenderer = window.require('electron').ipcRenderer;
+                ipcRenderer.send('update-badge', null);
+            }
             if (removeData === true) {
                 DEBUG('Clearing message storage for: %s', this.state.accountId);
                 Promise.all([messageStorage.dropInstance().then(() => {

@@ -502,7 +502,7 @@ class ConferenceBox extends React.Component {
 
     handleShareOverlayExited() {
         // re-arm the buttons and overlay timeout
-        if (!this.state.showDrawer || !this.props.call.supportsVideo || !this.props.lowBandwidth) {
+        if (!this.state.showDrawer && !this.state.showFiles && this.props.call.supportsVideo && !this.props.lowBandwidth) {
             this.armOverlayTimer();
         }
         this.setState({shareOverlayVisible: false});

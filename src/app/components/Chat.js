@@ -70,8 +70,24 @@ const Chat = (props) => {
 
     this.timer = null
     useEffect(() => {
-        setSelectedUri(props.focusOn)
+        setSelectedUri(props.focusOn);
     }, [props.focusOn]);
+
+    useEffect(() => {
+        const addContact = () => {
+            if (props.focusOn) {
+                let oldMessages = Object.assign({}, messagesRef.current);
+                if (!oldMessages[props.focusOn]) {
+                    oldMessages[props.focusOn] = [];
+                    setMessages(oldMessages);
+                }
+            }
+        }
+
+        if (show) {
+             addContact();
+        }
+    }, [show, props.focusOn])
 
     useEffect(() => {
         if (props.account === null) {

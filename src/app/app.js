@@ -2032,6 +2032,10 @@ class Blink extends React.Component {
                     account   = {this.state.account}
                     startCall = {this.startCall}
                     startConference = {this.startConference}
+                    startChat = {(uri) => {
+                        this.lastMessageFocus = uri;
+                        this.refs.router.navigate('/chat');
+                    }}
                     missedTargetUri = {this.state.missedTargetUri}
                     history = {this.state.history}
                     key = {this.state.missedTargetUri}

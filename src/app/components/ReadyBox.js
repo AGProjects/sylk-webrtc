@@ -31,6 +31,7 @@ class ReadyBox extends React.Component {
         this.handleTargetSelect = this.handleTargetSelect.bind(this);
         this.handleAudioCall = this.handleAudioCall.bind(this);
         this.handleVideoCall = this.handleVideoCall.bind(this);
+        this.handleChat = this.handleChat.bind(this);
         this.showConferenceModal = this.showConferenceModal.bind(this);
         this.handleConferenceCall = this.handleConferenceCall.bind(this);
         this.handleResize = this.handleResize.bind(this);
@@ -96,6 +97,10 @@ class ReadyBox extends React.Component {
         } else {
             this.props.startCall(this.getTargetUri(), {audio: true, video: true});
         }
+    }
+
+    handleChat(uri) {
+        this.props.startChat(uri);
     }
 
     showConferenceModal(event) {
@@ -176,6 +181,7 @@ class ReadyBox extends React.Component {
                                                     setTargetUri   = {this.handleTargetChange}
                                                     startVideoCall = {this.handleVideoCall}
                                                     startAudioCall = {this.handleAudioCall}
+                                                    startChat      = {this.handleChat}
                                                     noConnection   = {this.props.noConnection}
                                                 />
                                                 </div>
@@ -202,6 +208,7 @@ ReadyBox.propTypes = {
     account         : PropTypes.object.isRequired,
     startCall       : PropTypes.func.isRequired,
     startConference : PropTypes.func.isRequired,
+    startChat       : PropTypes.func.isRequired,
     missedTargetUri : PropTypes.string,
     history         : PropTypes.array,
     serverHistory   : PropTypes.array,

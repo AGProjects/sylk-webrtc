@@ -890,7 +890,7 @@ class ConferenceBox extends React.Component {
         if (!this.state.showFiles) {
             if (this.state.sharedFiles.length !== 0) {
                 topButtons.push(
-                    <Badge badgeContent={this.state.sharedFiles.length} color="primary" classes={{badge: this.props.classes.badge}} anchorOrigin={{horizontal: 'left', vertical: 'top'}} overlap="circle">
+                    <Badge key="fileBadge" badgeContent={this.state.sharedFiles.length} color="primary" classes={{badge: this.props.classes.badge}} anchorOrigin={{horizontal: 'left', vertical: 'top'}} overlap="circle">
                         <button key="fbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleFiles}> <i className="fa fa-files-o fa-2x"></i> </button>
                     </Badge>
                 );

@@ -13,7 +13,12 @@ const linkifyUrls        = require('linkify-urls');
 const { DateTime }       = require('luxon');
 const { Chip, Divider, MenuItem } = require('@material-ui/core');
 const { makeStyles }     = require('@material-ui/core/styles');
-const { Lock: LockIcon, Done: DoneIcon, DoneAll: DoneAllIcon} = require('@material-ui/icons');
+const {
+    Lock: LockIcon,
+    Done: DoneIcon,
+    DoneAll: DoneAllIcon,
+    ErrorOutline: ErrorOutlineIcon
+} = require('@material-ui/icons');
 const VizSensor          = require('react-visibility-sensor').default;
 
 const CustomContextMenu = require('../CustomContextMenu');
@@ -33,6 +38,11 @@ const styleSheet = makeStyles((theme) => ({
         fontSize: 15,
         verticalAlign: 'middle',
         color: 'green'
+    },
+    errorOutlineIcon: {
+        fontSize: 17,
+        verticalAlign: 'middle',
+        color: '#a94442'
     },
     item: {
         fontSize: '14px',
@@ -170,6 +180,9 @@ const Message = ({
         }
         if (state === 'displayed') {
             return (<DoneAllIcon className={classes.doneIcon} />);
+        }
+        if (state === 'failed') {
+            return (<ErrorOutlineIcon className={classes.errorOutlineIcon} titleAccess="Not Delivered"/>);
         }
     };
 

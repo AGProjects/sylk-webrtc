@@ -11,7 +11,7 @@ const { Checkbox }                      = require('@material-ui/core');
 
 const EnrollmentModal = require('./EnrollmentModal');
 const storage         = require('../storage');
-
+const config          = require('../config');
 
 const styles = {
     root: {
@@ -53,6 +53,7 @@ class RegisterForm extends React.Component {
             'handleRememberChange',
             'handleSubmit',
             'handleEnrollment',
+            'handleInvalid',
             'createAccount'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
@@ -84,7 +85,12 @@ class RegisterForm extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        this.props.handleRegistration(this.state.accountId, this.state.password, this.state.remember);
+        let accountId = this.state.accountId;
+        if (this.state.accountId.indexOf('@') === -1) {
+            // take the domain part from the default
+            accountId = this.state.accountId + '@' + config.defaultDomain;
+        }
+        this.props.handleRegistration(accountId, this.state.password, this.state.remember);
     }
 
     handleEnrollment(account) {
@@ -95,6 +101,12 @@ class RegisterForm extends React.Component {
         }
     }
 
+    // Catch invalid field so we can keep type=email to get a nicer keyboard on mobiles
+    handleInvalid(event) {
+        event.preventDefault();
+        this.handleSubmit(event);
+    }
+
     createAccount(event) {
         event.preventDefault();
         this.setState({showEnrollmentModal: true});
@@ -103,7 +115,7 @@ class RegisterForm extends React.Component {
     render() {
         const domain = this.state.accountId.substring(this.state.accountId.indexOf('@') + 1);
         const validDomain = !ipaddr.IPv4.isValidFourPartDecimal(domain) && !ipaddr.IPv6.isValid(domain);
-        const validInput =  validDomain && this.state.accountId.indexOf('@') !== -1 && this.state.password !== '';
+        const validInput =  validDomain && this.state.password !== '';
         const classes = clsx({
             'btn'        : true,
             'btn-lg'     : true,
@@ -154,7 +166,7 @@ class RegisterForm extends React.Component {
                     <label htmlFor="inputUser" className="sr-only">Sip Account</label>
                     <div className="input-group">
                         <span className="input-group-addon first"><i className="fa fa-globe fa-fw"></i></span>
-                        <input type="email" id="inputUser" className="form-control" placeholder="Enter your account" value={this.state.accountId} onChange={this.handleAccountIdChange} required autoFocus/>
+                        <input type="email" onInvalid={this.handleInvalid} id="inputUser" className="form-control" placeholder="Enter your account" value={this.state.accountId} onChange={this.handleAccountIdChange} required autoFocus/>
                     </div>
                     <label htmlFor="inputPassword" className="sr-only">Password</label>
                     <div className="input-group">

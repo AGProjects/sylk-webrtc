@@ -81,7 +81,7 @@ const Message = ({
     };
 
     const postHtmlEntities = (str) => {
-        return String(str).replace(/(?!&amp;&lt;|&gt;|&quot;)&/g, '&amp;');
+        return String(str).replace(/(?!&amp;|&lt;|&gt;|&quot;)&/g, '&amp;');
     };
 
     useEffect(() => {

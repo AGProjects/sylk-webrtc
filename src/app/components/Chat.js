@@ -97,8 +97,19 @@ const Chat = (props) => {
         const incomingMessage = (message) => {
             DEBUG('Incoming Message from: %s', message.sender.uri);
             let oldMessages = Object.assign({}, messagesRef.current);
+            let hasId = false;
             if (!oldMessages[message.sender.uri]) {
                 oldMessages[message.sender.uri] = [];
+            } else {
+                for (const [key, messages] of Object.entries(oldMessages)) {
+                    if (messages.filter(m => m.id == message.id).length > 0) {
+                        hasId = true;
+                        break;
+                    }
+                }
+            }
+            if (hasId) {
+                return;
             }
 
             oldMessages[message.sender.uri].push(message);

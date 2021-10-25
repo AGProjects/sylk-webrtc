@@ -1389,6 +1389,19 @@ class Blink extends React.Component {
                 this._notificationCenter.postNewMessage(message);
             }
         }
+        if (this.shouldUseHashRouting) {
+            const remote = window.require('electron').remote;
+            const currentWindow = remote.getCurrentWindow();
+            if (!currentWindow.isFocused()) {
+                this._notificationCenter.postSystemNotification('New message',
+                    {
+                        body: `From ${message.sender.displayName || message.sender.uri}`,
+                        timeout: 15,
+                        silent: false
+                    }
+                );
+            }
+        }
 
         setTimeout(() => {
             this.calculateUnreadMessages(this.state.oldMessages);

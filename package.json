@@ -19,7 +19,7 @@
     "computed-style-to-inline-style": "^3.0.0",
     "debug": "^4.3.2",
     "digest-auth-request": "tijmenNL/digest-auth-request",
-    "dotenv": "^8.2.0",
+    "dotenv": "^8.6.0",
     "electron": "^3.1.12",
     "electron-builder": "21.0.9",
     "electron-notarize": "^1.0.0",

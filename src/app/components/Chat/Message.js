@@ -242,7 +242,7 @@ const Message = ({
                             open = {Boolean(anchorEl)}
                             anchorEl={anchorEl}
                             onClose = {handleClose}
-                            keepMounted
+                            keepMounted = {false}
                         >
                             <MenuItem className={classes.item} onClick={() => {copy(); handleClose()}}>
                                 Copy
@@ -283,7 +283,7 @@ const Message = ({
                         open = {Boolean(anchorEl)}
                         anchorEl={anchorEl}
                         onClose = {handleClose}
-                        keepMounted
+                        keepMounted = {false}
                     >
                         <MenuItem className={classes.item} onClick={() => {copy(); handleClose()}}>
                             Copy

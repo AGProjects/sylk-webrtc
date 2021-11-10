@@ -40,11 +40,16 @@ const styleSheet = makeStyles({
     }
 });
 
-function getContent(step = 0) {
-    if (step === 1) {
+function getContent(step = 0, exp) {
+    if (step === 1 && exp) {
         return (<React.Fragment>
             To replicate messages on multiple devices you need the same private key on all of them.<br/> <br/>
             Press <strong>Export</strong> and enter this code when prompted on your other device:<br/>
+        </React.Fragment>);
+    } else if (step === 1 && !exp) {
+        return (<React.Fragment>
+            To replicate messages on multiple devices you need the same private key on all of them.<br/> <br/>
+            Enter this code when prompted on your other device:<br/>
         </React.Fragment>);
     }
     return (<React.Fragment>
@@ -81,17 +86,17 @@ const EncryptionModal = (props) => {
         <DialogTitle id="dialog-title" className={classes.bigger}>Export private key</DialogTitle>
             <DialogContent dividers>
                 <DialogContentText id="dialog-description" className={classes.fixFont}>
-                    {getContent(props.export ? 1 : step)}
-                    {props.export && <span className={classes.number}>{password}</span>}
+                    {getContent(props.export ? 1 : step, props.export)}
+                    {props.export || step === 1 && <span className={classes.number}>{password}</span>}
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-            {props.export === false && (<React.Fragment>
+            {props.export === false && step !==  1 && (<React.Fragment>
                 <Button
                     variant="contained"
                     onClick={() => {
                         setStep(1);
-                        props.useExistingKey(password)
+                        props.useExistingKey(password);
                     }}
                     title="yes"
                 >

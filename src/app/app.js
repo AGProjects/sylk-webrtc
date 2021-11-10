@@ -430,7 +430,7 @@ class Blink extends React.Component {
                     return Promise.reject();
                 }
                 this.state.account.checkIfKeyExists((fetchedPublicKey) => {
-                    if (fetchedPublicKey !== publicKey) {
+                    if (fetchedPublicKey.trim() !== publicKey.trim()) {
                         if (fetchedPublicKey == null) {
                             // We have a key, but the server has not
                             this.setState({loading: null, transmitKeys: true})

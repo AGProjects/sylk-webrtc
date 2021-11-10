@@ -1314,6 +1314,7 @@ class Blink extends React.Component {
                 this.state.account.addPGPKeys(pgpKeys);
                 this.state.account.exportPrivateKey(password);
 
+                this.setState({transmitKeys: true});
                 keyStorage.getAll().then(key =>
                     this.state.account.pgp.addPublicPGPKeys(key)
                 );

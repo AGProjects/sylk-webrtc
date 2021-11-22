@@ -1130,6 +1130,7 @@ class Blink extends React.Component {
 
     answerCall(options) {
         this.setState({ showIncomingModal: false });
+        this.refs.audioPlayerInbound.stop();
         this.setFocusEvents(false);
         if (this.state.inboundCall !== this.state.currentCall) {
             // terminate current call to switch to incoming one

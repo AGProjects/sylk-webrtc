@@ -83,7 +83,12 @@ const EncryptionModal = (props) => {
             aria-labelledby="dialog-titile"
             aria-describedby="dialog-description"
         >
-        <DialogTitle id="dialog-title" className={classes.bigger}>Export private key</DialogTitle>
+        <DialogTitle id="dialog-title" className={classes.bigger}>
+            {props.export === false && step !==  1
+                ? 'Different key detected'
+                : 'Export private key'
+            }
+        </DialogTitle>
             <DialogContent dividers>
                 <DialogContentText id="dialog-description" className={classes.fixFont}>
                     {getContent(props.export ? 1 : step, props.export)}

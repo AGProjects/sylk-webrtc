@@ -92,7 +92,7 @@ const EncryptionModal = (props) => {
             <DialogContent dividers>
                 <DialogContentText id="dialog-description" className={classes.fixFont}>
                     {getContent(props.export ? 1 : step, props.export)}
-                    {props.export || step === 1 && <span className={classes.number}>{password}</span>}
+                    {(props.export || step === 1) && <span className={classes.number}>{password}</span>}
                 </DialogContentText>
             </DialogContent>
             <DialogActions>

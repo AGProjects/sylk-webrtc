@@ -6074,10 +6074,9 @@ lines-and-columns@^1.1.6:
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.1.6.tgz#1c00c743b433cd0a4e80758f7b64a57440d9ff00"
   integrity sha1-HADHQ7QzzQpOgHWPe2SldEDZ/wA=
 
-linkify-urls@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/linkify-urls/-/linkify-urls-2.2.0.tgz#228886ed644d35f527fcdd1dc4dde33cb2525f1a"
-  integrity sha512-Zl71ZJPq1BrPmwlyEyZVTgzt1FzbMJnmxR9Oi/BcZLe2XG2UUhScj9TCn62yEfEf0za1t+yLji4jz96gXbb36A==
+linkify-urls@tijmenNL/linkify-urls#v2.2.1:
+  version "2.2.1"
+  resolved "https://codeload.github.com/tijmenNL/linkify-urls/tar.gz/dc59c252d4e95cfc609c93292aa203805ad77d05"
   dependencies:
     create-html-element "^2.0.0"
 

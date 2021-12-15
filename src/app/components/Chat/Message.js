@@ -84,6 +84,8 @@ const Message = ({
         return String(str).replace(/(?!&amp;|&lt;|&gt;|&quot;)&/g, '&amp;');
     };
 
+    const customUrlRegexp = () => (/((?:https?(?::\/\/))(?:www\.)?(?:[a-zA-Z\d-_.]+(?:(?:\.|@)[a-zA-Z\d]{2,})|localhost)(?:(?:[-a-zA-Z\d:%_+.~#!?&//=@();]*)(?:[,](?![\s]))*)*)/g);
+
     useEffect(() => {
         if (parsedContent !== undefined) {
             scroll()
@@ -101,6 +103,7 @@ const Message = ({
                     if (domNode.type === 'text') {
                         if (!domNode.parent || (domNode.parent.type === 'tag' && domNode.parent.name !== 'a')) {
                             let url = linkifyUrls(preHtmlEntities(domNode.data), {
+                                customUrlRegexp,
                                 attributes: {
                                     target : '_blank',
                                     rel    : 'noopener noreferrer'
@@ -116,6 +119,7 @@ const Message = ({
             setParsedContent(<img className="img-responsive" src={image} />);
         } else if (message.contentType === 'text/plain') {
             const linkfiedContent = linkifyUrls(preHtmlEntities(message.content), {
+                customUrlRegexp,
                 attributes: {
                     target : '_blank',
                     rel    : 'noopener noreferrer'

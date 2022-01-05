@@ -1530,6 +1530,7 @@ class Blink extends React.Component {
                 if (message.state === 'received'
                     && message.dispositionState !== 'displayed'
                     && message.dispositionNotification.indexOf('display') !== -1
+                    && !message.content.startsWith('?OTRv')
                 ) {
                     counter++;
                 }
@@ -1539,6 +1540,7 @@ class Blink extends React.Component {
             if (message.state === 'received'
                 && message.dispositionState !== 'displayed'
                 && message.dispositionNotification.indexOf('display') !== -1
+                && !message.content.startsWith('?OTRv')
             ) {
                 counter++;
             }

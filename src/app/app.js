@@ -99,7 +99,8 @@ class Blink extends React.Component {
             export: false,
             transmitKeys: false,
             showNewDeviceModal: false,
-            enableMessaging: false
+            enableMessaging: false,
+            unreadMessages: 0
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -187,7 +188,6 @@ class Blink extends React.Component {
         this.entryPath = '';
         this.lastMessageFocus = '';
         this.retransmittedMessages = [];
-        this.unreadMessages = 0;
     }
 
     get _notificationCenter() {
@@ -1545,8 +1545,8 @@ class Blink extends React.Component {
                 counter++;
             }
         }
-        this.unreadMessages = counter;
-        DEBUG('There are %s unread messages', this.unreadMessages);
+        this.setState({unreadMessages: counter});
+        DEBUG('There are %s unread messages', counter);
         if (this.shouldUseHashRouting) {
             const ipcRenderer = window.require('electron').ipcRenderer;
             counter = counter === 0 ? null : counter;
@@ -2312,7 +2312,6 @@ class Blink extends React.Component {
                 this.state.account.unregister();
             }
 
-            this.unreadMessages = 0;
             if (this.shouldUseHashRouting) {
                 const ipcRenderer = window.require('electron').ipcRenderer;
                 ipcRenderer.send('update-badge', null);
@@ -2349,7 +2348,7 @@ class Blink extends React.Component {
             if (this.state.connection.state !== 'ready') {
                 this.state.connection.close();
             }
-            this.setState({registrationState: null, status: null, serverHistory: [], oldMessages: {}, enableMessaging: false});
+            this.setState({registrationState: null, status: null, serverHistory: [], oldMessages: {}, enableMessaging: false, unreadMessages: 0});
             setImmediate(()=>this.setState({account: null}));
             this.isRetry = false;
             if (config.showGuestCompleteScreen && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {

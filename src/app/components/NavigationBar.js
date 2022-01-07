@@ -10,13 +10,36 @@ const MenuItem       = ReactBootstrap.MenuItem;
 const ButtonToolbar  = ReactBootstrap.ButtonToolbar;
 
 const { withStyles } = require('@material-ui/core/styles');
-const { Tooltip }    = require ('@material-ui/core');
+const { Badge,
+        Tooltip }    = require ('@material-ui/core');
 
 const config = require('../config');
 
 const AboutModal       = require('./AboutModal');
 const CallMeMaybeModal = require('./CallMeMaybeModal');
 
+
+const styleSheet = {
+    root: {
+        float: 'left',
+        marginLeft: 5
+    },
+    badge: {
+        width: '20px',
+        height: '20px',
+        fontWeight: 'bold',
+        fontSize: '1rem',
+        backgroundColor: '#337ab7',
+        '&.MuiBadge-anchorOriginTopLeftCircle': {
+            top: '18%',
+            left: '18%'
+        },
+        '&.MuiBadge-anchorOriginTopRightCircle': {
+            top: '18%',
+            right: '18%'
+        }
+    }
+};
 
 class NavigationBar extends React.Component {
     constructor(props) {
@@ -142,6 +165,8 @@ class NavigationBar extends React.Component {
             }
         );
 
+        const unreadMessages = this.props.unreadMessages || 0;
+
         return (
             <Navbar inverse={true} fixedTop={true} fluid={true}>
                 <Navbar.Header>
@@ -163,9 +188,11 @@ class NavigationBar extends React.Component {
                         </button>
                     }
                     {this.props.enableMessaging &&
-                        <button title="Chat screen" className={chatNavButtonClasses} onClick={() => this.props.router.navigate('/chat')}>
-                            <i className="fa fa-comments fa-2x" />
-                        </button>
+                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{root: this.props.classes.root, badge: this.props.classes.badge}} overlap="circle">
+                            <button title="Chat screen" className={chatNavButtonClasses} onClick={() => this.props.router.navigate('/chat')}>
+                                <i className="fa fa-comments fa-2x" />
+                            </button>
+                        </Badge>
                     }
                     <button title="Mute Incoming Ringtones" className="btn btn-link btn-fw" onClick={this.toggleMute}>
                         <i className={muteClasses}></i>
@@ -222,8 +249,10 @@ NavigationBar.propTypes = {
     toggleShortcuts    : PropTypes.func.isRequired,
     router             : PropTypes.object.isRequired,
     enableMessaging    : PropTypes.bool.isRequired,
-    exportPrivateKey   : PropTypes.func.isRequired
+    exportPrivateKey   : PropTypes.func.isRequired,
+    classes            : PropTypes.object.isRequired,
+    unreadMessages     : PropTypes.number
 };
 
 
-module.exports = NavigationBar;
+module.exports = withStyles(styleSheet)(NavigationBar);

@@ -2052,6 +2052,7 @@ class Blink extends React.Component {
                     router = {this.refs.router}
                     enableMessaging = {this.state.enableMessaging}
                     exportPrivateKey= {() => this.setState({export: true, showEncryptionModal: true})}
+                    unreadMessages = {this.state.unreadMessages}
                 />
                 <ReadyBox
                     account   = {this.state.account}
@@ -2156,6 +2157,7 @@ class Blink extends React.Component {
                     router = {this.refs.router}
                     enableMessaging = {this.state.enableMessaging}
                     exportPrivateKey= {() => this.setState({export: true, showEncryptionModal: true})}
+                    unreadMessages = {this.state.unreadMessages}
                 />
                 {this.state.messagesLoadingProgress &&
                     <MessagesLoadingScreen progress={this.state.messagesLoadingProgress} />

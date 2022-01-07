@@ -188,6 +188,7 @@ class Blink extends React.Component {
         this.entryPath = '';
         this.lastMessageFocus = '';
         this.retransmittedMessages = [];
+        this.unreadTimer = null;
     }
 
     get _notificationCenter() {
@@ -1524,9 +1525,23 @@ class Blink extends React.Component {
     }
 
     calculateUnreadMessages(messages) {
-        let counter = 0;
-        for (let key of Object.keys(messages)) {
-            for (let message of messages[key]) {
+        if (this.unreadTimer !== null) {
+            clearTimeout(this.unreadTimer);
+        }
+        this.unreadTimer = setTimeout(() => {
+            let counter = 0;
+            for (let key of Object.keys(messages)) {
+                for (let message of messages[key]) {
+                    if (message.state === 'received'
+                        && message.dispositionState !== 'displayed'
+                        && message.dispositionNotification.indexOf('display') !== -1
+                        && !message.content.startsWith('?OTRv')
+                    ) {
+                        counter++;
+                    }
+                }
+            }
+            for (let message of this.state.account.messages) {
                 if (message.state === 'received'
                     && message.dispositionState !== 'displayed'
                     && message.dispositionNotification.indexOf('display') !== -1
@@ -1535,23 +1550,15 @@ class Blink extends React.Component {
                     counter++;
                 }
             }
-        }
-        for (let message of this.state.account.messages) {
-            if (message.state === 'received'
-                && message.dispositionState !== 'displayed'
-                && message.dispositionNotification.indexOf('display') !== -1
-                && !message.content.startsWith('?OTRv')
-            ) {
-                counter++;
+            this.setState({unreadMessages: counter});
+            DEBUG('There are %s unread messages', counter);
+            if (this.shouldUseHashRouting) {
+                const ipcRenderer = window.require('electron').ipcRenderer;
+                counter = counter === 0 ? null : counter;
+                ipcRenderer.send('update-badge', counter);
             }
-        }
-        this.setState({unreadMessages: counter});
-        DEBUG('There are %s unread messages', counter);
-        if (this.shouldUseHashRouting) {
-            const ipcRenderer = window.require('electron').ipcRenderer;
-            counter = counter === 0 ? null : counter;
-            ipcRenderer.send('update-badge', counter);
-        }
+            this.unreadTimer = null;
+        }, 500);
     }
 
     syncConversations(messages) {

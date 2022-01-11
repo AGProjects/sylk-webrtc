@@ -65,6 +65,7 @@ const Message = ({
     focus,
     contactCache,
     removeMessage,
+    imdnStates,
     enableMenu
 }) => {
     const classes = styleSheet();
@@ -142,8 +143,12 @@ const Message = ({
             );
         }
 
+        const finalStates = new Set(['displayed', 'received']);
 
-        if (message instanceof require('events').EventEmitter && message.state === 'pending') {
+
+        if (message instanceof require('events').EventEmitter
+            && (message.state === 'pending' || (imdnStates && !finalStates.has(message.state)))
+        ) {
             message.on('stateChanged', (oldState, newState) => {
                 setState(newState);
             });
@@ -326,6 +331,7 @@ Message.propTypes = {
     displayed: PropTypes.func,
     focus: PropTypes.bool,
     contactCache: PropTypes.object,
+    imdnStates: PropTypes.bool,
     enableMenu: PropTypes.bool
 };
 

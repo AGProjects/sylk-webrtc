@@ -176,7 +176,7 @@ const Message = ({
     let theme = clsx({
         'text-left'     : true,
         'pending'       : state === 'pending',
-        'text-danger'   : state === 'failed',
+        'text-danger'   : state === 'failed' || state === 'error',
         'continued'     : cont && message.type !== 'status',
         'status'        : message.type === 'status'
     });
@@ -199,6 +199,9 @@ const Message = ({
         }
         if (state === 'failed') {
             return (<ErrorOutlineIcon className={classes.errorOutlineIcon} titleAccess="Not Delivered"/>);
+        }
+        if (state === 'error') {
+            return (<ErrorOutlineIcon className={classes.errorOutlineIcon} titleAccess="Display Error"/>);
         }
     };
 

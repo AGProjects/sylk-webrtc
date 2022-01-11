@@ -29,7 +29,8 @@ const {
 const {
     Lock: LockIcon,
     Done: DoneIcon,
-    DoneAll: DoneAllIcon
+    DoneAll: DoneAllIcon,
+    ErrorOutline: ErrorOutlineIcon
 } = require('@material-ui/icons');
 
 const UserIcon = require('../UserIcon');
@@ -132,11 +133,20 @@ const styleSheet = makeStyles((theme) => ({
         verticalAlign: 'middle',
         color: 'green'
     },
+    errorOutlineIcon: {
+        fontSize: 15,
+        verticalAlign: 'middle',
+        color: '#a94442'
+    },
     item: {
         fontSize: '14px',
         fontFamily: 'inherit',
         color: '#333',
         minHeight: 0
+    },
+    grid: {
+        flexShrink: 0,
+        marginLeft: 4
     }
 }));
 
@@ -228,6 +238,12 @@ const ContactList = (props) => {
         }
         if (state === 'displayed') {
             return (<DoneAllIcon className={classes.doneIcon} />);
+        }
+        if (state === 'failed') {
+            return (<ErrorOutlineIcon className={classes.errorOutlineIcon} />);
+        }
+        if (state === 'error') {
+            return (<ErrorOutlineIcon className={classes.errorOutlineIcon} />);
         }
     };
 
@@ -360,7 +376,7 @@ const ContactList = (props) => {
                                             {getHighlightedText(contact.displayName || contact.uri, props.filter)}
                                         </Typography>
                                     </Grid>
-                                    <Grid item>
+                                    <Grid item className={classes.grid}>
                                         <Typography className={classes.date}>
                                             {contact.message && statusIcon(contact.message)}
                                             {contact.message && formatTime(contact.message)}
@@ -375,7 +391,12 @@ const ContactList = (props) => {
                                     <Grid component="span" item zeroMinWidth>
                                         <Typography
                                             className={classes.root}
-                                            style={{flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis'}}
+                                            style={{
+                                                flexGrow: 1,
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                color: contact.message && (contact.message.state === 'error' || contact.message.state === 'failed') && '#a94442'
+                                            }}
                                         >
                                         {contact.message && parseContent(contact.message)}
                                         </Typography>
@@ -395,7 +416,7 @@ const ContactList = (props) => {
                 <Divider style={props.selectedUri === contact.uri ? {background: 'transparent'} : {}} component="li" key={`divider_${contact.uri}`}/>
             ]
         ))}
-        {props.filter && filteredMessages.length !== 0 && 
+        {props.filter && filteredMessages.length !== 0 &&
             <React.Fragment>
                 <ListSubheader className={classes.subheader}>Messages</ListSubheader>
                 <Divider component="li" key="divider" />
@@ -418,7 +439,7 @@ const ContactList = (props) => {
                                 primary = {
                                     <React.Fragment>
                                         <Grid container spacing={2} justify="space-between" alignItems="baseline">
-                                            <Grid item>
+                                            <Grid item zeroMinWidth>
                                                 <Typography
                                                     variant = "h4"
                                                     className = {classes.header}
@@ -436,7 +457,7 @@ const ContactList = (props) => {
                                                     }
                                                 </Typography>
                                             </Grid>
-                                            <Grid item>
+                                            <Grid item className={classes.grid}>
                                                 <Typography className={classes.date}>
                                                     {message && statusIcon(message)}
                                                     {message && formatTime(message)}

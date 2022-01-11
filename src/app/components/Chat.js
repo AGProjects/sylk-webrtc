@@ -128,7 +128,7 @@ const Chat = (props) => {
 
         const outgoingMessage = (message) => {
             if (message.contentType !== 'text/pgp-private-key') {
-                const oldMessages = cloneDeep(messagesRef.current);
+                const oldMessages = Object.assign({}, messagesRef.current);
                 if (!oldMessages[message.receiver]) {
                     oldMessages[message.receiver] = [];
                 }

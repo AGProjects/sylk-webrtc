@@ -145,15 +145,22 @@ const Message = ({
 
         const finalStates = new Set(['displayed', 'received']);
 
+        const stateChanged = (oldState, newState) => {
+            setState(newState);
+        };
 
         if (message instanceof require('events').EventEmitter
             && (message.state === 'pending' || (imdnStates && !finalStates.has(message.state)))
         ) {
-            message.on('stateChanged', (oldState, newState) => {
-                setState(newState);
-            });
+            message.on('stateChanged', stateChanged);
         }
         setState(message.state);
+
+        return () => {
+            if (message instanceof require('events').EventEmitter) {
+                message.removeListener('stateChanged', stateChanged);
+            }
+        }
     }, [message, classes])
 
     const scrollToMessage = () => {

@@ -69,12 +69,12 @@ class AudioCallBox extends React.Component {
         document.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (this.props.call == null && nextProps.call) {
-            if (nextProps.call.state === 'established') {
-                this.attachStream(nextProps.call);
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.call == null && this.props.call) {
+            if (this.props.call.state === 'established') {
+                this.attachStream(this.props.call);
             } else {
-                nextProps.call.on('stateChanged', this.callStateChanged);
+                this.props.call.on('stateChanged', this.callStateChanged);
             }
         }
     }

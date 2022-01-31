@@ -55,6 +55,7 @@
     "react-router-component": "^0.40.0",
     "react-transition-group": "^2.6.0",
     "react-visibility-sensor": "^5.1.1",
+    "recharts": "^2.1.8",
     "sass": "~1.32.13",
     "screenfull": "^5.1.0",
     "stylelint": "^13.13.1",

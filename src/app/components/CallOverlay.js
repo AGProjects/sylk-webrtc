@@ -29,12 +29,12 @@ class CallOverlay extends React.Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (this.props.call == null && nextProps.call) {
-            if (nextProps.call.state === 'accepted') {
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.call == null && this.props.call) {
+            if (this.props.call.state === 'accepted') {
                 this.startTimer();
-            } else if (nextProps.call.state !== 'terminated') {
-                nextProps.call.on('stateChanged', this.callStateChanged);
+            } else if (this.props.call.state !== 'terminated') {
+                this.props.call.on('stateChanged', this.callStateChanged);
             }
         }
     }

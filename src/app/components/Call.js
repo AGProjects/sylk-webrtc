@@ -136,7 +136,9 @@ class Call extends React.Component {
                     />
                 );
             } else {
-                if (this.props.currentCall != null && this.props.currentCall.state === 'accepted') {
+                if (this.props.currentCall != null &&
+                    (this.props.currentCall.state === 'accepted' || this.props.currentCall.state === 'established')
+                ) {
                     box = (
                         <VideoBox
                             call = {this.props.currentCall}

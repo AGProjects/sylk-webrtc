@@ -4,7 +4,7 @@ const React         = require('react');
 const PropTypes     = require('prop-types');
 const { default: clsx } = require('clsx');
 const { Grid }      = require('@material-ui/core');
-const VizSensor     = require('react-visibility-sensor').default;
+const { InView }    = require('react-intersection-observer');
 
 const ConferenceModal = require('./ConferenceModal');
 const HistoryCard     = require('./HistoryCard');
@@ -171,10 +171,11 @@ class ReadyBox extends React.Component {
                             {this.props.serverHistory.filter(historyItem => historyItem.remoteParty.startsWith(this.state.targetUri)).map((historyItem, idx) =>
                                 (
                                     <Grid item md={4} sm={6} xs={12} key={idx}>
-                                        <VizSensor partialVisibility>
-                                            {({isVisible}) => (
+                                        <InView threshold={0.01}>
+                                            {({inView, ref, entry}) => (
                                                 <div
-                                                    className={isVisible ? 'card-visible animated bounceIn' : 'card-hidden'}
+                                                    ref={ref}
+                                                    className={inView ? 'card-visible animated bounceIn' : 'card-hidden'}
                                                 >
                                                 <HistoryCard
                                                     historyItem    = {historyItem}
@@ -186,7 +187,7 @@ class ReadyBox extends React.Component {
                                                 />
                                                 </div>
                                             )}
-                                        </VizSensor>
+                                        </InView>
                                     </Grid>
                                 )
                             )}

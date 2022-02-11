@@ -9,7 +9,7 @@ const PropTypes     = require('prop-types');
 
 const { DateTime }                        = require('luxon');
 const { CircularProgress } = require('@material-ui/core');
-const { default: VizSensor }              = require('react-visibility-sensor');
+const { useInView }        = require('react-intersection-observer');
 
 const Message = require('./Message');
 const DividerWithText = require('../DividerWithText');
@@ -58,6 +58,10 @@ const MessageList = ({
     const messagesEndRef = useRef(null);
     const messagesBefore = useRef(null);
     const prevMessages = useRef([])
+
+    const { ref, inView, entry } = useInView({
+        threshold: 0
+    });
 
     const scrollToBottom = React.useCallback(() => {
         if (loading) {
@@ -148,6 +152,13 @@ const MessageList = ({
     }, [entries, display]) // eslint-disable-line react-hooks/exhaustive-deps
 
 
+    useEffect(() => {
+        DEBUG('Top is now %s', inView ? 'visible' : 'hidden');
+        if (inView) {
+            loadMore();
+        }
+    }, [inView, loadMore]);
+
     const loadMore = () => {
         DEBUG('Attempting to load more messages');
         setLoading(true);
@@ -164,14 +175,9 @@ const MessageList = ({
             style = {display ? {visibility:'visible'} : {visibility: 'hidden'}}
         >
         { more === true &&
-            <VizSensor delayedCall={true} onChange={(isVisible) => {
-                DEBUG('Top is now %s', isVisible ? 'visible' : 'hidden');
-                if (isVisible) {
-                    loadMore();
-                }}}
-            >
+            <div ref={ref}>
                 <CircularProgress style={{ color: '#888', margin: 'auto', display: 'block' }} />
-            </VizSensor>
+            </div>
         }
             {entries}
             <div ref={messagesEndRef} />

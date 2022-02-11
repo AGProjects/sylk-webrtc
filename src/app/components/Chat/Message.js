@@ -19,7 +19,7 @@ const {
     DoneAll: DoneAllIcon,
     ErrorOutline: ErrorOutlineIcon
 } = require('@material-ui/icons');
-const VizSensor          = require('react-visibility-sensor').default;
+const { useInView }      = require('react-intersection-observer');
 
 const CustomContextMenu = require('../CustomContextMenu');
 const UserIcon          = require('../UserIcon');
@@ -76,6 +76,15 @@ const Message = ({
 
     const sender = message.sender.displayName ||  message.sender.uri;
     const time = DateTime.fromJSDate(message.timestamp).toFormat('HH:mm');
+    const { ref, inView, entry } = useInView({
+        threshold: 0
+    });
+
+    useEffect(() => {
+        if (inView) {
+            isDisplayed();
+        }
+    }, [inView, isDisplayed]);
 
     const preHtmlEntities = (str) => {
         return String(str).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -254,7 +263,7 @@ const Message = ({
 
     if (cont || message.type === 'status') {
         return (
-            <VizSensor partialVisibility={true} onChange={isDisplayed}>
+            <div ref={ref}>
                 <Media className={theme} onContextMenu = {handleContextMenu}>
                     {enableMenu && message.type !== 'status' &&
                         <CustomContextMenu
@@ -290,12 +299,12 @@ const Message = ({
                         </span>
                     </Media.Right>
                 </Media>
-            </VizSensor>
+            </div>
         );
     }
 
     return (
-        <VizSensor partialVisibility={true} onChange={isDisplayed}>
+        <div ref={ref}>
             <Media className={theme} onContextMenu = {handleContextMenu}>
                 {enableMenu &&
                     <CustomContextMenu
@@ -329,7 +338,7 @@ const Message = ({
                     {parsedContent}
                 </Media.Body>
             </Media>
-        </VizSensor>
+        </div>
     );
 };
 

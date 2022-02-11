@@ -13,6 +13,8 @@ const sylkrtc                   = require('sylkrtc');
 const cloneDeep                 = require('lodash/cloneDeep');
 const debug                     = require('debug');
 const DigestAuthRequest         = require('digest-auth-request');
+// Polyfill
+const io                        = require('intersection-observer');
 
 const RegisterBox          = require('./components/RegisterBox');
 const ReadyBox             = require('./components/ReadyBox');

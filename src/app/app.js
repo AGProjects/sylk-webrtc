@@ -191,12 +191,20 @@ class Blink extends React.Component {
         this.lastMessageFocus = '';
         this.retransmittedMessages = [];
         this.unreadTimer = null;
+
+        // Refs
+        this.router = React.createRef();
+        this.audioPlayerInbound = React.createRef();
+        this.audioPlayerOutbound = React.createRef();
+        this.audioPlayerHangup = React.createRef();
+        this.notificationCenterRef = React.createRef();
+
     }
 
     get _notificationCenter() {
         // getter to lazy-load the NotificationCenter ref
         if (!this.__notificationCenter) {
-            this.__notificationCenter = this.refs.notificationCenter;
+            this.__notificationCenter = this.notificationCenterRef.current;
         }
         return this.__notificationCenter;
     }
@@ -251,13 +259,13 @@ class Blink extends React.Component {
     componentDidMount() {
         if (!window.RTCPeerConnection) {
             setTimeout(() => {
-                this.refs.router.navigate('/not-supported');
+                this.router.current.navigate('/not-supported');
             });
         }
 
         if (this.shouldUseHashRouting) {
             setTimeout(() => {
-                this.refs.router.navigate('/login');
+                this.router.current.navigate('/login');
             });
         }
         // prime the ref
@@ -293,8 +301,8 @@ class Blink extends React.Component {
                 this.processRegistration(this.state.accountId, this.state.password, this.state.displayName);
                 break;
             case 'disconnected':
-                this.refs.audioPlayerOutbound.stop();
-                this.refs.audioPlayerInbound.stop();
+                this.audioPlayerOutbound.current.stop();
+                this.audioPlayerInbound.current.stop();
 
                 if (this.state.localMedia) {
                     if (this.state.localMedia.getVideoTracks().length === 0) {
@@ -309,7 +317,7 @@ class Blink extends React.Component {
                     if (this.state.currentCall.direction === 'outgoing') {
                         this.toggleRedialScreen(false);
                     } else {
-                        this.refs.router.navigate(this.entryPath);
+                        this.router.current.navigate(this.entryPath);
                     }
                     this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
                     this.state.currentCall.terminate();
@@ -388,10 +396,11 @@ class Blink extends React.Component {
         }
     }
 
+
     registrationStateChanged(oldState, newState, data) {
         DEBUG('Registration state changed! ' + newState);
         this.setState({registrationState: newState});
-        const path = this.refs.router.getPath();
+        const path = this.router.current.getPath();
         if (newState === 'failed') {
             if (path === '/login') {
                 let reason = data.reason;
@@ -499,7 +508,7 @@ class Blink extends React.Component {
                 });
             });
             if (path === '/login') {
-                this.refs.router.navigate('/ready');
+                this.router.current.navigate('/ready');
                 return;
             }
         } else {
@@ -512,16 +521,16 @@ class Blink extends React.Component {
 
         switch (newState) {
             case 'progress':
-                this.refs.audioPlayerOutbound.play(true);
+                this.audioPlayerOutbound.current.play(true);
                 break;
             case 'established':
-                this.refs.audioPlayerOutbound.stop();
-                this.refs.audioPlayerInbound.stop();
+                this.audioPlayerOutbound.current.stop();
+                this.audioPlayerInbound.current.stop();
                 break;
             case 'terminated':
-                this.refs.audioPlayerOutbound.stop();
-                this.refs.audioPlayerInbound.stop();
-                this.refs.audioPlayerHangup.play();
+                this.audioPlayerOutbound.current.stop();
+                this.audioPlayerInbound.current.stop();
+                this.audioPlayerHangup.current.play();
 
                 let callSuccesfull = false;
                 let reason = data.reason;
@@ -570,7 +579,7 @@ class Blink extends React.Component {
                 });
                 this.setFocusEvents(false);
                 this.participantsToInvite = null;
-                this.refs.router.navigate(this.entryPath);
+                this.router.current.navigate(this.entryPath);
                 break;
             default:
                 break;
@@ -834,7 +843,7 @@ class Blink extends React.Component {
 
         this.setState({devices: oldDevices});
         storage.set('devices', oldDevices);
-        const path = this.refs.router.getPath();
+        const path = this.router.current.getPath();
         if (path === '/preview') {
             sylkrtc.utils.closeMediaStream(this.state.localMedia);
             this.getLocalMedia();
@@ -997,7 +1006,7 @@ class Blink extends React.Component {
             this.setState({status: null, loading: null, localMedia: localStream});
 
             if (nextRoute !== null) {
-                this.refs.router.navigate(nextRoute);
+                this.router.current.navigate(nextRoute);
             }
         })
         .catch((error) => {
@@ -1017,7 +1026,7 @@ class Blink extends React.Component {
 
                 this.setState({status: null, loading: null, localMedia: localStream, generatedVideoTrack: true});
                 if (nextRoute !== null) {
-                    this.refs.router.navigate(nextRoute);
+                    this.router.current.navigate(nextRoute);
                 }
             })
             .catch((error) => {
@@ -1133,7 +1142,7 @@ class Blink extends React.Component {
 
     answerCall(options) {
         this.setState({ showIncomingModal: false });
-        this.refs.audioPlayerInbound.stop();
+        this.audioPlayerInbound.current.stop();
         this.setFocusEvents(false);
         if (this.state.inboundCall !== this.state.currentCall) {
             // terminate current call to switch to incoming one
@@ -1159,14 +1168,14 @@ class Blink extends React.Component {
             if (this.state.localMedia != null) {
                 sylkrtc.utils.closeMediaStream(this.state.localMedia);
             }
-            this.refs.router.navigate(this.entryPath);
+            this.router.current.navigate(this.entryPath);
         }
     }
 
     escalateToConference(participants) {
         this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
         this.state.currentCall.terminate();
-        this.refs.router.navigate('/ready');
+        this.router.current.navigate('/ready');
         this.setState({currentCall: null, localMedia: null});
         this.participantsToInvite = participants;
         const uri = `${utils.generateSillyName()}@${config.defaultConferenceDomain}`;
@@ -1218,7 +1227,7 @@ class Blink extends React.Component {
             call.on('stateChanged', this.inboundCallStateChanged);
         } else {
             if (!this.muteIncoming) {
-                this.refs.audioPlayerInbound.play(true);
+                this.audioPlayerInbound.current.play(true);
             }
             this.setFocusEvents(true);
             call.on('stateChanged', this.callStateChanged);
@@ -1265,7 +1274,7 @@ class Blink extends React.Component {
                 } else {
                     this.setState({missedTargetUri: data.originator.uri});
                 }
-                this.refs.router.navigate('/ready');
+                this.router.current.navigate('/ready');
             });
         } else {
             this.getServerHistory();
@@ -1384,12 +1393,12 @@ class Blink extends React.Component {
             this.setState({contactCache: oldContactCache})
             storage.set('contactCache', Array.from(oldContactCache));
         }
-        const path = this.refs.router.getPath();
+        const path = this.router.current.getPath();
         if (path !== '/chat') {
             if (this.state.currentCall === null) {
                 this._notificationCenter.postNewMessage(message, () => {
                     this.lastMessageFocus = message.sender.uri;
-                    this.refs.router.navigate('/chat');
+                    this.router.current.navigate('/chat');
                 });
             } else {
                 this._notificationCenter.postNewMessage(message);
@@ -1814,7 +1823,7 @@ class Blink extends React.Component {
 
             // Don't navigate if the app is not supported
             if (!window.RTCPeerConnection && nextPath !== '/not-supported') {
-                this.refs.router.navigate('/not-supported');
+                this.router.current.navigate('/not-supported');
                 this.forceUpdate();
                 return false;
             }
@@ -1826,7 +1835,7 @@ class Blink extends React.Component {
             // don't deny if there is no registrationState (connection fail)
             if (this.prevPath === '/ready' && nextPath === '/login' && this.state.registrationState !== null) {
                 DEBUG('Transition denied redirecting to /logout');
-                this.refs.router.navigate('/logout');
+                this.router.current.navigate('/logout');
                 return false;
 
             // Press back in ready after a call
@@ -1841,7 +1850,7 @@ class Blink extends React.Component {
 
             // Guest call ended, needed to logout and display msg and logout
             } else if (nextPath === '/ready' && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
-                this.refs.router.navigate('/logout');
+                this.router.current.navigate('/logout');
                 this.forceUpdate();
             }
 
@@ -1873,7 +1882,7 @@ class Blink extends React.Component {
         if (this.state.showRedialScreen) {
             redialScreen = (
                 <RedialScreen
-                    router={this.refs.router}
+                    router={this.router.current}
                     hide={this.toggleRedialScreen}
                 />
             );
@@ -1929,7 +1938,7 @@ class Blink extends React.Component {
         }
         return (
             <div>
-                <NotificationCenter ref="notificationCenter" />
+                <NotificationCenter ref={this.notificationCenterRef} />
                 {loadingScreen}
                 {redialScreen}
                 {footerBox}
@@ -1981,15 +1990,15 @@ class Blink extends React.Component {
                     show = {this.state.showImportModal}
                     close = {this.toggleImportModal}
                 />
-                <AudioPlayer ref="audioPlayerInbound" sourceFile="assets/sounds/inbound_ringtone.wav" />
-                <AudioPlayer ref="audioPlayerOutbound" sourceFile="assets/sounds/outbound_ringtone.wav" />
-                <AudioPlayer ref="audioPlayerHangup" sourceFile="assets/sounds/hangup_tone.wav" />
+                <AudioPlayer ref={this.audioPlayerInbound} sourceFile="assets/sounds/inbound_ringtone.wav" />
+                <AudioPlayer ref={this.audioPlayerOutbound} sourceFile="assets/sounds/outbound_ringtone.wav" />
+                <AudioPlayer ref={this.audioPlayerHangup} sourceFile="assets/sounds/hangup_tone.wav" />
                 <TransitionGroup>
                     {incomingCallModal}
                 </TransitionGroup>
                 {incomingWindow}
                 {screenSharingModal}
-                <Locations hash={this.shouldUseHashRouting} ref="router" onBeforeNavigation={this.checkRoute}>
+                <Locations hash={this.shouldUseHashRouting} ref={this.router} onBeforeNavigation={this.checkRoute}>
                     <Location path="/"  handler={this.main} />
                     <Location path="/login" handler={this.login} />
                     <Location path="/logout" handler={this.logout} />
@@ -2051,7 +2060,7 @@ class Blink extends React.Component {
                     preview = {this.startPreview}
                     toggleMute = {this.toggleMute}
                     toggleShortcuts = {this.toggleShortcutsModal}
-                    router = {this.refs.router}
+                    router = {this.router.current}
                     enableMessaging = {this.state.enableMessaging}
                     exportPrivateKey= {() => this.setState({export: true, showEncryptionModal: true})}
                     unreadMessages = {this.state.unreadMessages}
@@ -2062,7 +2071,7 @@ class Blink extends React.Component {
                     startConference = {this.startConference}
                     startChat = {(uri) => {
                         this.lastMessageFocus = uri;
-                        this.refs.router.navigate('/chat');
+                        this.router.current.navigate('/chat');
                     }}
                     missedTargetUri = {this.state.missedTargetUri}
                     history = {this.state.history}
@@ -2156,7 +2165,7 @@ class Blink extends React.Component {
                     preview = {this.startPreview}
                     toggleMute = {this.toggleMute}
                     toggleShortcuts = {this.toggleShortcutsModal}
-                    router = {this.refs.router}
+                    router = {this.router.current}
                     enableMessaging = {this.state.enableMessaging}
                     exportPrivateKey= {() => this.setState({export: true, showEncryptionModal: true})}
                     unreadMessages = {this.state.unreadMessages}
@@ -2363,9 +2372,9 @@ class Blink extends React.Component {
             setImmediate(()=>this.setState({account: null}));
             this.isRetry = false;
             if (config.showGuestCompleteScreen && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
-                this.refs.router.navigate('/call-complete');
+                this.router.current.navigate('/call-complete');
             } else {
-                this.refs.router.navigate('/login');
+                this.router.current.navigate('/login');
             }
         });
         return <div></div>;

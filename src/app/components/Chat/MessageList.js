@@ -159,14 +159,14 @@ const MessageList = ({
         }
     }, [inView, loadMore]);
 
-    const loadMore = () => {
+    const loadMore = React.useCallback(() => {
         DEBUG('Attempting to load more messages');
         setLoading(true);
         messagesBefore.current = [messagesRef.current.scrollHeight, messagesRef.current.scrollTop];
         setTimeout(() => {
            loadMoreMessages();
         }, 150);
-    };
+    }, [loadMoreMessages]);
 
     return (
         <div

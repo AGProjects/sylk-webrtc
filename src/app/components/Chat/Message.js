@@ -80,12 +80,6 @@ const Message = ({
         threshold: 0
     });
 
-    useEffect(() => {
-        if (inView) {
-            isDisplayed();
-        }
-    }, [inView, isDisplayed]);
-
     const preHtmlEntities = (str) => {
         return String(str).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     };
@@ -170,7 +164,7 @@ const Message = ({
                 message.removeListener('stateChanged', stateChanged);
             }
         }
-    }, [message, classes])
+    }, [message, classes]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const scrollToMessage = () => {
         messageRef.current.scrollIntoView({behavior: 'smooth'})
@@ -182,6 +176,18 @@ const Message = ({
         }
     }, [focus]);
 
+    useEffect(() => {
+        if (inView) {
+            isDisplayed();
+        }
+    }, [inView, isDisplayed]);
+
+    const isDisplayed = React.useCallback(() => {
+        if (displayed) {
+            displayed();
+        }
+    }, [displayed]);
+
     let theme = clsx({
         'text-left'     : true,
         'pending'       : state === 'pending',
@@ -189,12 +195,6 @@ const Message = ({
         'continued'     : cont && message.type !== 'status',
         'status'        : message.type === 'status'
     });
-
-    const isDisplayed = () => {
-        if (displayed) {
-            displayed();
-        }
-    };
 
     const statusIcon = () => {
         if (state === 'accepted') {

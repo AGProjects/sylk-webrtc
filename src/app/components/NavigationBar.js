@@ -197,7 +197,7 @@ class NavigationBar extends React.Component {
                     <button title="Mute Incoming Ringtones" className="btn btn-link btn-fw" onClick={this.toggleMute}>
                         <i className={muteClasses}></i>
                     </button>
-                    <DropdownButton id="blinkNavBar" pullRight bsStyle="link" onSelect={this.handleMenu} onClick={(e) => { e.preventDefault(); }} noCaret={true} title={<i className="fa fa-bars fa-2x"></i>}>
+                    <DropdownButton id="blinkNavBar" pullRight bsStyle="link" onSelect={this.handleMenu} onClick={(e) => { e.preventDefault(); }} noCaret={true} title={<i className="fa fa-ellipsis-v fa-2x"></i>}>
                         <MenuItem header>
                             <strong><i className="fa fa-user"></i> {this.props.account.id}</strong>
                         </MenuItem>

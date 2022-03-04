@@ -62,11 +62,13 @@ const styleSheet = makeStyles(theme => {
             marginLeft: 400
         },
 
-
         paperAdjustedForLeftDrawerFull: {
             width: 'calc(100% - 400px)'
         },
 
+        paperOnTop: {
+            zIndex: 1501
+        },
         [theme.breakpoints.down('sm')]: {
             paperNormalWide: {
                 width: '100%'
@@ -107,7 +109,8 @@ const ConferenceDrawer = (props) => {
         {[`${classes.paperAdjustedForSmallLeftDrawerFull}`]: props.anchor === 'left' && props.size === 'full' && props.position === 'right'},
         {[`${classes.paperAdjustedForRightDrawer}`]: props.anchor === 'left' && props.position === 'middle'},
         {[`${classes.paperAdjustedForLeftDrawer}`]: props.anchor === 'right' && props.position === 'full'},
-        {[`${classes.paperAdjustedForLeftDrawerFull}`]: props.anchor === 'right' && props.size === 'full' && props.position === 'full'}
+        {[`${classes.paperAdjustedForLeftDrawerFull}`]: props.anchor === 'right' && props.size === 'full' && props.position === 'full'},
+        {[`${classes.paperOnTop}`]: props.onTop}
     );
 
     const chevronIcon = clsx({
@@ -169,7 +172,8 @@ ConferenceDrawer.propTypes = {
     showClose   : PropTypes.bool,
     title       : PropTypes.object,
     children    : PropTypes.node,
-    noBackgroundColor: PropTypes.bool
+    noBackgroundColor: PropTypes.bool,
+    onTop       : PropTypes.bool
 };
 
 

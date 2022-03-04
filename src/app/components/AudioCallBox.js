@@ -11,6 +11,7 @@ const {
 }                       = require('@material-ui/icons');
 
 const CallOverlay      = require('./CallOverlay');
+const CallQuality      = require('./CallQuality');
 const ConferenceDrawer = require('./ConferenceDrawer');
 const DTMFModal        = require('./DTMFModal');
 const Statistics       = require('./Statistics');
@@ -260,6 +261,8 @@ class AudioCallBox extends React.Component {
             'fa-caret-up'  : true
         });
 
+        const callQuality = (<CallQuality audioData={this.state.audioGraphData} />);
+
         let remoteIdentity;
 
         if (this.props.call !== null) {
@@ -286,6 +289,7 @@ class AudioCallBox extends React.Component {
                     remoteIdentity = {this.props.remoteIdentity}
                     call = {this.props.call}
                     forceTimerStart = {this.props.forceTimerStart}
+                    callQuality = {callQuality}
                 />
                 <audio id="remoteAudio" ref={this.remoteAudio} autoPlay />
                 <div className="call-user-icon">

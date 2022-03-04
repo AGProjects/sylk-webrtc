@@ -108,7 +108,6 @@ const CallQuality = ({audioData, videoData, inbound}) => {
             quality = 2;
         }
 
-        DEBUG('Quality: latency: %s, loss: %s', latency, packetLossPercentage);
         let packetLossQuality = 0;
         if (packetLossPercentage < 4) {
             packetLossQuality = 1;

@@ -155,6 +155,11 @@ function loadAudio(file, context) {
      });
 }
 
+var isMobile = {
+    Android: function() {return navigator.userAgent.match(/Android/i);},
+    iOS: function() {return navigator.userAgent.match(/iPhone|iPad|iPod/i);},
+    any: function() {return (isMobile.Android() || isMobile.iOS())}
+};
 
 exports.copyToClipboard = copyToClipboard;
 exports.normalizeUri = normalizeUri;
@@ -165,3 +170,4 @@ exports.generateVideoTrack = generateVideoTrack;
 exports.getWindowHeight = getWindowHeight;
 exports.loadAudio = loadAudio;
 exports.Queue = Queue;
+exports.isMobile = isMobile;

@@ -133,7 +133,7 @@ const MessageList = ({
     useEffect(() => {
         const canLoadMore = () => {
             if (hasMore) {
-                hasMore().then((value) => {
+                Promise.resolve(hasMore()).then((value) => {
                     setMore(value);
                 });
             }

@@ -21,6 +21,24 @@
     }
 }
 
+.drawer-visible {
+    width: calc(100% - 350px) !important;
+    margin-right: 350px;
+    position: absolute;
+    right:0;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    display: flex;
+
+}
+
+.drawer-wide-visible {
+    @extend .drawer-visible;
+    width: calc(100% - 450px) !important;
+    margin-right: 450px;
+}
+
 .call-header {
     padding: 4px 0;
     color: $white;

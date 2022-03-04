@@ -151,6 +151,11 @@
         margin-right: 350px;
     }
 
+    &.drawer-wide-visible {
+        width: calc(100% - 450px) !important;
+        margin-right: 450px;
+    }
+
     .matrix {
         display: flex;
         flex-direction: row;

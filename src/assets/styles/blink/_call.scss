@@ -41,6 +41,22 @@
     &.solid-background {
         background-color: $darker-gray;
     }
+
+    .call-top-left-buttons {
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin-top: 3.5px;
+
+    }
+
+    .call-top-buttons {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin-top: 3.5px;
+    }
+
 }
 
 .call-user-icon {

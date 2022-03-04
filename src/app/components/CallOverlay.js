@@ -2,10 +2,10 @@
 
 const React             = require('react');
 const PropTypes         = require('prop-types');
+const { default: clsx } = require('clsx');
 const TransitionGroup   = require('react-transition-group/TransitionGroup');
 const CSSTransition     = require('react-transition-group/CSSTransition');
 const { DateTime }      = require('luxon');
-
 
 class CallOverlay extends React.Component {
     constructor(props) {
@@ -59,7 +59,6 @@ class CallOverlay extends React.Component {
         }
 
         // TODO: consider using window.requestAnimationFrame
-
         const startTime = DateTime.local();
         this.timer = setInterval(() => {
             const now = DateTime.local();
@@ -76,10 +75,17 @@ class CallOverlay extends React.Component {
         if (this.props.show) {
             let callDetail;
             if (this.duration !== null) {
-                callDetail = <span><i className="fa fa-clock-o"></i> {this.duration}</span>;
+                callDetail = <span><i className="fa fa-clock-o"></i> {this.duration} {this.props.callQuality}</span>;
             } else {
                 callDetail = 'Connecting...'
             }
+
+            const headerClasses = clsx(
+                'call-header',
+                {
+                    'solid-background': this.props.onTop
+                }
+            );
 
             header = (
                 <CSSTransition
@@ -87,16 +93,33 @@ class CallOverlay extends React.Component {
                     classNames="videoheader"
                     timeout={{ enter: 300, exit: 300}}
                 >
-                    <div key="header" className="call-header">
+                    <div key="header" className={headerClasses}>
+                        {this.props.buttons && this.props.buttons.top && this.props.buttons.top.left &&
+                            <div className="call-top-left-buttons">
+                                {this.props.buttons.top.left}
+                            </div>
+                        }
                         <p className="lead"><strong>Call with</strong> {this.props.remoteIdentity}</p>
                         <p className="lead">{callDetail}</p>
+                        {this.props.buttons && this.props.buttons.top && this.props.buttons.top.right &&
+                            <div className="call-top-buttons">
+                                {this.props.buttons.top.right}
+                            </div>
+                        }
                     </div>
                 </CSSTransition>
             );
         }
 
+        const overlayClasses = clsx(
+            'top-overlay',
+            {
+                'on-top': this.props.onTop
+            }
+        );
+
         return (
-            <div className="top-overlay">
+            <div className={overlayClasses}>
                 <TransitionGroup>
                     {header}
                 </TransitionGroup>
@@ -109,7 +132,10 @@ CallOverlay.propTypes = {
     show: PropTypes.bool.isRequired,
     remoteIdentity: PropTypes.string.isRequired,
     call: PropTypes.object,
-    forceTimerStart: PropTypes.bool
+    forceTimerStart: PropTypes.bool,
+    callQuality: PropTypes.object,
+    onTop: PropTypes.bool,
+    buttons: PropTypes.object
 };
 
 

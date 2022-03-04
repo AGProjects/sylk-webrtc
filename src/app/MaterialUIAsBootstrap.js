@@ -1,7 +1,8 @@
 'use strict';
 
-const { withStyles }    = require('@material-ui/core/styles');
-const { Button } = require('@material-ui/core');
+const React             = require('react');
+const { withStyles, makeStyles }    = require('@material-ui/core/styles');
+const { Button, Tab, Tabs, Tooltip } = require('@material-ui/core');
 const { InputBase } = require('@material-ui/core');
 
 const BootstrapButton = withStyles({
@@ -84,5 +85,56 @@ const BootstrapInputBase = withStyles((theme) => ({
     }
 }))(InputBase);
 
+const BootstrapTabs = withStyles({
+    root: {
+        borderBottom: '1px solid rgba(0, 0, 0, .12)',
+    },
+    indicator: {
+        backgroundColor: '#337ab7',
+    },
+})(Tabs);
+
+const BootstrapTab = withStyles((theme) => ({
+    root: {
+        textTransform: 'none',
+        fontWeight: theme.typography.fontWeightRegular,
+        fontFamily: 'inherit',
+        fontSize: '14px',
+        '&:hover': {
+            color: '#23527c',
+            opacity: 1,
+        },
+        '&$selected': {
+            color: '#337ab7',
+            fontWeight: theme.typography.fontWeightMedium,
+        },
+        '&:focus': {
+            color: '#337ab7',
+        },
+    },
+    selected: {},
+}))(Tab);
+
+
+const useStylesBootstrap = makeStyles((theme) => ({
+    arrow: {
+        color: theme.palette.common.black,
+    },
+    tooltip: {
+        backgroundColor: theme.palette.common.black,
+        fontSize: '12px',
+        fontFamily: 'inherit'
+    },
+}));
+
+function BootstrapTooltip(props) {
+      const classes = useStylesBootstrap();
+
+      return <Tooltip arrow classes={classes} {...props} />;
+}
+
 exports.Button = BootstrapButton;
 exports.InputBase = BootstrapInputBase;
+exports.Tab = BootstrapTab;
+exports.Tabs = BootstrapTabs;
+exports.Tooltip = BootstrapTooltip;

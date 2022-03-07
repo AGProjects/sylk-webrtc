@@ -176,7 +176,8 @@ class Blink extends React.Component {
             'getLocalScreen',
             'getServerHistory',
             'getLocalMediaGuestWrapper',
-            'getLocalMedia'
+            'getLocalMedia',
+            'chatWrapper'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });

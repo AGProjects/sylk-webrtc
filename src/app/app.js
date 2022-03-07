@@ -103,7 +103,8 @@ class Blink extends React.Component {
             showNewDeviceModal: false,
             enableMessaging: false,
             haveFocus: false,
-            unreadMessages: 0
+            unreadMessages: 0,
+            unreadCallMessages: 0
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -1563,7 +1564,33 @@ class Blink extends React.Component {
                     counter++;
                 }
             }
-            this.setState({unreadMessages: counter});
+            let callCounter = 0;
+            if (this.state.currentCall !== null) {
+                for (let key of Object.keys(messages)) {
+                    for (let message of messages[key]) {
+                        if (message.state === 'received'
+                            && message.dispositionState !== 'displayed'
+                            && message.dispositionNotification.indexOf('display') !== -1
+                            && !message.content.startsWith('?OTRv')
+                            && message.sender.uri === this.state.currentCall.remoteIdentity.uri
+                        ) {
+                            callCounter++;
+                        }
+                    }
+                }
+                for (let message of this.state.account.messages) {
+                    if (message.state === 'received'
+                        && message.dispositionState !== 'displayed'
+                        && message.dispositionNotification.indexOf('display') !== -1
+                        && !message.content.startsWith('?OTRv')
+                        && message.sender.uri === this.state.currentCall.remoteIdentity.uri
+                    ) {
+                        callCounter++;
+                    }
+                }
+
+            }
+            this.setState({unreadMessages: counter, unreadCallMessages: callCounter});
             DEBUG('There are %s unread messages', counter);
             if (this.shouldUseHashRouting) {
                 const ipcRenderer = window.require('electron').ipcRenderer;

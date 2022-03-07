@@ -14,6 +14,7 @@ const debug                     = require('debug');
 
 const FullscreenMixin           = require('../mixins/FullScreen');
 const CallOverlay               = require('./CallOverlay');
+const CallQuality               = require('./CallQuality');
 const ConferenceDrawer          = require('./ConferenceDrawer');
 const SwitchDevicesMenu         = require('./SwitchDevicesMenu');
 const EscalateConferenceModal   = require('./EscalateConferenceModal');
@@ -349,6 +350,11 @@ class VideoBox extends React.Component {
         let callButtons;
         let watermark;
 
+        const callQuality = (<CallQuality
+            videoData={this.state.videoGraphData}
+            audioData={this.state.audioGraphData}
+        />);
+
         if (this.state.callOverlayVisible) {
             const muteButtonIcons = clsx({
                 'fa'                    : true,
@@ -468,6 +474,7 @@ class VideoBox extends React.Component {
                         show = {this.state.callOverlayVisible}
                         remoteIdentity = {this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri}
                         call = {this.props.call}
+                        callQuality = {callQuality}
                     />
                     <TransitionGroup>
                         {watermark}

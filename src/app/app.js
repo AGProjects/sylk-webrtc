@@ -102,6 +102,7 @@ class Blink extends React.Component {
             transmitKeys: false,
             showNewDeviceModal: false,
             enableMessaging: false,
+            haveFocus: false,
             unreadMessages: 0
         };
         this.state = Object.assign({}, this._initialSstate);

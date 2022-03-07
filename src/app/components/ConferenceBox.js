@@ -10,6 +10,9 @@ const Popover               = ReactBootstrap.Popover;
 const OverlayTrigger        = ReactBootstrap.OverlayTrigger;
 const { withStyles }        = require('@material-ui/core/styles');
 const { IconButton, Badge } = require('@material-ui/core');
+const {
+    NetworkCheck: NetworkCheckIcon
+}                           = require('@material-ui/icons');
 const sylkrtc               = require('sylkrtc');
 const { default: clsx }     = require('clsx');
 const debug                 = require('debug');
@@ -37,6 +40,7 @@ const ConferenceMenu                    = require('./ConferenceMenu');
 const DragAndDrop                       = require('./DragAndDrop');
 const InviteParticipantsModal           = require('./InviteParticipantsModal');
 const MuteAudioParticipantsModal        = require('./MuteAudioParticipantsModal');
+const Statistics                        = require('./Statistics');
 const SwitchDevicesModal                = require('./SwitchDevicesModal');
 const SwitchDevicesMenu                 = require('./SwitchDevicesMenu');
 const UserIcon                          = require('./UserIcon');
@@ -76,6 +80,8 @@ const styleSheet = {
 class ConferenceBox extends React.Component {
     constructor(props) {
         super(props);
+        const data = new Array(60);
+        data.fill({})
         this.state = {
             callOverlayVisible: true,
             audioMuted: false,
@@ -103,7 +109,11 @@ class ConferenceBox extends React.Component {
             shouldScroll: false,
             chatEditorFocus: false,
             menuAnchor: null,
-            switchAnchor: null
+            switchAnchor: null,
+            videoGraphData: data,
+            audioGraphData: data,
+            showStatistics: false,
+            lastData: {}
         };
 
         const friendlyName = this.props.remoteIdentity.split('@')[0];
@@ -179,15 +189,19 @@ class ConferenceBox extends React.Component {
             'toggleChat',
             'toggleChatEditorFocus',
             'toggleMenu',
+            'toggleStatistics',
             'toggleSwitchModal',
             'toggleSwitchMenu',
             'toggleAudioSwitchMenu',
             'showFiles',
             'setScroll',
-            'preventOverlay'
+            'preventOverlay',
+            'statistics',
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
+
+        this.participantStats = {};
     }
 
     componentDidMount() {
@@ -203,6 +217,8 @@ class ConferenceBox extends React.Component {
         this.props.call.on('composingIndication', this.onComposing);
         this.props.call.on('muteAudio', this.onMuteAudio);
         this.props.call.on('raisedHands', this.onRaisedHands);
+
+        this.props.call.statistics.on('stats', this.statistics);
 
         this.armOverlayTimer();
 
@@ -247,6 +263,162 @@ class ConferenceBox extends React.Component {
         });
         this.exitFullscreen();
         document.removeEventListener('keydown', this.onKeyDown);
+        this.props.call.statistics.removeListener('stats', this.statistics);
+        this.props.call.account.removeListener('incomingMessage', this.incomingMessage);
+    }
+
+    statistics(stats) {
+        const videoData = stats.data.video;
+        const audioData = stats.data.audio;
+
+        const audioRemoteData = stats.data.remote.audio;
+        const videoRemoteData = stats.data.remote.video;
+
+        const videoRemoteExists = videoRemoteData.inbound[0];
+        const audioRemoteExists = audioRemoteData.inbound[0];
+
+        if (stats.peerId !== this.props.call.id) {
+            if (!this.participantStats[stats.peerId]) {
+                this.participantStats[stats.peerId] = {};
+                this.participantStats[stats.peerId].packetLossData = new Array(30);
+                this.participantStats[stats.peerId].packetLossData.fill({});
+            }
+
+            const data = this.participantStats[stats.peerId];
+            data.lastData = stats;
+
+            let packetLossRate = 0;
+            let packetRate = 0;
+
+            const audioDataInbound = audioData && audioData.inbound && audioData.inbound[0];
+            if (audioDataInbound) {
+                packetRate = audioDataInbound.packetRate;
+                packetLossRate = audioDataInbound.packetLossRate;
+            }
+
+            const audioDataOutbound = audioData && audioData.outbound && audioData.outbound[0];
+            if (audioDataOutbound && audioRemoteExists) {
+                packetRate = packetRate + audioDataOutbound.packetRate;
+                packetLossRate = packetLossRate + audioRemoteData.inbound[0].packetLossRate;
+            }
+
+            const videoDataInbound = videoData && videoData.inbound && videoData.inbound[0];
+            if (videoDataInbound) {
+                packetRate = videoDataInbound.packetRate;
+                packetLossRate = packetLossRate + videoDataInbound.packetLossRate;
+            }
+
+            const videoDataOutbound = videoData && videoData.outbound && videoData.outbound[0];
+            if (videoDataOutbound && videoRemoteExists) {
+                packetRate = packetRate + videoDataOutbound.packetRate;
+                packetLossRate = packetLossRate + videoRemoteData.inbound[0].packetLossRate;
+            }
+            data.packetLossData = data.packetLossData.concat({
+                packetsLostInbound: packetLossRate,
+                packetRateInbound: packetRate,
+                rtt: 0
+            });
+
+            data.packetLossData.shift();
+            return
+        }
+
+        if (!videoRemoteExists && !audioRemoteExists) {
+            return;
+        }
+
+        let inboundVideoBitrate = 0;
+        let inboundAudioBitrate = 0;
+
+        let audioPacketsLostInboundData = 0;
+        let videoPacketsLostInboundData = 0;
+
+        let audioPacketRateInbound = 0;
+        let videoPacketRateInbound = 0;
+
+        this.state.participants.forEach((p) => {
+            if (this.participantStats[p.id]) {
+                const participantVideoData = this.participantStats[p.id].lastData.data.video;
+                if (participantVideoData && participantVideoData.inbound && participantVideoData.inbound[0]) {
+                    inboundVideoBitrate = inboundVideoBitrate + participantVideoData.inbound[0].bitrate/1000;
+                    videoPacketsLostInboundData = videoPacketsLostInboundData + participantVideoData.inbound[0].packetLossRate;
+                    videoPacketRateInbound = videoPacketRateInbound + participantVideoData.inbound[0].packetRate;
+                }
+                const participantAudioData = this.participantStats[p.id].lastData.data.audio;
+                if (participantAudioData.inbound) {
+                    inboundAudioBitrate = inboundVideoBitrate + participantAudioData.inbound[0].bitrate/1000;
+                    audioPacketsLostInboundData = audioPacketsLostInboundData + participantAudioData.inbound[0].packetLossRate;
+                    audioPacketRateInbound = audioPacketRateInbound + participantAudioData.inbound[0].packetRate;
+                }
+            }
+        });
+
+        const videoJitter = 0;
+        const videoRTT = videoRemoteExists && videoRemoteData.inbound[0].roundTripTime || 0
+        const videoPacketsLostOutbound = videoRemoteExists && videoRemoteData.inbound[0].packetLossRate || 0
+        const videoPacketsLostInbound = videoPacketsLostInboundData;
+
+        const audioJitter = 0;
+        const audioRTT = audioRemoteExists && audioRemoteData.inbound[0].roundTripTime || 0;
+        const audioPacketsLostOutbound = audioRemoteExists && audioRemoteData.inbound[0].packetLossRate || 0;
+        const audioPacketsLostInbound = audioPacketsLostInboundData;
+
+        let packetRate = 0;
+        let audioPacketRateOutbound = 0;
+        let videoPacketRateOutbound = 0;
+
+        const audioDataOutbound = audioData && audioData.outbound && audioData.outbound[0];
+        if (audioDataOutbound && audioRemoteExists) {
+            packetRate = packetRate + audioDataOutbound.packetRate;
+            audioPacketRateOutbound = audioDataOutbound.packetRate;
+
+        }
+
+        const videoDataOutbound = videoData && videoData.outbound && videoData.outbound[0];
+        if (videoDataOutbound && videoRemoteExists) {
+            packetRate = packetRate + videoDataOutbound.packetRate;
+            videoPacketRateOutbound = videoDataOutbound.packetRate;
+        }
+
+        const addData = {
+            video: {},
+            audio: {
+                timestamp: audioData.timestamp,
+                incomingBitrate: inboundAudioBitrate,
+                outgoingBitrate: audioData.outbound[0].bitrate/1000 || 0,
+                rtt: audioRTT,
+                jitter: audioJitter,
+                packetsLostOutbound: audioPacketsLostOutbound,
+                packetsLostInbound: audioPacketsLostInbound,
+                packetRateOutbound: audioPacketRateOutbound,
+                packetRateInbound: audioPacketRateInbound
+            }
+        };
+        if (videoRemoteExists) {
+            addData.video = {
+                timestamp: videoData.timestamp,
+                incomingBitrate: inboundVideoBitrate,
+                outgoingBitrate: videoData.outbound[0].bitrate/1000 || 0,
+                rtt: videoRTT,
+                jitter: videoJitter,
+                packetsLostOutbound: videoPacketsLostOutbound,
+                packetsLostInbound: videoPacketsLostInbound,
+                packetRateOutbound: videoPacketRateOutbound,
+                packetRateInbound: videoPacketRateInbound
+            }
+        }
+
+        this.setState(state => {
+            const videoGraphData = state.videoGraphData.concat(addData.video);
+            videoGraphData.shift();
+            const audioGraphData = state.audioGraphData.concat(addData.audio);
+            audioGraphData.shift();
+            return {
+                videoGraphData,
+                audioGraphData,
+                lastData: stats.data
+            };
+        });
     }
 
     shouldVideoMute() {
@@ -753,6 +925,11 @@ class ConferenceBox extends React.Component {
             this.props.notificationCenter().removeNotification(this.messageNotification);
         }
         this.setState({showChat: !this.state.showChat, newMessages: 0});
+
+    toggleStatistics() {
+        this.setState({
+            showStatistics: !this.state.showStatistics
+        });
     }
 
     toggleChatEditorFocus() {
@@ -974,6 +1151,11 @@ class ConferenceBox extends React.Component {
         });
 
         const bottomButtons = [];
+        bottomButtons.push(
+            <button key="statisticsBtn" type="button" className={commonButtonClasses} onClick={this.toggleStatistics}>
+                <NetworkCheckIcon />
+            </button>
+        );
         bottomButtons.push(
             <OverlayTrigger key="shareOverlay" ref="shareOverlay" trigger="click" placement={!chatLayout ? 'bottom' : 'right'} overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
                 <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-user-plus"></i> </button>
@@ -1274,10 +1456,26 @@ class ConferenceBox extends React.Component {
                         <ConferenceDrawerLog log={this.state.eventLog} />
                     }
                 </ConferenceDrawer>
-                <ConferenceDrawer show={this.state.showFiles} close={this.toggleFiles}>
+                <ConferenceDrawer show={this.state.showFiles && !this.state.showChat && chatLayout} close={this.toggleFiles}>
                     <ConferenceDrawerFiles
                         sharedFiles={this.state.sharedFiles}
                         downloadFile={this.downloadFile}
+                    />
+                </ConferenceDrawer>
+                <ConferenceDrawer
+                    show={this.state.showStatistics}
+                    anchor = "left"
+                    showClose = {true}
+                    close = {this.toggleStatistics}
+                    transparent = {true}
+                    {...chatLayout && {onTop: true}}
+                >
+                    <Statistics
+                        videoData={this.state.videoGraphData}
+                        audioData={this.state.audioGraphData}
+                        lastData={this.state.lastData}
+                        videoElements={{remoteVideo: this.remoteVideo, localVideo:this.localVideo}}
+                        {...!chatLayout && {video: true}}
                     />
                 </ConferenceDrawer>
                 <SwitchDevicesModal

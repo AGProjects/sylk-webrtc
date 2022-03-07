@@ -2037,6 +2037,80 @@ class Blink extends React.Component {
         );
     }
 
+    chatWrapper(embed = false, hideCallButtons = false) {
+        const removeChat = (contact) => {
+            // DEBUG("REMOVE %s", contact);
+            messageStorage.remove(contact);
+            let oldMessages = cloneDeep(this.state.oldMessages);
+            delete oldMessages[contact];
+            this.state.account.removeConversation(contact);
+            if (this.lastMessageFocus === contact) {
+                this.lastMessageFocus = '';
+            }
+            this.setState({oldMessages: oldMessages});
+        };
+
+        const loadMoreMessages = (key) => {
+            messageStorage.loadMoreMessages(key).then((cache) => {
+                if (cache) {
+                    let oldMessages = cloneDeep(this.state.oldMessages);
+                    oldMessages[key] = cache.concat(oldMessages[key]);
+                    this.setState({oldMessages: oldMessages});
+                }
+            });
+        };
+
+        const removeMessage = (message) => {
+            messageStorage.removeMessage(message).then(()=> {
+                DEBUG('Message removed: %o', message.id);
+            });
+            let oldMessages = cloneDeep(this.state.oldMessages);
+            let contact = message.receiver;
+            if (message.state === 'received') {
+                contact = message.sender.uri;
+            }
+            this.state.account.removeMessage(message);
+            if (oldMessages[contact]) {
+                oldMessages[contact] = oldMessages[contact].filter(loadedMessage => loadedMessage.id !== message.id);
+            }
+            this.setState({oldMessages: oldMessages});
+        };
+
+        const sendPublicKey = (uri) => {
+            storage.get(`pgpKeys-${this.state.accountId}`).then(pgpKeys => {
+                if (pgpKeys) {
+                    this.state.account.sendMessage(uri, pgpKeys.publicKey, 'text/pgp-public-key');
+                }
+            });
+        };
+
+        const domain = this.state.currentCall && this.state.currentCall.remoteIdentity.uri.substring(this.state.currentCall.remoteIdentity.uri.indexOf('@') + 1) || '';
+        if (embed && !domain.startsWith('guest.')) {
+            this.lastMessageFocus = this.state.currentCall && this.state.currentCall.remoteIdentity.uri || '';
+        }
+        return (
+            <Chat
+                key = {this.state.account}
+                account  = {this.state.account}
+                contactCache = {this.state.contactCache}
+                oldMessages = {this.state.oldMessages}
+                startCall = {this.startCall}
+                messageStorage = {messageStorage}
+                propagateKeyPress = {this.togglePropagateKeyPress}
+                focusOn = {this.lastMessageFocus}
+                removeChat = {removeChat}
+                loadMoreMessages = {loadMoreMessages}
+                lastContactSelected = {(uri) => {
+                    this.lastMessageFocus = uri;
+                }}
+                removeMessage = {removeMessage}
+                isLoadingMessages = {this.state.messagesLoading}
+                sendPublicKey = {sendPublicKey}
+                embed={embed}
+                hideCallButtons={hideCallButtons}
+            />)
+    }
+
     notFound() {
         const status = {
             title   : '404',
@@ -2174,62 +2248,7 @@ class Blink extends React.Component {
                 {this.state.messagesLoadingProgress &&
                     <MessagesLoadingScreen progress={this.state.messagesLoadingProgress} />
                 }
-                <Chat
-                    key = {this.state.account}
-                    account  = {this.state.account}
-                    contactCache = {this.state.contactCache}
-                    oldMessages = {this.state.oldMessages}
-                    startCall = {this.startCall}
-                    messageStorage = {messageStorage}
-                    propagateKeyPress = {this.togglePropagateKeyPress}
-                    focusOn = {this.lastMessageFocus}
-                    removeChat = {(contact) => {
-                        messageStorage.remove(contact);
-                        let oldMessages = cloneDeep(this.state.oldMessages);
-                        delete oldMessages[contact];
-                        this.state.account.removeConversation(contact);
-                        if (this.lastMessageFocus === contact) {
-                            this.lastMessageFocus = '';
-                        }
-                        this.setState({oldMessages: oldMessages});
-                    }}
-                    loadMoreMessages = {(key) => {
-                        messageStorage.loadMoreMessages(key).then((cache) => {
-                            if (cache) {
-                                let oldMessages = cloneDeep(this.state.oldMessages);
-                                oldMessages[key] = cache.concat(oldMessages[key]);
-                                this.setState({oldMessages: oldMessages});
-                            }
-                        });
-                    }}
-                    lastContactSelected = {(uri) => {
-                        this.lastMessageFocus = uri;
-                    }}
-                    removeMessage = {(message) => {
-                        messageStorage.removeMessage(message).then(()=> {
-                            DEBUG('Message removed: %o', message.id);
-                        });
-                        let oldMessages = cloneDeep(this.state.oldMessages);
-                        let contact = message.receiver;
-                        if (message.state === 'received') {
-                            contact = message.sender.uri;
-                        }
-                        this.state.account.removeMessage(message);
-                        if (oldMessages[contact]) {
-                            oldMessages[contact] = oldMessages[contact].filter(loadedMessage => loadedMessage.id !== message.id);
-                        }
-                        this.setState({oldMessages: oldMessages});
-                    }}
-                    isLoadingMessages = {this.state.messagesLoading}
-                    sendPublicKey = {(uri) => {
-                        storage.get(`pgpKeys-${this.state.accountId}`).then(pgpKeys => {
-                            if (pgpKeys) {
-                                this.state.account.sendMessage(uri, pgpKeys.publicKey, 'text/pgp-public-key');
-                            }
-                        });
-                    }}
-
-                />
+                {this.chatWrapper()}
             </div>
         )
     }

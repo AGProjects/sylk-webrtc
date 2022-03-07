@@ -6,14 +6,18 @@ const TransitionGroup           = require('react-transition-group/TransitionGrou
 const CSSTransition             = require('react-transition-group/CSSTransition');
 const ReactMixin                = require('react-mixin');
 const sylkrtc                   = require('sylkrtc');
+const {
+    NetworkCheck: NetworkCheckIcon
+}                               = require('@material-ui/icons');
 const { default: clsx }         = require('clsx');
 const debug                     = require('debug');
 
 const FullscreenMixin           = require('../mixins/FullScreen');
 const CallOverlay               = require('./CallOverlay');
+const ConferenceDrawer          = require('./ConferenceDrawer');
 const SwitchDevicesMenu         = require('./SwitchDevicesMenu');
 const EscalateConferenceModal   = require('./EscalateConferenceModal');
-
+const Statistics                = require('./Statistics');
 
 const DEBUG = debug('blinkrtc:Video');
 
@@ -21,6 +25,8 @@ const DEBUG = debug('blinkrtc:Video');
 class VideoBox extends React.Component {
     constructor(props) {
         super(props);
+        const data = new Array(60).fill({});
+
         this.state = {
             callOverlayVisible: true,
             audioMuted: false,
@@ -31,7 +37,12 @@ class VideoBox extends React.Component {
             showEscalateConferenceModal: false,
             switchAnchor: null,
             showSwitchMenu: false,
-            showAudioSwitchMenu: false
+            showAudioSwitchMenu: false,
+            showStatistics: false,
+            videoGraphData: data,
+            audioGraphData: data,
+            callQuality: new Array(30).fill({}),
+            lastData: {}
         };
 
         this.overlayTimer = null;
@@ -50,7 +61,8 @@ class VideoBox extends React.Component {
             'toggleEscalateConferenceModal',
             'toggleSwitchMenu',
             'toggleAudioSwitchMenu',
-            'escalateToConference'
+            'toggleStatistics',
+            'statistics'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -76,6 +88,7 @@ class VideoBox extends React.Component {
         this.remoteVideo.current.addEventListener('playing', this.handleRemoteVideoPlaying);
         sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.remoteVideo.current, {disableContextMenu: true});
 
+        this.props.call.statistics.on('stats', this.statistics);
         document.addEventListener('keydown', this.onKeyDown);
     }
 
@@ -84,6 +97,7 @@ class VideoBox extends React.Component {
         this.remoteVideo.current.removeEventListener('playing', this.handleRemoteVideoPlaying);
         this.exitFullscreen();
         document.removeEventListener('keydown', this.onKeyDown);
+        this.props.call.statistics.removeListener('stats', this.statistics);
     }
 
     onKeyDown(event) {
@@ -108,6 +122,75 @@ class VideoBox extends React.Component {
                     break;
             }
         }
+    }
+
+    statistics(stats) {
+        const videoData = stats.data.video;
+        const audioData = stats.data.audio;
+
+        const audioRemoteData = stats.data.remote.audio;
+        const videoRemoteData = stats.data.remote.video;
+
+        const videoRemoteExists = videoRemoteData.inbound[0];
+        const audioRemoteExists = audioRemoteData.inbound[0];
+
+        if (!videoRemoteExists && !audioRemoteExists) {
+            return;
+        }
+
+        let videoRTT = (videoRemoteExists && videoRemoteData.inbound[0].roundTripTime) || 0
+        const videoJitter = videoData.inbound[0].jitter || 0
+        const videoPacketRateOutbound = (videoData && videoData.outbound[0].packetRate )|| 0;
+        const videoPacketRateInbound = (videoData && videoData.inbound[0].packetRate )|| 0;
+        const videoPacketsLostOutbound = videoRemoteExists && videoRemoteData.inbound[0].packetLossRate || 0;
+        const videoPacketsLostInbound = videoData.inbound[0].packetLossRate || 0;
+
+        const audioJitter = audioData.inbound[0].jitter || 0;
+        const audioRTT = audioRemoteExists && audioRemoteData.inbound[0].roundTripTime || 0;
+        const audioPacketsLostOutbound = audioRemoteExists && audioRemoteData.inbound[0].packetLossRate || 0;
+        const audioPacketsLostInbound = audioData.inbound[0].packetLossRate || 0;
+        const audioPacketRateOutbound = (audioData && audioData.outbound[0].packetRate) || 0;
+        const audioPacketRateInbound = (audioData && audioData.inbound[0].packetRate) || 0;
+
+        if (videoRTT === 0 && audioRTT !== 0) {
+            videoRTT = audioRTT;
+        }
+
+        const addData = {
+            audio: {
+                timestamp: audioData.timestamp,
+                incomingBitrate: audioData.inbound[0].bitrate/1000 || 0,
+                outgoingBitrate: audioData.outbound[0].bitrate/1000 || 0,
+                rtt: audioRTT,
+                jitter: audioJitter,
+                packetsLostOutbound: audioPacketsLostOutbound,
+                packetsLostInbound: audioPacketsLostInbound,
+                packetRateOutbound: audioPacketRateOutbound,
+                packetRateInbound: audioPacketRateInbound
+            },
+            video: {
+                timestamp: videoData.timestamp,
+                incomingBitrate: videoData.inbound[0].bitrate/1000 || 0,
+                outgoingBitrate: videoData.outbound[0].bitrate/1000 || 0,
+                rtt: videoRTT,
+                jitter: videoJitter,
+                packetsLostOutbound: videoPacketsLostOutbound,
+                packetsLostInbound: videoPacketsLostInbound,
+                packetRateOutbound: videoPacketRateOutbound,
+                packetRateInbound: videoPacketRateInbound
+            }
+        };
+        this.setState(state => {
+            const videoGraphData = state.videoGraphData.concat(addData.video);
+            const audioGraphData = state.audioGraphData.concat(addData.audio);
+            videoGraphData.shift();
+            audioGraphData.shift();
+            return {
+                videoGraphData,
+                audioGraphData,
+                lastData: stats.data
+            };
+        });
     }
 
     handleFullscreen(event) {
@@ -234,6 +317,12 @@ class VideoBox extends React.Component {
         clearTimeout(this.overlayTimer);
     }
 
+    toggleStatistics() {
+        this.setState({
+            showStatistics: !this.state.showStatistics
+        });
+    }
+
     render() {
         if (this.props.call == null) {
             return (<div></div>);
@@ -307,6 +396,11 @@ class VideoBox extends React.Component {
 
             const buttons = [];
 
+                buttons.push(
+                    <button key="statisticsBtn" type="button" className={commonButtonClasses} onClick={this.toggleStatistics}>
+                        <NetworkCheckIcon />
+                    </button>
+                );
             buttons.push(<button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}> <i className="fa fa-user-plus"></i> </button>);
             buttons.push(
                 <div className="btn-container" key="video">
@@ -389,6 +483,22 @@ class VideoBox extends React.Component {
                         close={this.toggleEscalateConferenceModal}
                         escalateToConference={this.escalateToConference}
                     />
+                    <ConferenceDrawer
+                        show = {this.state.showStatistics && !this.state.showChat}
+                        anchor = "left"
+                        showClose = {true}
+                        close = {this.toggleStatistics}
+                        transparent={true}
+                    >
+                        <Statistics
+                            videoData={this.state.videoGraphData}
+                            audioData={this.state.audioGraphData}
+                            lastData={this.state.lastData}
+                            videoElements={{remoteVideo: this.remoteVideo, localVideo:this.localVideo}}
+                            video
+                            details
+                        />
+                    </ConferenceDrawer>
                 </div>
             </div>
         );

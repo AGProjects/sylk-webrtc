@@ -30,10 +30,18 @@ const styleSheet = makeStyles((theme) => ({
         '& :hover': {
             color: '#d43f3a'
         }
+    },
+    rootThumb: {
+        display: 'block',
+        bottom: '25px',
+        position: 'absolute',
+        zIndex: 3,
+        fontSize: '20px',
+        right: '20px'
     }
 }));
 
-const CallQuality = ({audioData, videoData, inbound}) => {
+const CallQuality = ({audioData, videoData, inbound, thumb}) => {
     const classes = styleSheet();
     const [quality, setCallQuality] = React.useState(1);
 
@@ -51,6 +59,11 @@ const CallQuality = ({audioData, videoData, inbound}) => {
             'The reception quality is not optimal, you can tell the participant to switch to a better network, or moving closer to a WiFi access point',
             'The reception quality is poor, you can tell the participant to try to switch to a better network, or moving closer to a WiFi access point'
         ];
+    }
+
+    let rootClass;
+    if (thumb) {
+        rootClass = classes.rootThumb;
     }
 
     React.useEffect(() => {
@@ -133,12 +146,12 @@ const CallQuality = ({audioData, videoData, inbound}) => {
         <React.Fragment>
             { quality === 3 &&
                 <Tooltip title={titles[quality]}>
-                    <span><i className={`fa fa-warning ${classes.danger}`} /></span>
+                    <span className={rootClass}><i className={`fa fa-warning ${classes.danger}`} /></span>
                 </Tooltip>
             }
             { quality === 2 &&
                 <Tooltip title={titles[quality]}>
-                    <span><i className={`fa fa-exclamation-circle ${classes.warning}`} /></span>
+                    <span className={rootClass}><i className={`fa fa-exclamation-circle ${classes.warning}`} /></span>
                 </Tooltip>
             }
         </React.Fragment>
@@ -148,7 +161,8 @@ const CallQuality = ({audioData, videoData, inbound}) => {
 CallQuality.propTypes = {
     audioData: PropTypes.array,
     videoData: PropTypes.array,
-    inbound: PropTypes.bool
+    inbound: PropTypes.bool,
+    thumb: PropTypes.bool
 };
 
 

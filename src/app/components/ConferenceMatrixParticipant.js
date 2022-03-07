@@ -7,8 +7,9 @@ const sylkrtc           = require('sylkrtc');
 const hark              = require('hark');
 const { default: clsx }  = require('clsx');
 
-const HandIcon = require('./HandIcon');
-const UserIcon = require('./UserIcon');
+const HandIcon    = require('./HandIcon');
+const UserIcon    = require('./UserIcon');
+const CallQuality = require('./CallQuality');
 
 class ConferenceMatrixParticipant extends React.Component {
     constructor(props) {
@@ -129,6 +130,12 @@ class ConferenceMatrixParticipant extends React.Component {
                         handleHandSelected={() => this.props.handleHandSelected(this.props.participant)}
                         disableHandToggle={this.props.disableHandToggle}
                     />
+                    { this.props.stats &&
+                        <React.Fragment>
+                            &nbsp;
+                            <CallQuality videoData={this.props.stats.packetLossData} inbound />
+                        </React.Fragment>
+                    }
                 </p>
             </div>
         );
@@ -166,7 +173,8 @@ ConferenceMatrixParticipant.propTypes = {
     isGeneratedTrack: PropTypes.bool,
     handleHandSelected: PropTypes.func,
     audioOnly: PropTypes.bool,
-    pauseVideo: PropTypes.bool
+    pauseVideo: PropTypes.bool,
+    stats: PropTypes.object
 };
 
 

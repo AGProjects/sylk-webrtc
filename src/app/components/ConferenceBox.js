@@ -22,6 +22,7 @@ const config                            = require('../config');
 const utils                             = require('../utils');
 const FullscreenMixin                   = require('../mixins/FullScreen');
 const AudioPlayer                       = require('./AudioPlayer');
+const CallQuality                       = require('./CallQuality');
 const ConferenceDrawer                  = require('./ConferenceDrawer');
 const ConferenceDrawerLog               = require('./ConferenceDrawerLog');
 const ConferenceDrawerFiles             = require('./ConferenceDrawerFiles');
@@ -1272,6 +1273,7 @@ class ConferenceBox extends React.Component {
                             handleHandSelected={this.handleHandSelected}
                             disableHandToggle={disableHandToggle}
                             pauseVideo={this.props.lowBandwidth}
+                            stats={this.participantStats[p.id]}
                         />
                     );
                 });
@@ -1287,6 +1289,7 @@ class ConferenceBox extends React.Component {
                                 handleHandSelected={this.handleHandSelected}
                                 disableHandToggle={disableHandToggle}
                                 pauseVideo={this.props.lowBandwidth}
+                                stats={this.participantStats[p.id]}
                             />
                         );
                     }
@@ -1299,6 +1302,7 @@ class ConferenceBox extends React.Component {
                             handleHandSelected={this.handleHandSelected}
                             disableHandToggle={disableHandToggle}
                             enableSpeakingIndication={chatLayout}
+                            stats={this.participantStats[p.id]}
                         />
                     );
                 });
@@ -1322,6 +1326,7 @@ class ConferenceBox extends React.Component {
                             disableHandToggle={disableHandToggle}
                             audioOnly={chatLayout}
                             pauseVideo={this.props.lowBandwidth}
+                            stats={this.participantStats[p.id]}
                         />
                     );
 
@@ -1333,6 +1338,7 @@ class ConferenceBox extends React.Component {
                             handleHandSelected={this.handleHandSelected}
                             disableHandToggle={disableHandToggle}
                             enableSpeakingIndication={chatLayout}
+                            stats={this.participantStats[p.id]}
                         />
                     );
                 });
@@ -1342,6 +1348,11 @@ class ConferenceBox extends React.Component {
             'conference-thumbnails': true,
             'conference-thumbnails-small': this.state.participants.length === 1 &&  this.state.activeSpeakers.length <= 1
         });
+
+        const callQuality = (<CallQuality
+            videoData={this.state.videoGraphData}
+            audioData={this.state.audioGraphData}
+        />);
 
         return (
             <DragAndDrop handleDrop={this.handleDrop}>
@@ -1386,8 +1397,7 @@ class ConferenceBox extends React.Component {
                         remoteIdentity={remoteIdentity}
                         participants={this.state.participants}
                         buttons={buttons}
-                        onTop={chatLayout}
-                        transparent={!chatLayout}
+                        callQuality={callQuality}
                     />
                     <TransitionGroup>
                         {watermark}

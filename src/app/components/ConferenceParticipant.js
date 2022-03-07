@@ -9,6 +9,7 @@ const sylkrtc           = require('sylkrtc');
 const hark              = require('hark');
 const { default: clsx } = require('clsx');
 
+const CallQuality = require('./CallQuality');
 const HandIcon = require('./HandIcon');
 const UserIcon = require('./UserIcon');
 
@@ -154,6 +155,7 @@ class ConferenceParticipant extends React.Component {
                     disableHandToggle={this.props.disableHandToggle}
                     thumb
                 />
+                <CallQuality videoData={this.props.stats.packetLossData} inbound thumb />
                 <OverlayTrigger placement="top" overlay={tooltip}>
                     <div className="participant-container">
                         {(this.props.pauseVideo === true || !this.state.hasVideo) && <UserIcon identity={this.props.participant.identity} active={this.state.active} carousel />}
@@ -170,7 +172,8 @@ ConferenceParticipant.propTypes = {
     raisedHand: PropTypes.number.isRequired,
     handleHandSelected: PropTypes.func.isRequired,
     disableHandToggle: PropTypes.bool,
-    pauseVideo: PropTypes.bool
+    pauseVideo: PropTypes.bool,
+    stats: PropTypes.object
 };
 
 

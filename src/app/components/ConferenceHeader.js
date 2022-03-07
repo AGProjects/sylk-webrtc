@@ -48,11 +48,13 @@ const ConferenceHeader = (props) => {
     });
     if (props.show) {
         const participantCount = props.participants.length + 1;
+
         const callDetail = (
             <span>
                 <i className="fa fa-clock-o"></i> {duration}
                 &nbsp;&mdash;&nbsp;
                 <i className="fa fa-users"></i> {participantCount} participant{participantCount > 1 ? 's' : ''}
+		&nbsp;{props.callQuality}
             </span>
         );
 

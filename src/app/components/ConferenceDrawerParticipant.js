@@ -10,8 +10,9 @@ const Media             = ReactBootstrap.Media;
 const ButtonGroup       = ReactBootstrap.ButtonGroup;
 const hark              = require('hark');
 
-const UserIcon  = require('./UserIcon');
-const HandIcon  = require('./HandIcon');
+const UserIcon    = require('./UserIcon');
+const HandIcon    = require('./HandIcon');
+const CallQuality = require('./CallQuality');
 
 
 const ConferenceDrawerParticipant = (props) => {
@@ -44,18 +45,22 @@ const ConferenceDrawerParticipant = (props) => {
         setSpeech(speechEvents);
     }
 
-    let tag = ''
+    let tag = '';
+    let callQuality;
     if (props.isLocal) {
         tag = <Label bsStyle="primary">Myself</Label>;
+    } else {
+        if (props.stats) {
+            callQuality = (<CallQuality videoData={props.stats.packetLossData} inbound />);
+        }
     }
-
     return (
         <Media className="text-left">
             <Media.Left>
                 <UserIcon identity={props.participant.identity} active={active} small={true} />
             </Media.Left>
             <Media.Body className="vertical-center">
-                <Media.Heading>{props.participant.identity.displayName || props.participant.identity.uri}</Media.Heading>
+                <Media.Heading>{props.participant.identity.displayName || props.participant.identity.uri} {callQuality}</Media.Heading>
             </Media.Body>
             <Media.Right className="vertical-center">
                 <HandIcon
@@ -77,7 +82,8 @@ ConferenceDrawerParticipant.propTypes = {
     handleHandSelected: PropTypes.func.isRequired,
     disableHandToggle: PropTypes.bool,
     isLocal: PropTypes.bool,
-    enableSpeakingIndication: PropTypes.bool
+    enableSpeakingIndication: PropTypes.bool,
+    stats: PropTypes.object
 };
 
 

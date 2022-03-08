@@ -116,8 +116,13 @@ class Call extends React.Component {
         let box;
         let remoteIdentity;
 
+        let inlineChat = this.props.inlineChat;
         if (this.props.currentCall !== null) {
             remoteIdentity = this.props.currentCall.remoteIdentity.displayName || this.props.currentCall.remoteIdentity.uri;
+            const domain = this.props.currentCall.remoteIdentity.uri.substring(this.props.currentCall.remoteIdentity.uri.indexOf('@') + 1);
+            if (domain.startsWith('guest.')) {
+                inlineChat =  (function () {})();
+            }
         } else {
             remoteIdentity = this.props.targetUri;
         }
@@ -133,6 +138,10 @@ class Call extends React.Component {
                         escalateToConference = {this.props.escalateToConference}
                         forceTimerStart = {this.forceTimerStart}
                         setDevice = {this.props.setDevice}
+                        toggleChatInCall = {this.props.toggleChatInCall}
+                        inlineChat = {inlineChat}
+                        unreadMessages = {this.props.unreadMessages}
+                        notificationCenter = {this.props.notificationCenter}
                     />
                 );
             } else {
@@ -180,7 +189,11 @@ Call.propTypes = {
     escalateToConference    : PropTypes.func,
     localMedia              : PropTypes.object,
     targetUri               : PropTypes.string,
-    generatedVideoTrack     : PropTypes.bool
+    generatedVideoTrack     : PropTypes.bool,
+    toggleChatInCall        : PropTypes.func,
+    inlineChat              : PropTypes.object,
+    notificationCenter      : PropTypes.func,
+    unreadMessages          : PropTypes.object
 };
 
 

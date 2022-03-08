@@ -85,7 +85,7 @@ const Chat = (props) => {
         }
 
         if (show) {
-             addContact();
+            addContact();
         }
     }, [show, props.focusOn])
 
@@ -201,12 +201,12 @@ const Chat = (props) => {
             if (id) {
                 DEBUG('Focus message: %s', id);
                 setFocus(id);
-                setTimeout(() =>{ setFocus('')}, 750)
+                setTimeout(() => {setFocus('')}, 750)
             }
         } else {
             DEBUG('Focus message: %s', id);
             setFocus(id);
-            setTimeout(() =>{ setFocus('')}, 750)
+            setTimeout(() => {setFocus('')}, 750)
         }
     };
 
@@ -269,137 +269,174 @@ const Chat = (props) => {
         'fa-chevron-left'   : true
     });
 
-    return (
-        <div className="chat">
-            <ConferenceDrawer
-                show = {show && (!matches || selectedUri !== '')}
-                size = "full"
-                anchor = "right"
-                close = {() => {setSelectedUri()}}
-                position = "full"
-                noBackgroundColor
-                showClose = {false}
-            >
-            { selectedUri !== ''
-                ? <React.Fragment>
-                    <Toolbar className={classes.toolbar} style={{marginLeft:'-15px', marginTop: '-15px', marginRight: '-15px'}}>
-                        { matches &&
-                            <button type="button" className="close" onClick={() => setSelectedUri('')}>
-                                <span aria-hidden="true"><i className={chevronIcon} /></span>
-                                <span className="sr-only">Close</span>
-                            </button>
-                        }
-			{ props.isLoadingMessages === true
-                            ?
-                                <React.Fragment>
-                                    <CircularProgress style={{ color: '#888', margin: '5px', marginRight: '10px', width: '35px', height:'35px', display: 'block' }} />
-                                    <Typography className={classes.title} variant="h6" noWrap>Updating</Typography>
-                                </React.Fragment>
-                            :
-                                <React.Fragment>
-                                    <UserIcon identity={getDisplayName(selectedUri)} active={false} small={true}/>
-                                        <Typography className={classes.title} variant="h6" noWrap>
-                                            {getDisplayName(selectedUri).displayName || selectedUri}
-                                            {getDisplayName(selectedUri).displayName && <span className={classes.toolbarName}>({selectedUri})</span>}
-                                        </Typography>
-                                        <IconButton className="fa fa-phone" onClick={()=> props.startCall(selectedUri, {video: false})} />
-                                        <IconButton className="fa fa-video-camera" onClick={()=>props.startCall(selectedUri)} />
-                                </React.Fragment>
-                        }
-                        <Divider absolute />
-                    </Toolbar>
-                    <MessageList
-                        loadMoreMessages = {loadMoreMessages}
-                        messages = {contactMessages}
-                        focus = {focus}
-                        key = {selectedUri}
-                        hasMore = {() => props.messageStorage.hasMore(selectedUri)}
-                        contactCache = {contactCache.current}
-                        displayed = {(uri, id, timestamp, state) => {
-                            props.account.sendDispositionNotification(
-                                uri,
-                                id,
-                                timestamp,
-                                state
-                            );
-                            if (this.timer !== null) {
-                                clearTimeout(this.timer);
-                            }
-                            this.timer = setTimeout(() => {
-                            let sendMark = true;
-                            for (let message of messages[uri]) {
-                                if (message.state === 'received'
-                                    && message.dispositionState !== 'displayed'
-                                    && message.dispositionNotification.indexOf('display') !== -1
-                                    && message.id !== id
-                                ) {
-                                    sendMark = false;
-                                    break;
-                                }
-                            }
-                            if (sendMark) {
-                                if (unread === uri) {
-                                    setUnread()
-                                } else {
-                                    setUnread(uri)
-                                }
-                                props.account.markConversationRead(uri);
-                                this.timer = null;
-                            }}, 500);
-                        }}
-                        removeMessage= {(message) => props.removeMessage(message)}
-                    />
-                    <ConferenceChatEditor
-                        onSubmit = {handleMessage}
-                        onTyping = {()=>{}}
-                        scroll = {()=>{}}
-                        focus = {toggleChatEditorFocus}
-                        setFocus = {true}
-                        multiline
-                    />
-                  </React.Fragment>
-                : <div style={{justifyContent: 'center', alignItems:'center', display: 'flex', flexDirection: 'column', height: '100%'}}>
-                        <div className="chat-image" />
-                        <h1 className="cover-heading">No chat selected</h1>
-                  </div>
+    const messageDisplayed = (uri, id, timestamp, state) => {
+        props.account.sendDispositionNotification(
+            uri,
+            id,
+            timestamp,
+            state
+        );
+        if (this.timer !== null) {
+            clearTimeout(this.timer);
+        }
+        this.timer = setTimeout(() => {
+            let sendMark = true;
+            for (let message of messages[uri]) {
+                if (message.state === 'received'
+                    && message.dispositionState !== 'displayed'
+                    && message.dispositionNotification.indexOf('display') !== -1
+                    && message.id !== id
+                ) {
+                    sendMark = false;
+                    break;
+                }
             }
-            </ConferenceDrawer>
-            <ConferenceDrawer
-                show = {show && (selectedUri === '' && matches) || !matches}
-                anchor = "left"
-                showClose = {false}
-                close = {() => {}}
-                size = "normalWide"
-                noBackgroundColor
-            >
-                <Toolbar className={classes.toolbar} style={{margin: '-15px -15px 0'}}>
-                    <input
-                        type = "text"
-                        id = "uri-input"
-                        name = "uri-input"
-                        className = "form-control"
-                        placeholder = "Search or start new chat"
-                        ref = {input}
-                        onChange = {filterMessages}
-                    />
+            if (sendMark) {
+                if (unread === uri) {
+                    setUnread()
+                } else {
+                    setUnread(uri)
+                }
+                props.account.markConversationRead(uri);
+                this.timer = null;
+            }
+        }, 500);
+    };
+
+    const messagePane = (
+        <React.Fragment key="pane">
+            <MessageList
+                loadMoreMessages={loadMoreMessages}
+                messages={contactMessages}
+                focus={focus}
+                key={selectedUri}
+                hasMore={() => props.messageStorage.hasMore(selectedUri)}
+                contactCache={contactCache.current}
+                displayed={messageDisplayed}
+                removeMessage={(message) => props.removeMessage(message)}
+                isLoadingMessages={props.isLoadingMessages}
+            />
+            <ConferenceChatEditor
+                onSubmit={handleMessage}
+                onTyping={() => { }}
+                scroll={() => { }}
+                focus={toggleChatEditorFocus}
+                setFocus={true}
+                multiline
+            />
+        </React.Fragment>
+    );
+
+    return (
+        <React.Fragment>
+            {!props.embed &&
+                <div className="chat">
+                    <ConferenceDrawer
+                        show={show && (!matches || selectedUri !== '')}
+                        size="full"
+                        anchor="right"
+                        close={() => setShow(false)}
+                        position="full"
+                        noBackgroundColor
+                        showClose={false}
+                    >
+
+                        {selectedUri !== ''
+                            ? 
+                            <React.Fragment>
+                                <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
+                                    {matches &&
+                                        <button type="button" className="close" onClick={() => setSelectedUri('')}>
+                                            <span aria-hidden="true"><i className={chevronIcon} /></span>
+                                            <span className="sr-only">Close</span>
+                                        </button>
+                                    }
+                                    {props.isLoadingMessages === true
+                                        ?
+                                        <React.Fragment>
+                                            <CircularProgress style={{ color: '#888', margin: '5px', marginRight: '10px', width: '35px', height: '35px', display: 'block' }} />
+                                            <Typography className={classes.title} variant="h6" noWrap>Updating</Typography>
+                                        </React.Fragment>
+                                        :
+                                        <React.Fragment>
+                                            <UserIcon identity={getDisplayName(selectedUri)} active={false} small={true} />
+                                            <Typography className={classes.title} variant="h6" noWrap>
+                                                {getDisplayName(selectedUri).displayName || selectedUri}
+                                                {getDisplayName(selectedUri).displayName && <span className={classes.toolbarName}>({selectedUri})</span>}
+                                            </Typography>
+                                            {props.hideCallButtons === false && [
+                                                <IconButton className="fa fa-phone" onClick={() => props.account.syncConversations()} />,
+                                                <IconButton className="fa fa-phone" onClick={() => props.startCall(selectedUri, { video: false })} />,
+                                                <IconButton className="fa fa-video-camera" onClick={() => props.startCall(selectedUri)} />
+                                            ]}
+                                        </React.Fragment>
+                                    }
+                                    <Divider absolute />
+                                </Toolbar>
+                                {props.account.pgp === null &&
+                                    <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
+                                        <Typography className={classes.title} variant="h6" noWrap>End to end encryption for messaging is not enabled</Typography>
+                                    </Toolbar>
+                                }
+                                {messagePane}
+                            </React.Fragment>
+                            : 
+                            <div style={{ justifyContent: 'center', alignItems: 'center', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                                <div className="chat-image" />
+                                <h1 className="cover-heading">No chat selected</h1>
+                            </div>
+                        }
+                    </ConferenceDrawer>
+                    <ConferenceDrawer
+                        show={show && (selectedUri === '' && matches) || !matches}
+                        anchor="left"
+                        showClose={false}
+                        close={() => { }}
+                        size="normalWide"
+                        noBackgroundColor
+                    >
+                        <Toolbar className={classes.toolbar} style={{ margin: '-15px -15px 0' }}>
+                            <input
+                                type="text"
+                                id="uri-input"
+                                name="uri-input"
+                                className="form-control"
+                                placeholder="Search or start new chat"
+                                ref={input}
+                                onChange={filterMessages}
+                            />
+                            <Divider absolute />
+                        </Toolbar>
+                        <ContactList
+                            messages={messages}
+                            loadMessages={loadMessages}
+                            startChat={startChat}
+                            selectedUri={selectedUri}
+                            contactCache={contactCache.current}
+                            filter={filter}
+                            defaultDomain={defaultDomain}
+                            removeChat={(contact) => {
+                                props.removeChat(contact);
+                                setSelectedUri('');
+                            }}
+                            unread={unread}
+                        />
+                    </ConferenceDrawer>
+                </div>
+            }
+            {props.embed && props.isLoadingMessages == true &&
+                <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
+                    <React.Fragment>
+                        <CircularProgress style={{ color: '#888', margin: '5px', marginRight: '10px', width: '35px', height: '35px', display: 'block' }} />
+                        <Typography className={classes.title} variant="h6" noWrap>Updating</Typography>
+                    </React.Fragment>
                     <Divider absolute />
                 </Toolbar>
-                <ContactList
-                    messages = {messages}
-                    loadMessages = {loadMessages}
-                    startChat = {startChat}
-                    selectedUri = {selectedUri}
-                    contactCache = {contactCache.current}
-                    filter = {filter}
-                    defaultDomain = {defaultDomain}
-                    removeChat = {(contact) => {
-                        props.removeChat(contact);
-                        setSelectedUri('');
-                    }}
-                    unread = {unread}
-                />
-            </ConferenceDrawer>
-        </div>
+            }
+            {props.embed &&
+                [messagePane]
+            }
+        </React.Fragment>
     );
 }
 
@@ -416,7 +453,9 @@ Chat.propTypes = {
     startCall           : PropTypes.func.isRequired,
     lastContactSelected : PropTypes.func.isRequired,
     isLoadingMessages   : PropTypes.bool.isRequired,
-    sendPublicKey       : PropTypes.func.isRequired
+    sendPublicKey       : PropTypes.func.isRequired,
+    embed               : PropTypes.bool,
+    hideCallButtons     : PropTypes.bool
 };
 
 

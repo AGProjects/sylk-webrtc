@@ -22,15 +22,14 @@
 }
 
 .drawer-visible {
+    position: absolute;
+    top: 0;
+    right:0;
+    bottom: 0;
+    left: 0;
+    display: flex;
     width: calc(100% - 350px) !important;
     margin-right: 350px;
-    position: absolute;
-    right:0;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    display: flex;
-
 }
 
 .drawer-wide-visible {
@@ -60,6 +59,34 @@
         background-color: $darker-gray;
     }
 
+    .btn-link {
+        padding-top: 9.5px;
+        padding-bottom: 7.5px;
+        margin-top: -3.5px;
+        color: $lighter-gray;
+
+        &:hover {
+            color: $white;
+        }
+
+        &.active {
+            color: #fff;
+            background-color: rgb(8, 8, 8);
+        }
+
+    }
+
+    .blink {
+        animation: blink 1s infinite;
+        animation-direction: alternate;
+    }
+
+    @keyframes blink {
+        0% { color: #5cb85c; opacity: 1; }
+        50% { color: #5cb85c;transform: scale(1.1); }
+        100% { color: #5cb85c;transform: scale(0.9); }
+    }
+
     .call-top-left-buttons {
         position: absolute;
         top: 0;
@@ -75,10 +102,12 @@
         margin-top: 3.5px;
     }
 
+
 }
 
 .call-user-icon {
     padding-bottom: 100px;
+    margin: auto;
 }
 
 // Buttons Animation

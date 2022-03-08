@@ -104,7 +104,8 @@ class Blink extends React.Component {
             enableMessaging: false,
             haveFocus: false,
             unreadMessages: 0,
-            unreadCallMessages: 0
+            unreadCallMessages: 0,
+            showChatInCall: false
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -178,6 +179,7 @@ class Blink extends React.Component {
             'getServerHistory',
             'getLocalMediaGuestWrapper',
             'getLocalMedia',
+            'toggleChatInCall',
             'chatWrapper'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
@@ -578,7 +580,8 @@ class Blink extends React.Component {
                     inboundCall         : null,
                     localMedia          : null,
                     generatedVideoTrack : false,
-                    previousTargetUri   : this.state.targetUri
+                    previousTargetUri   : this.state.targetUri,
+                    showChatInCall      : false
                 });
                 this.setFocusEvents(false);
                 this.participantsToInvite = null;
@@ -1130,6 +1133,17 @@ class Blink extends React.Component {
         });
     }
 
+    toggleChatInCall() {
+        const path = this.router.current.getPath();
+        const domain = this.state.currentCall && this.state.currentCall.remoteIdentity.uri.substring(this.state.currentCall.remoteIdentity.uri.indexOf('@') + 1) || '';
+        if (path !== '/conference' && !domain.startsWith('guest')) {
+            this.lastMessageFocus = this.state.currentCall.remoteIdentity.uri;
+        }
+        this.setState({
+            showChatInCall: !this.state.showChatInCall
+        });
+    }
+
     resumeCall() {
         if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
             this.startConference(this.state.targetUri, {
@@ -1403,8 +1417,6 @@ class Blink extends React.Component {
                     this.lastMessageFocus = message.sender.uri;
                     this.router.current.navigate('/chat');
                 });
-            } else {
-                this._notificationCenter.postNewMessage(message);
             }
         }
         if (this.shouldUseHashRouting) {
@@ -2201,17 +2213,29 @@ class Blink extends React.Component {
 
     call() {
         return (
-            <Call
-                localMedia = {this.state.localMedia}
-                account = {this.state.account}
-                targetUri = {this.state.targetUri}
-                currentCall = {this.state.currentCall}
-                escalateToConference = {this.escalateToConference}
-                hangupCall = {this.hangupCall}
-                shareScreen = {this.switchScreensharing}
-                generatedVideoTrack = {this.state.generatedVideoTrack}
-                setDevice = {this.setDevice}
-            />
+            <React.Fragment>
+                {this.state.showChatInCall && this.state.messagesLoadingProgress &&
+                    <MessagesLoadingScreen progress={this.state.messagesLoadingProgress} />
+                }
+                {this.state.showChatInCall &&
+                    [this.chatWrapper(false, true)]
+                }
+                <Call
+                    localMedia = {this.state.localMedia}
+                    account = {this.state.account}
+                    targetUri = {this.state.targetUri}
+                    currentCall = {this.state.currentCall}
+                    escalateToConference = {this.escalateToConference}
+                    hangupCall = {this.hangupCall}
+                    shareScreen = {this.switchScreensharing}
+                    generatedVideoTrack = {this.state.generatedVideoTrack}
+                    setDevice = {this.setDevice}
+                    toggleChatInCall = {this.toggleChatInCall}
+                    inlineChat = {this.chatWrapper(true)}
+                    unreadMessages = {{total: this.state.unreadMessages, call: this.state.unreadCallMessages}}
+                    notificationCenter = {this.notificationCenter}
+                />
+            </React.Fragment>
         )
     }
 
@@ -2416,7 +2440,7 @@ class Blink extends React.Component {
             if (this.state.connection.state !== 'ready') {
                 this.state.connection.close();
             }
-            this.setState({registrationState: null, status: null, serverHistory: [], oldMessages: {}, enableMessaging: false, unreadMessages: 0});
+            this.setState({registrationState: null, status: null, serverHistory: [], oldMessages: {}, enableMessaging: false, unreadMessages: 0, unreadCallMessages: 0});
             setImmediate(()=>this.setState({account: null}));
             this.isRetry = false;
             if (config.showGuestCompleteScreen && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {

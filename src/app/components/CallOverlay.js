@@ -14,6 +14,7 @@ class CallOverlay extends React.Component {
         this.duration = null;
         this.timer = null;
         this._isMounted = true;
+        this._electron = false;
 
         // ES6 classes no longer autobind
         this.callStateChanged = this.callStateChanged.bind(this);
@@ -25,6 +26,12 @@ class CallOverlay extends React.Component {
                 this.startTimer();
             } else if (this.props.call.state !== 'terminated') {
                 this.props.call.on('stateChanged', this.callStateChanged);
+            }
+        }
+
+        if (typeof window.process !== 'undefined') {
+            if (window.process.versions.electron !== '' && window.process.platform === 'darwin') {
+                this._electron = true;
             }
         }
     }
@@ -69,6 +76,7 @@ class CallOverlay extends React.Component {
         }, 300);
     }
 
+
     render() {
         let header;
 
@@ -87,6 +95,11 @@ class CallOverlay extends React.Component {
                 }
             );
 
+            const leftButtonClasses = clsx({
+                'call-top-left-buttons': true,
+                'electron-margin': this._electron
+            });
+
             header = (
                 <CSSTransition
                     key="call-trans"
@@ -94,18 +107,20 @@ class CallOverlay extends React.Component {
                     timeout={{ enter: 300, exit: 300}}
                 >
                     <div key="header" className={headerClasses}>
-                        {this.props.buttons && this.props.buttons.top && this.props.buttons.top.left &&
-                            <div className="call-top-left-buttons">
-                                {this.props.buttons.top.left}
-                            </div>
-                        }
-                        <p className="lead"><strong>Call with</strong> {this.props.remoteIdentity}</p>
-                        <p className="lead">{callDetail}</p>
-                        {this.props.buttons && this.props.buttons.top && this.props.buttons.top.right &&
-                            <div className="call-top-buttons">
-                                {this.props.buttons.top.right}
-                            </div>
-                        }
+                        <div className="container-fluid">
+                            {this.props.buttons && this.props.buttons.top && this.props.buttons.top.left &&
+                                <div className={leftButtonClasses}>
+                                    {this.props.buttons.top.left}
+                                </div>
+                            }
+                            <p className="lead"><strong>Call with</strong> {this.props.remoteIdentity}</p>
+                            <p className="lead">{callDetail}</p>
+                            {this.props.buttons && this.props.buttons.top && this.props.buttons.top.right &&
+                                <div className="call-top-buttons">
+                                    {this.props.buttons.top.right}
+                                </div>
+                            }
+                        </div>
                     </div>
                 </CSSTransition>
             );

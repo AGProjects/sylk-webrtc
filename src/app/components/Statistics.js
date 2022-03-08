@@ -9,6 +9,7 @@ const { Box } = require('@material-ui/core');
 const {Tab, Tabs} = require('../MaterialUIAsBootstrap');
 const Charts = require('./Statistics/Charts');
 
+/* eslint-disable react/no-multi-comp */
 const  TabPanel = (props) => {
     const { children, value, index } = props;
     return (
@@ -48,7 +49,7 @@ const Statistics = ({
 }) => {
     const [value, setValue] = React.useState(0);
     const videoGraphs = video !== undefined && video !== false;
-    
+
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };

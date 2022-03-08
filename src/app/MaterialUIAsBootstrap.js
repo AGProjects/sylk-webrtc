@@ -87,11 +87,11 @@ const BootstrapInputBase = withStyles((theme) => ({
 
 const BootstrapTabs = withStyles({
     root: {
-        borderBottom: '1px solid rgba(0, 0, 0, .12)',
+        borderBottom: '1px solid rgba(0, 0, 0, .12)'
     },
     indicator: {
-        backgroundColor: '#337ab7',
-    },
+        backgroundColor: '#337ab7'
+    }
 })(Tabs);
 
 const BootstrapTab = withStyles((theme) => ({
@@ -102,29 +102,29 @@ const BootstrapTab = withStyles((theme) => ({
         fontSize: '14px',
         '&:hover': {
             color: '#23527c',
-            opacity: 1,
+            opacity: 1
         },
         '&$selected': {
             color: '#337ab7',
-            fontWeight: theme.typography.fontWeightMedium,
+            fontWeight: theme.typography.fontWeightMedium
         },
         '&:focus': {
-            color: '#337ab7',
-        },
+            color: '#337ab7'
+        }
     },
-    selected: {},
+    selected: {}
 }))(Tab);
 
 
 const useStylesBootstrap = makeStyles((theme) => ({
     arrow: {
-        color: theme.palette.common.black,
+        color: theme.palette.common.black
     },
     tooltip: {
         backgroundColor: theme.palette.common.black,
         fontSize: '12px',
         fontFamily: 'inherit'
-    },
+    }
 }));
 
 function BootstrapTooltip(props) {

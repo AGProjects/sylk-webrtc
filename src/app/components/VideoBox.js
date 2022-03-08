@@ -6,6 +6,8 @@ const TransitionGroup           = require('react-transition-group/TransitionGrou
 const CSSTransition             = require('react-transition-group/CSSTransition');
 const ReactMixin                = require('react-mixin');
 const sylkrtc                   = require('sylkrtc');
+const { Badge }                 = require ('@material-ui/core');
+const { withStyles }            = require('@material-ui/core/styles');
 const {
     NetworkCheck: NetworkCheckIcon
 }                               = require('@material-ui/icons');
@@ -19,9 +21,28 @@ const ConferenceDrawer          = require('./ConferenceDrawer');
 const SwitchDevicesMenu         = require('./SwitchDevicesMenu');
 const EscalateConferenceModal   = require('./EscalateConferenceModal');
 const Statistics                = require('./Statistics');
+const utils                     = require('../utils');
 
 const DEBUG = debug('blinkrtc:Video');
 
+
+const styleSheet = {
+    badge: {
+        width: '20px',
+        height: '20px',
+        fontWeight: 'bold',
+        fontSize: '1rem',
+        backgroundColor: '#337ab7',
+        '&.MuiBadge-anchorOriginTopLeftCircle': {
+            top: '18%',
+            left: '18%'
+        },
+        '&.MuiBadge-anchorOriginTopRightCircle': {
+            top: '18%',
+            right: '18%'
+        }
+    }
+};
 
 class VideoBox extends React.Component {
     constructor(props) {
@@ -40,6 +61,8 @@ class VideoBox extends React.Component {
             showSwitchMenu: false,
             showAudioSwitchMenu: false,
             showStatistics: false,
+            showChat: false,
+            showInlineChat: false,
             videoGraphData: data,
             audioGraphData: data,
             callQuality: new Array(30).fill({}),
@@ -49,6 +72,8 @@ class VideoBox extends React.Component {
         this.overlayTimer = null;
         this.localVideo = React.createRef();
         this.remoteVideo = React.createRef();
+        this._notificationCenter = null;
+
         // ES6 classes no longer autobind
         [
             'showCallOverlay',
@@ -63,6 +88,11 @@ class VideoBox extends React.Component {
             'toggleSwitchMenu',
             'toggleAudioSwitchMenu',
             'toggleStatistics',
+            'toggleCall',
+            'toggleChatInCall',
+            'toggleInlineChat',
+            'escalateToConference',
+            'incomingMessage',
             'statistics'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
@@ -86,7 +116,13 @@ class VideoBox extends React.Component {
             });
         }
 
+        if (this.props.notificationCenter) {
+            this._notificationCenter = this.props.notificationCenter();
+        }
+
         this.remoteVideo.current.addEventListener('playing', this.handleRemoteVideoPlaying);
+        this.props.call.account.on('incomingMessage', this.incomingMessage);
+
         sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.remoteVideo.current, {disableContextMenu: true});
 
         this.props.call.statistics.on('stats', this.statistics);
@@ -98,6 +134,7 @@ class VideoBox extends React.Component {
         this.remoteVideo.current.removeEventListener('playing', this.handleRemoteVideoPlaying);
         this.exitFullscreen();
         document.removeEventListener('keydown', this.onKeyDown);
+        this.props.call.account.removeListener('incomingMessage', this.incomingMessage);
         this.props.call.statistics.removeListener('stats', this.statistics);
     }
 
@@ -141,8 +178,8 @@ class VideoBox extends React.Component {
 
         let videoRTT = (videoRemoteExists && videoRemoteData.inbound[0].roundTripTime) || 0
         const videoJitter = videoData.inbound[0].jitter || 0
-        const videoPacketRateOutbound = (videoData && videoData.outbound[0].packetRate )|| 0;
-        const videoPacketRateInbound = (videoData && videoData.inbound[0].packetRate )|| 0;
+        const videoPacketRateOutbound = (videoData && videoData.outbound[0].packetRate) || 0;
+        const videoPacketRateInbound = (videoData && videoData.inbound[0].packetRate) || 0;
         const videoPacketsLostOutbound = videoRemoteExists && videoRemoteData.inbound[0].packetLossRate || 0;
         const videoPacketsLostInbound = videoData.inbound[0].packetLossRate || 0;
 
@@ -160,8 +197,8 @@ class VideoBox extends React.Component {
         const addData = {
             audio: {
                 timestamp: audioData.timestamp,
-                incomingBitrate: audioData.inbound[0].bitrate/1000 || 0,
-                outgoingBitrate: audioData.outbound[0].bitrate/1000 || 0,
+                incomingBitrate: audioData.inbound[0].bitrate / 1000 || 0,
+                outgoingBitrate: audioData.outbound[0].bitrate / 1000 || 0,
                 rtt: audioRTT,
                 jitter: audioJitter,
                 packetsLostOutbound: audioPacketsLostOutbound,
@@ -171,8 +208,8 @@ class VideoBox extends React.Component {
             },
             video: {
                 timestamp: videoData.timestamp,
-                incomingBitrate: videoData.inbound[0].bitrate/1000 || 0,
-                outgoingBitrate: videoData.outbound[0].bitrate/1000 || 0,
+                incomingBitrate: videoData.inbound[0].bitrate / 1000 || 0,
+                outgoingBitrate: videoData.outbound[0].bitrate / 1000 || 0,
                 rtt: videoRTT,
                 jitter: videoJitter,
                 packetsLostOutbound: videoPacketsLostOutbound,
@@ -269,11 +306,13 @@ class VideoBox extends React.Component {
     }
 
     showCallOverlay() {
-        if (this.state.remoteVideoShow) {
-            if (!this.state.callOverlayVisible) {
-                this.setState({callOverlayVisible: true});
+        if (!this.state.showChat && !this.state.showInlineChat) {
+            if (this.state.remoteVideoShow) {
+                if (!this.state.callOverlayVisible) {
+                    this.setState({callOverlayVisible: true});
+                }
+                this.armOverlayTimer();
             }
-            this.armOverlayTimer();
         }
     }
 
@@ -324,6 +363,52 @@ class VideoBox extends React.Component {
         });
     }
 
+    toggleChatInCall() {
+        if (!this.state.showChat) {
+            this.setState({
+                showChat: !this.state.showChat,
+                callOverlayVisible: true
+            });
+            this.props.toggleChatInCall();
+            clearTimeout(this.overlayTimer);
+        }
+    }
+
+    toggleCall() {
+        if (this.state.showChat) {
+            this.setState({
+                showChat: !this.state.showChat
+            });
+            this.props.toggleChatInCall();
+        }
+    }
+
+    toggleInlineChat() {
+        this.setState({
+            callOverlayVisible: true,
+            showInlineChat: !this.state.showInlineChat
+        });
+        clearTimeout(this.overlayTimer);
+    }
+
+    incomingMessage(message) {
+        if (this.props.inlineChat !== undefined) {
+            if (this.props.call.remoteIdentity.uri === message.sender.uri) {
+                if (!this.state.showInlineChat) {
+                    this._notificationCenter.postNewMessage(message, () => {
+                        this.toggleInlineChat();
+                    });
+                }
+            } else {
+                if (!this.state.showChat) {
+                    this._notificationCenter.postNewMessage(message, () => {
+                        this.toggleChatInCall();
+                    });
+                }
+            }
+        }
+    }
+
     render() {
         if (this.props.call == null) {
             return (<div></div>);
@@ -350,10 +435,35 @@ class VideoBox extends React.Component {
         let callButtons;
         let watermark;
 
-        const callQuality = (<CallQuality
-            videoData={this.state.videoGraphData}
-            audioData={this.state.audioGraphData}
-        />);
+        const callQuality = (
+            <CallQuality
+                videoData={this.state.videoGraphData}
+                audioData={this.state.audioGraphData}
+            />
+        );
+
+        const baseLink = clsx(
+            'btn',
+            'btn-link',
+        );
+
+        const callButtonClasses = clsx(
+            baseLink,
+            {
+                'active': !this.state.showChat,
+                'blink' : this.state.showChat
+            }
+        );
+
+        const chatButtonClasses = clsx(
+            baseLink,
+            {
+                'active': this.state.showChat
+            }
+        );
+
+        const unreadMessages = (this.props.unreadMessages && this.props.unreadMessages.total - this.props.unreadMessages.call) || 0;
+        const unreadCallMessages = this.props.unreadMessages && this.props.unreadMessages.call || 0;
 
         if (this.state.callOverlayVisible) {
             const muteButtonIcons = clsx({
@@ -402,11 +512,13 @@ class VideoBox extends React.Component {
 
             const buttons = [];
 
+            if (!this.state.showChat) {
                 buttons.push(
                     <button key="statisticsBtn" type="button" className={commonButtonClasses} onClick={this.toggleStatistics}>
                         <NetworkCheckIcon />
                     </button>
                 );
+            }
             buttons.push(<button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}> <i className="fa fa-user-plus"></i> </button>);
             buttons.push(
                 <div className="btn-container" key="video">
@@ -423,6 +535,14 @@ class VideoBox extends React.Component {
             buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen}><i className={screenSharingButtonIcons}></i></button>);
             if (this.isFullscreenSupported()) {
                 buttons.push(<button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
+            }
+            if (this.props.inlineChat) {
+                buttons.push(
+                    <Badge key="unreadBadge" badgeContent={unreadCallMessages} color="primary" classes={{badge: this.props.classes.badge}} overlap="circle">
+                        <button key="inlineChatButton" type="button" className={commonButtonClasses} onClick={this.toggleInlineChat}>
+                            <i className="fa fa-commenting-o"></i>
+                        </button>
+                    </Badge>);
             }
             buttons.push(<br key="break" />);
             buttons.push(<button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>);
@@ -450,46 +570,98 @@ class VideoBox extends React.Component {
             );
         }
 
+        const callClasses = clsx({
+            'drawer-wide-visible': this.state.showInlineChat && !this.state.showChat && !utils.isMobile.any(),
+            'drawer-visible': this.state.showInlineChat && !this.state.showChat && utils.isMobile.any()
+        });
+
+        const topButtons = {
+            top: {
+                left: []
+            }
+        };
+
+        if (this.props.toggleChatInCall !== undefined) {
+            if (!utils.isMobile.any()) {
+                topButtons.top.left = [
+                    <Badge
+                        key="unreadBadge"
+                        badgeContent={unreadMessages}
+                        color="primary"
+                        classes={{badge: this.props.classes.badge}}
+                        overlap="circle"
+                    >
+                        <button key="chatButton" type="button" className={chatButtonClasses} onClick={this.toggleChatInCall} title="Chat screen">
+                            <i className="fa fa-comments fa-2x" />
+                        </button>
+                    </Badge>,
+                    <button key="callButton" type="button" className={callButtonClasses} onClick={this.toggleCall} title="Call screen">
+                        <i className="fa fa-2x fa-phone" />
+                    </button>
+                ]
+            } else {
+                if (this.state.showChat) {
+                    topButtons.top.left = [
+                        <button key="callButton" type="button" className={callButtonClasses} onClick={this.toggleCall}>
+                            <i className="fa fa-2x fa-phone" />
+                        </button>
+                    ]
+                } else {
+                    topButtons.top.left = [
+                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{root: this.props.classes.root, badge: this.props.classes.badge}} overlap="circle">
+                            <button key="chatButton" type="button" className={chatButtonClasses} onClick={this.toggleChatInCall}>
+                                <i className="fa fa-comments fa-2x" />
+                            </button>
+                        </Badge>
+                    ]
+                }
+            }
+        }
+
         return (
-            <div>
-                <SwitchDevicesMenu
-                    show={this.state.showSwitchMenu}
-                    anchor={this.state.switchAnchor}
-                    close={this.toggleSwitchMenu}
-                    call={this.props.call}
-                    setDevice={this.props.setDevice}
-                    direction="up"
-                />
-                <SwitchDevicesMenu
-                    show={this.state.showAudioSwitchMenu}
-                    anchor={this.state.switchAnchor}
-                    close={this.toggleAudioSwitchMenu}
-                    call={this.props.call}
-                    setDevice={this.props.setDevice}
-                    direction="up"
-                    audio
-                />
-                <div className="video-container" onMouseMove={this.showCallOverlay}>
-                    <CallOverlay
-                        show = {this.state.callOverlayVisible}
-                        remoteIdentity = {this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri}
-                        call = {this.props.call}
-                        callQuality = {callQuality}
-                    />
-                    <TransitionGroup>
-                        {watermark}
-                    </TransitionGroup>
-                    <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref={this.remoteVideo} autoPlay />
-                    <video id="localVideo" className={localVideoClasses} ref={this.localVideo} autoPlay muted />
-                    <TransitionGroup>
-                        {callButtons}
-                    </TransitionGroup>
-                    <EscalateConferenceModal
-                        show={this.state.showEscalateConferenceModal}
+            <React.Fragment>
+                <div className={callClasses}>
+                    <SwitchDevicesMenu
+                        show={this.state.showSwitchMenu}
+                        anchor={this.state.switchAnchor}
+                        close={this.toggleSwitchMenu}
                         call={this.props.call}
-                        close={this.toggleEscalateConferenceModal}
-                        escalateToConference={this.escalateToConference}
+                        setDevice={this.props.setDevice}
+                        direction="up"
                     />
+                    <SwitchDevicesMenu
+                        show={this.state.showAudioSwitchMenu}
+                        anchor={this.state.switchAnchor}
+                        close={this.toggleAudioSwitchMenu}
+                        call={this.props.call}
+                        setDevice={this.props.setDevice}
+                        direction="up"
+                        audio
+                    />
+                    <div className="video-container" onMouseMove={this.showCallOverlay}>
+                        <CallOverlay
+                            show = {this.state.callOverlayVisible}
+                            remoteIdentity = {this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri}
+                            call = {this.props.call}
+                            buttons = {topButtons}
+                            onTop = { this.state.showChat }
+                            callQuality = {callQuality}
+                        />
+                        <TransitionGroup>
+                            {watermark}
+                        </TransitionGroup>
+                        <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref={this.remoteVideo} autoPlay />
+                        <video id="localVideo" className={localVideoClasses} ref={this.localVideo} autoPlay muted />
+                        <TransitionGroup>
+                            {callButtons}
+                        </TransitionGroup>
+                        <EscalateConferenceModal
+                            show={this.state.showEscalateConferenceModal}
+                            call={this.props.call}
+                            close={this.toggleEscalateConferenceModal}
+                            escalateToConference={this.escalateToConference}
+                        />
+                    </div>
                     <ConferenceDrawer
                         show = {this.state.showStatistics && !this.state.showChat}
                         anchor = "left"
@@ -507,22 +679,37 @@ class VideoBox extends React.Component {
                         />
                     </ConferenceDrawer>
                 </div>
-            </div>
+                <ConferenceDrawer
+                    show = {this.state.showInlineChat && !this.state.showChat}
+                    anchor = "right"
+                    showClose = {true}
+                    close = {this.toggleInlineChat}
+                    size={utils.isMobile.any() ? 'normal' : 'wide'}
+                    noBackgroundColor
+                >
+                    {this.props.inlineChat}
+                </ConferenceDrawer>
+            </React.Fragment>
         );
     }
 }
 
 VideoBox.propTypes = {
+    classes                 : PropTypes.object.isRequired,
     setDevice               : PropTypes.func.isRequired,
     shareScreen             : PropTypes.func.isRequired,
     call                    : PropTypes.object,
     localMedia              : PropTypes.object,
     hangupCall              : PropTypes.func,
     escalateToConference    : PropTypes.func,
-    generatedVideoTrack     : PropTypes.bool
+    generatedVideoTrack     : PropTypes.bool,
+    unreadMessages          : PropTypes.object,
+    notificationCenter      : PropTypes.func,
+    toggleChatInCall        : PropTypes.func,
+    inlineChat              : PropTypes.object
 };
 
 ReactMixin(VideoBox.prototype, FullscreenMixin);
 
 
-module.exports = VideoBox;
+module.exports = withStyles(styleSheet)(VideoBox);

@@ -926,6 +926,7 @@ class ConferenceBox extends React.Component {
             this.props.notificationCenter().removeNotification(this.messageNotification);
         }
         this.setState({showChat: !this.state.showChat, newMessages: 0});
+    }
 
     toggleStatistics() {
         this.setState({

@@ -70,7 +70,6 @@ const ConferenceHeader = (props) => {
             'electron-margin': electron
         });
 
-
         const headerClasses = clsx({
             'call-header': true,
             'solid-background': props.transparent === false
@@ -127,6 +126,7 @@ ConferenceHeader.propTypes = {
     participants: PropTypes.array.isRequired,
     buttons: PropTypes.object.isRequired,
     transparent: PropTypes.bool,
+    callQuality: PropTypes.object,
     onTop: PropTypes.bool
 };
 

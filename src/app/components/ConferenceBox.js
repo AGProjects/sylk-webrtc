@@ -81,8 +81,8 @@ const styleSheet = {
 class ConferenceBox extends React.Component {
     constructor(props) {
         super(props);
-        const data = new Array(60);
-        data.fill({})
+        const data = new Array(60).fill({});
+
         this.state = {
             callOverlayVisible: true,
             audioMuted: false,
@@ -197,7 +197,7 @@ class ConferenceBox extends React.Component {
             'showFiles',
             'setScroll',
             'preventOverlay',
-            'statistics',
+            'statistics'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -341,13 +341,13 @@ class ConferenceBox extends React.Component {
             if (this.participantStats[p.id]) {
                 const participantVideoData = this.participantStats[p.id].lastData.data.video;
                 if (participantVideoData && participantVideoData.inbound && participantVideoData.inbound[0]) {
-                    inboundVideoBitrate = inboundVideoBitrate + participantVideoData.inbound[0].bitrate/1000;
+                    inboundVideoBitrate = inboundVideoBitrate + participantVideoData.inbound[0].bitrate / 1000;
                     videoPacketsLostInboundData = videoPacketsLostInboundData + participantVideoData.inbound[0].packetLossRate;
                     videoPacketRateInbound = videoPacketRateInbound + participantVideoData.inbound[0].packetRate;
                 }
                 const participantAudioData = this.participantStats[p.id].lastData.data.audio;
                 if (participantAudioData.inbound) {
-                    inboundAudioBitrate = inboundVideoBitrate + participantAudioData.inbound[0].bitrate/1000;
+                    inboundAudioBitrate = inboundVideoBitrate + participantAudioData.inbound[0].bitrate / 1000;
                     audioPacketsLostInboundData = audioPacketsLostInboundData + participantAudioData.inbound[0].packetLossRate;
                     audioPacketRateInbound = audioPacketRateInbound + participantAudioData.inbound[0].packetRate;
                 }
@@ -386,7 +386,7 @@ class ConferenceBox extends React.Component {
             audio: {
                 timestamp: audioData.timestamp,
                 incomingBitrate: inboundAudioBitrate,
-                outgoingBitrate: audioData.outbound[0].bitrate/1000 || 0,
+                outgoingBitrate: audioData.outbound[0].bitrate / 1000 || 0,
                 rtt: audioRTT,
                 jitter: audioJitter,
                 packetsLostOutbound: audioPacketsLostOutbound,
@@ -399,7 +399,7 @@ class ConferenceBox extends React.Component {
             addData.video = {
                 timestamp: videoData.timestamp,
                 incomingBitrate: inboundVideoBitrate,
-                outgoingBitrate: videoData.outbound[0].bitrate/1000 || 0,
+                outgoingBitrate: videoData.outbound[0].bitrate / 1000 || 0,
                 rtt: videoRTT,
                 jitter: videoJitter,
                 packetsLostOutbound: videoPacketsLostOutbound,
@@ -1319,9 +1319,9 @@ class ConferenceBox extends React.Component {
                 this.state.participants.forEach((p) => {
                     videos.push(
                         <ConferenceMatrixParticipant
-                            key = {p.id}
-                            participant = {p}
-                            large = {this.state.participants.length <= 1}
+                            key={p.id}
+                            participant={p}
+                            large={this.state.participants.length <= 1}
                             raisedHand={this.state.raisedHands.indexOf(p)}
                             handleHandSelected={this.handleHandSelected}
                             disableHandToggle={disableHandToggle}
@@ -1350,10 +1350,12 @@ class ConferenceBox extends React.Component {
             'conference-thumbnails-small': this.state.participants.length === 1 &&  this.state.activeSpeakers.length <= 1
         });
 
-        const callQuality = (<CallQuality
-            videoData={this.state.videoGraphData}
-            audioData={this.state.audioGraphData}
-        />);
+        const callQuality = (
+            <CallQuality
+                videoData={this.state.videoGraphData}
+                audioData={this.state.audioGraphData}
+            />
+        );
 
         return (
             <DragAndDrop handleDrop={this.handleDrop}>
@@ -1398,6 +1400,8 @@ class ConferenceBox extends React.Component {
                         remoteIdentity={remoteIdentity}
                         participants={this.state.participants}
                         buttons={buttons}
+                        onTop={chatLayout || this.state.showChat}
+                        transparent={!chatLayout && !this.state.showChat}
                         callQuality={callQuality}
                     />
                     <TransitionGroup>
@@ -1424,7 +1428,7 @@ class ConferenceBox extends React.Component {
                     anchor="left"
                     size="small"
                     showClose={false}
-                    close = {() => {}}
+                    close={() => {}}
                 >
                     {bottomButtons}
                 </ConferenceDrawer>
@@ -1475,10 +1479,10 @@ class ConferenceBox extends React.Component {
                 </ConferenceDrawer>
                 <ConferenceDrawer
                     show={this.state.showStatistics}
-                    anchor = "left"
-                    showClose = {true}
-                    close = {this.toggleStatistics}
-                    transparent = {true}
+                    anchor="left"
+                    showClose={true}
+                    close={this.toggleStatistics}
+                    transparent={true}
                     {...chatLayout && {onTop: true}}
                 >
                     <Statistics

@@ -365,7 +365,6 @@ const Chat = (props) => {
                                                 {getDisplayName(selectedUri).displayName && <span className={classes.toolbarName}>({selectedUri})</span>}
                                             </Typography>
                                             {props.hideCallButtons === false && [
-                                                <IconButton className="fa fa-phone" onClick={() => props.account.syncConversations()} />,
                                                 <IconButton className="fa fa-phone" onClick={() => props.startCall(selectedUri, { video: false })} />,
                                                 <IconButton className="fa fa-video-camera" onClick={() => props.startCall(selectedUri)} />
                                             ]}

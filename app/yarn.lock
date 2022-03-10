@@ -7,9 +7,10 @@
   resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.3.9.tgz#152c6c20a7688c30b967ec1841d31ace569863fc"
   integrity sha512-L/TMpyURfBkf+o/526Zb6kd/tchUP3iBDEPjqjb+U2MAJhVRxxrmr2fwpe08E7QsV7YLcpq0tUaQ9O9x97ZIxQ==
 
-about-window@^1.12.1:
-  version "1.12.1"
-  resolved "https://registry.yarnpkg.com/about-window/-/about-window-1.12.1.tgz#b81c10f6de58d38bce2aa5f31f61a82e6c3d6c2b"
+about-window@^1.15.2:
+  version "1.15.2"
+  resolved "https://registry.yarnpkg.com/about-window/-/about-window-1.15.2.tgz#0397216ce0cb6e8a4fa9ba12941e56d481d712b5"
+  integrity sha512-31mDAnLUfKm4uShfMzeEoS6a3nEto2tUt4zZn7qyAKedaTV4p0dGiW1n+YG8vtRh78mZiewghWJmoxDY+lHyYg==
 
 acorn@^7.1.1:
   version "7.1.1"

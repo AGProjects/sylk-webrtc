@@ -157,6 +157,10 @@ class Call extends React.Component {
                             escalateToConference = {this.props.escalateToConference}
                             generatedVideoTrack = {this.props.generatedVideoTrack}
                             setDevice = {this.props.setDevice}
+                            toggleChatInCall = {this.props.toggleChatInCall}
+                            inlineChat = {inlineChat}
+                            unreadMessages = {this.props.unreadMessages}
+                            notificationCenter = {this.props.notificationCenter}
                         />
                     );
                 } else {

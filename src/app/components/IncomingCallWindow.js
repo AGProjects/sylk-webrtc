@@ -22,7 +22,10 @@ class IncomingCallWindow extends React.Component {
             title           : 'Incoming Call',
             alwaysOnTop     : true,
             backgroundColor : '#333',
-            type            : 'toolbar'
+            type            : 'toolbar',
+            webPreferences: {
+                nodeIntegration: true
+            }
         });
         this.el = document.createElement('div');
 

@@ -162,6 +162,7 @@ function startDownload() {
             }
         }
     });
+
     autoUpdater.downloadUpdate();
 }
 
@@ -190,7 +191,6 @@ function createUpdateDialog(info) {
             detail: `Sylk ${info.version} is now available\u2014you have ${autoUpdater.currentVersion}. Would you like to download it now?`,
             buttons: ['Yes', 'Remind me Later']
         }).then(({response, checkboxChecked}) => {
-            console.log(response);
             if (response === 0) {
                 startDownload();
             } else {
@@ -212,7 +212,10 @@ function createMainWindow() {
         minWidth: 1067,
         minHeight: 600,
         title: 'Sylk',
-        backgroundColor: '#333'
+        backgroundColor: '#333',
+        webPreferences: {
+            nodeIntegration: true
+        }
     };
     if (isDarwin) {
         //windowOptions.titleBarStyle = 'hidden-inset';

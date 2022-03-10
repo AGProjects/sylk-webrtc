@@ -9,7 +9,7 @@
   "dependencies": {
     "about-window": "^1.12.1",
     "electron-json-storage": "^4.2.0",
-    "electron-log": "^2.2.17",
+    "electron-log": "^4.4.6",
     "electron-progressbar": "^1.1.0",
     "electron-updater": "4.0.14",
     "electron-windows-badge": "^1.1.0",

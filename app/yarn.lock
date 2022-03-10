@@ -140,9 +140,10 @@ electron-json-storage@^4.2.0:
     rimraf "^2.5.1"
     write-file-atomic "^2.4.2"
 
-electron-log@^2.2.17:
-  version "2.2.17"
-  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-2.2.17.tgz#e71e2ebb949fc96ded7cdb99eeee7202e48981d2"
+electron-log@^4.4.6:
+  version "4.4.6"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.4.6.tgz#e7824fc725370384f6edaaac0480c423e570dc69"
+  integrity sha512-nirYgRdY+F+vclr8ijdwy2vW03IzFpDHTaKNWu76dEN21Y76+smcES5knS7cgHUUB0qNLOi8vZO36taakjbSXA==
 
 electron-progressbar@^1.1.0:
   version "1.1.0"

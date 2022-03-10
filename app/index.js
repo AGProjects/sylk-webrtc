@@ -89,7 +89,7 @@ autoUpdater.on('update-downloaded', () => {
         title: 'Ready to Install',
         message: 'The software has been downloaded. Click Restart to relaunch the new version...',
         buttons: ['Restart']
-    }, () => {
+    }).then(() => {
         ensureSafeQuitAndInstall();
     });
 });
@@ -189,8 +189,9 @@ function createUpdateDialog(info) {
             message: 'A new version of Sylk is available!',
             detail: `Sylk ${info.version} is now available\u2014you have ${autoUpdater.currentVersion}. Would you like to download it now?`,
             buttons: ['Yes', 'Remind me Later']
-        }, (buttonIndex) => {
-            if (buttonIndex === 0) {
+        }).then(({response, checkboxChecked}) => {
+            console.log(response);
+            if (response === 0) {
                 startDownload();
             } else {
                 if (updater != null) {

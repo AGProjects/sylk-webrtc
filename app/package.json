@@ -8,7 +8,7 @@
   "private": true,
   "dependencies": {
     "about-window": "^1.12.1",
-    "electron-json-storage": "^4.2.0",
+    "electron-json-storage": "^4.5.0",
     "electron-log": "^4.4.6",
     "electron-progressbar": "^2.0.1",
     "electron-updater": "5.0.0",

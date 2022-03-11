@@ -107,7 +107,7 @@ class AudioCallBox extends React.Component {
                     this.props.call.on('stateChanged', this.callStateChanged);
                     break;
             }
-            this.props.call.statistics.on('stats', statistics);
+            this.props.call.statistics.on('stats', this.statistics);
             this.props.call.account.on('incomingMessage', this.incomingMessage);
         } else {
             this.props.mediaPlaying();

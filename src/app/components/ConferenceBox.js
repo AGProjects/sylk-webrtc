@@ -92,6 +92,7 @@ class ConferenceBox extends React.Component {
             showMuteAudioParticipantsModal: false,
             showDrawer: false,
             showFiles: false,
+            showInlineChat: false,
             showChat: false,
             showMenu: false,
             showSwitchModal: false,
@@ -194,10 +195,13 @@ class ConferenceBox extends React.Component {
             'toggleSwitchModal',
             'toggleSwitchMenu',
             'toggleAudioSwitchMenu',
+            'toggleChatInCall',
+            'toggleCall',
             'showFiles',
             'setScroll',
             'preventOverlay',
-            'statistics'
+            'statistics',
+            'incomingMessage'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -220,6 +224,7 @@ class ConferenceBox extends React.Component {
         this.props.call.on('raisedHands', this.onRaisedHands);
 
         this.props.call.statistics.on('stats', this.statistics);
+        this.props.call.account.on('incomingMessage', this.incomingMessage);
 
         this.armOverlayTimer();
 
@@ -317,7 +322,7 @@ class ConferenceBox extends React.Component {
             data.packetLossData = data.packetLossData.concat({
                 packetsLostInbound: packetLossRate,
                 packetRateInbound: packetRate,
-                rtt: 0
+                latency: 0
             });
 
             data.packetLossData.shift();
@@ -387,7 +392,7 @@ class ConferenceBox extends React.Component {
                 timestamp: audioData.timestamp,
                 incomingBitrate: inboundAudioBitrate,
                 outgoingBitrate: audioData.outbound[0].bitrate / 1000 || 0,
-                rtt: audioRTT,
+                latency: audioRTT / 2,
                 jitter: audioJitter,
                 packetsLostOutbound: audioPacketsLostOutbound,
                 packetsLostInbound: audioPacketsLostInbound,
@@ -400,7 +405,7 @@ class ConferenceBox extends React.Component {
                 timestamp: videoData.timestamp,
                 incomingBitrate: inboundVideoBitrate,
                 outgoingBitrate: videoData.outbound[0].bitrate / 1000 || 0,
-                rtt: videoRTT,
+                latency: videoRTT / 2,
                 jitter: videoJitter,
                 packetsLostOutbound: videoPacketsLostOutbound,
                 packetsLostInbound: videoPacketsLostInbound,
@@ -433,6 +438,14 @@ class ConferenceBox extends React.Component {
             }
         } else {
             return false;
+        }
+    }
+
+    incomingMessage(message) {
+        if (!this.state.showChat) {
+            this.notifications.push(this.props.notificationCenter().postNewMessage(message, ()=> {
+                this.toggleChatInCall();
+            }));
         }
     }
 
@@ -499,7 +512,7 @@ class ConferenceBox extends React.Component {
 
         if (message.type === 'normal'
             && !message.content.startsWith('?OTRv')
-            && !this.state.showChat
+            && !this.state.showInlineChat
             && this.props.call.supportsVideo !== false
             && !this.props.lowBandwidth
         ) {
@@ -509,7 +522,7 @@ class ConferenceBox extends React.Component {
             }
             if (newMessages === 1) {
                 this.messageNotification = this.props.notificationCenter().postNewMessage(message, () => {
-                    this.setState({showChat: true})
+                    this.setState({showInlineChat: true})
                 });
             }
         }
@@ -892,7 +905,14 @@ class ConferenceBox extends React.Component {
     }
 
     showOverlay() {
-        if (!this.state.shareOverlayVisible && !this.state.showDrawer && !this.state.showFiles && this.props.call.supportsVideo && !this.props.lowBandwidth) {
+        if (!this.state.shareOverlayVisible
+            && !this.state.showDrawer
+            && !this.state.showFiles
+            && this.props.call.supportsVideo
+            && !this.props.lowBandwidth
+            && !this.state.showChat
+            && !this.state.showInlineChat
+        ) {
             if (!this.state.callOverlayVisible) {
                 this.setState({callOverlayVisible: true});
             }
@@ -912,7 +932,7 @@ class ConferenceBox extends React.Component {
     }
 
     toggleDrawer() {
-        this.setState({callOverlayVisible: true, showDrawer: !this.state.showDrawer, showFiles: false});
+        this.setState({callOverlayVisible: true, showDrawer: !this.state.showDrawer, showFiles: false, showInlineChat: false});
         clearTimeout(this.overlayTimer);
     }
 
@@ -925,7 +945,35 @@ class ConferenceBox extends React.Component {
         if (this.messageNotification !== null) {
             this.props.notificationCenter().removeNotification(this.messageNotification);
         }
-        this.setState({showChat: !this.state.showChat, newMessages: 0});
+        this.setState({
+            callOverlayVisible: true,
+            showInlineChat: !this.state.showInlineChat,
+            newMessages: 0,
+            showDrawer: false
+        });
+        clearTimeout(this.overlayTimer);
+    }
+
+    toggleChatInCall() {
+        if (!this.state.showChat) {
+            this.setState({
+                showChat: !this.state.showChat,
+                callOverlayVisible: true
+            });
+            clearTimeout(this.overlayTimer);
+            this.props.toggleChatInCall();
+        }
+    }
+
+    toggleCall() {
+        if (this.state.showChat) {
+            this.setState({
+                showChat: !this.state.showChat,
+                callOverlayVisible: true
+            });
+            clearTimeout(this.overlayTimer);
+            this.props.toggleChatInCall();
+        }
     }
 
     toggleStatistics() {
@@ -985,7 +1033,7 @@ class ConferenceBox extends React.Component {
     }
 
     showFiles() {
-        this.setState({callOverlayVisible: true, showFiles: true, showDrawer: false});
+        this.setState({callOverlayVisible: true, showFiles: true, showDrawer: false, showInlineChat: false});
         clearTimeout(this.overlayTimer);
     }
 
@@ -997,6 +1045,8 @@ class ConferenceBox extends React.Component {
         let watermark;
 
         let chatLayout = this.props.call.supportsVideo === false || this.props.lowBandwidth;
+
+        const unreadMessages = (this.props.unreadMessages && this.props.unreadMessages.total) || 0;
 
         const largeVideoClasses = clsx({
             'animated'      : true,
@@ -1014,7 +1064,8 @@ class ConferenceBox extends React.Component {
         const containerClasses = clsx({
             'video-container': true,
             'conference': true,
-            'drawer-visible': this.state.showDrawer || this.state.showFiles
+            'drawer-visible': (this.state.showDrawer || (this.state.showInlineChat || this.state.showFiles) && utils.isMobile.any())  && !this.state.showChat,
+            'drawer-wide-visible': (this.state.showInlineChat || this.state.showFiles) && !this.state.showChat && !utils.isMobile.any()
         });
 
         const remoteIdentity = this.props.remoteIdentity.split('@')[0];
@@ -1059,48 +1110,71 @@ class ConferenceBox extends React.Component {
             'fa-2x'           : true,
             'fa-hand-o-up'    : true,
             'text-primary'    : this.state.raisedHand
-        })
+        });
+
+        const callButtonClasses = clsx(
+            commonButtonTopClasses,
+            {
+                'active': !this.state.showChat,
+                'blink' : this.state.showChat
+            }
+        );
+
         const topButtons = [];
+        if (!this.state.showChat) {
+            topButtons.push(
+                <button key="handButton" type="button" title="Raise Hand" className={commonButtonTopClasses} onClick={this.handleToggleHand}> <i className={handClasses}></i> </button>
+            );
+        }
         if (this.isFullscreenSupported()) {
             topButtons.push(<button key="fsButton" type="button" title="Go full-screen" className={commonButtonTopClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
         }
 
-        topButtons.push(
-            <button key="moreActions" title="More Actions" aria-label="Toggle more actions menu" className={commonButtonTopClasses} onClick={this.toggleMenu} aria-haspopup="true" aria-controls="conference-menu">
-                <i className="fa fa-ellipsis-v fa-2x"></i>
-            </button>
-        );
+        if (!this.state.showChat) {
+            topButtons.push(
+                <button key="moreActions" title="More Actions" aria-label="Toggle more actions menu" className={commonButtonTopClasses} onClick={this.toggleMenu} aria-haspopup="true" aria-controls="conference-menu">
+                    <i className="fa fa-ellipsis-v fa-2x"></i>
+                </button>
+            );
 
-        if (!this.state.showFiles) {
-            if (this.state.sharedFiles.length !== 0) {
-                topButtons.push(
-                    <Badge key="fileBadge" badgeContent={this.state.sharedFiles.length} color="primary" classes={{badge: this.props.classes.badge}} anchorOrigin={{horizontal: 'left', vertical: 'top'}} overlap="circle">
-                        <button key="fbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleFiles}> <i className="fa fa-files-o fa-2x"></i> </button>
-                    </Badge>
-                );
+            if (!this.state.showDrawer) {
+                topButtons.push(<button key="sbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleDrawer}> <i className="fa fa-bars fa-2x"></i> </button>);
             }
-        }
-
-        if (!this.state.showDrawer) {
-            topButtons.push(<button key="sbButton" type="button" title="Open Drawer" className={commonButtonTopClasses} onClick={this.toggleDrawer}> <i className="fa fa-bars fa-2x"></i> </button>);
         }
 
         const topLeftButtons = [];
-        if (!chatLayout) {
-            if (this.state.newMessages !== 0) {
+        if (!this.props.participantIsGuest) {
+            if (!utils.isMobile.any()) {
                 topLeftButtons.push(
-                    <Badge key="chatBadge" badgeContent={this.state.newMessages} color="primary" classes={{badge: this.props.classes.badge}} overlap="circle">
-                        <button key="chatButton" type="button" title="Open Chat" className={commonButtonTopClasses} onClick={this.toggleChat}> <i className="fa fa-comments fa-2x"></i> </button>
-                    </Badge>);
-            } else {
-                topLeftButtons.push(
-                    <button key="chatButton" type="button" title="Open Chat" className={commonButtonTopClasses} onClick={this.toggleChat}> <i className="fa fa-comments fa-2x"></i> </button>
+                    <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{root: this.props.classes.root, badge: this.props.classes.badge}} overlap="circle">
+                        <button key="chatButton" type="button" className={commonButtonTopClasses} onClick={this.toggleChatInCall}>
+                            <i className="fa fa-comments fa-2x" />
+                        </button>
+                    </Badge>
                 );
+                topLeftButtons.push(
+                    <button key="callButton" type="button" className={callButtonClasses} onClick={this.toggleCall}>
+                        <i className="fa fa-2x fa-phone" />
+                    </button>
+                );
+            } else {
+                if (this.state.showChat) {
+                    topLeftButtons.push(
+                        <button key="callButton" type="button" className={callButtonClasses} onClick={this.toggleCall}>
+                            <i className="fa fa-2x fa-phone" />
+                        </button>
+                    );
+                } else {
+                    topLeftButtons.push(
+                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{root: this.props.classes.root, badge: this.props.classes.badge}} overlap="circle">
+                            <button key="chatButton" type="button" className={commonButtonTopClasses} onClick={this.toggleChatInCall}>
+                                <i className="fa fa-comments fa-2x" />
+                            </button>
+                        </Badge>
+                    );
+                }
             }
         }
-        topLeftButtons.push(
-            <button key="handButton" type="button" title="Raise Hand" className={commonButtonTopClasses} onClick={this.handleToggleHand}> <i className={handClasses}></i> </button>
-        );
         buttons.top = {left: topLeftButtons, right: topButtons};
 
 
@@ -1179,6 +1253,16 @@ class ConferenceBox extends React.Component {
         );
         if (!chatLayout) {
             bottomButtons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen} disabled={!this.haveVideo}><i className={screenSharingButtonIcons}></i></button>);
+            if (this.state.newMessages !== 0) {
+                bottomButtons.push(
+                    <Badge key="chatBadge" badgeContent={this.state.newMessages} color="primary" classes={{badge: this.props.classes.badge}} overlap="circle">
+                        <button key="chatButton" type="button" title="Open Chat" className={commonButtonClasses} onClick={this.toggleChat}> <i className="fa fa-commenting-o"></i> </button>
+                    </Badge>);
+            } else {
+                bottomButtons.push(
+                    <button key="chatButton" type="button" title="Open Chat" className={commonButtonClasses} onClick={this.toggleChat}> <i className="fa fa-commenting-o"></i> </button>
+                );
+            }
         }
         bottomButtons.push(
             <label key="shareFiles" htmlFor="outlined-button-file">
@@ -1187,8 +1271,26 @@ class ConferenceBox extends React.Component {
                 </IconButton>
             </label>
         );
+        if (this.state.sharedFiles.length !== 0) {
+            bottomButtons.push(
+                <Badge
+                    key="fileBadge"
+                    badgeContent={this.state.sharedFiles.length}
+                    color="primary"
+                    classes={{badge: this.props.classes.badge}}
+                    anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+                    overlap="circle"
+                >
+                    <button key="fbButton" type="button" title={!this.state.showFiles ? 'Show shared files' : 'Hide shared files'}  className={commonButtonClasses} onClick={this.toggleFiles}>
+                        <i className="fa fa-files-o"></i>
+                    </button>
+                </Badge>
+            );
+        }
+
         bottomButtons.push(<button key="hangupButton" type="button" title="Leave conference" className="btn btn-round btn-danger" onClick={this.hangup}> <i className="fa fa-phone rotate-135"></i> </button>);
-        if (!chatLayout) {
+
+        if (!chatLayout && !this.state.showChat) {
             buttons.bottom = bottomButtons;
         }
 
@@ -1424,7 +1526,7 @@ class ConferenceBox extends React.Component {
                     />
                 </div>
                 <ConferenceDrawer
-                    show={chatLayout}
+                    show={chatLayout && !this.state.showChat}
                     anchor="left"
                     size="small"
                     showClose={false}
@@ -1433,19 +1535,46 @@ class ConferenceBox extends React.Component {
                     {bottomButtons}
                 </ConferenceDrawer>
                 <ConferenceDrawer
-                    show={this.state.showChat}
-                    close={this.toggleChat}
-                    anchor="left"
-                    transparent={!chatLayout}
-                    size={(!chatLayout) ? 'wide' : 'full'}
+                    show={(this.state.showInlineChat || chatLayout || this.state.showFiles) && !this.state.showChat}
+                    close={() => {
+                        if (this.state.showInlineChat) {
+                            this.toggleChat(); 
+                        }
+                        if (this.state.showFiles) {
+                            this.toggleFiles();
+                        }
+                    }}
+                    anchor={(!chatLayout) ? 'right' : 'left'}
+                    transparent={false}
+                    size={(!chatLayout) ? (utils.isMobile.any() ? 'normal' : 'wide') : 'full'}
                     {...chatLayout && { position: this.state.showDrawer || this.state.showFiles ? 'middle' : 'right'}}
                     showClose={!chatLayout}
-                    {...this.state.isComposing &&  {title: (<i className="fa fa-ellipsis-h fa-2x" />)}}
+                    {...this.state.isComposing && chatLayout && {title: (<i className="fa fa-ellipsis-h fa-2x" />)}}
                 >
-                    <ConferenceChat messages={this.state.messages} scroll={this.state.shouldScroll} />
-                    <ConferenceChatEditor onSubmit={this.handleSend} onTyping={this.handleTyping} scroll={this.setScroll} focus={this.toggleChatEditorFocus}/>
+                    {this.state.showFiles && !chatLayout &&
+                        <ConferenceDrawerFiles
+                            sharedFiles={this.state.sharedFiles}
+                            downloadFile={this.downloadFile}
+                            wide
+                            embed
+                        />
+                    }
+                    {this.state.showFiles && !chatLayout && this.state.showInlineChat &&
+                        <h4 className="header">
+                            Conference Chat
+                            {this.state.isComposing &&
+                                <span>
+                                    <i className="fa fa-ellipsis-h fa-2x" />
+                                </span>
+                            }
+                        </h4>
+                    }
+                    {(this.state.showInlineChat || chatLayout) && [
+                        <ConferenceChat messages={this.state.messages} scroll={this.state.shouldScroll} />,
+                        <ConferenceChatEditor onSubmit={this.handleSend} onTyping={this.handleTyping} scroll={this.setScroll} focus={this.toggleChatEditorFocus}/>
+                    ]}
                 </ConferenceDrawer>
-                <ConferenceDrawer show={this.state.showDrawer} close={this.toggleDrawer}>
+                <ConferenceDrawer show={this.state.showDrawer && !this.state.showChat} close={this.toggleDrawer}>
                     {!chatLayout &&
                         <ConferenceDrawerSpeakerSelection
                             participants={this.state.participants.concat(
@@ -1517,7 +1646,9 @@ ConferenceBox.propTypes = {
     remoteIdentity      : PropTypes.string,
     generatedVideoTrack : PropTypes.bool,
     participantIsGuest  : PropTypes.bool,
-    lowBandwidth        : PropTypes.bool
+    lowBandwidth        : PropTypes.bool,
+    toggleChatInCall    : PropTypes.func,
+    unreadMessages      : PropTypes.object
 };
 
 ReactMixin(ConferenceBox.prototype, FullscreenMixin);

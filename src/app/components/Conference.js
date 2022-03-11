@@ -73,6 +73,8 @@ class Conference extends React.Component {
                         toggleShortcuts = {this.props.toggleShortcuts}
                         lowBandwidth = {this.props.lowBandwidth}
                         setDevice = {this.props.setDevice}
+                        toggleChatInCall = {this.props.toggleChatInCall}
+                        unreadMessages = {this.props.unreadMessages}
                     />
                 );
             } else {
@@ -112,7 +114,10 @@ Conference.propTypes = {
     muteAudioFromStart      : PropTypes.bool,
     participantIsGuest      : PropTypes.bool,
     roomMedia               : PropTypes.object,
-    lowBandwidth: PropTypes.bool
+    lowBandwidth            : PropTypes.bool,
+    toggleChatInCall        : PropTypes.func,
+    unreadMessages          : PropTypes.object
+
 };
 
 

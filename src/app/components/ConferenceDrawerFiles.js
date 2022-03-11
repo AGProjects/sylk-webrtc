@@ -27,9 +27,9 @@ const ConferenceDrawerFiles = (props) => {
     });
 
     return (
-        <div className="drawer-files">
+        <div className="drawer-files" style={props.embed ? {maxHeight: '50%'} : {}}>
             <h4 className="header">Shared Files</h4>
-                <ListGroup>
+                <ListGroup style={props.wide ? {width: 450} : {}}>
                     {entries}
                 </ListGroup>
         </div>
@@ -38,7 +38,9 @@ const ConferenceDrawerFiles = (props) => {
 
 ConferenceDrawerFiles.propTypes = {
     sharedFiles: PropTypes.array.isRequired,
-    downloadFile: PropTypes.func.isRequired
+    downloadFile: PropTypes.func.isRequired,
+    embed: PropTypes.bool,
+    wide: PropTypes.bool
 };
 
 

@@ -180,6 +180,7 @@ class Blink extends React.Component {
             'getLocalMediaGuestWrapper',
             'getLocalMedia',
             'toggleChatInCall',
+            'toggleChatInConference',
             'chatWrapper'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
@@ -1139,6 +1140,12 @@ class Blink extends React.Component {
         if (path !== '/conference' && !domain.startsWith('guest')) {
             this.lastMessageFocus = this.state.currentCall.remoteIdentity.uri;
         }
+        this.setState({
+            showChatInCall: !this.state.showChatInCall
+        });
+    }
+
+    toggleChatInConference() {
         this.setState({
             showChatInCall: !this.state.showChatInCall
         });
@@ -2308,22 +2315,32 @@ class Blink extends React.Component {
 
     conference() {
         return (
-            <Conference
-                notificationCenter = {this.notificationCenter}
-                localMedia = {this.state.localMedia}
-                account = {this.state.account}
-                targetUri = {this.state.targetUri}
-                currentCall = {this.state.currentCall}
-                participantsToInvite = {this.participantsToInvite}
-                hangupCall = {this.hangupCall}
-                shareScreen = {this.switchScreensharing}
-                generatedVideoTrack = {this.state.generatedVideoTrack}
-                propagateKeyPress = {this.togglePropagateKeyPress}
-                toggleShortcuts = {this.toggleShortcutsModal}
-                roomMedia = {this.state.roomMedia}
-                lowBandwidth = {this.state.lowBandwidth}
-                setDevice = {this.setDevice}
-            />
+            <React.Fragment>
+                {this.state.showChatInCall && this.state.messagesLoadingProgress &&
+                    <MessagesLoadingScreen progress={this.state.messagesLoadingProgress} />
+                }
+                {this.state.showChatInCall &&
+                    [this.chatWrapper(false, true)]
+                }
+                <Conference
+                    notificationCenter = {this.notificationCenter}
+                    localMedia = {this.state.localMedia}
+                    account = {this.state.account}
+                    targetUri = {this.state.targetUri}
+                    currentCall = {this.state.currentCall}
+                    participantsToInvite = {this.participantsToInvite}
+                    hangupCall = {this.hangupCall}
+                    shareScreen = {this.switchScreensharing}
+                    generatedVideoTrack = {this.state.generatedVideoTrack}
+                    propagateKeyPress = {this.togglePropagateKeyPress}
+                    toggleShortcuts = {this.toggleShortcutsModal}
+                    roomMedia = {this.state.roomMedia}
+                    lowBandwidth = {this.state.lowBandwidth}
+                    setDevice = {this.setDevice}
+                    toggleChatInCall = {this.toggleChatInConference}
+                    unreadMessages = {{total: this.state.unreadMessages}}
+                />
+            </React.Fragment>
         )
     }
 

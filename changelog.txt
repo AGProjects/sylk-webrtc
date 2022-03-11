@@ -1,3 +1,62 @@
+Version 3.4.0 Fri Mar 11 14:39:21 -03 2022
+
+  * Added support for chat in video and audio calls
+  * Added call quality icons
+  * Added statistics to calls
+  * Added support for wide docked drawers and docked drawers in calls
+  * Added support for buttons, onTop and callQuality icon
+  * Stop outbound ring tone earlier
+  * Added 'normal' chat screen to conference and restructure layout
+  * Prevent propagation of keys in audio/video chat
+  * Fixed auto update code for new electron version
+  * Updated electron version to 8.5.5
+  * Prevent message notifications in low bandwidth/no video mode
+  * Change menu icon for call/chat screen
+  * Various bugs fixes
+
+Verio 3.3.4 Wed Jan 12 11:05:55 -03 2022
+
+  * Added support for error messages in message render
+  * Added support for IMDN states in messages (subscribe to more state changes)
+  * Added support for error/failed messages in contact list
+  * Fixed state updates for replicated messages
+  * Added message counter to chat icon in navbar
+  * Prevent calculating unread messages multiple times
+  * Move unread message counter to state
+  * Skip counting OTR messages as unread
+  * Support more characters in links like '();'
+  * Switched to fork of linkify-urls so we can customise the regexp
+
+Version 3.3.3 Wed Dec 15 11:15:51 -03 2021
+
+  * Fixed display of pincode when exporting
+
+Version 3.3.2 Tue Nov 23 12:00:59 -03 2021
+
+  * Updated modal title for different keys
+  * Stop incoming ringtone earlier
+  * Fixed comparing public keys when fetched key is null
+  * Fixed modal when public Key is different from server
+  * Transmit public keys if current public key is chosen
+  * Fixed comparing publicKeys
+  * Fixed back button in responsive message view
+
+Version 3.3.1 Mon Oct 25 10:31:04 -03 2021
+
+  * Updated dotenv dependency
+  * Prevent display of messages with the same id
+  * Use default domain for register form if no domain is given
+  * Send system notification for message on electron
+  * Fixed typo in regexp
+  * Added failed status icon to message
+  * Fixed HTML escaping in message render
+  * Added chat button to history card
+  * Fixed missing key
+  * Fixed conference header hiding in chat layout and after file drawer
+  * Added badge to icon in MacOS and Windows
+  * Fixed parsing urls with &
+  * Fixed right menu condition
+
 Version 3.3.0 Tue Oct  5 08:06:31 -03 2021
 
   * Added OpenPGP encryption

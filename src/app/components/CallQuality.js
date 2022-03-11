@@ -67,13 +67,13 @@ const CallQuality = ({audioData, videoData, inbound, thumb}) => {
     }
 
     React.useEffect(() => {
-        let RTTMeasurements = [];
+        let latencyMeasurements = [];
         let packets = 0;
         let packetsLost = 0;
 
         if (videoData && videoData.length !== 0) {
             const lastVideoData = videoData.slice(-30);
-            RTTMeasurements = lastVideoData.map((data) => { return data.rtt});
+            latencyMeasurements = lastVideoData.map((data) => { return data.latency});
             if (inbound) {
                 packets = lastVideoData.reduce((a,b) => a + b['packetRateInbound'] || 0, 0) || 0;
                 packetsLost = lastVideoData.reduce((a,b) => a + b['packetsLostInbound'] || 0, 0) || 0;
@@ -85,7 +85,7 @@ const CallQuality = ({audioData, videoData, inbound, thumb}) => {
 
         if (audioData && audioData.length !== 0) {
             const lastAudioData = audioData.slice(-30);
-            RTTMeasurements = RTTMeasurements.concat(lastAudioData.map((data) => { return data.rtt}));
+            latencyMeasurements = latencyMeasurements.concat(lastAudioData.map((data) => { return data.latency}));
             if (inbound) {
                 packets = packets + lastAudioData.reduce((a,b) => a + b['packetRateInbound'] || 0, 0) || 0;
                 packetsLost = packetsLost + lastAudioData.reduce((a,b) => a + b['packetsLostInbound'] || 0, 0) || 0;
@@ -96,17 +96,17 @@ const CallQuality = ({audioData, videoData, inbound, thumb}) => {
         }
 
         if (audioData && audioData !== 0 || videoData && videoData.length !== 0) {
-            update(RTTMeasurements, packetsLost, packets);
+            update(latencyMeasurements, packetsLost, packets);
         }
     }, [update, audioData, videoData, inbound])
 
-    const update = React.useCallback((RTTMeasurements, packetsLost, packets) => {
-        RTTMeasurements = RTTMeasurements.filter(data => data !== 0 && data !== undefined);
-        const averageRTT = RTTMeasurements.reduce((sum, value) => {
+    const update = React.useCallback((latencyMeasurements, packetsLost, packets) => {
+        latencyMeasurements = latencyMeasurements.filter(data => data !== 0 && data !== undefined);
+        const averageLatency = latencyMeasurements.reduce((sum, value) => {
             return sum + value;
-        }, 0) / RTTMeasurements.length;
+        }, 0) / latencyMeasurements.length;
 
-        const latency = (averageRTT * 1000) / 2;
+        const latency = (averageLatency * 1000);
         const packetLossPercentage = (packetsLost / packets) * 100;
 
         if (latency > 400) {

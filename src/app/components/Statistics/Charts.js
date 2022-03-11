@@ -94,8 +94,8 @@ const Charts = ({
             }
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <div style={{width: '100%' }}>
-                    <h5>Latency: {lastGraphData.rtt && lastGraphData.rtt * 1000} ms</h5>
-                    <AreaGradientChart data={data} dataKey="rtt" color="blue" />
+                    <h5>Latency: {lastGraphData.latency && lastGraphData.latency * 1000 } ms</h5>
+                    <AreaGradientChart data={data} dataKey="latency" color="blue" />
                 </div>
                 {/* <div style={{width: '48%' }}>
                      <h5>Jitter: {lastGraphData.jitter && lastGraphData.jitter.toFixed(4)}</h5>

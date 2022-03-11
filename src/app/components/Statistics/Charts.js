@@ -82,11 +82,13 @@ const Charts = ({
                             <td>{remoteResolution}</td>
                             <td>{localResolution}</td>
                         </tr>
+                {localFrameRate && remoteFrameRate &&
                         <tr>
                             <td>Framerate</td>
                             <td>{remoteFrameRate}</td>
                             <td>{localFrameRate}</td>
                         </tr>
+                }
                     </tbody>
                 </table>
             }

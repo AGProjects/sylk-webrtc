@@ -197,8 +197,8 @@ class VideoBox extends React.Component {
         const addData = {
             audio: {
                 timestamp: audioData.timestamp,
-                incomingBitrate: audioData.inbound[0].bitrate / 1000 || 0,
-                outgoingBitrate: audioData.outbound[0].bitrate / 1000 || 0,
+                incomingBitrate: audioData.inbound[0].bitrate || 0,
+                outgoingBitrate: audioData.outbound[0].bitrate || 0,
                 latency: audioRTT / 2,
                 jitter: audioJitter,
                 packetsLostOutbound: audioPacketsLostOutbound,
@@ -208,8 +208,8 @@ class VideoBox extends React.Component {
             },
             video: {
                 timestamp: videoData.timestamp,
-                incomingBitrate: videoData.inbound[0].bitrate / 1000 || 0,
-                outgoingBitrate: videoData.outbound[0].bitrate / 1000 || 0,
+                incomingBitrate: videoData.inbound[0].bitrate || 0,
+                outgoingBitrate: videoData.outbound[0].bitrate || 0,
                 latency: videoRTT / 2,
                 jitter: videoJitter,
                 packetsLostOutbound: videoPacketsLostOutbound,

@@ -21,6 +21,17 @@ const isFloat = (n) => {
         return Number(n) === n && n % 1 !== 0;
 };
 
+const prefixBits = (bits) => {
+    let i = -1;
+    const byteUnits = 'kMGTPEZY';
+    do {
+        bits = bits / 1000;
+        i++;
+    } while (bits > 1000);
+
+    return `${Math.max(bits, 0.1).toFixed(bits < 10 ? 1 : 0)} ${byteUnits[i]}bits/s`;
+};
+
 const Charts = ({
     data,
     videoElements,
@@ -92,6 +103,20 @@ const Charts = ({
                     </tbody>
                 </table>
             }
+            <h5>Bandwidth</h5>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div className={classes.graphText}>In: {lastGraphData.incomingBitrate && prefixBits(lastGraphData.incomingBitrate)}</div>
+                <div className={classes.graphText}>Out: {lastGraphData.outgoingBitrate && prefixBits(lastGraphData.outgoingBitrate)}</div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{width: '48%' }}>
+                    <AreaGradientChart data={data} dataKey="incomingBitrate" color="green" height={70} />
+                </div>
+                <div style={{width: '48%' }}>
+                    <AreaGradientChart data={data} dataKey="outgoingBitrate" height={70} />
+                </div>
+            </div>
+
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <div style={{width: '100%' }}>
                     <h5>Latency: {lastGraphData.latency && lastGraphData.latency * 1000 } ms</h5>
@@ -124,19 +149,6 @@ const Charts = ({
                 </div>
             </div>
 
-            <h5>Bandwidth</h5>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div className={classes.graphText}>In: {lastGraphData.incomingBitrate && lastGraphData.incomingBitrate.toFixed(1)} kbit/s</div>
-                <div className={classes.graphText}>Out: {lastGraphData.outgoingBitrate && lastGraphData.outgoingBitrate.toFixed(1)} kbit/s</div>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div style={{width: '48%' }}>
-                    <AreaGradientChart data={data} dataKey="incomingBitrate" color="green" height={70} />
-                </div>
-                <div style={{width: '48%' }}>
-                    <AreaGradientChart data={data} dataKey="outgoingBitrate" height={70} />
-                </div>
-            </div>
     </div>
     )
 };

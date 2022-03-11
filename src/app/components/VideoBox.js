@@ -139,7 +139,7 @@ class VideoBox extends React.Component {
     }
 
     onKeyDown(event) {
-        if (!this.state.showEscalateConferenceModal) {
+        if (!this.state.showEscalateConferenceModal && !this.props.propagateKeyPress) {
             switch (event.which) {
                 case 77:    // m/M
                     this.muteAudio(event)
@@ -706,7 +706,8 @@ VideoBox.propTypes = {
     unreadMessages          : PropTypes.object,
     notificationCenter      : PropTypes.func,
     toggleChatInCall        : PropTypes.func,
-    inlineChat              : PropTypes.object
+    inlineChat              : PropTypes.object,
+    propagateKeyPress       : PropTypes.bool
 };
 
 ReactMixin(VideoBox.prototype, FullscreenMixin);

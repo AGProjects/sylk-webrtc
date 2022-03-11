@@ -138,7 +138,7 @@ class AudioCallBox extends React.Component {
     }
 
     onKeyDown(event) {
-        if (!this.state.showEscalateConferenceModal && !this.state.showDtmfModal) {
+        if (!this.state.showEscalateConferenceModal && !this.state.showDtmfModal && !this.props.propagateKeyPress) {
             switch (event.which) {
                 case 77:    // m/M
                     this.muteAudio(event)
@@ -523,7 +523,8 @@ AudioCallBox.propTypes = {
     notificationCenter      : PropTypes.func,
     toggleChatInCall        : PropTypes.func,
     inlineChat              : PropTypes.object,
-    unreadMessages          : PropTypes.object
+    unreadMessages          : PropTypes.object,
+    propagateKeyPress       : PropTypes.bool
 };
 
 

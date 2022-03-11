@@ -2234,6 +2234,7 @@ class Blink extends React.Component {
                     inlineChat = {this.chatWrapper(true)}
                     unreadMessages = {{total: this.state.unreadMessages, call: this.state.unreadCallMessages}}
                     notificationCenter = {this.notificationCenter}
+                    propagateKeyPress={this.state.propagateKeyPress}
                 />
             </React.Fragment>
         )

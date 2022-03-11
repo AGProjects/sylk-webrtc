@@ -220,6 +220,7 @@ class Blink extends React.Component {
         if (typeof window.process !== 'undefined') {
             if (window.process.versions.electron !== '') {
                 this.shouldUseHashRouting = true;
+                debug.log = console.log.bind(console);
             }
         }
 

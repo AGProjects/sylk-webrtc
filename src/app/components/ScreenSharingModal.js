@@ -60,8 +60,8 @@ const ScreenSharingModal = (props) => {
 
     const getSources = () => {
         const desktopCapturer = window.require('electron').desktopCapturer;
-        desktopCapturer.getSources({ types: ['window', 'screen'], thumbnailSize: {width: 180, height: 180}},
-        (error, newSources) => {
+        desktopCapturer.getSources({ types: ['window', 'screen'], thumbnailSize: {width: 180, height: 180}})
+        .then((newSources) => {
             if (sources.length === 0) {
                 const firstScreen = newSources.filter(source => source.display_id !== '' || source.id.lastIndexOf('screen', 0) === 0)[0];
                 setFocus(firstScreen.id);

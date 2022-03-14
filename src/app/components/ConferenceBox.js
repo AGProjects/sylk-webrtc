@@ -346,13 +346,13 @@ class ConferenceBox extends React.Component {
             if (this.participantStats[p.id]) {
                 const participantVideoData = this.participantStats[p.id].lastData.data.video;
                 if (participantVideoData && participantVideoData.inbound && participantVideoData.inbound[0]) {
-                    inboundVideoBitrate = inboundVideoBitrate + participantVideoData.inbound[0].bitrate / 1000;
+                    inboundVideoBitrate = inboundVideoBitrate + participantVideoData.inbound[0].bitrate;
                     videoPacketsLostInboundData = videoPacketsLostInboundData + participantVideoData.inbound[0].packetLossRate;
                     videoPacketRateInbound = videoPacketRateInbound + participantVideoData.inbound[0].packetRate;
                 }
                 const participantAudioData = this.participantStats[p.id].lastData.data.audio;
                 if (participantAudioData.inbound) {
-                    inboundAudioBitrate = inboundVideoBitrate + participantAudioData.inbound[0].bitrate / 1000;
+                    inboundAudioBitrate = inboundVideoBitrate + participantAudioData.inbound[0].bitrate;
                     audioPacketsLostInboundData = audioPacketsLostInboundData + participantAudioData.inbound[0].packetLossRate;
                     audioPacketRateInbound = audioPacketRateInbound + participantAudioData.inbound[0].packetRate;
                 }
@@ -391,7 +391,7 @@ class ConferenceBox extends React.Component {
             audio: {
                 timestamp: audioData.timestamp,
                 incomingBitrate: inboundAudioBitrate,
-                outgoingBitrate: audioData.outbound[0].bitrate / 1000 || 0,
+                outgoingBitrate: audioData.outbound[0].bitrate || 0,
                 latency: audioRTT / 2,
                 jitter: audioJitter,
                 packetsLostOutbound: audioPacketsLostOutbound,
@@ -404,7 +404,7 @@ class ConferenceBox extends React.Component {
             addData.video = {
                 timestamp: videoData.timestamp,
                 incomingBitrate: inboundVideoBitrate,
-                outgoingBitrate: videoData.outbound[0].bitrate / 1000 || 0,
+                outgoingBitrate: videoData.outbound[0].bitrate || 0,
                 latency: videoRTT / 2,
                 jitter: videoJitter,
                 packetsLostOutbound: videoPacketsLostOutbound,

@@ -1549,7 +1549,7 @@ class ConferenceBox extends React.Component {
                     size={(!chatLayout) ? (utils.isMobile.any() ? 'normal' : 'wide') : 'full'}
                     {...chatLayout && { position: this.state.showDrawer || this.state.showFiles ? 'middle' : 'right'}}
                     showClose={!chatLayout}
-                    {...this.state.isComposing && chatLayout && {title: (<i className="fa fa-ellipsis-h fa-2x" />)}}
+                    {...this.state.isComposing && !chatLayout && {title: (<i className="fa fa-ellipsis-h fa-2x" />)}}
                 >
                     {this.state.showFiles && !chatLayout &&
                         <ConferenceDrawerFiles

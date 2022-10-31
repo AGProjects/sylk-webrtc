@@ -155,7 +155,7 @@ class ConferenceParticipant extends React.Component {
                     disableHandToggle={this.props.disableHandToggle}
                     thumb
                 />
-                <CallQuality videoData={this.props.stats.packetLossData} inbound thumb />
+                <CallQuality videoData={this.props.stats && this.props.stats.packetLossData} inbound thumb />
                 <OverlayTrigger placement="top" overlay={tooltip}>
                     <div className="participant-container">
                         {(this.props.pauseVideo === true || !this.state.hasVideo) && <UserIcon identity={this.props.participant.identity} active={this.state.active} carousel />}

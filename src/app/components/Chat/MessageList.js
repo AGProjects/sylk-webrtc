@@ -22,7 +22,7 @@ const formatTime = (message) => {
     const diff = date.diff(DateTime.local().startOf('day'), 'days').as('days');
     const yearDiff = date.diff(DateTime.local().startOf('year'), 'year').as('year');
 
-    if (yearDiff >= 1) {
+    if (yearDiff <= 0) {
         return date.toFormat('dd/LL/yyyy');
     }
     if (diff < -6) {

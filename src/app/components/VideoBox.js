@@ -33,11 +33,11 @@ const styleSheet = {
         fontWeight: 'bold',
         fontSize: '1rem',
         backgroundColor: '#337ab7',
-        '&.MuiBadge-anchorOriginTopLeftCircle': {
+        '&.MuiBadge-anchorOriginTopLeftCircular': {
             top: '18%',
             left: '18%'
         },
-        '&.MuiBadge-anchorOriginTopRightCircle': {
+        '&.MuiBadge-anchorOriginTopRightCircular': {
             top: '18%',
             right: '18%'
         }
@@ -538,7 +538,7 @@ class VideoBox extends React.Component {
             }
             if (this.props.inlineChat) {
                 buttons.push(
-                    <Badge key="unreadBadge" badgeContent={unreadCallMessages} color="primary" classes={{badge: this.props.classes.badge}} overlap="circle">
+                    <Badge key="unreadBadge" badgeContent={unreadCallMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
                         <button key="inlineChatButton" type="button" className={commonButtonClasses} onClick={this.toggleInlineChat}>
                             <i className="fa fa-commenting-o"></i>
                         </button>
@@ -588,8 +588,8 @@ class VideoBox extends React.Component {
                         key="unreadBadge"
                         badgeContent={unreadMessages}
                         color="primary"
-                        classes={{badge: this.props.classes.badge}}
-                        overlap="circle"
+                        classes={{ badge: this.props.classes.badge }}
+                        overlap="circular"
                     >
                         <button key="chatButton" type="button" className={chatButtonClasses} onClick={this.toggleChatInCall} title="Chat screen">
                             <i className="fa fa-comments fa-2x" />
@@ -608,7 +608,7 @@ class VideoBox extends React.Component {
                     ]
                 } else {
                     topButtons.top.left = [
-                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{root: this.props.classes.root, badge: this.props.classes.badge}} overlap="circle">
+                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ root: this.props.classes.root, badge: this.props.classes.badge }} overlap="circular">
                             <button key="chatButton" type="button" className={chatButtonClasses} onClick={this.toggleChatInCall}>
                                 <i className="fa fa-comments fa-2x" />
                             </button>

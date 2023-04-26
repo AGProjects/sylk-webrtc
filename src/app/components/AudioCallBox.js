@@ -32,11 +32,11 @@ const styleSheet = {
         fontWeight: 'bold',
         fontSize: '1rem',
         backgroundColor: '#337ab7',
-        '&.MuiBadge-anchorOriginTopLeftCircle': {
+        '&.MuiBadge-anchorOriginTopLeftCircular': {
             top: '18%',
             left: '18%'
         },
-        '&.MuiBadge-anchorOriginTopRightCircle': {
+        '&.MuiBadge-anchorOriginTopRightCircular': {
             top: '18%',
             right: '18%'
         }
@@ -383,7 +383,7 @@ class AudioCallBox extends React.Component {
         if (this.props.toggleChatInCall !== undefined) {
             if (!utils.isMobile.any()) {
                 topButtons.top.left = [
-                    <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{badge: this.props.classes.badge}} overlap="circle">
+                    <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
                         <button
                             key="chatButton"
                             type="button"
@@ -407,7 +407,7 @@ class AudioCallBox extends React.Component {
                     ]
                 } else {
                     topButtons.top.left = [
-                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{badge: this.props.classes.badge}} overlap="circle">
+                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
                             <button key="chatButton" type="button" className={chatButtonClasses} onClick={this.toggleChatInCall}>
                                 <i className="fa fa-comments fa-2x" />
                             </button>
@@ -458,7 +458,7 @@ class AudioCallBox extends React.Component {
                             <button key="audiodevices" type="button" title="Select audio devices" className={menuButtonClasses} onClick={this.toggleAudioSwitchMenu}> <i className={menuButtonIcons}></i> </button>
                         </div>
                         {this.props.inlineChat &&
-                            <Badge key="unreadBadge" badgeContent={unreadCallMessages} color="primary" classes={{badge: this.props.classes.badge}} overlap="circle">
+                            <Badge key="unreadBadge" badgeContent={unreadCallMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
                                 <button key="inlineChatButton" type="button" className={commonButtonClasses} onClick={this.toggleInlineChat}>
                                     <i className="fa fa-commenting-o"></i>
                                 </button>

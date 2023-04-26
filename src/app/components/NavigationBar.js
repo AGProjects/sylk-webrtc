@@ -30,11 +30,11 @@ const styleSheet = {
         fontWeight: 'bold',
         fontSize: '1rem',
         backgroundColor: '#337ab7',
-        '&.MuiBadge-anchorOriginTopLeftCircle': {
+        '&.MuiBadge-anchorOriginTopLeftCircular': {
             top: '18%',
             left: '18%'
         },
-        '&.MuiBadge-anchorOriginTopRightCircle': {
+        '&.MuiBadge-anchorOriginTopRightCircular': {
             top: '18%',
             right: '18%'
         }
@@ -188,7 +188,7 @@ class NavigationBar extends React.Component {
                         </button>
                     }
                     {this.props.enableMessaging &&
-                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{root: this.props.classes.root, badge: this.props.classes.badge}} overlap="circle">
+                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{root: this.props.classes.root, badge: this.props.classes.badge}} overlap="circular">
                             <button title="Chat screen" className={chatNavButtonClasses} onClick={() => this.props.router.navigate('/chat')}>
                                 <i className="fa fa-comments fa-2x" />
                             </button>

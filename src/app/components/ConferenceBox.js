@@ -68,11 +68,11 @@ const styleSheet = {
         fontWeight: 'bold',
         fontSize: '1rem',
         backgroundColor: '#337ab7',
-        '&.MuiBadge-anchorOriginTopLeftCircle': {
+        '&.MuiBadge-anchorOriginTopLeftCircular': {
             top: '18%',
             left: '18%'
         },
-        '&.MuiBadge-anchorOriginTopRightCircle': {
+        '&.MuiBadge-anchorOriginTopRightCircular': {
             top: '18%',
             right: '18%'
         }
@@ -1146,7 +1146,7 @@ class ConferenceBox extends React.Component {
         if (!this.props.participantIsGuest) {
             if (!utils.isMobile.any()) {
                 topLeftButtons.push(
-                    <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{root: this.props.classes.root, badge: this.props.classes.badge}} overlap="circle">
+                    <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ root: this.props.classes.root, badge: this.props.classes.badge }} overlap="circular">
                         <button key="chatButton" type="button" className={commonButtonTopClasses} onClick={this.toggleChatInCall}>
                             <i className="fa fa-comments fa-2x" />
                         </button>
@@ -1166,7 +1166,7 @@ class ConferenceBox extends React.Component {
                     );
                 } else {
                     topLeftButtons.push(
-                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{root: this.props.classes.root, badge: this.props.classes.badge}} overlap="circle">
+                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ root: this.props.classes.root, badge: this.props.classes.badge }} overlap="circular">
                             <button key="chatButton" type="button" className={commonButtonTopClasses} onClick={this.toggleChatInCall}>
                                 <i className="fa fa-comments fa-2x" />
                             </button>
@@ -1255,7 +1255,7 @@ class ConferenceBox extends React.Component {
             bottomButtons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen} disabled={!this.haveVideo}><i className={screenSharingButtonIcons}></i></button>);
             if (this.state.newMessages !== 0) {
                 bottomButtons.push(
-                    <Badge key="chatBadge" badgeContent={this.state.newMessages} color="primary" classes={{badge: this.props.classes.badge}} overlap="circle">
+                    <Badge key="chatBadge" badgeContent={this.state.newMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
                         <button key="chatButton" type="button" title="Open Chat" className={commonButtonClasses} onClick={this.toggleChat}> <i className="fa fa-commenting-o"></i> </button>
                     </Badge>);
             } else {
@@ -1277,11 +1277,11 @@ class ConferenceBox extends React.Component {
                     key="fileBadge"
                     badgeContent={this.state.sharedFiles.length}
                     color="primary"
-                    classes={{badge: this.props.classes.badge}}
-                    anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-                    overlap="circle"
+                    classes={{ badge: this.props.classes.badge }}
+                    anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
+                    overlap="circular"
                 >
-                    <button key="fbButton" type="button" title={!this.state.showFiles ? 'Show shared files' : 'Hide shared files'}  className={commonButtonClasses} onClick={this.toggleFiles}>
+                    <button key="fbButton" type="button" title={!this.state.showFiles ? 'Show shared files' : 'Hide shared files'} className={commonButtonClasses} onClick={this.toggleFiles}>
                         <i className="fa fa-files-o"></i>
                     </button>
                 </Badge>

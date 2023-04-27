@@ -29,6 +29,7 @@
     "eslint-plugin-react": "^7.31.10",
     "eslint-plugin-react-hooks": "^3.0.0",
     "fontawesome-actions": "^0.17.0",
+    "friendly-mimes": "^2.0.0",
     "hark": "^1.1.6",
     "html-react-parser": "^1.2.1",
     "image-conversion": "^2.1.1",

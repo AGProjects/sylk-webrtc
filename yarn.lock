@@ -5165,6 +5165,11 @@ fresh@0.5.2:
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
   integrity sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=
 
+friendly-mimes@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/friendly-mimes/-/friendly-mimes-2.0.0.tgz#1cb68d2abe721fccb1a035dda3b81e980d155d38"
+  integrity sha512-hOQZ1pfkGi8z4yfOlVjQmugb/2WhqQDAYmBP7zr3eHRoRZdt207Pur8AAbVrPYoerWUZqdUUz9p8Mvji6u9OcQ==
+
 fs-extra@^10.0.0:
   version "10.0.1"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-10.0.1.tgz#27de43b4320e833f6867cc044bfce29fdf0ef3b8"

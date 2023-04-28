@@ -1,3 +1,4 @@
+'use strict';
 
 const superagent = require('superagent');
 const debug = require('debug');

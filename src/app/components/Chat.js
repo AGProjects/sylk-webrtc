@@ -1,22 +1,24 @@
 'use strict';
 
-const React          = require('react');
-const {useEffect, useState, useRef} = React;
-const debug          = require('debug');
-const PropTypes      = require('prop-types');
-const cloneDeep      = require('lodash/cloneDeep');
+const React = require('react');
+const { useEffect, useState, useRef } = React;
+const debug = require('debug');
+const PropTypes = require('prop-types');
+const cloneDeep = require('lodash/cloneDeep');
 const { makeStyles } = require('@material-ui/core/styles');
 const { CircularProgress, Toolbar, Divider, Typography } = require('@material-ui/core');
 const { IconButton, useMediaQuery } = require('@material-ui/core');
 
-const { default: clsx }     = require('clsx');
+const { default: clsx } = require('clsx');
 const ConferenceDrawer = require('./ConferenceDrawer');
 const ContactList = require('./Chat/ContactList');
 const UserIcon = require('./UserIcon');
 const MessageList = require('./Chat/MessageList');
 const ConferenceChatEditor = require('./ConferenceChatEditor');
 
-const utils           = require('../utils');
+const utils = require('../utils');
+const fileTransferUtils = require('../fileTransferUtils');
+
 const DEBUG = debug('blinkrtc:Chat');
 
 
@@ -45,14 +47,14 @@ const Chat = (props) => {
     const [filter, setFilter] = useState('');
     const [unread, setUnread] = useState('');
 
-    const [show, setShow]   = useState(false);
+    const [show, setShow] = useState(false);
     const [focus, setFocus] = useState('');
     const [selectedUri, _setSelectedUri] = useState('');
 
     const selectedUriRef = useRef(selectedUri);
-    const messagesRef    = useRef(messages);
-    const contactCache   = useRef(props.contactCache);
-    const input          = useRef();
+    const messagesRef = useRef(messages);
+    const contactCache = useRef(props.contactCache);
+    const input = useRef();
 
     let propagateFocus = false;
 
@@ -181,9 +183,15 @@ const Chat = (props) => {
             props.account.removeListener('messageStateChanged', messageStateChanged);
             props.account.removeListener('outgoingMessage', outgoingMessage);
             props.account.removeListener('removeMessage', removeMessage);
+            props.account.removeListener('sendingDispositionNotification', sendingDispositionNotification);
         }
     }, [props.account, props.oldMessages]);
 
+    const handleFiles = (e) => {
+        DEBUG('Selected files %o', e.target.files);
+        fileTransferUtils.upload(props, e.target.files, selectedUri);
+        e.target.value = '';
+    }
 
     const loadMessages = (uri, id) => {
         // Remove entries with 0 messages from contact list
@@ -201,17 +209,17 @@ const Chat = (props) => {
             if (id) {
                 DEBUG('Focus message: %s', id);
                 setFocus(id);
-                setTimeout(() => {setFocus('')}, 750)
+                setTimeout(() => { setFocus('') }, 750)
             }
         } else {
             DEBUG('Focus message: %s', id);
             setFocus(id);
-            setTimeout(() => {setFocus('')}, 750)
+            setTimeout(() => { setFocus('') }, 750)
         }
     };
 
     const loadMoreMessages = () => {
-        props.loadMoreMessages(selectedUri);
+        return props.loadMoreMessages(selectedUri);
     };
 
     const toggleChatEditorFocus = () => {
@@ -228,7 +236,7 @@ const Chat = (props) => {
     const handleMessage = (content, type) => {
         const oldMessages = cloneDeep(messages);
         if (!oldMessages[selectedUri]) {
-             oldMessages[selectedUri] = [];
+            oldMessages[selectedUri] = [];
         }
         if (oldMessages[selectedUri].length === 0) {
             props.sendPublicKey(selectedUri);
@@ -257,16 +265,16 @@ const Chat = (props) => {
 
     const getDisplayName = (uri) => {
         if (props.contactCache.has(uri)) {
-            return {uri: uri, displayName: props.contactCache.get(uri)};
+            return { uri: uri, displayName: props.contactCache.get(uri) };
         }
-        return {uri: uri};
+        return { uri: uri };
     };
 
     const matches = useMediaQuery('(max-width:959.95px)');
 
     const chevronIcon = clsx({
-        'fa'                : true,
-        'fa-chevron-left'   : true
+        'fa': true,
+        'fa-chevron-left': true
     });
 
     const messageDisplayed = (uri, id, timestamp, state) => {
@@ -315,6 +323,8 @@ const Chat = (props) => {
                 displayed={messageDisplayed}
                 removeMessage={(message) => props.removeMessage(message)}
                 isLoadingMessages={props.isLoadingMessages}
+                account={props.account}
+                uploadFiles={(...args) => fileTransferUtils.upload(props, ...args, selectedUri)}
             />
             <ConferenceChatEditor
                 onSubmit={handleMessage}
@@ -322,6 +332,7 @@ const Chat = (props) => {
                 scroll={() => { }}
                 focus={toggleChatEditorFocus}
                 setFocus={true}
+                upload={handleFiles}
                 multiline
             />
         </React.Fragment>
@@ -342,7 +353,7 @@ const Chat = (props) => {
                     >
 
                         {selectedUri !== ''
-                            ? 
+                            ?
                             <React.Fragment>
                                 <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
                                     {matches &&
@@ -365,8 +376,8 @@ const Chat = (props) => {
                                                 {getDisplayName(selectedUri).displayName && <span className={classes.toolbarName}>({selectedUri})</span>}
                                             </Typography>
                                             {props.hideCallButtons === false && [
-                                                <IconButton className="fa fa-phone" onClick={() => props.startCall(selectedUri, { video: false })} />,
-                                                <IconButton className="fa fa-video-camera" onClick={() => props.startCall(selectedUri)} />
+                                                <IconButton key="callButton" className="fa fa-phone" onClick={() => props.startCall(selectedUri, { video: false })} />,
+                                                <IconButton key="videoCallButton" className="fa fa-video-camera" onClick={() => props.startCall(selectedUri)} />
                                             ]}
                                         </React.Fragment>
                                     }
@@ -379,7 +390,7 @@ const Chat = (props) => {
                                 }
                                 {messagePane}
                             </React.Fragment>
-                            : 
+                            :
                             <div style={{ justifyContent: 'center', alignItems: 'center', display: 'flex', flexDirection: 'column', height: '100%' }}>
                                 <div className="chat-image" />
                                 <h1 className="cover-heading">No chat selected</h1>
@@ -419,6 +430,8 @@ const Chat = (props) => {
                                 setSelectedUri('');
                             }}
                             unread={unread}
+                            download={(...args) => fileTransferUtils.download(props.account, ...args)}
+                            uploadFiles={(...args) => fileTransferUtils.upload(props, ...args)}
                         />
                     </ConferenceDrawer>
                 </div>
@@ -440,21 +453,22 @@ const Chat = (props) => {
 }
 
 Chat.propTypes = {
-    account             : PropTypes.object.isRequired,
-    contactCache        : PropTypes.object.isRequired,
-    focusOn             : PropTypes.string.isRequired,
-    loadMoreMessages    : PropTypes.func.isRequired,
-    messageStorage      : PropTypes.object.isRequired,
-    oldMessages         : PropTypes.object.isRequired,
-    propagateKeyPress   : PropTypes.func.isRequired,
-    removeChat          : PropTypes.func.isRequired,
-    removeMessage       : PropTypes.func.isRequired,
-    startCall           : PropTypes.func.isRequired,
-    lastContactSelected : PropTypes.func.isRequired,
-    isLoadingMessages   : PropTypes.bool.isRequired,
-    sendPublicKey       : PropTypes.func.isRequired,
-    embed               : PropTypes.bool,
-    hideCallButtons     : PropTypes.bool
+    account: PropTypes.object.isRequired,
+    contactCache: PropTypes.object.isRequired,
+    focusOn: PropTypes.string.isRequired,
+    loadMoreMessages: PropTypes.func.isRequired,
+    messageStorage: PropTypes.object.isRequired,
+    oldMessages: PropTypes.object.isRequired,
+    propagateKeyPress: PropTypes.func.isRequired,
+    removeChat: PropTypes.func.isRequired,
+    removeMessage: PropTypes.func.isRequired,
+    startCall: PropTypes.func.isRequired,
+    lastContactSelected: PropTypes.func.isRequired,
+    isLoadingMessages: PropTypes.bool.isRequired,
+    sendPublicKey: PropTypes.func.isRequired,
+    embed: PropTypes.bool,
+    hideCallButtons: PropTypes.bool,
+    notificationCenter: PropTypes.func.isRequired,
 };
 
 

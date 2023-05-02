@@ -66,7 +66,7 @@ class DragAndDrop extends React.Component {
         return (
             <div
                 ref={this.dropRef}
-                style={this.props.useFlex && { display: 'flex', width: '100%'}}
+                style={this.props.useFlex && { display: 'flex', width: '100%' }}
             >
                 {
                     this.state.drag &&
@@ -75,7 +75,7 @@ class DragAndDrop extends React.Component {
                             border: 'dashed grey 3px',
                             backgroundColor: 'rgba(255,255,255,.8)',
                             position: 'absolute',
-                            top: 0,
+                            top: this.props.marginTop || 0,
                             bottom: 0,
                             left: 0,
                             right: 0,
@@ -108,7 +108,8 @@ DragAndDrop.propTypes = {
     children: PropTypes.node,
     title: PropTypes.string,
     useFlex: PropTypes.bool,
-    small: PropTypes.bool
+    small: PropTypes.bool,
+    marginTop: PropTypes.string
 };
 
 

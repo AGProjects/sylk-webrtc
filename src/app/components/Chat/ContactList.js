@@ -508,7 +508,8 @@ ContactList.propTypes = {
     filter: PropTypes.string,
     selectedUri: PropTypes.string,
     unread: PropTypes.string,
-    download: PropTypes.func
+    download: PropTypes.func,
+    uploadFiles: PropTypes.func.isRequired
 };
 
 

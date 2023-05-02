@@ -2157,6 +2157,7 @@ class Blink extends React.Component {
                 sendPublicKey = {sendPublicKey}
                 embed={embed}
                 hideCallButtons={hideCallButtons}
+                notificationCenter={this.notificationCenter}
             />)
     }
 

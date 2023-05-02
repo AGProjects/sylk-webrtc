@@ -213,7 +213,7 @@ function getImage(account, message) {
                     if (filetype === 'image/svg+xml') {
                         resolve(['data:image/svg+xml,' + encodeURIComponent(fr.result), file.file.name])
                     }
-                    result = fr.result.replace('application/octet-stream', filetype);
+                    let result = fr.result.replace('application/octet-stream', filetype);
                     resolve([result, file.file.name])
                 }
                 fr.onerror = reject;

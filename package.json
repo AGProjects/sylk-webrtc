@@ -59,7 +59,7 @@
     "react-transition-group": "^2.6.0",
     "recharts": "^2.1.9",
     "sass": "~1.32.13",
-    "screenfull": "^5.1.0",
+    "screenfull": "^5.2.0",
     "stylelint": "^13.13.1",
     "stylelint-config-recess-order": "^2.4.0",
     "stylelint-config-recommended-scss": "^4.2.0",

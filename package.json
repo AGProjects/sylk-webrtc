@@ -36,7 +36,7 @@
     "intersection-observer": "^0.12.0",
     "ipaddr.js": "^1.9.1",
     "linkify-urls": "tijmenNL/linkify-urls#v2.2.1",
-    "localforage": "^1.9.0",
+    "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "luxon": "^1.25.0",
     "murmurhash-js": "^1.0.0",

@@ -1,26 +1,28 @@
 'use strict';
 
-const React             = require('react');
-const PropTypes         = require('prop-types');
+const React = require('react');
+const PropTypes = require('prop-types');
 const { default: clsx } = require('clsx');
-const debug             = require('debug');
-const hark              = require('hark');
-const sylkrtc           = require('sylkrtc');
-const { Badge }         = require('@material-ui/core');
-const { withStyles }    = require('@material-ui/core/styles');
+const debug = require('debug');
+const hark = require('hark');
+const sylkrtc = require('sylkrtc');
+const { Badge, IconButton } = require('@material-ui/core');
+const { withStyles } = require('@material-ui/core/styles');
 const {
     NetworkCheck: NetworkCheckIcon
-}                       = require('@material-ui/icons');
+} = require('@material-ui/icons');
 
-const CallOverlay               = require('./CallOverlay');
-const CallQuality               = require('./CallQuality');
-const ConferenceDrawer          = require('./ConferenceDrawer');
-const DTMFModal                 = require('./DTMFModal');
-const Statistics                = require('./Statistics');
-const UserIcon                  = require('./UserIcon');
-const EscalateConferenceModal   = require('./EscalateConferenceModal');
-const SwitchDevicesMenu         = require('./SwitchDevicesMenu');
-const utils                     = require('../utils');
+const CallOverlay = require('./CallOverlay');
+const CallQuality = require('./CallQuality');
+const ConferenceDrawer = require('./ConferenceDrawer');
+const DTMFModal = require('./DTMFModal');
+const Statistics = require('./Statistics');
+const UserIcon = require('./UserIcon');
+const EscalateConferenceModal = require('./EscalateConferenceModal');
+const SwitchDevicesMenu = require('./SwitchDevicesMenu');
+
+const fileTransferUtils = require('../fileTransferUtils');
+const utils = require('../utils');
 
 const DEBUG = debug('blinkrtc:AudioCallBox');
 
@@ -40,6 +42,18 @@ const styleSheet = {
             top: '18%',
             right: '18%'
         }
+    },
+    sharingButton: {
+        width: '45px',
+        height: '45px',
+        backgroundColor: '#fff',
+        fontSize: '20px',
+        border: '1px solid #fff',
+        color: '#333',
+        margin: '4px',
+        '&:hover': {
+            backgroundColor: '#fff'
+        }
     }
 };
 class AudioCallBox extends React.Component {
@@ -48,16 +62,16 @@ class AudioCallBox extends React.Component {
         const data = new Array(60).fill({});
 
         this.state = {
-            active                      : false,
-            audioMuted                  : false,
-            showDtmfModal               : false,
-            showEscalateConferenceModal : false,
-            showAudioSwitchMenu         : false,
-            showStatistics              : false,
-            showChat                    : false,
-            showInlineChat              : false,
-            audioGraphData              : data,
-            lastData                    : {}
+            active: false,
+            audioMuted: false,
+            showDtmfModal: false,
+            showEscalateConferenceModal: false,
+            showAudioSwitchMenu: false,
+            showStatistics: false,
+            showChat: false,
+            showInlineChat: false,
+            audioGraphData: data,
+            lastData: {}
         };
         this.speechEvents = null;
 
@@ -80,7 +94,8 @@ class AudioCallBox extends React.Component {
             'escalateToConference',
             'onKeyDown',
             'incomingMessage',
-            'statistics'
+            'statistics',
+            'handleFiles'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -102,7 +117,7 @@ class AudioCallBox extends React.Component {
                     break;
                 case 'incoming':
                     this.props.mediaPlaying();
-                    // fall through
+                // fall through
                 default:
                     this.props.call.on('stateChanged', this.callStateChanged);
                     break;
@@ -202,10 +217,10 @@ class AudioCallBox extends React.Component {
         };
         this.speechEvents = hark(remoteStream, options);
         this.speechEvents.on('speaking', () => {
-            this.setState({active: true});
+            this.setState({ active: true });
         });
         this.speechEvents.on('stopped_speaking', () => {
-            this.setState({active: false});
+            this.setState({ active: false });
         });
     }
 
@@ -222,24 +237,24 @@ class AudioCallBox extends React.Component {
         event.preventDefault();
         const localStream = this.props.call.getLocalStreams()[0];
 
-        if(this.state.audioMuted) {
+        if (this.state.audioMuted) {
             DEBUG('Unmute microphone');
             localStream.getAudioTracks()[0].enabled = true;
-            this.setState({audioMuted: false});
+            this.setState({ audioMuted: false });
         } else {
             DEBUG('Mute microphone');
             localStream.getAudioTracks()[0].enabled = false;
-            this.setState({audioMuted: true});
+            this.setState({ audioMuted: true });
         }
 
     }
 
     showDtmfModal() {
-        this.setState({showDtmfModal: true});
+        this.setState({ showDtmfModal: true });
     }
 
     hideDtmfModal() {
-        this.setState({showDtmfModal: false});
+        this.setState({ showDtmfModal: false });
     }
 
     toggleEscalateConferenceModal() {
@@ -251,13 +266,13 @@ class AudioCallBox extends React.Component {
     toggleAudioSwitchMenu(event) {
         if (!event) {
             this.setState({
-                showAudioSwitchMenu : !this.state.showAudioSwitchMenu
+                showAudioSwitchMenu: !this.state.showAudioSwitchMenu
             });
         } else {
             event.currentTarget.blur();
             this.setState({
                 switchAnchor: event.currentTarget,
-                showAudioSwitchMenu : !this.state.showAudioSwitchMenu
+                showAudioSwitchMenu: !this.state.showAudioSwitchMenu
             });
         }
     }
@@ -310,30 +325,43 @@ class AudioCallBox extends React.Component {
         }
     }
 
+    handleFiles(e) {
+        DEBUG('Selected files %o', e.target.files);
+        fileTransferUtils.upload(
+            {
+                notificationCenter: this.props.notificationCenter,
+                account: this.props.call.account
+            },
+            e.target.files,
+            this.props.call.remoteIdentity.uri
+        );
+        e.target.value = '';
+    }
+
     render() {
         const commonButtonClasses = clsx({
-            'btn'           : true,
-            'btn-round'     : true,
-            'btn-default'   : true
+            'btn': true,
+            'btn-round': true,
+            'btn-default': true
         });
 
         const muteButtonIconClasses = clsx({
-            'fa'                    : true,
-            'fa-microphone'         : !this.state.audioMuted,
-            'fa-microphone-slash'   : this.state.audioMuted
+            'fa': true,
+            'fa-microphone': !this.state.audioMuted,
+            'fa-microphone-slash': this.state.audioMuted
         });
 
         const menuButtonClasses = clsx({
-            'btn'          : true,
-            'btn-round-xs' : true,
-            'btn-default'  : true,
-            'overlap'      : true,
-            'overlap-top'  : true
+            'btn': true,
+            'btn-round-xs': true,
+            'btn-default': true,
+            'overlap': true,
+            'overlap-top': true
         });
 
         const menuButtonIcons = clsx({
-            'fa'           : true,
-            'fa-caret-up'  : true
+            'fa': true,
+            'fa-caret-up': true
         });
 
         const callQuality = (<CallQuality audioData={this.state.audioGraphData} />);
@@ -347,7 +375,7 @@ class AudioCallBox extends React.Component {
             baseLink,
             {
                 'active': !this.state.showChat,
-                'blink' : this.state.showChat
+                'blink': this.state.showChat
             }
         );
 
@@ -363,12 +391,22 @@ class AudioCallBox extends React.Component {
             'drawer-visible': this.state.showInlineChat && !this.state.showChat && utils.isMobile.any()
         });
 
+        const shareButtonClasses = clsx(
+            commonButtonClasses,
+            this.props.classes.sharingButton
+        );
+
+        const shareFileButtonIcons = clsx({
+            'fa': true,
+            'fa-upload': true
+        });
+
         let remoteIdentity;
 
         if (this.props.call !== null) {
             remoteIdentity = this.props.call.remoteIdentity;
         } else {
-            remoteIdentity = {uri: this.props.remoteIdentity};
+            remoteIdentity = { uri: this.props.remoteIdentity };
         }
 
         const unreadMessages = this.props.unreadMessages && (this.props.unreadMessages.total - this.props.unreadMessages.call) || 0;
@@ -431,14 +469,14 @@ class AudioCallBox extends React.Component {
                         />
                     }
                     <CallOverlay
-                        show = {true}
-                        remoteIdentity = {this.props.remoteIdentity}
-                        call = {this.props.call}
-                        forceTimerStart = {this.props.forceTimerStart}
-                        onTop = {this.state.showChat}
-                        disableHide = {this.state.showChat || this.state.showInlineChat}
-                        callQuality = {callQuality}
-                        buttons = {topButtons}
+                        show={true}
+                        remoteIdentity={this.props.remoteIdentity}
+                        call={this.props.call}
+                        forceTimerStart={this.props.forceTimerStart}
+                        onTop={this.state.showChat}
+                        disableHide={this.state.showChat || this.state.showInlineChat}
+                        callQuality={callQuality}
+                        buttons={topButtons}
                     />
                     <audio id="remoteAudio" ref={this.remoteAudio} autoPlay />
                     <div className="call-user-icon">
@@ -457,12 +495,27 @@ class AudioCallBox extends React.Component {
                             <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIconClasses}></i> </button>
                             <button key="audiodevices" type="button" title="Select audio devices" className={menuButtonClasses} onClick={this.toggleAudioSwitchMenu}> <i className={menuButtonIcons}></i> </button>
                         </div>
-                        {this.props.inlineChat &&
+                        {this.props.inlineChat && <React.Fragment>
                             <Badge key="unreadBadge" badgeContent={unreadCallMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
                                 <button key="inlineChatButton" type="button" className={commonButtonClasses} onClick={this.toggleInlineChat}>
                                     <i className="fa fa-commenting-o"></i>
                                 </button>
                             </Badge>
+                            <input
+                                style={{ display: 'none' }}
+                                id="outlined-button-file"
+                                multiple
+                                type="file"
+                                onChange={this.handleFiles}
+                                key="1"
+                            />
+                            <label key="shareFiles" htmlFor="outlined-button-file">
+                                <IconButton title="Share files" component="span" disableRipple={true} className={shareButtonClasses}>
+                                    <i className={shareFileButtonIcons}></i>
+                                </IconButton>
+                            </label>
+
+                        </React.Fragment>
                         }
                         <button key="dtmfButton" type="button" disabled={this.state.callDuration === null} className={commonButtonClasses} onClick={this.showDtmfModal}>
                             <i className="fa fa-fax"></i>
@@ -484,10 +537,10 @@ class AudioCallBox extends React.Component {
                         escalateToConference={this.escalateToConference}
                     />
                     <ConferenceDrawer
-                        show = {this.state.showStatistics && !this.state.showChat}
-                        anchor = "left"
-                        showClose = {true}
-                        close = {this.toggleStatistics}
+                        show={this.state.showStatistics && !this.state.showChat}
+                        anchor="left"
+                        showClose={true}
+                        close={this.toggleStatistics}
                         transparent={true}
                     >
                         <Statistics
@@ -497,10 +550,10 @@ class AudioCallBox extends React.Component {
                     </ConferenceDrawer>
                 </div>
                 <ConferenceDrawer
-                    show = {this.state.showInlineChat && !this.state.showChat}
-                    anchor = "right"
-                    showClose = {true}
-                    close = {this.toggleInlineChat}
+                    show={this.state.showInlineChat && !this.state.showChat}
+                    anchor="right"
+                    showClose={true}
+                    close={this.toggleInlineChat}
                     size={utils.isMobile.any() ? 'normal' : 'wide'}
                     noBackgroundColor
                 >
@@ -512,19 +565,19 @@ class AudioCallBox extends React.Component {
 }
 
 AudioCallBox.propTypes = {
-    classes                 : PropTypes.object.isRequired,
-    setDevice               : PropTypes.func.isRequired,
-    call                    : PropTypes.object,
-    escalateToConference    : PropTypes.func,
-    hangupCall              : PropTypes.func,
-    mediaPlaying            : PropTypes.func,
-    remoteIdentity          : PropTypes.string,
-    forceTimerStart         : PropTypes.bool,
-    notificationCenter      : PropTypes.func,
-    toggleChatInCall        : PropTypes.func,
-    inlineChat              : PropTypes.object,
-    unreadMessages          : PropTypes.object,
-    propagateKeyPress       : PropTypes.bool
+    classes: PropTypes.object.isRequired,
+    setDevice: PropTypes.func.isRequired,
+    call: PropTypes.object,
+    escalateToConference: PropTypes.func,
+    hangupCall: PropTypes.func,
+    mediaPlaying: PropTypes.func,
+    remoteIdentity: PropTypes.string,
+    forceTimerStart: PropTypes.bool,
+    notificationCenter: PropTypes.func,
+    toggleChatInCall: PropTypes.func,
+    inlineChat: PropTypes.object,
+    unreadMessages: PropTypes.object,
+    propagateKeyPress: PropTypes.bool
 };
 
 

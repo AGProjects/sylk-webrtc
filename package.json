@@ -57,7 +57,7 @@
     "react-notification-system": "^0.4.0",
     "react-router-component": "^0.40.0",
     "react-transition-group": "^2.6.0",
-    "recharts": "^2.1.9",
+    "recharts": "^2.5.0",
     "sass": "~1.32.13",
     "screenfull": "^5.2.0",
     "stylelint": "^13.13.1",

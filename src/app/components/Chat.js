@@ -183,7 +183,6 @@ const Chat = (props) => {
             props.account.removeListener('messageStateChanged', messageStateChanged);
             props.account.removeListener('outgoingMessage', outgoingMessage);
             props.account.removeListener('removeMessage', removeMessage);
-            props.account.removeListener('sendingDispositionNotification', sendingDispositionNotification);
         }
     }, [props.account, props.oldMessages]);
 

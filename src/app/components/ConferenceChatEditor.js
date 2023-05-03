@@ -1,14 +1,14 @@
 'use strict';
 
-const React         = require('react');
-const useEffect     = React.useEffect;
-const useState      = React.useState;
-const useRef        = React.useRef;
-const PropTypes     = require('prop-types');
-const debug         = require('debug');
+const React = require('react');
+const useEffect = React.useEffect;
+const useState = React.useState;
+const useRef = React.useRef;
+const PropTypes = require('prop-types');
+const debug = require('debug');
 
-const imageConversion   = require('image-conversion');
-const { IconButton }    = require('@material-ui/core');
+const imageConversion = require('image-conversion');
+const { IconButton } = require('@material-ui/core');
 const data = require('emoji-mart/data/apple.json');
 const Picker = require('emoji-mart/dist-modern/components/picker/nimble-picker').default;
 const computedStyleToInlineStyle = require('computed-style-to-inline-style');
@@ -48,7 +48,7 @@ const ConferenceChatEditor = (props) => {
             if (type.match(/image.*/) || e.clipboardData.items[i].type.match(/image.*/)) {
                 DEBUG('An image was pasted');
                 const file = e.clipboardData.items[i].getAsFile();
-                imageConversion.compressAccurately(file,{size: 200, scale: 0.5}).then(res => {
+                imageConversion.compressAccurately(file, { size: 200, scale: 0.5 }).then(res => {
                     //The res in the promise is a compressed Blob type (which can be treated as a File type) file;
                     reader.readAsBinaryString(res);
                 })
@@ -108,7 +108,7 @@ const ConferenceChatEditor = (props) => {
                     ]
                 });
             }
-            setTimeout(()=> {
+            setTimeout(() => {
                 if (type === 'text/html' || typeRef.current == 'text/html') {
                     setName(`${target.innerHTML}`);
                 } else {
@@ -221,7 +221,7 @@ const ConferenceChatEditor = (props) => {
     }
 
     const moveCursorToEnd = (el) => {
-        if(el.innerText && document.createRange && !type.startsWith('image/')) {
+        if (el.innerText && document.createRange && !type.startsWith('image/')) {
             window.setTimeout(() => {
                 let selection = document.getSelection();
                 let range = document.createRange();
@@ -235,11 +235,11 @@ const ConferenceChatEditor = (props) => {
     }
 
     return (
-        <div style={{ margin: '0 -15px'}}>
-            {picker ? <div style={{minHeight: '360px', flex: '0 0 auto', order: 2}} /> : '' }
+        <div style={{ margin: '0 -15px' }}>
+            {picker ? <div style={{ minHeight: '360px', flex: '0 0 auto', order: 2 }} /> : ''}
             <div className="top-editor-wrapper">
-                <div style={{position: 'absolute', top: 0, left: 0, width: '100%'}}>
-                    <div style={{position: 'absolute', bottom: 0, left: 0, width: '100%'}}>
+                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%' }}>
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%' }}>
                         {picker ?
                             <Picker
                                 set="apple"
@@ -248,25 +248,40 @@ const ConferenceChatEditor = (props) => {
                                 sheetSize={32}
                                 showSkinTones={false}
                                 onSelect={addEmoji}
-                                style={{position: 'relative', width: '100%'}}
+                                style={{ position: 'relative', width: '100%' }}
                                 backgroundImageFn={() =>
-                                        'assets/images/32.png'}
+                                    'assets/images/32.png'}
                             /> : ''}
                     </div>
                 </div>
-                <div className="emoji-button" onClick={togglePicker}>
+                {props.upload && [
+                    <input
+                        style={{ display: 'none' }}
+                        id="outlined-button-file"
+                        multiple
+                        type="file"
+                        onChange={props.upload}
+                        key="1"
+                    />,
+                    <label key="shareFiles" className="upload-button-label" htmlFor="outlined-button-file">
+                        <div className="upload-button">
+                            <i className="fa fa-plus fa-2x" />
+                        </div>
+                    </label>]
+                }
+                <div className={`emoji-button ${props.upload && 'padding-fixed'}`} onClick={togglePicker}>
                     <i className="fa fa-smile-o fa-2x" />
                 </div>
                 <div className="editor-wrapper">
                     <div className="editor-inner-wrapper">
-                        <div className="pre-editor" style={{visibility: name.length !== 0 ? 'hidden' : 'visible'}}>
+                        <div className="pre-editor" style={{ visibility: name.length !== 0 ? 'hidden' : 'visible' }}>
                             Type a message
                         </div>
                         <div className="editor"
                             contentEditable="true"
                             onPaste={handleInput}
                             onKeyDown={onKeyDown}
-                            onFocus={(e) => {moveCursorToEnd(e.target); props.focus()}}
+                            onFocus={(e) => { moveCursorToEnd(e.target); props.focus() }}
                             onBlur={() => props.focus()}
                             ref={editor}
                         ></div>
@@ -277,13 +292,13 @@ const ConferenceChatEditor = (props) => {
                         onClick={() => sendMessage()} variant="text" title="Send"
                         disableFocusRipple={true}
                         disableRipple={true}
-                        style={{marginLeft: '-10px', marginRight: '4px', padding: '10px', fontSize: 'inherit'}}
+                        style={{ marginLeft: '-10px', marginRight: '4px', padding: '10px', fontSize: 'inherit' }}
                     >
                         <i className="fa fa-paper-plane" aria-hidden="true" ></i>
                     </IconButton>
                 }
             </div>
-        </div>
+        </div >
     );
 };
 
@@ -291,7 +306,8 @@ ConferenceChatEditor.propTypes = {
     onSubmit: PropTypes.func.isRequired,
     onTyping: PropTypes.func.isRequired,
     scroll: PropTypes.func.isRequired,
-    focus: PropTypes.func.isRequired
+    focus: PropTypes.func.isRequired,
+    upload: PropTypes.func
 };
 
 

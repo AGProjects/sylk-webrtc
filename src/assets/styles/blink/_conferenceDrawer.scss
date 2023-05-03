@@ -201,6 +201,16 @@
         color: $lighter-gray;
     }
 
+    .upload-button {
+        flex: none;
+        padding: 3px 4px 3px 10px;
+        color: $lighter-gray;
+    }
+
+    .padding-fixed {
+        padding: 3px 4px 3px 4px;
+    }
+
     .pre-editor {
         position: absolute;
         top: 0;
@@ -330,6 +340,10 @@
         width: 25%;
     }
 
+    .upload-button-label {
+        width: unset;
+        margin-bottom: unset;
+    }
     .form-group {
         margin-bottom: 2px;
 

@@ -1,11 +1,11 @@
 'use strict';
 
-const React     = require('react');
+const React = require('react');
 const PropTypes = require('prop-types');
 
-const { default: clsx }     = require('clsx');
-const { makeStyles, fade }  = require('@material-ui/core/styles');
-const { grey }              = require('@material-ui/core/colors');
+const { default: clsx } = require('clsx');
+const { makeStyles, alpha } = require('@material-ui/core/styles');
+const { grey } = require('@material-ui/core/colors');
 const { Drawer, Toolbar, Typography, Divider } = require('@material-ui/core');
 
 
@@ -44,7 +44,7 @@ const styleSheet = makeStyles(theme => {
             backgroundColor: grey[100]
         },
         paperTransparent: {
-            backgroundColor: fade(grey[100], .85)
+            backgroundColor: alpha(grey[100], .85)
         },
         // Utils
         paperAdjustedForRightDrawer: {
@@ -96,27 +96,27 @@ const styleSheet = makeStyles(theme => {
 const ConferenceDrawer = (props) => {
     const classes = styleSheet();
     const paperClass = clsx(
-        {[`${classes.paper}`]: props.anchor !== 'left'},
-        {[`${classes.paperLeft}`]: props.anchor === 'left'},
-        {[`${classes.paperTransparent}`]: props.transparent},
-        {[`${classes.paperNotTransparent}`]: !props.transparent && !props.noBackgroundColor},
-        {[`${classes.paperSmall}`]: props.size === 'small'},
-        {[`${classes.paperNormal}`]: props.size === 'normal' || ! props.size},
-        {[`${classes.paperWide}`]: props.size === 'wide'},
-        {[`${classes.paperNormalWide}`]: props.size === 'normalWide'},
-        {[`${classes.paperFullWidth}`]: props.size === 'full'},
-        {[`${classes.paperAdjustedForSmallLeftDrawer}`]: props.anchor === 'left' && (props.position === 'middle' || props.position === 'right')},
-        {[`${classes.paperAdjustedForSmallLeftDrawerFull}`]: props.anchor === 'left' && props.size === 'full' && props.position === 'right'},
-        {[`${classes.paperAdjustedForRightDrawer}`]: props.anchor === 'left' && props.position === 'middle'},
-        {[`${classes.paperAdjustedForLeftDrawer}`]: props.anchor === 'right' && props.position === 'full'},
-        {[`${classes.paperAdjustedForLeftDrawerFull}`]: props.anchor === 'right' && props.size === 'full' && props.position === 'full'},
-        {[`${classes.paperOnTop}`]: props.onTop}
+        { [`${classes.paper}`]: props.anchor !== 'left' },
+        { [`${classes.paperLeft}`]: props.anchor === 'left' },
+        { [`${classes.paperTransparent}`]: props.transparent },
+        { [`${classes.paperNotTransparent}`]: !props.transparent && !props.noBackgroundColor },
+        { [`${classes.paperSmall}`]: props.size === 'small' },
+        { [`${classes.paperNormal}`]: props.size === 'normal' || !props.size },
+        { [`${classes.paperWide}`]: props.size === 'wide' },
+        { [`${classes.paperNormalWide}`]: props.size === 'normalWide' },
+        { [`${classes.paperFullWidth}`]: props.size === 'full' },
+        { [`${classes.paperAdjustedForSmallLeftDrawer}`]: props.anchor === 'left' && (props.position === 'middle' || props.position === 'right') },
+        { [`${classes.paperAdjustedForSmallLeftDrawerFull}`]: props.anchor === 'left' && props.size === 'full' && props.position === 'right' },
+        { [`${classes.paperAdjustedForRightDrawer}`]: props.anchor === 'left' && props.position === 'middle' },
+        { [`${classes.paperAdjustedForLeftDrawer}`]: props.anchor === 'right' && props.position === 'full' },
+        { [`${classes.paperAdjustedForLeftDrawerFull}`]: props.anchor === 'right' && props.size === 'full' && props.position === 'full' },
+        { [`${classes.paperOnTop}`]: props.onTop }
     );
 
     const chevronIcon = clsx({
-        'fa'                : true,
-        'fa-chevron-right'  : props.anchor !== 'left',
-        'fa-chevron-left'   : props.anchor === 'left'
+        'fa': true,
+        'fa-chevron-right': props.anchor !== 'left',
+        'fa-chevron-left': props.anchor === 'left'
     });
 
     let closeButton;
@@ -149,7 +149,7 @@ const ConferenceDrawer = (props) => {
         >
             <div className="conference-drawer">
                 <Toolbar className={classes.toolbar}>
-                    {props.anchor !== 'left' ? closeButton : title }
+                    {props.anchor !== 'left' ? closeButton : title}
                     <div className={classes.grow} />
                     {props.anchor !== 'left' ? title : closeButton}
                     <Divider absolute />
@@ -163,17 +163,17 @@ const ConferenceDrawer = (props) => {
 }
 
 ConferenceDrawer.propTypes = {
-    show        : PropTypes.bool.isRequired,
-    close       : PropTypes.func.isRequired,
-    anchor      : PropTypes.string,
-    transparent : PropTypes.bool,
-    size        : PropTypes.string,
-    position    : PropTypes.string,
-    showClose   : PropTypes.bool,
-    title       : PropTypes.object,
-    children    : PropTypes.node,
+    show: PropTypes.bool.isRequired,
+    close: PropTypes.func.isRequired,
+    anchor: PropTypes.string,
+    transparent: PropTypes.bool,
+    size: PropTypes.string,
+    position: PropTypes.string,
+    showClose: PropTypes.bool,
+    title: PropTypes.object,
+    children: PropTypes.node,
     noBackgroundColor: PropTypes.bool,
-    onTop       : PropTypes.bool
+    onTop: PropTypes.bool
 };
 
 

@@ -181,7 +181,7 @@ const FileTransferMessage = ({
                 return;
             }
             setHeader(
-                <Typography className={classes.fixFont} style={{ fontSize: 12 }} variant="body2" color="textSecondary">{filetype}</Typography>
+                <Typography className={classes.fixFont} style={{ fontSize: 12, alignSelf: 'center' }} variant="body2" color="textSecondary">{filetype}</Typography>
             )
             setParsedContent(
                 <div

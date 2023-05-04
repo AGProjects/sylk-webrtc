@@ -200,11 +200,11 @@ const FileTransferMessage = ({
                 fileTransferUtils.generateThumbnail(account, message.id, parsedJsonContent)
                     .then(([image, filename, w, h]) => {
                         setHeader(
-                            <Typography className={classes.fixFont} style={{ display: 'flex', fontSize: 12 }} variant="body2" color="textSecondary">{filename.replaceAll('_', ' ')}
+                            <Typography className={classes.fixFont} style={{ display: 'flex', fontSize: 12, alignSelf: 'center' }} variant="body2" color="textSecondary">{filename.replaceAll('_', ' ')}
                             </Typography>
                         )
                         setParsedContent(
-                            <Paper variant="outlined" style={{ display: 'inline-block', borderRadius: 7, overflow: 'hidden' }}>
+                            <Paper variant="outlined" style={{ display: 'inline-block', borderRadius: 7, overflow: 'hidden', cursor: 'zoom-in' }}>
                                 <img className="img-responsive img-rounded" style={{ ...w && { width: w }, ...h && { height: h } }} src={image} onClick={showModal} />
                             </Paper>
                         );

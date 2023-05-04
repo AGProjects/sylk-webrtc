@@ -281,7 +281,7 @@ const ContactList = (props) => {
                     variant="outlined"
                     size="small"
                     icon={<DownloadIcon />}
-                    label={parsedJson.filename.replaceAll('_', ' ').replace('.asc', '')}
+                    label={parsedJson.filename.replace(/_/g, ' ').replace('.asc', '')}
                     onClick={(event) => { event.stopPropagation(); event.preventDefault(); props.download(parsedJson) }}
                 />
             );

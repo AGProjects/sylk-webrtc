@@ -128,7 +128,7 @@ const FileTransferMessage = ({
         if (parsedJsonContent.filetype && !parsedJsonContent.filetype.startsWith('image/')) {
             if (hidden) {
                 setHeader(
-                    <Typography className={classes.fixFont} style={{ fontSize: 12 }} variant="body2">{parsedJsonContent.filename.replace('.asc', '').replaceAll('_', ' ')}</Typography>
+                    <Typography className={classes.fixFont} style={{ fontSize: 12 }} variant="body2">{parsedJsonContent.filename.replace('.asc', '').replace(/_/g, ' ')}</Typography>
                 )
             } else {
                 let filetype = parsedJsonContent.filetype;
@@ -185,7 +185,7 @@ const FileTransferMessage = ({
                             </Grid>
                             <Grid style={{ display: 'flex', alignItems: 'center' }} item>
                                 <div>
-                                    <Typography className={classes.fixFont} style={{ fontSize: 16, fontWeight: 300 }} variant="subtitle1">{parsedJsonContent.filename.replace('.asc', '').replaceAll('_', ' ')}</Typography>
+                                    <Typography className={classes.fixFont} style={{ fontSize: 16, fontWeight: 300 }} variant="subtitle1">{parsedJsonContent.filename.replace('.asc', '').replace(/_/g, ' ')}</Typography>
                                     <Typography className={classes.fixFont} style={{ fontSize: 12 }} variant="body2" color="textSecondary">{fileSize(parsedJsonContent.filesize)} {filetype}</Typography>
                                 </div>
                             </Grid>
@@ -200,7 +200,7 @@ const FileTransferMessage = ({
                 fileTransferUtils.generateThumbnail(account, message.id, parsedJsonContent)
                     .then(([image, filename, w, h]) => {
                         setHeader(
-                            <Typography className={classes.fixFont} style={{ display: 'flex', fontSize: 12, alignSelf: 'center' }} variant="body2" color="textSecondary">{filename.replaceAll('_', ' ')}
+                            <Typography className={classes.fixFont} style={{ display: 'flex', fontSize: 12, alignSelf: 'center' }} variant="body2" color="textSecondary">{filename.replace(/_/g, ' ')}
                             </Typography>
                         )
                         setParsedContent(

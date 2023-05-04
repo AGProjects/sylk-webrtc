@@ -39,6 +39,15 @@ const UserIcon = require('../UserIcon');
 const fileTransferUtils = require('../../fileTransferUtils');
 
 
+function isElectron() {
+    if (typeof window.process !== 'undefined') {
+        if (window.process.versions.electron !== '' && window.process.platform === 'darwin') {
+            return true;
+        }
+    }
+    return false;
+}
+
 const styleSheet = makeStyles((theme) => ({
     chipSmall: {
         height: 18,
@@ -345,9 +354,11 @@ const FileTransferMessage = ({
                     onClose={handleClose}
                     keepMounted={false}
                 >
-                    <MenuItem className={classes.item} onClick={() => { fileTransferUtils.openInNewTab(account, parsedJsonContent); handleClose() }}>
-                        Open in new tab
-                    </MenuItem>
+                    {!isElectron() &&
+                        <MenuItem className={classes.item} onClick={() => { fileTransferUtils.openInNewTab(account, parsedJsonContent); handleClose() }}>
+                            Open in new tab
+                        </MenuItem>
+                    }
                     <MenuItem className={classes.item} onClick={() => { fileTransferUtils.download(account, parsedJsonContent); handleClose() }} >
                         Download Image
                     </MenuItem>

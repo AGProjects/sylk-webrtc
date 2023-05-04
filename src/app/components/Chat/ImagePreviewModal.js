@@ -21,6 +21,15 @@ const UserIcon = require('../UserIcon');
 const { Tooltip } = require('../../MaterialUIAsBootstrap')
 
 
+function isElectron() {
+    if (typeof window.process !== 'undefined') {
+        if (window.process.versions.electron !== '' && window.process.platform === 'darwin') {
+            return true;
+        }
+    }
+    return false;
+}
+
 const ImageItemBar = withStyles((theme) => ({
     root: {
         fontFamily: 'inherit',
@@ -222,9 +231,11 @@ const ImagePreviewModal = (props) => {
                                             horizontal: 'right'
                                         }}
                                     >
-                                        <MenuItem className={classes.item} onClick={() => { props.openInNewTab(parsedJsonContent()); handleClose() }}>
-                                            Open in new tab
-                                        </MenuItem>
+                                        {!isElectron() &&
+                                            <MenuItem className={classes.item} onClick={() => { props.openInNewTab(parsedJsonContent()); handleClose() }}>
+                                                Open in new tab
+                                            </MenuItem>
+                                        }
                                         {!props.message.isSecure &&
                                             <MenuItem className={classes.item} onClick={() => { handleClose(); }}>
                                                 Copy link to file

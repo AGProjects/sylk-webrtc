@@ -36,12 +36,15 @@ function upload({ notificationCenter, account }, files, uri) {
                     .on('progress', (e) => {
                         notificationCenter().editFileUploadNotification(e.percent, progressNotification);
                     })
-                    .end((err) => {
+                    .then(response => {
                         complete = true;
                         notificationCenter().removeFileUploadNotification(progressNotification);
-                        if (err) {
-                            notificationCenter().postFileUploadFailed(filename);
-                        }
+                        uploads.splice(uploads.indexOf(uploadRequest), 1);
+                    })
+                    .catch(err => {
+                        complete = true;
+                        notificationCenter().removeFileUploadNotification(progressNotification);
+                        notificationCenter().postFileUploadFailed(filename);
                         uploads.splice(uploads.indexOf(uploadRequest), 1);
                     });
                 uploads.push([uploadRequest, progressNotification]);

@@ -50,11 +50,11 @@ function upload({ notificationCenter, account }, files, uri) {
     }
 }
 
-function _download(account, url, filename) {
+function _download(account, url, filename, filetype) {
     return superagent
         .get(`${url}`)
         .then((res) => {
-            return account.decryptFile(res.text, filename);
+            return account.decryptFile(res.text, filename, filetype);
         });
 }
 
@@ -94,7 +94,7 @@ function download(account, { url, filename, filetype }) {
         return;
     }
 
-    _download(account, url, filename)
+    _download(account, url, filename, filetype)
         .then(file => {
             const a = document.createElement('a');
             a.href = URL.createObjectURL(file.file)
@@ -111,7 +111,7 @@ function download(account, { url, filename, filetype }) {
         })
 }
 
-function openInNewTab(account, { url, filename }) {
+function openInNewTab(account, { url, filename, filetype }) {
     try {
         _parameterTest('url', url);
         _parameterTest('filename', filename);
@@ -127,7 +127,7 @@ function openInNewTab(account, { url, filename }) {
     }
     let newTab = window.open('', '_blank');
 
-    _download(account, url, filename)
+    _download(account, url, filename, filetype)
         .then(file => {
             let blob = URL.createObjectURL(file.file);
             newTab.location = blob;
@@ -148,7 +148,7 @@ function generateThumbnail(account, id, { url, filename, filetype }) {
         return new Promise((resolve) => resolve(imageCache[id]))
     }
 
-    return _download(account, url, filename)
+    return _download(account, url, filename, filetype)
         .then(file => {
             let fr = new FileReader();
             return new Promise((resolve, reject) => {
@@ -156,7 +156,8 @@ function generateThumbnail(account, id, { url, filename, filetype }) {
                     if (filetype === 'image/svg+xml') {
                         resolve(['data:image/svg+xml;charset=utf-8,' + encodeURIComponent(fr.result), file.file.name])
                     }
-                    resolve([fr.result, file.file.name])
+                    let result = fr.result.replace('application/octet-stream', filetype);
+                    resolve([result, file.file.name])
                 }
                 fr.onerror = reject;
                 if (filetype === 'image/svg+xml') {
@@ -205,7 +206,7 @@ function getImage(account, message) {
         return new Promise((resolve) => resolve([url, filename]))
     }
 
-    return _download(account, url, filename)
+    return _download(account, url, filename, filetype)
         .then(file => {
             let fr = new FileReader();
             return new Promise((resolve, reject) => {

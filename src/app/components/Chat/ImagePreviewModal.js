@@ -182,7 +182,7 @@ const ImagePreviewModal = (props) => {
                     <div style={{ visibility: `${showLayers ? 'visible' : 'hidden'}` }}>
                         <ImageItemBar
                             title={getTitle()}
-                            subtitle={props.message.filename.replace(/_/g, ' ')}
+                            subtitle={props.message.filename}
                             position="top"
                             actionIcon={userIcon()}
                             actionPosition="left"

@@ -241,7 +241,9 @@ const ImagePreviewModal = (props) => {
                                                 Copy link to file
                                             </MenuItem>
                                         }
-                                        <Divider />
+                                        {!props.message.isSecure && !isElectron() &&
+                                            <Divider />
+                                        }
                                         <MenuItem className={classes.itemRed} onClick={() => { props.removeMessage(props.message); handleClose(); props.close() }}>
                                             Delete file
                                         </MenuItem>

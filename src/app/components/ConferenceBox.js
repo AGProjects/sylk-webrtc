@@ -1,50 +1,51 @@
 'use strict';
 
-const React                 = require('react');
-const PropTypes             = require('prop-types');
-const TransitionGroup       = require('react-transition-group/TransitionGroup');
-const CSSTransition         = require('react-transition-group/CSSTransition');
-const ReactMixin            = require('react-mixin');
-const ReactBootstrap        = require('react-bootstrap');
-const Popover               = ReactBootstrap.Popover;
-const OverlayTrigger        = ReactBootstrap.OverlayTrigger;
-const { withStyles }        = require('@material-ui/core/styles');
+const React = require('react');
+const PropTypes = require('prop-types');
+const TransitionGroup = require('react-transition-group/TransitionGroup');
+const CSSTransition = require('react-transition-group/CSSTransition');
+const ReactMixin = require('react-mixin');
+const ReactBootstrap = require('react-bootstrap');
+const Popover = ReactBootstrap.Popover;
+const OverlayTrigger = ReactBootstrap.OverlayTrigger;
+const { withStyles } = require('@material-ui/core/styles');
 const { IconButton, Badge } = require('@material-ui/core');
 const {
     NetworkCheck: NetworkCheckIcon
-}                           = require('@material-ui/icons');
-const sylkrtc               = require('sylkrtc');
-const { default: clsx }     = require('clsx');
-const debug                 = require('debug');
-const superagent            = require('superagent');
+} = require('@material-ui/icons');
+const sylkrtc = require('sylkrtc');
+const { default: clsx } = require('clsx');
+const debug = require('debug');
+const superagent = require('superagent');
 
-const config                            = require('../config');
-const utils                             = require('../utils');
-const FullscreenMixin                   = require('../mixins/FullScreen');
-const AudioPlayer                       = require('./AudioPlayer');
-const CallQuality                       = require('./CallQuality');
-const ConferenceDrawer                  = require('./ConferenceDrawer');
-const ConferenceDrawerLog               = require('./ConferenceDrawerLog');
-const ConferenceDrawerFiles             = require('./ConferenceDrawerFiles');
-const ConferenceDrawerParticipant       = require('./ConferenceDrawerParticipant');
-const ConferenceDrawerParticipantList   = require('./ConferenceDrawerParticipantList');
-const ConferenceDrawerSpeakerSelection  = require('./ConferenceDrawerSpeakerSelection');
-const ConferenceDrawerMute              = require('./ConferenceDrawerMute');
-const ConferenceHeader                  = require('./ConferenceHeader');
-const ConferenceCarousel                = require('./ConferenceCarousel');
-const ConferenceParticipant             = require('./ConferenceParticipant');
-const ConferenceMatrixParticipant       = require('./ConferenceMatrixParticipant');
-const ConferenceParticipantSelf         = require('./ConferenceParticipantSelf');
-const ConferenceChat                    = require('./ConferenceChat');
-const ConferenceChatEditor              = require('./ConferenceChatEditor');
-const ConferenceMenu                    = require('./ConferenceMenu');
-const DragAndDrop                       = require('./DragAndDrop');
-const InviteParticipantsModal           = require('./InviteParticipantsModal');
-const MuteAudioParticipantsModal        = require('./MuteAudioParticipantsModal');
-const Statistics                        = require('./Statistics');
-const SwitchDevicesModal                = require('./SwitchDevicesModal');
-const SwitchDevicesMenu                 = require('./SwitchDevicesMenu');
-const UserIcon                          = require('./UserIcon');
+const AudioPlayer = require('./AudioPlayer');
+const CallQuality = require('./CallQuality');
+const ConferenceDrawer = require('./ConferenceDrawer');
+const ConferenceDrawerLog = require('./ConferenceDrawerLog');
+const ConferenceDrawerFiles = require('./ConferenceDrawerFiles');
+const ConferenceDrawerParticipant = require('./ConferenceDrawerParticipant');
+const ConferenceDrawerParticipantList = require('./ConferenceDrawerParticipantList');
+const ConferenceDrawerSpeakerSelection = require('./ConferenceDrawerSpeakerSelection');
+const ConferenceDrawerMute = require('./ConferenceDrawerMute');
+const ConferenceHeader = require('./ConferenceHeader');
+const ConferenceCarousel = require('./ConferenceCarousel');
+const ConferenceParticipant = require('./ConferenceParticipant');
+const ConferenceMatrixParticipant = require('./ConferenceMatrixParticipant');
+const ConferenceParticipantSelf = require('./ConferenceParticipantSelf');
+const ConferenceChat = require('./ConferenceChat');
+const ConferenceChatEditor = require('./ConferenceChatEditor');
+const ConferenceMenu = require('./ConferenceMenu');
+const DragAndDrop = require('./DragAndDrop');
+const InviteParticipantsModal = require('./InviteParticipantsModal');
+const MuteAudioParticipantsModal = require('./MuteAudioParticipantsModal');
+const Statistics = require('./Statistics');
+const SwitchDevicesModal = require('./SwitchDevicesModal');
+const SwitchDevicesMenu = require('./SwitchDevicesMenu');
+const UserIcon = require('./UserIcon');
+
+const FullscreenMixin = require('../mixins/FullScreen');
+const config = require('../config');
+const utils = require('../utils');
 
 const DEBUG = debug('blinkrtc:ConferenceBox');
 
@@ -54,7 +55,7 @@ const styleSheet = {
         width: '45px',
         height: '45px',
         backgroundColor: '#fff',
-        fontSize:'20px',
+        fontSize: '20px',
         border: '1px solid #fff',
         color: '#333',
         margin: '4px',
@@ -125,9 +126,9 @@ class ConferenceBox extends React.Component {
             this.callUrl = `${window.location.origin}/conference/${friendlyName}`;
         }
 
-        const emailMessage  = `You can join me in the conference using a Web browser at ${this.callUrl} ` +
-                             'or Sylk app from https://sylkserver.com';
-        const subject       = 'Join me, maybe?';
+        const emailMessage = `You can join me in the conference using a Web browser at ${this.callUrl} ` +
+            'or Sylk app from https://sylkserver.com';
+        const subject = 'Join me, maybe?';
 
         this.emailLink = `mailto:?subject=${encodeURI(subject)}&body=${encodeURI(emailMessage)}`;
 
@@ -146,8 +147,8 @@ class ConferenceBox extends React.Component {
             this.logEvent[level] = (
                 (action, messages, originator) => {
                     const log = this.state.eventLog.slice();
-                    log.unshift({originator, originator, level: level, action: action, messages: messages});
-                    this.setState({eventLog: log});
+                    log.unshift({ originator, originator, level: level, action: action, messages: messages });
+                    this.setState({ eventLog: log });
                 }
             );
         });
@@ -443,7 +444,7 @@ class ConferenceBox extends React.Component {
 
     incomingMessage(message) {
         if (!this.state.showChat) {
-            this.notifications.push(this.props.notificationCenter().postNewMessage(message, ()=> {
+            this.notifications.push(this.props.notificationCenter().postNewMessage(message, () => {
                 this.toggleChatInCall();
             }));
         }
@@ -489,7 +490,7 @@ class ConferenceBox extends React.Component {
         if (config.activeParticipants.length === 0) {
             this.logEvent.info('set speakers to', ['Nobody'], config.originator);
         } else {
-            const speakers = config.activeParticipants.map((p) => {return p.identity.displayName || p.identity.uri});
+            const speakers = config.activeParticipants.map((p) => { return p.identity.displayName || p.identity.uri });
             this.logEvent.info('set speakers to', speakers, config.originator);
         }
         this.maybeSwitchLargeVideo();
@@ -498,7 +499,7 @@ class ConferenceBox extends React.Component {
     onFileSharing(files) {
         let stateFiles = this.state.sharedFiles.slice();
         stateFiles = stateFiles.concat(files);
-        this.setState({sharedFiles: stateFiles});
+        this.setState({ sharedFiles: stateFiles });
         files.forEach((file) => {
             if (file.session !== this.props.call.id) {
                 this.props.notificationCenter().postFileShared(file, this.showFiles);
@@ -522,19 +523,19 @@ class ConferenceBox extends React.Component {
             }
             if (newMessages === 1) {
                 this.messageNotification = this.props.notificationCenter().postNewMessage(message, () => {
-                    this.setState({showInlineChat: true})
+                    this.setState({ showInlineChat: true })
                 });
             }
         }
         stateMessages.push(message);
-        this.setState({messages: stateMessages, newMessages: newMessages});
+        this.setState({ messages: stateMessages, newMessages: newMessages });
     }
 
     onComposing(indication) {
         if (indication.state === 'active') {
-            this.setState({isComposing: true});
+            this.setState({ isComposing: true });
         } else {
-            this.setState({isComposing: false});
+            this.setState({ isComposing: false });
         }
     }
 
@@ -546,7 +547,7 @@ class ConferenceBox extends React.Component {
                 const track = localStream.getAudioTracks()[0];
                 DEBUG('Mute audio on event from %o', message.originator);
                 track.enabled = false;
-                this.setState({audioMuted: true});
+                this.setState({ audioMuted: true });
                 this.notifications.push(this.props.notificationCenter().postMutedBy(message.originator));
             }
         }
@@ -554,18 +555,18 @@ class ConferenceBox extends React.Component {
 
     onRaisedHands(message) {
         let raisedHand = true;
-        if (message.raisedHands.findIndex((element) => {return element.id === this.props.call.id}) === -1) {
+        if (message.raisedHands.findIndex((element) => { return element.id === this.props.call.id }) === -1) {
             raisedHand = false;
         }
 
         const raisedHands = this.state.raisedHands.slice();
         if (raisedHands.length < message.raisedHands.length) {
-            const diff = message.raisedHands.filter((element) => {return raisedHands.findIndex((elem) => {return elem.id === element.id})});
+            const diff = message.raisedHands.filter((element) => { return raisedHands.findIndex((elem) => { return elem.id === element.id }) });
             if (diff.length > 0 && diff[0].id !== this.props.call.id) {
                 this.props.notificationCenter().postRaisedHand(diff[0].identity);
             }
         }
-        this.setState({raisedHands: message.raisedHands, raisedHand: raisedHand});
+        this.setState({ raisedHands: message.raisedHands, raisedHand: raisedHand });
     }
 
     onKeyDown(event) {
@@ -593,7 +594,7 @@ class ConferenceBox extends React.Component {
                 case 83:    // s/S
                     event.preventDefault();
                     this.props.shareScreen();
-                    setTimeout(() => {this.forceUpdate()}, 100);
+                    setTimeout(() => { this.forceUpdate() }, 100);
                     break;
                 case 72:    // h/H
                     event.preventDefault();
@@ -605,15 +606,15 @@ class ConferenceBox extends React.Component {
                     break;
                 case 32:    // space
                     event.preventDefault();
-                    if(this.state.activeSpeakers.length === 1) {
-                        let next = this.state.activeSpeakers.findIndex((element) => {return element.id === this.props.call.id})
+                    if (this.state.activeSpeakers.length === 1) {
+                        let next = this.state.activeSpeakers.findIndex((element) => { return element.id === this.props.call.id })
                         let nextParticipant;
                         if (next === 1) {
                             nextParticipant = this.state.participants[0];
                         } else {
                             next = this.state.participants.indexOf(this.state.activeSpeakers[0]) + 1;
                             if (next == this.state.participants.length) {
-                                nextParticipant = {id: this.props.call.id, publisherId: this.props.call.id, identity: this.props.call.localIdentity}
+                                nextParticipant = { id: this.props.call.id, publisherId: this.props.call.id, identity: this.props.call.localIdentity }
                             } else {
                                 nextParticipant = this.state.participants[next];
                             }
@@ -642,8 +643,8 @@ class ConferenceBox extends React.Component {
     selectVideo(item, self = false) {
         DEBUG('Switching video to: %o', item);
         if (item.stream) {
-            sylkrtc.utils.attachMediaStream(item.stream, this.refs.largeVideo, {muted: self});
-            this.setState({selfDisplayedLarge: true});
+            sylkrtc.utils.attachMediaStream(item.stream, this.refs.largeVideo, { muted: self });
+            this.setState({ selfDisplayedLarge: true });
         }
     }
 
@@ -657,19 +658,19 @@ class ConferenceBox extends React.Component {
             };
             this.selectVideo(item, true);
         } else if (this.state.selfDisplayedLarge) {
-            this.setState({selfDisplayedLarge: false});
+            this.setState({ selfDisplayedLarge: false });
         }
     }
 
     handleFullscreen(event) {
         event.preventDefault();
         this.toggleFullscreen(document.body);
-        setTimeout(() => {this.forceUpdate()}, 100);
+        setTimeout(() => { this.forceUpdate() }, 100);
     }
 
     handleClipboardButton() {
         utils.copyToClipboard(this.callUrl);
-        this.props.notificationCenter().postSystemNotification('Join me, maybe?', {body: 'Link copied to the clipboard'});
+        this.props.notificationCenter().postSystemNotification('Join me, maybe?', { body: 'Link copied to the clipboard' });
         this.refs.shareOverlay.hide();
     }
 
@@ -688,7 +689,7 @@ class ConferenceBox extends React.Component {
     handleShareOverlayEntered() {
         // keep the buttons and overlay visible
         clearTimeout(this.overlayTimer);
-        this.setState({shareOverlayVisible: true});
+        this.setState({ shareOverlayVisible: true });
     }
 
     handleShareOverlayExited() {
@@ -696,10 +697,10 @@ class ConferenceBox extends React.Component {
         if (!this.state.showDrawer && !this.state.showFiles && this.props.call.supportsVideo && !this.props.lowBandwidth) {
             this.armOverlayTimer();
         }
-        this.setState({shareOverlayVisible: false});
+        this.setState({ shareOverlayVisible: false });
     }
 
-    handleActiveSpeakerSelected(participant, secondVideo=false) {      // eslint-disable-line space-infix-ops
+    handleActiveSpeakerSelected(participant, secondVideo = false) {      // eslint-disable-line space-infix-ops
         let newActiveSpeakers = this.state.activeSpeakers.slice();
         if (secondVideo) {
             if (participant.id !== 'none') {
@@ -709,7 +710,7 @@ class ConferenceBox extends React.Component {
                     newActiveSpeakers[0] = participant;
                 }
             } else {
-                newActiveSpeakers.splice(1,1);
+                newActiveSpeakers.splice(1, 1);
             }
         } else {
             if (participant.id !== 'none') {
@@ -741,7 +742,7 @@ class ConferenceBox extends React.Component {
         let msg = this.props.call.sendMessage(message, type);
         let stateMessages = this.state.messages.slice();
         stateMessages.push(msg);
-        this.setState({messages: stateMessages});
+        this.setState({ messages: stateMessages });
     }
 
     handleTyping(state) {
@@ -755,7 +756,7 @@ class ConferenceBox extends React.Component {
 
     handleToggleHand() {
         this.props.call.toggleHand();
-        this.setState({raisedHand: !this.state.raisedHand});
+        this.setState({ raisedHand: !this.state.raisedHand });
     }
 
     handleHandSelected(participant) {
@@ -764,7 +765,7 @@ class ConferenceBox extends React.Component {
             if (this.state.activeSpeakers.length !== 2) {
                 this.handleActiveSpeakerSelected(participant, true);
             } else {
-                let index = this.state.activeSpeakers.findIndex((element) => {return element.id === this.props.call.id})
+                let index = this.state.activeSpeakers.findIndex((element) => { return element.id === this.props.call.id })
                 if (index !== -1) {
                     if (index == 1) {
                         this.handleActiveSpeakerSelected(participant);
@@ -798,26 +799,26 @@ class ConferenceBox extends React.Component {
                     }
                 );
                 uploadRequest = superagent
-                .post(`${config.fileSharingUrl}/${this.props.remoteIdentity}/${this.props.call.id}/${filename}`)
-                .send(files[key])
-                .on('progress', (e) => {
-                    this.props.notificationCenter().editFileUploadNotification(e.percent, progressNotification);
-                })
-                .end((err, response) => {
-                    complete = true;
-                    this.props.notificationCenter().removeFileUploadNotification(progressNotification);
-                    if (err) {
-                        this.props.notificationCenter().postFileUploadFailed(filename);
-                    }
-                    this.uploads.splice(this.uploads.indexOf(uploadRequest), 1);
-                });
+                    .post(`${config.fileSharingUrl}/${this.props.remoteIdentity}/${this.props.call.id}/${filename}`)
+                    .send(files[key])
+                    .on('progress', (e) => {
+                        this.props.notificationCenter().editFileUploadNotification(e.percent, progressNotification);
+                    })
+                    .end((err, response) => {
+                        complete = true;
+                        this.props.notificationCenter().removeFileUploadNotification(progressNotification);
+                        if (err) {
+                            this.props.notificationCenter().postFileUploadFailed(filename);
+                        }
+                        this.uploads.splice(this.uploads.indexOf(uploadRequest), 1);
+                    });
                 this.uploads.push([uploadRequest, progressNotification]);
             }
         }
     }
 
     setScroll() {
-        this.setState({shouldScroll: !this.state.shouldScroll});
+        this.setState({ shouldScroll: !this.state.shouldScroll });
     }
 
     downloadFile(filename) {
@@ -843,17 +844,17 @@ class ConferenceBox extends React.Component {
         const localStream = this.props.call.getLocalStreams()[0];
         if (localStream.getAudioTracks().length > 0) {
             const track = localStream.getAudioTracks()[0];
-            if(this.state.audioMuted) {
+            if (this.state.audioMuted) {
                 DEBUG('Unmute microphone');
                 track.enabled = true;
-                this.setState({audioMuted: false});
+                this.setState({ audioMuted: false });
                 this.notifications.forEach((notification) => {
                     this.props.notificationCenter().removeNotification(notification);
                 });
             } else {
                 DEBUG('Mute microphone');
                 track.enabled = false;
-                this.setState({audioMuted: true});
+                this.setState({ audioMuted: true });
             }
         }
     }
@@ -864,7 +865,7 @@ class ConferenceBox extends React.Component {
             const track = localStream.getAudioTracks()[0];
             DEBUG('Mute microphone, guest participant');
             track.enabled = false;
-            this.setState({audioMuted: true});
+            this.setState({ audioMuted: true });
             this.notifications.push(this.props.notificationCenter().postMutedOnStart());
         }
     }
@@ -877,11 +878,11 @@ class ConferenceBox extends React.Component {
             if (this.state.videoMuted) {
                 DEBUG('Unmute camera');
                 track.enabled = true;
-                this.setState({videoMuted: false});
+                this.setState({ videoMuted: false });
             } else {
                 DEBUG('Mute camera');
                 track.enabled = false;
-                this.setState({videoMuted: true});
+                this.setState({ videoMuted: true });
             }
         }
     }
@@ -900,7 +901,7 @@ class ConferenceBox extends React.Component {
     armOverlayTimer() {
         clearTimeout(this.overlayTimer);
         this.overlayTimer = setTimeout(() => {
-            this.setState({callOverlayVisible: false});
+            this.setState({ callOverlayVisible: false });
         }, 4000);
     }
 
@@ -914,30 +915,30 @@ class ConferenceBox extends React.Component {
             && !this.state.showInlineChat
         ) {
             if (!this.state.callOverlayVisible) {
-                this.setState({callOverlayVisible: true});
+                this.setState({ callOverlayVisible: true });
             }
             this.armOverlayTimer();
         }
     }
 
     toggleInviteModal() {
-        this.setState({showInviteModal: !this.state.showInviteModal});
+        this.setState({ showInviteModal: !this.state.showInviteModal });
         if (this.refs.showOverlay) {
             this.refs.shareOverlay.hide();
         }
     }
 
     toggleMuteAudioParticipantsModal() {
-        this.setState({showMuteAudioParticipantsModal: !this.state.showMuteAudioParticipantsModal});
+        this.setState({ showMuteAudioParticipantsModal: !this.state.showMuteAudioParticipantsModal });
     }
 
     toggleDrawer() {
-        this.setState({callOverlayVisible: true, showDrawer: !this.state.showDrawer, showFiles: false, showInlineChat: false});
+        this.setState({ callOverlayVisible: true, showDrawer: !this.state.showDrawer, showFiles: false, showInlineChat: false });
         clearTimeout(this.overlayTimer);
     }
 
     toggleFiles() {
-        this.setState({callOverlayVisible: true, showFiles: !this.state.showFiles, showDrawer: false});
+        this.setState({ callOverlayVisible: true, showFiles: !this.state.showFiles, showDrawer: false });
         clearTimeout(this.overlayTimer);
     }
 
@@ -984,31 +985,31 @@ class ConferenceBox extends React.Component {
 
     toggleChatEditorFocus() {
         this.props.propagateKeyPress(this.state.chatEditorFocus);
-        this.setState({chatEditorFocus: !this.state.chatEditorFocus});
+        this.setState({ chatEditorFocus: !this.state.chatEditorFocus });
     }
 
     toggleMenu(event) {
-        this.setState({menuAnchor: event.currentTarget, showMenu: !this.state.showMenu, callOverlayVisible: true});
+        this.setState({ menuAnchor: event.currentTarget, showMenu: !this.state.showMenu, callOverlayVisible: true });
         clearTimeout(this.overlayTimer);
     }
 
     toggleSwitchModal() {
         this.setState({
-            showSwitchModal : !this.state.showSwitchModal
+            showSwitchModal: !this.state.showSwitchModal
         });
     }
 
     toggleSwitchMenu(event) {
         if (!event) {
             this.setState({
-                showSwitchMenu : !this.state.showSwitchMenu,
+                showSwitchMenu: !this.state.showSwitchMenu,
                 callOverlayVisible: true
             });
         } else {
             event.currentTarget.blur();
             this.setState({
                 switchAnchor: event.currentTarget,
-                showSwitchMenu : !this.state.showSwitchMenu,
+                showSwitchMenu: !this.state.showSwitchMenu,
                 callOverlayVisible: true
             });
         }
@@ -1018,14 +1019,14 @@ class ConferenceBox extends React.Component {
     toggleAudioSwitchMenu(event) {
         if (!event) {
             this.setState({
-                showAudioSwitchMenu : !this.state.showAudioSwitchMenu,
+                showAudioSwitchMenu: !this.state.showAudioSwitchMenu,
                 callOverlayVisible: true
             });
         } else {
             event.currentTarget.blur();
             this.setState({
                 switchAnchor: event.currentTarget,
-                showAudioSwitchMenu : !this.state.showAudioSwitchMenu,
+                showAudioSwitchMenu: !this.state.showAudioSwitchMenu,
                 callOverlayVisible: true
             });
         }
@@ -1033,7 +1034,7 @@ class ConferenceBox extends React.Component {
     }
 
     showFiles() {
-        this.setState({callOverlayVisible: true, showFiles: true, showDrawer: false, showInlineChat: false});
+        this.setState({ callOverlayVisible: true, showFiles: true, showDrawer: false, showInlineChat: false });
         clearTimeout(this.overlayTimer);
     }
 
@@ -1049,22 +1050,22 @@ class ConferenceBox extends React.Component {
         const unreadMessages = (this.props.unreadMessages && this.props.unreadMessages.total) || 0;
 
         const largeVideoClasses = clsx({
-            'animated'      : true,
-            'fadeIn'        : true,
-            'large'         : true,
-            'mirror'        : !this.props.call.sharingScreen && !this.props.generatedVideoTrack,
-            'fit'           : this.props.call.sharingScreen,
-            'hide'          : chatLayout || !this.haveVideo
+            'animated': true,
+            'fadeIn': true,
+            'large': true,
+            'mirror': !this.props.call.sharingScreen && !this.props.generatedVideoTrack,
+            'fit': this.props.call.sharingScreen,
+            'hide': chatLayout || !this.haveVideo
         });
 
         let matrixClasses = clsx({
-            'matrix'        : true
+            'matrix': true
         });
 
         const containerClasses = clsx({
             'video-container': true,
             'conference': true,
-            'drawer-visible': (this.state.showDrawer || (this.state.showInlineChat || this.state.showFiles) && utils.isMobile.any())  && !this.state.showChat,
+            'drawer-visible': (this.state.showDrawer || (this.state.showInlineChat || this.state.showFiles) && utils.isMobile.any()) && !this.state.showChat,
             'drawer-wide-visible': (this.state.showInlineChat || this.state.showFiles) && !this.state.showChat && !utils.isMobile.any()
         });
 
@@ -1094,29 +1095,29 @@ class ConferenceBox extends React.Component {
         const buttons = {};
 
         const commonButtonTopClasses = clsx({
-            'btn'           : true,
-            'btn-link'      : true
+            'btn': true,
+            'btn-link': true
         });
 
         const fullScreenButtonIcons = clsx({
-            'fa'            : true,
-            'fa-2x'         : true,
-            'fa-expand'     : !this.isFullScreen(),
-            'fa-compress'   : this.isFullScreen()
+            'fa': true,
+            'fa-2x': true,
+            'fa-expand': !this.isFullScreen(),
+            'fa-compress': this.isFullScreen()
         });
 
         const handClasses = clsx({
-            'fa'              : true,
-            'fa-2x'           : true,
-            'fa-hand-o-up'    : true,
-            'text-primary'    : this.state.raisedHand
+            'fa': true,
+            'fa-2x': true,
+            'fa-hand-o-up': true,
+            'text-primary': this.state.raisedHand
         });
 
         const callButtonClasses = clsx(
             commonButtonTopClasses,
             {
                 'active': !this.state.showChat,
-                'blink' : this.state.showChat
+                'blink': this.state.showChat
             }
         );
 
@@ -1175,13 +1176,13 @@ class ConferenceBox extends React.Component {
                 }
             }
         }
-        buttons.top = {left: topLeftButtons, right: topButtons};
+        buttons.top = { left: topLeftButtons, right: topButtons };
 
 
         const commonButtonClasses = clsx({
-            'btn'           : true,
-            'btn-round'     : true,
-            'btn-default'   : true
+            'btn': true,
+            'btn-round': true,
+            'btn-default': true
         });
 
         const shareButtonClasses = clsx(
@@ -1190,40 +1191,40 @@ class ConferenceBox extends React.Component {
         );
 
         const muteButtonIcons = clsx({
-            'fa'                    : true,
-            'fa-microphone'         : !this.state.audioMuted,
-            'fa-microphone-slash'   : this.state.audioMuted
+            'fa': true,
+            'fa-microphone': !this.state.audioMuted,
+            'fa-microphone-slash': this.state.audioMuted
         });
 
         const muteVideoButtonIcons = clsx({
-            'fa'                    : true,
-            'fa-video-camera'       : !this.state.videoMuted,
-            'fa-video-camera-slash' : this.state.videoMuted
+            'fa': true,
+            'fa-video-camera': !this.state.videoMuted,
+            'fa-video-camera-slash': this.state.videoMuted
         });
 
         const screenSharingButtonIcons = clsx({
-            'fa'                    : true,
-            'fa-clone'              : true,
-            'fa-flip-horizontal'    : true,
-            'text-warning'          : this.props.call.sharingScreen
+            'fa': true,
+            'fa-clone': true,
+            'fa-flip-horizontal': true,
+            'text-warning': this.props.call.sharingScreen
         });
 
         const shareFileButtonIcons = clsx({
-            'fa'                    : true,
-            'fa-upload'             : true
+            'fa': true,
+            'fa-upload': true
         });
 
         const menuButtonClasses = clsx({
-            'btn'           : true,
-            'btn-round-xs'  : true,
-            'btn-default'   : true,
-            'overlap'       : true
+            'btn': true,
+            'btn-round-xs': true,
+            'btn-default': true,
+            'overlap': true
         });
 
         const menuButtonIcons = clsx({
-            'fa'             : true,
-            'fa-caret-down'  : !chatLayout,
-            'fa-caret-right' : chatLayout
+            'fa': true,
+            'fa-caret-down': !chatLayout,
+            'fa-caret-right': chatLayout
         });
 
         const bottomButtons = [];
@@ -1241,7 +1242,7 @@ class ConferenceBox extends React.Component {
             bottomButtons.push(
                 <div className="btn-container" key="video">
                     <button key="muteVideo" type="button" title="Mute/unmute video" className={commonButtonClasses} onClick={this.muteVideo} disabled={!this.haveVideo}> <i className={muteVideoButtonIcons}></i> </button>
-                    <button key="videodevices" type="button" title="Select cameras" className={menuButtonClasses} onClick={this.toggleSwitchMenu}> <i className={menuButtonIcons}></i> </button>
+                    <button key="videodevices" type="button" title="Select cameras" className={menuButtonClasses} onClick={this.toggleSwitchMenu} disabled={!this.haveVideo}> <i className={menuButtonIcons}></i> </button>
                 </div>
             );
         }
@@ -1299,7 +1300,7 @@ class ConferenceBox extends React.Component {
                 <CSSTransition
                     key="watermark"
                     classNames="watermark"
-                    timeout={{enter: 600, exit: 300}}
+                    timeout={{ enter: 600, exit: 300 }}
                 >
                     <div className="watermark"></div>
                 </CSSTransition>
@@ -1309,7 +1310,7 @@ class ConferenceBox extends React.Component {
         const participants = [];
 
         if (this.state.participants.length > 0) {
-            if (this.state.activeSpeakers.findIndex((element) => {return element.id === this.props.call.id}) === -1) {
+            if (this.state.activeSpeakers.findIndex((element) => { return element.id === this.props.call.id }) === -1) {
                 participants.push(
                     <ConferenceParticipantSelf
                         key="myself"
@@ -1332,9 +1333,9 @@ class ConferenceBox extends React.Component {
         drawerParticipants.push(
             <ConferenceDrawerParticipant
                 key="myself"
-                participant={{identity: this.props.call.localIdentity, publisherId: this.props.call.id, streams: this.props.call.getLocalStreams()}}
+                participant={{ identity: this.props.call.localIdentity, publisherId: this.props.call.id, streams: this.props.call.getLocalStreams() }}
                 isLocal={true}
-                raisedHand={this.state.raisedHands.findIndex((element) => {return element.id === this.props.call.id})}
+                raisedHand={this.state.raisedHands.findIndex((element) => { return element.id === this.props.call.id })}
                 handleHandSelected={this.handleHandSelected}
                 disableHandToggle={disableHandToggle}
                 enableSpeakingIndication={chatLayout}
@@ -1354,10 +1355,10 @@ class ConferenceBox extends React.Component {
             const activeSpeakers = this.state.activeSpeakers;
             const activeSpeakersCount = activeSpeakers.length;
             matrixClasses = clsx({
-                'matrix'        : true,
-                'one-row'       : activeSpeakersCount === 2,
-                'two-columns'   : activeSpeakersCount === 2,
-                'offset-carousel' : activeSpeakersCount === 1 && this.state.participants.length >= 2
+                'matrix': true,
+                'one-row': activeSpeakersCount === 2,
+                'two-columns': activeSpeakersCount === 2,
+                'offset-carousel': activeSpeakersCount === 1 && this.state.participants.length >= 2
             });
 
             if (activeSpeakersCount > 0) {
@@ -1411,12 +1412,12 @@ class ConferenceBox extends React.Component {
                 });
             } else {
                 matrixClasses = clsx({
-                    'matrix'        : true,
-                    'one-row'       : this.state.participants.length === 2 ,
-                    'two-row'       : this.state.participants.length >= 3 && this.state.participants.length < 7,
-                    'three-row'     : this.state.participants.length >= 7,
-                    'two-columns'   : this.state.participants.length >= 2 || this.state.participants.length <= 4,
-                    'three-columns' : this.state.participants.length > 4
+                    'matrix': true,
+                    'one-row': this.state.participants.length === 2,
+                    'two-row': this.state.participants.length >= 3 && this.state.participants.length < 7,
+                    'three-row': this.state.participants.length >= 7,
+                    'two-columns': this.state.participants.length >= 2 || this.state.participants.length <= 4,
+                    'three-columns': this.state.participants.length > 4
                 });
                 this.state.participants.forEach((p) => {
                     videos.push(
@@ -1449,7 +1450,7 @@ class ConferenceBox extends React.Component {
         }
         const carouselClasses = clsx({
             'conference-thumbnails': true,
-            'conference-thumbnails-small': this.state.participants.length === 1 &&  this.state.activeSpeakers.length <= 1
+            'conference-thumbnails-small': this.state.participants.length === 1 && this.state.activeSpeakers.length <= 1
         });
 
         const callQuality = (
@@ -1490,7 +1491,7 @@ class ConferenceBox extends React.Component {
                     audio
                 />
                 <input
-                    style={{display:'none'}}
+                    style={{ display: 'none' }}
                     id="outlined-button-file"
                     multiple
                     type="file"
@@ -1530,7 +1531,7 @@ class ConferenceBox extends React.Component {
                     anchor="left"
                     size="small"
                     showClose={false}
-                    close={() => {}}
+                    close={() => { }}
                 >
                     {bottomButtons}
                 </ConferenceDrawer>
@@ -1538,7 +1539,7 @@ class ConferenceBox extends React.Component {
                     show={(this.state.showInlineChat || chatLayout || this.state.showFiles) && !this.state.showChat}
                     close={() => {
                         if (this.state.showInlineChat) {
-                            this.toggleChat(); 
+                            this.toggleChat();
                         }
                         if (this.state.showFiles) {
                             this.toggleFiles();
@@ -1547,9 +1548,9 @@ class ConferenceBox extends React.Component {
                     anchor={(!chatLayout) ? 'right' : 'left'}
                     transparent={false}
                     size={(!chatLayout) ? (utils.isMobile.any() ? 'normal' : 'wide') : 'full'}
-                    {...chatLayout && { position: this.state.showDrawer || this.state.showFiles ? 'middle' : 'right'}}
+                    {...chatLayout && { position: this.state.showDrawer || this.state.showFiles ? 'middle' : 'right' }}
                     showClose={!chatLayout}
-                    {...this.state.isComposing && !chatLayout && {title: (<i className="fa fa-ellipsis-h fa-2x" />)}}
+                    {...this.state.isComposing && !chatLayout && { title: (<i className="fa fa-ellipsis-h fa-2x" />) }}
                 >
                     {this.state.showFiles && !chatLayout &&
                         <ConferenceDrawerFiles
@@ -1571,7 +1572,7 @@ class ConferenceBox extends React.Component {
                     }
                     {(this.state.showInlineChat || chatLayout) && [
                         <ConferenceChat messages={this.state.messages} scroll={this.state.shouldScroll} />,
-                        <ConferenceChatEditor onSubmit={this.handleSend} onTyping={this.handleTyping} scroll={this.setScroll} focus={this.toggleChatEditorFocus}/>
+                        <ConferenceChatEditor onSubmit={this.handleSend} onTyping={this.handleTyping} scroll={this.setScroll} focus={this.toggleChatEditorFocus} />
                     ]}
                 </ConferenceDrawer>
                 <ConferenceDrawer show={this.state.showDrawer && !this.state.showChat} close={this.toggleDrawer}>
@@ -1612,14 +1613,14 @@ class ConferenceBox extends React.Component {
                     showClose={true}
                     close={this.toggleStatistics}
                     transparent={true}
-                    {...chatLayout && {onTop: true}}
+                    {...chatLayout && { onTop: true }}
                 >
                     <Statistics
                         videoData={this.state.videoGraphData}
                         audioData={this.state.audioGraphData}
                         lastData={this.state.lastData}
-                        videoElements={{remoteVideo: this.remoteVideo, localVideo:this.localVideo}}
-                        {...!chatLayout && {video: true}}
+                        videoElements={{ remoteVideo: this.remoteVideo, localVideo: this.localVideo }}
+                        {...!chatLayout && { video: true }}
                     />
                 </ConferenceDrawer>
                 <SwitchDevicesModal
@@ -1635,20 +1636,20 @@ class ConferenceBox extends React.Component {
 }
 
 ConferenceBox.propTypes = {
-    notificationCenter  : PropTypes.func.isRequired,
-    setDevice           : PropTypes.func.isRequired,
-    shareScreen         : PropTypes.func.isRequired,
-    classes             : PropTypes.object.isRequired,
-    propagateKeyPress   : PropTypes.func.isRequired,
-    toggleShortcuts     : PropTypes.func.isRequired,
-    call                : PropTypes.object,
-    hangup              : PropTypes.func,
-    remoteIdentity      : PropTypes.string,
-    generatedVideoTrack : PropTypes.bool,
-    participantIsGuest  : PropTypes.bool,
-    lowBandwidth        : PropTypes.bool,
-    toggleChatInCall    : PropTypes.func,
-    unreadMessages      : PropTypes.object
+    notificationCenter: PropTypes.func.isRequired,
+    setDevice: PropTypes.func.isRequired,
+    shareScreen: PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    propagateKeyPress: PropTypes.func.isRequired,
+    toggleShortcuts: PropTypes.func.isRequired,
+    call: PropTypes.object,
+    hangup: PropTypes.func,
+    remoteIdentity: PropTypes.string,
+    generatedVideoTrack: PropTypes.bool,
+    participantIsGuest: PropTypes.bool,
+    lowBandwidth: PropTypes.bool,
+    toggleChatInCall: PropTypes.func,
+    unreadMessages: PropTypes.object
 };
 
 ReactMixin(ConferenceBox.prototype, FullscreenMixin);

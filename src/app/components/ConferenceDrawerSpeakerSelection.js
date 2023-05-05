@@ -1,17 +1,17 @@
 'use strict';
 
-const React             = require('react');
-const PropTypes         = require('prop-types');
-const ReactBootstrap    = require('react-bootstrap');
-const MenuItem          = ReactBootstrap.MenuItem;
-const DropdownButton    = ReactBootstrap.DropdownButton;
+const React = require('react');
+const PropTypes = require('prop-types');
+const ReactBootstrap = require('react-bootstrap');
+const MenuItem = ReactBootstrap.MenuItem;
+const DropdownButton = ReactBootstrap.DropdownButton;
 
 
 class ConferenceDrawerSpeakerSelection extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            speakers: props.activeSpeakers.map((participant) => {return participant.id})
+            speakers: props.activeSpeakers.map((participant) => { return participant.id })
         };
 
         // ES6 classes no longer autobind
@@ -23,29 +23,29 @@ class ConferenceDrawerSpeakerSelection extends React.Component {
         });
     }
 
-    componentWillReceiveProps(nextProps) {
+    static getDerivedStateFromProps(props, state) {
         let speakers = [];
-        if (nextProps.activeSpeakers.length !== 0) {
-            speakers = nextProps.activeSpeakers.map((participant) => {
+        if (props.activeSpeakers.length !== 0) {
+            speakers = props.activeSpeakers.map((participant) => {
                 return participant.id
             });
         }
-        this.setState({speakers: speakers});
+        return { speakers: speakers };
     }
 
     handleFirstSpeakerSelected(event) {
         if (event === 'none') {
             if (this.state.speakers.length > 0) {
-                this.props.selected({ id: event});
+                this.props.selected({ id: event });
                 const newSpeakers = this.state.speakers.slice(1);
-                this.setState({speakers: newSpeakers});
+                this.setState({ speakers: newSpeakers });
             }
         } else {
             if (this.state.speakers[0] !== this.props.participants[event].id) {
                 this.props.selected(this.props.participants[event]);
                 const newSpeakers = this.state.speakers.slice();
                 newSpeakers[0] = this.props.participants[event].id;
-                this.setState({speakers: newSpeakers});
+                this.setState({ speakers: newSpeakers });
             }
         }
     }
@@ -53,15 +53,15 @@ class ConferenceDrawerSpeakerSelection extends React.Component {
     handleSecondSpeakerSelected(event) {
         if (event === 'none') {
             if (this.state.speakers.length > 1) {
-                this.props.selected({ id: event}, true);
+                this.props.selected({ id: event }, true);
                 const newSpeakers = this.state.speakers.slice();
                 newSpeakers.pop();
-                this.setState({speakers: newSpeakers});
+                this.setState({ speakers: newSpeakers });
             }
         } else {
             const newSpeakers = this.state.speakers.slice();
             newSpeakers[1] = this.props.participants[event].id;
-            this.setState({speakers: newSpeakers});
+            this.setState({ speakers: newSpeakers });
             this.props.selected(this.props.participants[event], true);
         }
     }
@@ -114,11 +114,11 @@ class ConferenceDrawerSpeakerSelection extends React.Component {
             <div>
                 <h4 className="header">Active Speakers</h4>
                 <div className="form-group">
-                   <label htmlFor="speaker1" className="control-label">Speaker 1:</label>
-                   <DropdownButton id="speaker1" title={title1} onSelect={this.handleFirstSpeakerSelected} block>
-                       <MenuItem key="none" eventKey="none" active={this.state.speakers.length === 0}>None</MenuItem>
-                       {participantsLeft}
-                   </DropdownButton>
+                    <label htmlFor="speaker1" className="control-label">Speaker 1:</label>
+                    <DropdownButton id="speaker1" title={title1} onSelect={this.handleFirstSpeakerSelected} block>
+                        <MenuItem key="none" eventKey="none" active={this.state.speakers.length === 0}>None</MenuItem>
+                        {participantsLeft}
+                    </DropdownButton>
                 </div>
                 <div className="form-group">
                     <label htmlFor="speaker1">Speaker 2:</label>

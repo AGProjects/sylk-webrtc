@@ -17,7 +17,7 @@
     "bootstrap-css-only": "^3.3.7",
     "clsx": "^1.2.1",
     "computed-style-to-inline-style": "^3.0.0",
-    "debug": "^4.3.2",
+    "debug": "^4.3.4",
     "digest-auth-request": "tijmenNL/digest-auth-request",
     "dotenv": "^8.6.0",
     "electron": "^8.5.5",

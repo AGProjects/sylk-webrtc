@@ -45,7 +45,7 @@
     "parcel-bundler": "^1.12.5",
     "parcel-plugin-nuke-dist": "^1.0.1",
     "parcel-plugin-package-version": "^1.0.2",
-    "parcel-plugin-static-files-copy": "^2.5.0",
+    "parcel-plugin-static-files-copy": "^2.6.0",
     "posthtml-expressions": "^1.7.1",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",

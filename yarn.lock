@@ -7775,10 +7775,10 @@ parcel-plugin-package-version@^1.0.2:
   resolved "https://registry.yarnpkg.com/parcel-plugin-package-version/-/parcel-plugin-package-version-1.0.2.tgz#a6d6d2f43e39f55a66bb63feba211dd32f96b9fb"
   integrity sha512-hm5xcpY2qaQ0Cr232O0WC+2ue283/HVYDy/+UpzNUi+ej77ngaU/t0R5PWDxDYkdjQTogls3d5P+ZqpOnOasKA==
 
-parcel-plugin-static-files-copy@^2.5.0:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/parcel-plugin-static-files-copy/-/parcel-plugin-static-files-copy-2.5.0.tgz#8ab26f331d163cd023d283fc0ef5fcd779fe5948"
-  integrity sha512-5rxOPw3iV+WXhePfByoIxsUlL4I0o95CgcF31gwgnhPuj2q6tVPuzEAJsag9bWJr5Vd/SXFPTNsUAGAg4jP07Q==
+parcel-plugin-static-files-copy@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/parcel-plugin-static-files-copy/-/parcel-plugin-static-files-copy-2.6.0.tgz#06d7d9b6d7e2071b2e261315e94209b522108beb"
+  integrity sha512-k3YxdnEQWo1aMfCeBfxgUNJWuUE0O730EGiGBcmWEUOto7f1jM/8oxBKXkVZsXDCO1o00dw5X7CsT+yF0JY4qA==
   dependencies:
     minimatch "3.0.4"
     path "0.12.7"

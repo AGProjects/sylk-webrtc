@@ -170,6 +170,7 @@ const FileTransferMessage = ({
                     filetype = resolveMime(parsedJsonContent.filetype).name;
                 }
                 catch (error) {
+                    filetype = parsedJsonContent.filetype;
                     // no op
                 }
             }
@@ -218,10 +219,10 @@ const FileTransferMessage = ({
                             </Paper>
                         );
                     }).catch(error => {
-                        generateFileBlock(parsedJsonContent);
+                        generateFileBlock();
                     })
             } else {
-                generateFileBlock(parsedJsonContent);
+                generateFileBlock();
             }
         }
 

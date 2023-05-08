@@ -31,7 +31,7 @@ const SylkLineChart = ({
             >
                 <Line
                     type={type}
-                    dataKey={dataKey} 
+                    dataKey={dataKey}
                     isAnimationActive={false}
                     stroke="#2e6da4"
                     dot={false}

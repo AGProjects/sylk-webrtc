@@ -251,7 +251,7 @@ NavigationBar.propTypes = {
     enableMessaging    : PropTypes.bool.isRequired,
     exportPrivateKey   : PropTypes.func.isRequired,
     classes            : PropTypes.object.isRequired,
-    unreadMessages     : PropTypes.number
+    unreadMessages     : PropTypes.number 
 };
 
 

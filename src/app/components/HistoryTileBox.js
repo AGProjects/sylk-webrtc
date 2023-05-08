@@ -1,9 +1,9 @@
 'use strict';
 
-const React         = require('react');
-const PropTypes     = require('prop-types');
+const React = require('react');
+const PropTypes = require('prop-types');
 
-const { Grid }      = require('@material-ui/core');
+const { Grid } = require('@material-ui/core');
 
 
 const HistoryTileBox = (props) => {
@@ -23,8 +23,8 @@ const HistoryTileBox = (props) => {
 }
 
 HistoryTileBox.propTypes = {
-    children    : PropTypes.node
+    children: PropTypes.node
 };
 
 
-module.exports =  HistoryTileBox;
+module.exports = HistoryTileBox;

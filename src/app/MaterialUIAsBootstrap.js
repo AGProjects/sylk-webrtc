@@ -1,7 +1,7 @@
 'use strict';
 
-const React             = require('react');
-const { withStyles, makeStyles }    = require('@material-ui/core/styles');
+const React = require('react');
+const { withStyles, makeStyles } = require('@material-ui/core/styles');
 const { Button, Tab, Tabs, Tooltip } = require('@material-ui/core');
 const { InputBase } = require('@material-ui/core');
 
@@ -128,9 +128,9 @@ const useStylesBootstrap = makeStyles((theme) => ({
 }));
 
 function BootstrapTooltip(props) {
-      const classes = useStylesBootstrap();
+    const classes = useStylesBootstrap();
 
-      return <Tooltip arrow classes={classes} {...props} />;
+    return <Tooltip arrow classes={classes} {...props} />;
 }
 
 exports.Button = BootstrapButton;

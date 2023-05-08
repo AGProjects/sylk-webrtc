@@ -1,17 +1,17 @@
 'use strict';
 
-const React         = require('react');
-const {useEffect, useState, useRef} = React;
-const debug         = require('debug');
-const sylkrtc       = require('sylkrtc');
-const PropTypes      = require('prop-types');
+const React = require('react');
+const { useEffect, useState, useRef } = React;
+const debug = require('debug');
+const sylkrtc = require('sylkrtc');
+const PropTypes = require('prop-types');
 const { makeStyles } = require('@material-ui/core/styles');
 const { ListSubheader, ListItemIcon } = require('@material-ui/core');
 const { Menu, MenuItem, Fade, CircularProgress } = require('@material-ui/core');
 
 const AudioMenuItem = require('./SwitchDevicesMenu/AudioMenuItem')
 const VideoMenuItem = require('./SwitchDevicesMenu/VideoMenuItem')
-const { Queue }     = require('../utils');
+const { Queue } = require('../utils');
 
 const DEBUG = debug('blinkrtc:SwitchDevicesMenu');
 
@@ -48,7 +48,7 @@ const styleSheet = makeStyles((theme) => ({
     selected: {
         color: '#fff',
         backgroundColor: '#337ab7 !important',
-        '&:hover' : {
+        '&:hover': {
             backgroundColor: 'rgba(0,0,0, .04) !important',
             color: '#000'
         }
@@ -83,14 +83,14 @@ const SwitchDevicesMenu = (props) => {
             setMediaStreams({});
             init.current = false;
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.show])
 
     useEffect(() => {
         if (init.current == true && (videoInput !== '' || audioInput !== '')) {
             applyConstraints();
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [videoInput, audioInput])
 
     useEffect(() => {
@@ -118,7 +118,7 @@ const SwitchDevicesMenu = (props) => {
         DEBUG('Getting available devices');
         let constraints = {
             audio: true,
-            video : {
+            video: {
                 'width': {
                     'ideal': 1280
                 },
@@ -140,9 +140,9 @@ const SwitchDevicesMenu = (props) => {
         }
 
         const isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
-        navigator.userAgent &&
-        navigator.userAgent.indexOf('CriOS') == -1 &&
-        navigator.userAgent.indexOf('FxiOS') == -1;
+            navigator.userAgent &&
+            navigator.userAgent.indexOf('CriOS') == -1 &&
+            navigator.userAgent.indexOf('FxiOS') == -1;
 
         const promises = [];
         return new Promise((resolve, reject) => {
@@ -182,8 +182,8 @@ const SwitchDevicesMenu = (props) => {
                             Queue.enqueue(
                                 () => new Promise((resolve, reject) =>
                                     navigator.mediaDevices.getUserMedia(newConstraints)
-                                    .then(stream => resolve({[newConstraints.video.deviceId.exact]: stream}))
-                                    .catch((error) => resolve({[newConstraints.video.deviceId.exact]: error}))
+                                        .then(stream => resolve({ [newConstraints.video.deviceId.exact]: stream }))
+                                        .catch((error) => resolve({ [newConstraints.video.deviceId.exact]: error }))
                                 )
                             )
                         );
@@ -199,8 +199,8 @@ const SwitchDevicesMenu = (props) => {
                             Queue.enqueue(
                                 () => new Promise((resolve, reject) =>
                                     navigator.mediaDevices.getUserMedia(newConstraints)
-                                    .then(stream => resolve({[newConstraints.audio.deviceId.exact]: stream}))
-                                    .catch((error) => resolve({[newConstraints.audio.deviceId.exact]: error}))
+                                        .then(stream => resolve({ [newConstraints.audio.deviceId.exact]: stream }))
+                                        .catch((error) => resolve({ [newConstraints.audio.deviceId.exact]: error }))
                                 )
                             )
                         );
@@ -226,19 +226,19 @@ const SwitchDevicesMenu = (props) => {
         const videodevices = devices.filter(
             (device) => device.kind === 'videoinput').map(
                 device => {
-                        const id = device.deviceId;
-                        return (
-                            <MenuItem
-                                onClick={
-                                    () => mediaStreams[id] && mediaStreams[id] !== 'failed' && selectVideoInput(device)
-                                }
-                                value={id}
-                                key={id}
-                                disabled={mediaStreams[id] === 'failed'}
-                            >
-                                <VideoMenuItem stream={mediaStreams[device.deviceId]} label={device.label} selected={id === videoInput} />
-                            </MenuItem>
-                        )
+                    const id = device.deviceId;
+                    return (
+                        <MenuItem
+                            onClick={
+                                () => mediaStreams[id] && mediaStreams[id] !== 'failed' && selectVideoInput(device)
+                            }
+                            value={id}
+                            key={id}
+                            disabled={mediaStreams[id] === 'failed'}
+                        >
+                            <VideoMenuItem stream={mediaStreams[device.deviceId]} label={device.label} selected={id === videoInput} />
+                        </MenuItem>
+                    )
                 }
             );
         return videodevices;
@@ -256,12 +256,12 @@ const SwitchDevicesMenu = (props) => {
                             }
                             key={id}
                             className={classes.item}
-                            classes={{selected: classes.selected}}
+                            classes={{ selected: classes.selected }}
                             selected={id === audioInput}
                             title={device.label}
                             disabled={mediaStreams[id] === 'failed'}
                         >
-                            <AudioMenuItem label={device.label} stream={mediaStreams[id]} selected={id === audioInput}/>
+                            <AudioMenuItem label={device.label} stream={mediaStreams[id]} selected={id === audioInput} />
                         </MenuItem>)
                 });
         return audioDevices;
@@ -304,7 +304,7 @@ const SwitchDevicesMenu = (props) => {
     }
 
     const isCurrentVideoDevice = () => {
-        let currentVideo = currentStream.getVideoTracks()[0].label;
+        let currentVideo = current.Stream.getVideoTracks() && currentStream.getVideoTracks()[0].label;
         let selectedVideo = mediaStreams[videoInput].getVideoTracks()[0].label;
         return selectedVideo === currentVideo;
     }
@@ -344,48 +344,48 @@ const SwitchDevicesMenu = (props) => {
                 anchorEl={props.anchor}
                 open={props.show}
                 onClose={props.close}
-                classes={{paper: classes.paper}}
+                classes={{ paper: classes.paper }}
                 anchorOrigin={{
                     vertical: props.direction && (props.direction === 'right' || props.direction === 'up') ? 'top' : 'bottom',
                     horizontal: props.direction && props.direction === 'right' ? 'right' : 'center'
                 }}
                 transformOrigin={{
                     vertical: props.direction && props.direction === 'up' ? 'bottom' : 'top',
- //                   vertical: 'top',
+                    //                   vertical: 'top',
                     horizontal: props.direction && props.direction === 'right' ? 'left' : 'center'
                 }}
                 getContentAnchorEl={null}
             >
                 {devices.length >= 1 ? (
                     <div>
-                    {props.audio && (
-                        <ListSubheader
-                            key="audio-title"
-                            className={classes.subheader}
-                        >
-                        <ListItemIcon className={classes.icon}>
-                        <i className="fa fa-microphone"></i>
-                        </ListItemIcon>
-                        Microphones
-                        </ListSubheader>
-                    )}
+                        {props.audio && (
+                            <ListSubheader
+                                key="audio-title"
+                                className={classes.subheader}
+                            >
+                                <ListItemIcon className={classes.icon}>
+                                    <i className="fa fa-microphone"></i>
+                                </ListItemIcon>
+                                Microphones
+                            </ListSubheader>
+                        )}
 
-                    {props.audio && getAudioInputDevices()}
+                        {props.audio && getAudioInputDevices()}
 
-                    {props.showOutput && (
-                        <ListSubheader
-                            key="output-title"
-                            className={classes.subheader}
-                        >
-                        <ListItemIcon className={classes.icon}>
-                        <i className="fa fa-volume-up"></i>
-                        </ListItemIcon>
-                        Speakers
-                        </ListSubheader>
-                    )}
-                    {props.showOutput && getAudioOutputDevices()}
+                        {props.showOutput && (
+                            <ListSubheader
+                                key="output-title"
+                                className={classes.subheader}
+                            >
+                                <ListItemIcon className={classes.icon}>
+                                    <i className="fa fa-volume-up"></i>
+                                </ListItemIcon>
+                                Speakers
+                            </ListSubheader>
+                        )}
+                        {props.showOutput && getAudioOutputDevices()}
 
-                    {!props.audio && getVideoInputDevices()}
+                        {!props.audio && getVideoInputDevices()}
                     </div>
                 ) : (
                     <Fade

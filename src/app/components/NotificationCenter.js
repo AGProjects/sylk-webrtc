@@ -1,9 +1,9 @@
 'use strict';
 
-const React              = require('react');
+const React = require('react');
 const NotificationSystem = require('react-notification-system');
-const { DateTime }       = require('luxon');
-const Notify             = require('notifyjs');
+const { DateTime } = require('luxon');
+const Notify = require('notifyjs');
 
 const { LinearProgress } = require('@material-ui/core');
 
@@ -17,7 +17,7 @@ class NotificationCenter extends React.Component {
         return n;
     }
 
-    postSystemNotification(title, options={}) {    // eslint-disable-line space-infix-ops
+    postSystemNotification(title, options = {}) {    // eslint-disable-line space-infix-ops
         const defaultOptions = {
             icon: 'assets/images/blink-48.png',
             body: '',
@@ -98,8 +98,8 @@ class NotificationCenter extends React.Component {
             children: (
                 <div>
                     <LinearProgress
-                        style={{marginTop: '2px'}}
-                        classes={{barColorPrimary: 'blue-bar'}}
+                        style={{ marginTop: '2px' }}
+                        classes={{ barColorPrimary: 'blue-bar' }}
                         variant="determinate"
                         value={0}
                     />
@@ -119,8 +119,8 @@ class NotificationCenter extends React.Component {
                 children: (
                     <div>
                         <LinearProgress
-                            style={{marginTop: '2px'}}
-                            classes={{barColorPrimary: 'blue-bar'}}
+                            style={{ marginTop: '2px' }}
+                            classes={{ barColorPrimary: 'blue-bar' }}
                             variant="determinate"
                             value={progress}
                         />
@@ -144,7 +144,7 @@ class NotificationCenter extends React.Component {
         this.refs.notificationSystem.addNotification({
             message: `Uploading of ${filename} failed`,
             title: 'File sharing failed',
-            autoDismiss: 10  ,
+            autoDismiss: 10,
             level: 'error',
             position: 'br'
         });
@@ -167,14 +167,18 @@ class NotificationCenter extends React.Component {
 
     postNewMessage(message, cb) {
         const sender = message.sender.displayName || message.sender.uri;
+        let title = `Message from ${sender}`;
+        if (message.contentType === 'application/sylk-file-transfer') {
+            title = `File from ${sender}`;
+        }
         const notification = {
-            title: `Message from ${sender}`,
+            title: title,
             autoDismiss: 10,
             level: 'info',
             position: 'bl'
         };
 
-        if (cb)  {
+        if (cb) {
             notification['action'] = {
                 label: 'Show Chat',
                 callback: () => { cb(); }
@@ -186,7 +190,7 @@ class NotificationCenter extends React.Component {
 
     postMutedOnStart() {
         return this.refs.notificationSystem.addNotification({
-            children: (<p style={{margin: '0 0 5px', textAlign: 'left'}}>You have been added to the conference with your audio muted. You can always unmute yourself when you are ready to speak.</p>),
+            children: (<p style={{ margin: '0 0 5px', textAlign: 'left' }}>You have been added to the conference with your audio muted. You can always unmute yourself when you are ready to speak.</p>),
             title: 'Your audio is muted',
             autoDismiss: 0,
             level: 'info',
@@ -196,7 +200,7 @@ class NotificationCenter extends React.Component {
 
     postMutedBy(originator) {
         return this.refs.notificationSystem.addNotification({
-            children: (<p style={{margin: '0 0 5px', textAlign: 'left'}}>You have been muted by {originator.displayName || originator.uri}. You can always unmute yourself when you are ready to speak.</p>),
+            children: (<p style={{ margin: '0 0 5px', textAlign: 'left' }}>You have been muted by {originator.displayName || originator.uri}. You can always unmute yourself when you are ready to speak.</p>),
             title: 'Your audio is muted',
             autoDismiss: 0,
             level: 'info',
@@ -208,8 +212,8 @@ class NotificationCenter extends React.Component {
         return this.refs.notificationSystem.addNotification({
             children: (
                 <div>
-                    <p style={{margin: '0 0 5px', textAlign: 'left'}}>Please make sure your computer has an active internet connection.</p>
-                    <a onClick={() => { cb(); }} style={{margin: '0 0 5px', textAlign: 'left', display: 'block'}}>Connect again</a>
+                    <p style={{ margin: '0 0 5px', textAlign: 'left' }}>Please make sure your computer has an active internet connection.</p>
+                    <a onClick={() => { cb(); }} style={{ margin: '0 0 5px', textAlign: 'left', display: 'block' }}>Connect again</a>
                 </div>
             ),
             title: 'Not Connected',
@@ -223,14 +227,14 @@ class NotificationCenter extends React.Component {
     toggleConnectionLostNotification(toggle, notification, cb) {
         let content = (
             <div>
-                <p style={{margin: '0 0 5px', textAlign: 'left'}}>Please make sure your computer has an active internet connection.</p>
-                <a onClick={() => { cb(); }} style={{margin: '0 0 5px', textAlign: 'left', display: 'block'}}>Connect again</a>
+                <p style={{ margin: '0 0 5px', textAlign: 'left' }}>Please make sure your computer has an active internet connection.</p>
+                <a onClick={() => { cb(); }} style={{ margin: '0 0 5px', textAlign: 'left', display: 'block' }}>Connect again</a>
             </div>
         );
         if (toggle === true) {
             content = (
                 <div>
-                    <p style={{margin: '0 0 5px', textAlign: 'left'}}>Trying to connect...</p>
+                    <p style={{ margin: '0 0 5px', textAlign: 'left' }}>Trying to connect...</p>
                 </div>
             );
         }
@@ -250,16 +254,16 @@ class NotificationCenter extends React.Component {
 
     render() {
         const style = {
-              Containers: {
-                  bc: {
-                      width: '460px',
-                      marginLeft: '-230px'
-                  }
-              }
+            Containers: {
+                bc: {
+                    width: '460px',
+                    marginLeft: '-230px'
+                }
+            }
         }
 
         return (
-            <NotificationSystem ref="notificationSystem" allowHTML={true} style={style}/>
+            <NotificationSystem ref="notificationSystem" allowHTML={true} style={style} />
         );
     }
 }

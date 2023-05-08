@@ -1,14 +1,14 @@
 'use strict';
 
-const React      = require('react');
-const PropTypes  = require('prop-types');
-const assert     = require('assert');
-const debug      = require('debug');
+const React = require('react');
+const PropTypes = require('prop-types');
+const assert = require('assert');
+const debug = require('debug');
 
 const AudioCallBox = require('./AudioCallBox');
-const LocalMedia   = require('./LocalMedia');
-const VideoBox     = require('./VideoBox');
-const config       = require('../config');
+const LocalMedia = require('./LocalMedia');
+const VideoBox = require('./VideoBox');
+const config = require('../config');
 
 const DEBUG = debug('blinkrtc:Call');
 
@@ -19,9 +19,9 @@ class Call extends React.Component {
 
         if (this.props.localMedia.getVideoTracks().length === 0) {
             DEBUG('Will send audio only');
-            this.state = {audioOnly: true};
+            this.state = { audioOnly: true };
         } else {
-            this.state = {audioOnly: false};
+            this.state = { audioOnly: false };
         }
 
         // ES6 classes no longer autobind
@@ -65,20 +65,20 @@ class Call extends React.Component {
                 if (oldState === 'accepted') {
                     this.forceTimerStart = true;
                 }
-                this.setState({audioOnly: true});
+                this.setState({ audioOnly: true });
             }
             currentCall.removeListener('stateChanged', this.callStateChanged);
-        // Switch to video earlier. The callOverlay has a handle on
-        // 'established'. It starts a timer. To prevent a state updating on
-        // unmounted component we try to switch on 'accept'. This means we get
-        // to localMedia first.
+            // Switch to video earlier. The callOverlay has a handle on
+            // 'established'. It starts a timer. To prevent a state updating on
+            // unmounted component we try to switch on 'accept'. This means we get
+            // to localMedia first.
         } else if (newState === 'accepted') {
             // Switch if we have audioOnly and local videotracks. This means
             // the call object switched and we are transitioning to an
             // incoming call.
             if (this.state.audioOnly && this.props.localMedia.getVideoTracks().length !== 0) {
                 DEBUG('Media type changed to video on accepted');
-                this.setState({audioOnly: false});
+                this.setState({ audioOnly: false });
             } else {
                 this.forceUpdate();
             }
@@ -87,7 +87,7 @@ class Call extends React.Component {
 
     startCall() {
         assert(this.props.currentCall === null, 'currentCall is not null');
-        let options = {pcConfig: {iceServers: config.iceServers}};
+        let options = { pcConfig: { iceServers: config.iceServers } };
         options.localStream = this.props.localMedia;
         let call = this.props.account.call(this.props.targetUri, options);
         call.on('stateChanged', this.callStateChanged);
@@ -95,7 +95,7 @@ class Call extends React.Component {
 
     answerCall() {
         assert(this.props.currentCall !== null, 'currentCall is null');
-        let options = {pcConfig: {iceServers: config.iceServers}};
+        let options = { pcConfig: { iceServers: config.iceServers } };
         options.localStream = this.props.localMedia;
         this.props.currentCall.answer(options);
     }
@@ -121,7 +121,7 @@ class Call extends React.Component {
             remoteIdentity = this.props.currentCall.remoteIdentity.displayName || this.props.currentCall.remoteIdentity.uri;
             const domain = this.props.currentCall.remoteIdentity.uri.substring(this.props.currentCall.remoteIdentity.uri.indexOf('@') + 1);
             if (domain.startsWith('guest.')) {
-                inlineChat =  (function () {})();
+                inlineChat = (function() { })();
             }
         } else {
             remoteIdentity = this.props.targetUri;
@@ -131,18 +131,18 @@ class Call extends React.Component {
             if (this.state.audioOnly) {
                 box = (
                     <AudioCallBox
-                        remoteIdentity = {remoteIdentity}
-                        hangupCall = {this.hangupCall}
-                        call = {this.props.currentCall}
-                        mediaPlaying = {this.mediaPlaying}
-                        escalateToConference = {this.props.escalateToConference}
-                        forceTimerStart = {this.forceTimerStart}
-                        setDevice = {this.props.setDevice}
-                        toggleChatInCall = {this.props.toggleChatInCall}
-                        inlineChat = {inlineChat}
-                        unreadMessages = {this.props.unreadMessages}
-                        notificationCenter = {this.props.notificationCenter}
-                        propagateKeyPress = {this.props.propagateKeyPress}
+                        remoteIdentity={remoteIdentity}
+                        hangupCall={this.hangupCall}
+                        call={this.props.currentCall}
+                        mediaPlaying={this.mediaPlaying}
+                        escalateToConference={this.props.escalateToConference}
+                        forceTimerStart={this.forceTimerStart}
+                        setDevice={this.props.setDevice}
+                        toggleChatInCall={this.props.toggleChatInCall}
+                        inlineChat={inlineChat}
+                        unreadMessages={this.props.unreadMessages}
+                        notificationCenter={this.props.notificationCenter}
+                        propagateKeyPress={this.props.propagateKeyPress}
                     />
                 );
             } else {
@@ -151,28 +151,28 @@ class Call extends React.Component {
                 ) {
                     box = (
                         <VideoBox
-                            call = {this.props.currentCall}
-                            localMedia = {this.props.localMedia}
-                            shareScreen = {this.props.shareScreen}
-                            hangupCall = {this.hangupCall}
-                            escalateToConference = {this.props.escalateToConference}
-                            generatedVideoTrack = {this.props.generatedVideoTrack}
-                            setDevice = {this.props.setDevice}
-                            toggleChatInCall = {this.props.toggleChatInCall}
-                            inlineChat = {inlineChat}
-                            unreadMessages = {this.props.unreadMessages}
-                            notificationCenter = {this.props.notificationCenter}
-                            propagateKeyPress = {this.props.propagateKeyPress}
+                            call={this.props.currentCall}
+                            localMedia={this.props.localMedia}
+                            shareScreen={this.props.shareScreen}
+                            hangupCall={this.hangupCall}
+                            escalateToConference={this.props.escalateToConference}
+                            generatedVideoTrack={this.props.generatedVideoTrack}
+                            setDevice={this.props.setDevice}
+                            toggleChatInCall={this.props.toggleChatInCall}
+                            inlineChat={inlineChat}
+                            unreadMessages={this.props.unreadMessages}
+                            notificationCenter={this.props.notificationCenter}
+                            propagateKeyPress={this.props.propagateKeyPress}
                         />
                     );
                 } else {
                     box = (
                         <LocalMedia
-                            remoteIdentity = {remoteIdentity}
-                            localMedia = {this.props.localMedia}
-                            mediaPlaying = {this.mediaPlaying}
-                            hangupCall = {this.hangupCall}
-                            generatedVideoTrack = {this.props.generatedVideoTrack}
+                            remoteIdentity={remoteIdentity}
+                            localMedia={this.props.localMedia}
+                            mediaPlaying={this.mediaPlaying}
+                            hangupCall={this.hangupCall}
+                            generatedVideoTrack={this.props.generatedVideoTrack}
                         />
                     );
                 }
@@ -187,20 +187,20 @@ class Call extends React.Component {
 }
 
 Call.propTypes = {
-    account                 : PropTypes.object.isRequired,
-    hangupCall              : PropTypes.func.isRequired,
-    setDevice               : PropTypes.func.isRequired,
-    shareScreen             : PropTypes.func.isRequired,
-    currentCall             : PropTypes.object,
-    escalateToConference    : PropTypes.func,
-    localMedia              : PropTypes.object,
-    targetUri               : PropTypes.string,
-    generatedVideoTrack     : PropTypes.bool,
-    toggleChatInCall        : PropTypes.func,
-    inlineChat              : PropTypes.object,
-    notificationCenter      : PropTypes.func,
-    unreadMessages          : PropTypes.object,
-    propagateKeyPress       : PropTypes.bool
+    account: PropTypes.object.isRequired,
+    hangupCall: PropTypes.func.isRequired,
+    setDevice: PropTypes.func.isRequired,
+    shareScreen: PropTypes.func.isRequired,
+    currentCall: PropTypes.object,
+    escalateToConference: PropTypes.func,
+    localMedia: PropTypes.object,
+    targetUri: PropTypes.string,
+    generatedVideoTrack: PropTypes.bool,
+    toggleChatInCall: PropTypes.func,
+    inlineChat: PropTypes.object,
+    notificationCenter: PropTypes.func,
+    unreadMessages: PropTypes.object,
+    propagateKeyPress: PropTypes.bool
 };
 
 

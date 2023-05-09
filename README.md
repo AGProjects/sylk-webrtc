@@ -17,6 +17,8 @@ companion [Electron](http://electron.atom.io) app.
 * Screen sharing for both one-to-one or multi-party
 * Multi-party conferencing (WebRTC only)
 * File sharing in WebRTC conferences
+* End-to-end encrypted chat sessions
+* End-to-end encrypted file transfers
 * Guest mode (no account required when invited)
 
 ## Customization

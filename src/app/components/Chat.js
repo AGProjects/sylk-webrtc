@@ -467,7 +467,7 @@ Chat.propTypes = {
     sendPublicKey: PropTypes.func.isRequired,
     embed: PropTypes.bool,
     hideCallButtons: PropTypes.bool,
-    notificationCenter: PropTypes.func.isRequired,
+    notificationCenter: PropTypes.func.isRequired
 };
 
 

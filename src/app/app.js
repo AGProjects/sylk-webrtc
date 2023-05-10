@@ -438,7 +438,7 @@ class Blink extends React.Component {
             let { privateKey, publicKey, revocationCertificate } = '';
 
             if (this.state.enableMessaging) {
-                DEBUG("Trying to enable messaging again");
+                DEBUG('Trying to re-enable messaging');
                 this.enableMessaging(true);
             }
             storage.get(`pgpKeys-${this.state.accountId}`).then(pgpKeys => {
@@ -754,7 +754,7 @@ class Blink extends React.Component {
             account: accountId,
             password: password,
             displayName: displayName,
-            ha1: true,
+            ha1: true
         };
 
         if (accountId.indexOf('@') !== -1) {

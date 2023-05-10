@@ -324,6 +324,7 @@ const Chat = (props) => {
                 isLoadingMessages={props.isLoadingMessages}
                 account={props.account}
                 uploadFiles={(...args) => fileTransferUtils.upload(props, ...args, selectedUri)}
+                embed={props.embed}
             />
             <ConferenceChatEditor
                 onSubmit={handleMessage}

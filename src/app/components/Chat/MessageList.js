@@ -54,7 +54,8 @@ const MessageList = ({
     contactCache,
     removeMessage,
     account,
-    uploadFiles
+    uploadFiles,
+    embed
 }) => {
     const [entries, setEntries] = useState([])
     const [display, setDisplay] = useState(false);
@@ -235,9 +236,13 @@ const MessageList = ({
                     <CircularProgress style={{ color: '#888', margin: 'auto', display: 'block' }} />
                 </div>
             }
-            <DragAndDrop title="Drop files to share them" handleDrop={uploadFiles} marginTop="100px">
-                {entries}
-            </DragAndDrop>
+            {embed ?
+                entries
+                :
+                <DragAndDrop title="Drop files to share them" handleDrop={uploadFiles} marginTop={'100px'}>
+                    {entries}
+                </DragAndDrop>
+            }
             <div ref={messagesEndRef} />
         </div>
     );
@@ -254,7 +259,8 @@ MessageList.propTypes = {
     contactCache: PropTypes.object,
     isLoadingMessages: PropTypes.bool.isRequired,
     account: PropTypes.object.isRequired,
-    uploadFiles: PropTypes.func
+    uploadFiles: PropTypes.func,
+    embed: PropTypes.bool
 };
 
 

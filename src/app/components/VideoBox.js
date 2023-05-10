@@ -18,6 +18,7 @@ const FullscreenMixin = require('../mixins/FullScreen');
 const CallOverlay = require('./CallOverlay');
 const CallQuality = require('./CallQuality');
 const ConferenceDrawer = require('./ConferenceDrawer');
+const DragAndDrop = require('./DragAndDrop');
 const SwitchDevicesMenu = require('./SwitchDevicesMenu');
 const EscalateConferenceModal = require('./EscalateConferenceModal');
 const Statistics = require('./Statistics');
@@ -108,7 +109,8 @@ class VideoBox extends React.Component {
             'escalateToConference',
             'incomingMessage',
             'statistics',
-            'handleFiles'
+            'handleFiles',
+            'handleDrop'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -424,6 +426,18 @@ class VideoBox extends React.Component {
         }
     }
 
+    handleDrop(files) {
+        DEBUG('Dropped file %o', files);
+        fileTransferUtils.upload(
+            {
+                notificationCenter: this.props.notificationCenter,
+                account: this.props.call.account
+            },
+            files,
+            this.props.call.remoteIdentity.uri
+        );
+    };
+
     handleFiles(e) {
         DEBUG('Selected files %o', e.target.files);
         fileTransferUtils.upload(
@@ -669,75 +683,77 @@ class VideoBox extends React.Component {
 
         return (
             <React.Fragment>
-                <div className={callClasses}>
-                    <SwitchDevicesMenu
-                        show={this.state.showSwitchMenu}
-                        anchor={this.state.switchAnchor}
-                        close={this.toggleSwitchMenu}
-                        call={this.props.call}
-                        setDevice={this.props.setDevice}
-                        direction="up"
-                    />
-                    <SwitchDevicesMenu
-                        show={this.state.showAudioSwitchMenu}
-                        anchor={this.state.switchAnchor}
-                        close={this.toggleAudioSwitchMenu}
-                        call={this.props.call}
-                        setDevice={this.props.setDevice}
-                        direction="up"
-                        audio
-                    />
-                    <div className="video-container" onMouseMove={this.showCallOverlay}>
-                        <CallOverlay
-                            show={this.state.callOverlayVisible}
-                            remoteIdentity={this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri}
+                <DragAndDrop title="Drop files to share them" handleDrop={this.handleDrop}>
+                    <div className={callClasses}>
+                        <SwitchDevicesMenu
+                            show={this.state.showSwitchMenu}
+                            anchor={this.state.switchAnchor}
+                            close={this.toggleSwitchMenu}
                             call={this.props.call}
-                            buttons={topButtons}
-                            onTop={this.state.showChat}
-                            callQuality={callQuality}
+                            setDevice={this.props.setDevice}
+                            direction="up"
                         />
-                        <TransitionGroup>
-                            {watermark}
-                        </TransitionGroup>
-                        <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref={this.remoteVideo} autoPlay />
-                        <video id="localVideo" className={localVideoClasses} ref={this.localVideo} autoPlay muted />
-                        <TransitionGroup>
-                            {callButtons}
-                        </TransitionGroup>
-                        <EscalateConferenceModal
-                            show={this.state.showEscalateConferenceModal}
+                        <SwitchDevicesMenu
+                            show={this.state.showAudioSwitchMenu}
+                            anchor={this.state.switchAnchor}
+                            close={this.toggleAudioSwitchMenu}
                             call={this.props.call}
-                            close={this.toggleEscalateConferenceModal}
-                            escalateToConference={this.escalateToConference}
+                            setDevice={this.props.setDevice}
+                            direction="up"
+                            audio
                         />
+                        <div className="video-container" onMouseMove={this.showCallOverlay}>
+                            <CallOverlay
+                                show={this.state.callOverlayVisible}
+                                remoteIdentity={this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri}
+                                call={this.props.call}
+                                buttons={topButtons}
+                                onTop={this.state.showChat}
+                                callQuality={callQuality}
+                            />
+                            <TransitionGroup>
+                                {watermark}
+                            </TransitionGroup>
+                            <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref={this.remoteVideo} autoPlay />
+                            <video id="localVideo" className={localVideoClasses} ref={this.localVideo} autoPlay muted />
+                            <TransitionGroup>
+                                {callButtons}
+                            </TransitionGroup>
+                            <EscalateConferenceModal
+                                show={this.state.showEscalateConferenceModal}
+                                call={this.props.call}
+                                close={this.toggleEscalateConferenceModal}
+                                escalateToConference={this.escalateToConference}
+                            />
+                        </div>
+                        <ConferenceDrawer
+                            show={this.state.showStatistics && !this.state.showChat}
+                            anchor="left"
+                            showClose={true}
+                            close={this.toggleStatistics}
+                            transparent={true}
+                        >
+                            <Statistics
+                                videoData={this.state.videoGraphData}
+                                audioData={this.state.audioGraphData}
+                                lastData={this.state.lastData}
+                                videoElements={{ remoteVideo: this.remoteVideo, localVideo: this.localVideo }}
+                                video
+                                details
+                            />
+                        </ConferenceDrawer>
                     </div>
                     <ConferenceDrawer
-                        show={this.state.showStatistics && !this.state.showChat}
-                        anchor="left"
+                        show={this.state.showInlineChat && !this.state.showChat}
+                        anchor="right"
                         showClose={true}
-                        close={this.toggleStatistics}
-                        transparent={true}
+                        close={this.toggleInlineChat}
+                        size={utils.isMobile.any() ? 'normal' : 'wide'}
+                        noBackgroundColor
                     >
-                        <Statistics
-                            videoData={this.state.videoGraphData}
-                            audioData={this.state.audioGraphData}
-                            lastData={this.state.lastData}
-                            videoElements={{ remoteVideo: this.remoteVideo, localVideo: this.localVideo }}
-                            video
-                            details
-                        />
+                        {this.props.inlineChat}
                     </ConferenceDrawer>
-                </div>
-                <ConferenceDrawer
-                    show={this.state.showInlineChat && !this.state.showChat}
-                    anchor="right"
-                    showClose={true}
-                    close={this.toggleInlineChat}
-                    size={utils.isMobile.any() ? 'normal' : 'wide'}
-                    noBackgroundColor
-                >
-                    {this.props.inlineChat}
-                </ConferenceDrawer>
+                </DragAndDrop>
             </React.Fragment>
         );
     }

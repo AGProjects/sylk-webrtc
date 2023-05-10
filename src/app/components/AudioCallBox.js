@@ -15,6 +15,7 @@ const {
 const CallOverlay = require('./CallOverlay');
 const CallQuality = require('./CallQuality');
 const ConferenceDrawer = require('./ConferenceDrawer');
+const DragAndDrop = require('./DragAndDrop');
 const DTMFModal = require('./DTMFModal');
 const Statistics = require('./Statistics');
 const UserIcon = require('./UserIcon');
@@ -95,7 +96,8 @@ class AudioCallBox extends React.Component {
             'onKeyDown',
             'incomingMessage',
             'statistics',
-            'handleFiles'
+            'handleFiles',
+            'handleDrop'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -325,6 +327,18 @@ class AudioCallBox extends React.Component {
         }
     }
 
+    handleDrop(files) {
+        DEBUG('Dropped file %o', files);
+        fileTransferUtils.upload(
+            {
+                notificationCenter: this.props.notificationCenter,
+                account: this.props.call.account
+            },
+            files,
+            this.props.call.remoteIdentity.uri
+        );
+    };
+
     handleFiles(e) {
         DEBUG('Selected files %o', e.target.files);
         fileTransferUtils.upload(
@@ -456,109 +470,110 @@ class AudioCallBox extends React.Component {
         }
         return (
             <React.Fragment>
-                <div className={callClasses}>
-                    {this.props.call &&
-                        <SwitchDevicesMenu
-                            show={this.state.showAudioSwitchMenu}
-                            anchor={this.state.switchAnchor}
-                            close={this.toggleAudioSwitchMenu}
-                            call={this.props.call}
-                            setDevice={this.props.setDevice}
-                            direction="up"
-                            audio
-                        />
-                    }
-                    <CallOverlay
-                        show={true}
-                        remoteIdentity={this.props.remoteIdentity}
-                        call={this.props.call}
-                        forceTimerStart={this.props.forceTimerStart}
-                        onTop={this.state.showChat}
-                        disableHide={this.state.showChat || this.state.showInlineChat}
-                        callQuality={callQuality}
-                        buttons={topButtons}
-                    />
-                    <audio id="remoteAudio" ref={this.remoteAudio} autoPlay />
-                    <div className="call-user-icon">
-                        <UserIcon identity={remoteIdentity} large={true} active={this.state.active} />
-                    </div>
-                    <div className="call-buttons">
-                        {!this.state.showChat &&
-                            <button key="statisticsBtn" type="button" className={commonButtonClasses} onClick={this.toggleStatistics}>
-                                <NetworkCheckIcon />
-                            </button>
-                        }
-                        <button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}>
-                            <i className="fa fa-user-plus"></i>
-                        </button>
-                        <div className="btn-container" key="audio">
-                            <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIconClasses}></i> </button>
-                            <button key="audiodevices" type="button" title="Select audio devices" className={menuButtonClasses} onClick={this.toggleAudioSwitchMenu}> <i className={menuButtonIcons}></i> </button>
-                        </div>
-                        {this.props.inlineChat && <React.Fragment>
-                            <Badge key="unreadBadge" badgeContent={unreadCallMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
-                                <button key="inlineChatButton" type="button" className={commonButtonClasses} onClick={this.toggleInlineChat}>
-                                    <i className="fa fa-commenting-o"></i>
-                                </button>
-                            </Badge>
-                            <input
-                                style={{ display: 'none' }}
-                                id="outlined-button-file"
-                                multiple
-                                type="file"
-                                onChange={this.handleFiles}
-                                key="1"
+                <DragAndDrop title="Drop files to share them" handleDrop={this.handleDrop}>
+                    <div className={callClasses}>
+                        {this.props.call &&
+                            <SwitchDevicesMenu
+                                show={this.state.showAudioSwitchMenu}
+                                anchor={this.state.switchAnchor}
+                                close={this.toggleAudioSwitchMenu}
+                                call={this.props.call}
+                                setDevice={this.props.setDevice}
+                                direction="up"
+                                audio
                             />
-                            <label key="shareFiles" htmlFor="outlined-button-file">
-                                <IconButton title="Share files" component="span" disableRipple={true} className={shareButtonClasses}>
-                                    <i className={shareFileButtonIcons}></i>
-                                </IconButton>
-                            </label>
-
-                        </React.Fragment>
                         }
-                        <button key="dtmfButton" type="button" disabled={this.state.callDuration === null} className={commonButtonClasses} onClick={this.showDtmfModal}>
-                            <i className="fa fa-fax"></i>
-                        </button>
-                        <br />
-                        <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}>
-                            <i className="fa fa-phone rotate-135"></i>
-                        </button>
-                    </div>
-                    <DTMFModal
-                        show={this.state.showDtmfModal}
-                        hide={this.hideDtmfModal}
-                        call={this.props.call}
-                    />
-                    <EscalateConferenceModal
-                        show={this.state.showEscalateConferenceModal}
-                        call={this.props.call}
-                        close={this.toggleEscalateConferenceModal}
-                        escalateToConference={this.escalateToConference}
-                    />
-                    <ConferenceDrawer
-                        show={this.state.showStatistics && !this.state.showChat}
-                        anchor="left"
-                        showClose={true}
-                        close={this.toggleStatistics}
-                        transparent={true}
-                    >
-                        <Statistics
-                            audioData={this.state.audioGraphData}
-                            lastData={this.state.lastData}
+                        <CallOverlay
+                            show={true}
+                            remoteIdentity={this.props.remoteIdentity}
+                            call={this.props.call}
+                            forceTimerStart={this.props.forceTimerStart}
+                            onTop={this.state.showChat}
+                            disableHide={this.state.showChat || this.state.showInlineChat}
+                            callQuality={callQuality}
+                            buttons={topButtons}
                         />
+                        <audio id="remoteAudio" ref={this.remoteAudio} autoPlay />
+                        <div className="call-user-icon">
+                            <UserIcon identity={remoteIdentity} large={true} active={this.state.active} />
+                        </div>
+                        <div className="call-buttons">
+                            {!this.state.showChat &&
+                                <button key="statisticsBtn" type="button" className={commonButtonClasses} onClick={this.toggleStatistics}>
+                                    <NetworkCheckIcon />
+                                </button>
+                            }
+                            <button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}>
+                                <i className="fa fa-user-plus"></i>
+                            </button>
+                            <div className="btn-container" key="audio">
+                                <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIconClasses}></i> </button>
+                                <button key="audiodevices" type="button" title="Select audio devices" className={menuButtonClasses} onClick={this.toggleAudioSwitchMenu}> <i className={menuButtonIcons}></i> </button>
+                            </div>
+                            {this.props.inlineChat && <React.Fragment>
+                                <Badge key="unreadBadge" badgeContent={unreadCallMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
+                                    <button key="inlineChatButton" type="button" className={commonButtonClasses} onClick={this.toggleInlineChat}>
+                                        <i className="fa fa-commenting-o"></i>
+                                    </button>
+                                </Badge>
+                                <input
+                                    style={{ display: 'none' }}
+                                    id="outlined-button-file"
+                                    multiple
+                                    type="file"
+                                    onChange={this.handleFiles}
+                                    key="1"
+                                />
+                                <label key="shareFiles" htmlFor="outlined-button-file">
+                                    <IconButton title="Share files" component="span" disableRipple={true} className={shareButtonClasses}>
+                                        <i className={shareFileButtonIcons}></i>
+                                    </IconButton>
+                                </label>
+                            </React.Fragment>
+                            }
+                            <button key="dtmfButton" type="button" disabled={this.state.callDuration === null} className={commonButtonClasses} onClick={this.showDtmfModal}>
+                                <i className="fa fa-fax"></i>
+                            </button>
+                            <br />
+                            <button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}>
+                                <i className="fa fa-phone rotate-135"></i>
+                            </button>
+                        </div>
+                        <DTMFModal
+                            show={this.state.showDtmfModal}
+                            hide={this.hideDtmfModal}
+                            call={this.props.call}
+                        />
+                        <EscalateConferenceModal
+                            show={this.state.showEscalateConferenceModal}
+                            call={this.props.call}
+                            close={this.toggleEscalateConferenceModal}
+                            escalateToConference={this.escalateToConference}
+                        />
+                        <ConferenceDrawer
+                            show={this.state.showStatistics && !this.state.showChat}
+                            anchor="left"
+                            showClose={true}
+                            close={this.toggleStatistics}
+                            transparent={true}
+                        >
+                            <Statistics
+                                audioData={this.state.audioGraphData}
+                                lastData={this.state.lastData}
+                            />
+                        </ConferenceDrawer>
+                    </div>
+                    <ConferenceDrawer
+                        show={this.state.showInlineChat && !this.state.showChat}
+                        anchor="right"
+                        showClose={true}
+                        close={this.toggleInlineChat}
+                        size={utils.isMobile.any() ? 'normal' : 'wide'}
+                        noBackgroundColor
+                    >
+                        {this.props.inlineChat}
                     </ConferenceDrawer>
-                </div>
-                <ConferenceDrawer
-                    show={this.state.showInlineChat && !this.state.showChat}
-                    anchor="right"
-                    showClose={true}
-                    close={this.toggleInlineChat}
-                    size={utils.isMobile.any() ? 'normal' : 'wide'}
-                    noBackgroundColor
-                >
-                    {this.props.inlineChat}
-                </ConferenceDrawer>
+                </DragAndDrop>
             </React.Fragment>
         );
     }

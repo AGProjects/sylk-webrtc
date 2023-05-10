@@ -101,7 +101,8 @@ const MessageList = ({
         const getImage = (message) => {
             fileTransferUtils.getImage(account, message).then(([imageData, filename]) => {
                 setImage(imageData)
-                setMessage(Object.assign({ filename: filename }, message))
+                message.filename = filename;
+                setMessage(message)
                 setShowModal(true)
             })
         }

@@ -119,7 +119,7 @@ const Message = ({
                 }
             }));
         } else if (message.contentType.startsWith('image/')) {
-            const image = `data:${message.contentType};base64,${btoa(message.content)}`
+            const image = `data:${message.contentType};base64,${message.content}`
             setParsedContent(<img className="img-responsive" src={image} />);
         } else if (message.contentType === 'text/plain') {
             const linkfiedContent = linkifyUrls(preHtmlEntities(message.content), {

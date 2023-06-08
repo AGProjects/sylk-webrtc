@@ -55,7 +55,7 @@ const ConferenceChatEditor = (props) => {
                 const reader = new FileReader();
                 reader.onload = (evt) => {
                     const binary = evt.target.result;
-                    setName(binary);
+                    setName(btoa(binary));
                     setType(file.type);
                     const image = `data:${file.type};base64,${btoa(binary)}`
                     const imageTag = `<div class="file-box" onclick="window.getSelection().selectAllChildren(this)" style="background-image: url('${image}')" />${file.name}</div>`;

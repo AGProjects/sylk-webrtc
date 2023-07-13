@@ -41,7 +41,7 @@ const fileTransferUtils = require('../../fileTransferUtils');
 
 function isElectron() {
     if (typeof window.process !== 'undefined') {
-        if (window.process.versions.electron !== '' && window.process.platform === 'darwin') {
+        if (window.process.versions.electron !== '') {
             return true;
         }
     }

@@ -185,8 +185,8 @@ function generateThumbnail(account, id, { url, filename, filetype }) {
                     canvas.height = h;
                     ctx.drawImage(img, 0, 0, w, h)
                     resolve([canvas.toDataURL(), filename, w / dpi, h / dpi]);
-                    img.onerror = reject;
                 }
+                img.onerror = reject;
                 img.src = imageData;
             });
         }).then(([imageData, filename, w, h]) => {

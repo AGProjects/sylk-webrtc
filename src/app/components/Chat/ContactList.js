@@ -291,9 +291,10 @@ const ContactList = (props) => {
 
     const getHighlightedText = (text, highlight) => {
         // Split on highlight term and include term into parts, ignore case
-        if (text === undefined) {
+        if (text === undefined || typeof text === 'object' && text !== null) {
             return;
         }
+
         const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
         return (
             <span>

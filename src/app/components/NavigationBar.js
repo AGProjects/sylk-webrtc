@@ -1,21 +1,21 @@
 'use strict';
 
-const React          = require('react');
-const PropTypes      = require('prop-types');
+const React = require('react');
+const PropTypes = require('prop-types');
 const { default: clsx } = require('clsx');
 const ReactBootstrap = require('react-bootstrap');
-const Navbar         = ReactBootstrap.Navbar;
+const Navbar = ReactBootstrap.Navbar;
 const DropdownButton = ReactBootstrap.DropdownButton;
-const MenuItem       = ReactBootstrap.MenuItem;
-const ButtonToolbar  = ReactBootstrap.ButtonToolbar;
+const MenuItem = ReactBootstrap.MenuItem;
+const ButtonToolbar = ReactBootstrap.ButtonToolbar;
 
 const { withStyles } = require('@material-ui/core/styles');
 const { Badge,
-        Tooltip }    = require ('@material-ui/core');
+    Tooltip } = require('@material-ui/core');
 
 const config = require('../config');
 
-const AboutModal       = require('./AboutModal');
+const AboutModal = require('./AboutModal');
 const CallMeMaybeModal = require('./CallMeMaybeModal');
 
 
@@ -97,26 +97,26 @@ class NavigationBar extends React.Component {
     }
 
     toggleMute() {
-        this.setState(prevState => ({mute: !prevState.mute}));
+        this.setState(prevState => ({ mute: !prevState.mute }));
         this.props.toggleMute();
     }
 
     toggleAboutModal() {
-        this.setState({showAboutModal: !this.state.showAboutModal});
+        this.setState({ showAboutModal: !this.state.showAboutModal });
     }
 
     toggleCallMeMaybeModal() {
-        this.setState({showCallMeMaybeModal: !this.state.showCallMeMaybeModal});
+        this.setState({ showCallMeMaybeModal: !this.state.showCallMeMaybeModal });
     }
 
     render() {
         const notRegistered = this.props.account.registrationState !== 'registered';
         const muteClasses = clsx({
-            'fa'              : true,
-            'fa-2x'           : true,
-            'fa-bell-o'       : !this.state.mute,
-            'fa-bell-slash-o' : this.state.mute,
-            'text-warning'    : this.state.mute
+            'fa': true,
+            'fa-2x': true,
+            'fa-bell-o': !this.state.mute,
+            'fa-bell-slash-o': this.state.mute,
+            'text-warning': this.state.mute
         });
 
         const registrationClasses = clsx({
@@ -188,7 +188,7 @@ class NavigationBar extends React.Component {
                         </button>
                     }
                     {this.props.enableMessaging &&
-                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{root: this.props.classes.root, badge: this.props.classes.badge}} overlap="circular">
+                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ root: this.props.classes.root, badge: this.props.classes.badge }} overlap="circular">
                             <button title="Chat screen" className={chatNavButtonClasses} onClick={() => this.props.router.navigate('/chat')}>
                                 <i className="fa fa-comments fa-2x" />
                             </button>
@@ -226,14 +226,14 @@ class NavigationBar extends React.Component {
                     </DropdownButton>
                 </ButtonToolbar>
                 <AboutModal
-                    show = {this.state.showAboutModal}
-                    close = {this.toggleAboutModal}
+                    show={this.state.showAboutModal}
+                    close={this.toggleAboutModal}
                 />
                 <CallMeMaybeModal
-                    show = {this.state.showCallMeMaybeModal}
-                    close = {this.toggleCallMeMaybeModal}
-                    callUrl = {this.callUrl}
-                    notificationCenter = {this.props.notificationCenter}
+                    show={this.state.showCallMeMaybeModal}
+                    close={this.toggleCallMeMaybeModal}
+                    callUrl={this.callUrl}
+                    notificationCenter={this.props.notificationCenter}
                 />
             </Navbar>
         );
@@ -241,17 +241,17 @@ class NavigationBar extends React.Component {
 }
 
 NavigationBar.propTypes = {
-    notificationCenter : PropTypes.func.isRequired,
-    account            : PropTypes.object.isRequired,
-    logout             : PropTypes.func.isRequired,
-    preview            : PropTypes.func.isRequired,
-    toggleMute         : PropTypes.func.isRequired,
-    toggleShortcuts    : PropTypes.func.isRequired,
-    router             : PropTypes.object.isRequired,
-    enableMessaging    : PropTypes.bool.isRequired,
-    exportPrivateKey   : PropTypes.func.isRequired,
-    classes            : PropTypes.object.isRequired,
-    unreadMessages     : PropTypes.number 
+    notificationCenter: PropTypes.func.isRequired,
+    account: PropTypes.object.isRequired,
+    logout: PropTypes.func.isRequired,
+    preview: PropTypes.func.isRequired,
+    toggleMute: PropTypes.func.isRequired,
+    toggleShortcuts: PropTypes.func.isRequired,
+    router: PropTypes.object.isRequired,
+    enableMessaging: PropTypes.bool.isRequired,
+    exportPrivateKey: PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    unreadMessages: PropTypes.number
 };
 
 

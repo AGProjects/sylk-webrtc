@@ -183,8 +183,8 @@ class NavigationBar extends React.Component {
                 </Navbar.Header>
                 <ButtonToolbar bsClass="btn-toolbar navbar-btn-toolbar pull-right">
                     {this.props.enableMessaging &&
-                        <button title="Call screen" className={callNavButtonClasses} onClick={()=> this.props.router.navigate('/ready')}>
-                            <i className="fa fa-phone fa-2x" />
+                        <button title="Home screen" className={callNavButtonClasses} onClick={() => this.props.router.navigate('/ready')}>
+                            <i className="fa fa-home fa-2x" />
                         </button>
                     }
                     {this.props.enableMessaging &&

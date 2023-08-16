@@ -2,8 +2,8 @@
 
 const React = require('react');
 const PropTypes = require('prop-types');
-const TransitionGroup = require('react-transition-group/TransitionGroup');
-const CSSTransition = require('react-transition-group/CSSTransition');
+const { default: TransitionGroup } = require('react-transition-group/TransitionGroup');
+const { default: CSSTransition } = require('react-transition-group/CSSTransition');
 const ReactMixin = require('react-mixin');
 const sylkrtc = require('sylkrtc');
 const { Badge, IconButton } = require('@material-ui/core');

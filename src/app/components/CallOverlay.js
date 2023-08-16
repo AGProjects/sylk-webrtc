@@ -3,9 +3,9 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const { default: clsx } = require('clsx');
-const TransitionGroup   = require('react-transition-group/TransitionGroup');
-const CSSTransition     = require('react-transition-group/CSSTransition');
 const { DateTime }      = require('luxon');
+const { default: TransitionGroup } = require('react-transition-group/TransitionGroup');
+const { default: CSSTransition } = require('react-transition-group/CSSTransition');
 
 const stateMap = {
     ringing: 'Ringing...',

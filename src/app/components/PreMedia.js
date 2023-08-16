@@ -7,7 +7,7 @@ const useState = React.useState;
 const PropTypes  = require('prop-types');
 const { default: clsx } = require('clsx');
 
-const CSSTransition             = require('react-transition-group/CSSTransition');
+const { default: CSSTransition } = require('react-transition-group/CSSTransition');
 
 const { makeStyles }    = require('@material-ui/core/styles');
 

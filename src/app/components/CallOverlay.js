@@ -7,6 +7,11 @@ const TransitionGroup   = require('react-transition-group/TransitionGroup');
 const CSSTransition     = require('react-transition-group/CSSTransition');
 const { DateTime }      = require('luxon');
 
+const stateMap = {
+    ringing: 'Ringing...',
+    connecting: 'Connecting...'
+}
+
 class CallOverlay extends React.Component {
     constructor(props) {
         super(props);
@@ -15,6 +20,8 @@ class CallOverlay extends React.Component {
         this.timer = null;
         this._isMounted = true;
         this._electron = false;
+
+        this.state = { callState: 'connecting' };
 
         // ES6 classes no longer autobind
         this.callStateChanged = this.callStateChanged.bind(this);
@@ -52,10 +59,27 @@ class CallOverlay extends React.Component {
     }
 
     callStateChanged(oldState, newState, data) {
-        // Prevent starting timer when we are unmounted
-        if (newState === 'accepted' && this._isMounted) {
-            this.startTimer();
-            this.props.call.removeListener('stateChanged', this.callStateChanged);
+        // Prevent starting timer / state update when we are unmounted
+        if (!this._isMounted) {
+            return
+        }
+        switch (newState) {
+            case 'ringing':
+                if (this.state.callState !== 'ringing') {
+                    this.setState({ callState: 'ringing' })
+                }
+                break;
+            case 'proceeding':
+                if (this.state.callState !== 'ringing' && data && (data.code === 110 || data.code === 180)) {
+                    this.setState({ callState: 'ringing' })
+                }
+                break;
+            case 'accepted':
+                this.startTimer();
+                this.props.call.removeListener('stateChanged', this.callStateChanged);
+                break;
+            default:
+                break;
         }
     }
 
@@ -85,7 +109,7 @@ class CallOverlay extends React.Component {
             if (this.duration !== null) {
                 callDetail = <span><i className="fa fa-clock-o"></i> {this.duration} {this.props.callQuality}</span>;
             } else {
-                callDetail = 'Connecting...'
+                callDetail = stateMap[this.state.callState]
             }
 
             const headerClasses = clsx(

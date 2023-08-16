@@ -1,7 +1,7 @@
 'use strict';
 
-const React             = require('react');
-const PropTypes         = require('prop-types');
+const React = require('react');
+const PropTypes = require('prop-types');
 const { default: clsx } = require('clsx');
 const TransitionGroup   = require('react-transition-group/TransitionGroup');
 const CSSTransition     = require('react-transition-group/CSSTransition');
@@ -104,7 +104,7 @@ class CallOverlay extends React.Component {
                 <CSSTransition
                     key="call-trans"
                     classNames="videoheader"
-                    timeout={{ enter: 300, exit: 300}}
+                    timeout={{ enter: 300, exit: 300 }}
                 >
                     <div key="header" className={headerClasses}>
                         <div className="container-fluid">

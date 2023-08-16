@@ -1,19 +1,19 @@
 'use strict';
 
-const React                 = require('react');
-const PropTypes             = require('prop-types');
-const { default: clsx }     = require('clsx');
+const React = require('react');
+const PropTypes = require('prop-types');
+const { default: clsx } = require('clsx');
 const { default: TransitionGroup } = require('react-transition-group/TransitionGroup');
 const { default: CSSTransition } = require('react-transition-group/CSSTransition');
-const sylkrtc               = require('sylkrtc');
-const debug                 = require('debug');
+const sylkrtc = require('sylkrtc');
+const debug = require('debug');
 
-const ConferenceDrawer      = require('./ConferenceDrawer');
-const VolumeBar             = require('./VolumeBar');
+const ConferenceDrawer = require('./ConferenceDrawer');
+const VolumeBar = require('./VolumeBar');
 
-const ReactBootstrap    = require('react-bootstrap');
-const ListGroup         = ReactBootstrap.ListGroup;
-const ListGroupItem     = ReactBootstrap.ListGroupItem;
+const ReactBootstrap = require('react-bootstrap');
+const ListGroup = ReactBootstrap.ListGroup;
+const ListGroupItem = ReactBootstrap.ListGroupItem;
 
 const DEBUG = debug('blinkrtc:Preview');
 
@@ -24,8 +24,8 @@ class Preview extends React.Component {
     constructor(props) {
         super(props);
 
-        let mic = {label: 'No mic'};
-        let camera = {label: 'No Camera'};
+        let mic = { label: 'No mic' };
+        let camera = { label: 'No Camera' };
 
         if ('camera' in this.props.selectedDevices) {
             camera = this.props.selectedDevices.camera;
@@ -56,7 +56,7 @@ class Preview extends React.Component {
 
     componentDidMount() {
         this.localVideo.current.addEventListener('playing', this.localVideoElementPlaying);
-        sylkrtc.utils.attachMediaStream(this.props.localMedia, this.localVideo.current, {disableContextMenu: true, muted: true});
+        sylkrtc.utils.attachMediaStream(this.props.localMedia, this.localVideo.current, { disableContextMenu: true, muted: true });
 
         navigator.mediaDevices.enumerateDevices()
             .then((devices) => {
@@ -64,23 +64,23 @@ class Preview extends React.Component {
 
                 let newState = {};
                 if (this.state.camera.label !== 'No Camera') {
-                    if (!devices.find((device) => {return device.kind === 'videoinput'})) {
-                        newState.camera = {label: 'No Camera'};
+                    if (!devices.find((device) => { return device.kind === 'videoinput' })) {
+                        newState.camera = { label: 'No Camera' };
                     } else if (this.props.localMedia.getVideoTracks().length !== 0) {
-                        newState.camera = {label: this.props.localMedia.getVideoTracks()[0].label};
+                        newState.camera = { label: this.props.localMedia.getVideoTracks()[0].label };
                     }
                 }
 
                 if (this.state.mic.label !== 'No mic') {
-                    if (!devices.find((device) => {return device.kind === 'audioinput'})) {
-                        newState.mic = {label: 'No mic'};
+                    if (!devices.find((device) => { return device.kind === 'audioinput' })) {
+                        newState.mic = { label: 'No mic' };
                     } else if (this.props.localMedia.getAudioTracks().length !== 0) {
-                        newState.mic = { label: this.props.localMedia.getAudioTracks()[0].label};
+                        newState.mic = { label: this.props.localMedia.getAudioTracks()[0].label };
                     }
                 }
 
                 if (Object.keys(newState).length != 0) {
-                    this.setState(Object.assign({},newState));
+                    this.setState(Object.assign({}, newState));
                 }
             })
             .catch(function(error) {
@@ -90,12 +90,12 @@ class Preview extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.localMedia !== this.props.localMedia) {
-            sylkrtc.utils.attachMediaStream(nextProps.localMedia, this.localVideo.current, {disableContextMenu: true});
+            sylkrtc.utils.attachMediaStream(nextProps.localMedia, this.localVideo.current, { disableContextMenu: true });
         }
 
         if (nextProps.selectedDevices !== this.props.selectedDevices) {
-            let camera = {label: 'No Camera'};
-            let mic = {label: 'No Mic'};
+            let camera = { label: 'No Camera' };
+            let mic = { label: 'No Mic' };
             if ('camera' in nextProps.selectedDevices) {
                 camera = nextProps.selectedDevices.camera;
             }
@@ -103,7 +103,7 @@ class Preview extends React.Component {
             if ('mic' in nextProps.selectedDevices) {
                 mic = nextProps.selectedDevices.mic;
             }
-            this.setState({camera: camera, mic: mic});
+            this.setState({ camera: camera, mic: mic });
         }
     }
 
@@ -128,22 +128,22 @@ class Preview extends React.Component {
     }
 
     toggleDrawer() {
-        this.setState({showDrawer: !this.state.showDrawer});
+        this.setState({ showDrawer: !this.state.showDrawer });
     }
 
     render() {
         const localVideoClasses = clsx({
-            'large'    : true,
-            'animated' : true,
-            'fadeIn'   : true,
-            'mirror'   : true
+            'large': true,
+            'animated': true,
+            'fadeIn': true,
+            'mirror': true
         });
         const textClasses = clsx({
-            'lead'          : true
+            'lead': true
         });
         const commonButtonTopClasses = clsx({
-            'btn'           : true,
-            'btn-link'      : true
+            'btn': true,
+            'btn-link': true
         });
         const containerClasses = clsx({
             'video-container': true,
@@ -160,14 +160,14 @@ class Preview extends React.Component {
         this.devices.forEach((device) => {
             if (device.kind === 'videoinput') {
                 cameras.push(
-                    <ListGroupItem key={device.deviceId} style={{width: '350px'}} onClick={this.setDevice(device)} active={device.label === this.state.camera.label}>
-                    {device.label}
+                    <ListGroupItem key={device.deviceId} style={{ width: '350px' }} onClick={this.setDevice(device)} active={device.label === this.state.camera.label}>
+                        {device.label}
                     </ListGroupItem>
                 );
             } else if (device.kind === 'audioinput') {
                 mics.push(
-                    <ListGroupItem key={device.deviceId} style={{width: '350px'}} onClick={this.setDevice(device)} active={device.label === this.state.mic.label}>
-                    {device.label}
+                    <ListGroupItem key={device.deviceId} style={{ width: '350px' }} onClick={this.setDevice(device)} active={device.label === this.state.mic.label}>
+                        {device.label}
                     </ListGroupItem>
                 );
             }
@@ -184,11 +184,11 @@ class Preview extends React.Component {
                 <CSSTransition
                     key="header-container"
                     classNames="videoheader"
-                    timeout={{ enter: 300, exit: 300}}
+                    timeout={{ enter: 300, exit: 300 }}
                 >
                     <div key="header-container">
                         <div key="header" className="call-header">
-                            <div className="container-fluid" style={{position: 'relative'}}>
+                            <div className="container-fluid" style={{ position: 'relative' }}>
                                 <p className={textClasses}><strong>Preview</strong></p>
                                 <p className={textClasses}>{this.state.camera.label}</p>
                                 <div className="conference-top-buttons">

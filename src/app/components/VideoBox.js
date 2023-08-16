@@ -587,7 +587,7 @@ class VideoBox extends React.Component {
                 buttons.push(<button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
             }
             if (this.props.inlineChat) {
-                buttons.push(<React.Fragment>
+                buttons.push(<React.Fragment key="inlineChat">
                     <Badge key="unreadBadge" badgeContent={unreadCallMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
                         <button key="inlineChatButton" type="button" className={commonButtonClasses} onClick={this.toggleInlineChat}>
                             <i className="fa fa-commenting-o"></i>

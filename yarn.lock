@@ -10266,8 +10266,8 @@ svgo@^1.0.0, svgo@^1.3.2:
     util.promisify "~1.0.0"
 
 sylkrtc@AGProjects/sylkrtc.js:
-  version "1.7.3"
-  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/419561c89152046e90449bd7f9383de65729a9c7"
+  version "1.7.4"
+  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/a090ac75d701a3252b77bf9ef7c98e4355e3bf2a"
   dependencies:
     "@rifflearning/attachmediastream" "^3.0.0"
     blueimp-md5 "^2.19.0"

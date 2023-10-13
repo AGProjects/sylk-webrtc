@@ -1,18 +1,18 @@
 'use strict';
 
-const React         = require('react');
-const PropTypes     = require('prop-types');
+const React = require('react');
+const PropTypes = require('prop-types');
 const { default: clsx } = require('clsx');
-const { Grid }      = require('@material-ui/core');
-const { InView }    = require('react-intersection-observer');
+const { Grid } = require('@material-ui/core');
+const { InView } = require('react-intersection-observer');
 
 const ConferenceModal = require('./ConferenceModal');
-const HistoryCard     = require('./HistoryCard');
-const HistoryTileBox  = require('./HistoryTileBox');
-const FooterBox       = require('./FooterBox');
-const URIInput        = require('./URIInput');
-const config          = require('../config');
-const utils           = require('../utils');
+const HistoryCard = require('./HistoryCard');
+const HistoryTileBox = require('./HistoryTileBox');
+const FooterBox = require('./FooterBox');
+const URIInput = require('./URIInput');
+const config = require('../config');
+const utils = require('../utils');
 
 
 class ReadyBox extends React.Component {
@@ -40,8 +40,8 @@ class ReadyBox extends React.Component {
 
     componentDidMount() {
         this.observer = new IntersectionObserver(([e]) => {
-            this.setState({sticky: e.intersectionRatio < 1});
-            }, {threshold: [1]});
+            this.setState({ sticky: e.intersectionRatio < 1 });
+        }, { threshold: [1] });
         this.observer.observe(this.stickyTopRef.current);
         window.addEventListener('resize', this.handleResize);
     }
@@ -61,12 +61,12 @@ class ReadyBox extends React.Component {
             const url = new URL(value);
             if (url.pathname.startsWith('/conference')) {
                 this.conference = url.pathname.split('/').pop();
-                this.setState({showConferenceModal: true});
+                this.setState({ showConferenceModal: true });
             } else if (url.pathname.startsWith('/call')) {
                 value = url.pathname.split('/').pop();
             }
         }
-        this.setState({targetUri: value});
+        this.setState({ targetUri: value });
     }
 
     handleTargetSelect() {
@@ -77,7 +77,7 @@ class ReadyBox extends React.Component {
         if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
             this.props.startConference(this.state.targetUri);
         } else {
-            this.props.startCall(this.getTargetUri(), {audio: true, video: true});
+            this.props.startCall(this.getTargetUri(), { audio: true, video: true });
         }
     }
 
@@ -86,7 +86,7 @@ class ReadyBox extends React.Component {
         if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
             this.props.startConference(this.state.targetUri);
         } else {
-            this.props.startCall(this.getTargetUri(), {audio: true, video: false});
+            this.props.startCall(this.getTargetUri(), { audio: true, video: false });
         }
     }
 
@@ -112,12 +112,12 @@ class ReadyBox extends React.Component {
             const uri = `${this.state.targetUri.split('@')[0].replace(/[\s()-]/g, '')}@${config.defaultConferenceDomain}`;
             this.handleConferenceCall(uri.toLowerCase());
         } else {
-            this.setState({showConferenceModal: true});
+            this.setState({ showConferenceModal: true });
         }
     }
 
     handleConferenceCall(targetUri, extraOptions) {
-        this.setState({showConferenceModal: false});
+        this.setState({ showConferenceModal: false });
         this.conference = '';
         if (targetUri) {
             this.props.startConference(targetUri, extraOptions);
@@ -125,20 +125,20 @@ class ReadyBox extends React.Component {
     }
 
     handleResize() {
-        this.setState({height: utils.getWindowHeight() - 50});
+        this.setState({ height: utils.getWindowHeight() - 50 });
     }
 
     render() {
         const classes = clsx({
-            'btn'           : true,
-            'btn-round-big' : true,
-            'btn-success'   : this.state.targetUri.length !== 0,
-            'btn-default'   : this.state.targetUri.length === 0
+            'btn': true,
+            'btn-round-big': true,
+            'btn-success': this.state.targetUri.length !== 0,
+            'btn-default': this.state.targetUri.length === 0
         });
 
         const stickyClasses = clsx({
-            'sticky-wrapper'    : true,
-            'sticky'            : this.state.sticky
+            'sticky-wrapper': true,
+            'sticky': this.state.sticky
         });
 
         // Join URIs from local and server history for input
@@ -150,7 +150,7 @@ class ReadyBox extends React.Component {
         return (
             <div>
                 <div className="cover-container">
-                    <div className="inner cover scroll" style={{height: this.state.height}}>
+                    <div className="inner cover scroll" style={{ height: this.state.height }}>
                         <div className={stickyClasses} ref={this.stickyTopRef}>
                             <div className="form-dial">
                                 <p className="lead">Enter the address you wish to call</p>
@@ -159,7 +159,7 @@ class ReadyBox extends React.Component {
                                     data={history}
                                     onChange={this.handleTargetChange}
                                     onSelect={this.handleTargetSelect}
-                                    autoFocus={ !/Mobi|Android/i.test(navigator.userAgent) || true}
+                                    autoFocus={!/Mobi|Android/i.test(navigator.userAgent) || true}
                                     placeholder="Eg. alice@sip2sip.info or 3333"
                                 />
                                 <div className="form-group">
@@ -173,27 +173,27 @@ class ReadyBox extends React.Component {
                         <div className="extra-shadow"></div>
                         <HistoryTileBox>
                             {this.props.serverHistory.filter(historyItem => historyItem.remoteParty.startsWith(this.state.targetUri)).map((historyItem, idx) =>
-                                (
-                                    <Grid item md={4} sm={6} xs={12} key={idx}>
-                                        <InView threshold={0.01}>
-                                            {({inView, ref, entry}) => (
-                                                <div
-                                                    ref={ref}
-                                                    className={inView ? 'card-visible animated bounceIn' : 'card-hidden'}
-                                                >
+                            (
+                                <Grid item md={4} sm={6} xs={12} key={idx}>
+                                    <InView threshold={0.01}>
+                                        {({ inView, ref, entry }) => (
+                                            <div
+                                                ref={ref}
+                                                className={inView ? 'card-visible animated bounceIn' : 'card-hidden'}
+                                            >
                                                 <HistoryCard
-                                                    historyItem    = {historyItem}
-                                                    setTargetUri   = {this.handleTargetChange}
-                                                    startVideoCall = {this.handleVideoCall}
-                                                    startAudioCall = {this.handleAudioCall}
-                                                    startChat      = {this.handleChat}
-                                                    noConnection   = {this.props.noConnection}
+                                                    historyItem={historyItem}
+                                                    setTargetUri={this.handleTargetChange}
+                                                    startVideoCall={this.handleVideoCall}
+                                                    startAudioCall={this.handleAudioCall}
+                                                    startChat={this.handleChat}
+                                                    noConnection={this.props.noConnection}
                                                 />
-                                                </div>
-                                            )}
-                                        </InView>
-                                    </Grid>
-                                )
+                                            </div>
+                                        )}
+                                    </InView>
+                                </Grid>
+                            )
                             )}
                         </HistoryTileBox>
                         <FooterBox />
@@ -210,14 +210,14 @@ class ReadyBox extends React.Component {
 }
 
 ReadyBox.propTypes = {
-    account         : PropTypes.object.isRequired,
-    startCall       : PropTypes.func.isRequired,
-    startConference : PropTypes.func.isRequired,
-    startChat       : PropTypes.func.isRequired,
-    missedTargetUri : PropTypes.string,
-    history         : PropTypes.array,
-    serverHistory   : PropTypes.array,
-    noConnection    : PropTypes.bool
+    account: PropTypes.object.isRequired,
+    startCall: PropTypes.func.isRequired,
+    startConference: PropTypes.func.isRequired,
+    startChat: PropTypes.func.isRequired,
+    missedTargetUri: PropTypes.string,
+    history: PropTypes.array,
+    serverHistory: PropTypes.array,
+    noConnection: PropTypes.bool
 };
 
 

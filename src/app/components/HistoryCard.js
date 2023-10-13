@@ -1,14 +1,14 @@
 'use strict';
 
-const React         = require('react');
-const PropTypes     = require('prop-types');
+const React = require('react');
+const PropTypes = require('prop-types');
 const { default: clsx } = require('clsx');
 const { DateTime, Duration } = require('luxon');
 
 const { makeStyles } = require('@material-ui/core/styles');
 const { Card, CardActions, CardContent } = require('@material-ui/core');
 const { Typography, IconButton: Button } = require('@material-ui/core');
-const UserIcon      = require('./UserIcon');
+const UserIcon = require('./UserIcon');
 
 
 const styles = makeStyles({
@@ -47,17 +47,17 @@ const styles = makeStyles({
 });
 
 const HistoryCard = (props) => {
-    const classes =  styles(props);
+    const classes = styles(props);
     const identity = {
         displayName: props.historyItem.displayName,
         uri: props.historyItem.remoteParty || props.historyItem
     }
 
     const directionIcon = clsx({
-        'fa'                    : true,
-        'rotate-minus-45'       : true,
-        'fa-long-arrow-left'    : props.historyItem.direction === 'received',
-        'fa-long-arrow-right'   : props.historyItem.direction === 'placed'
+        'fa': true,
+        'rotate-minus-45': true,
+        'fa-long-arrow-left': props.historyItem.direction === 'received',
+        'fa-long-arrow-right': props.historyItem.direction === 'placed'
     });
 
     const startVideoCall = (e) => {
@@ -89,7 +89,7 @@ const HistoryCard = (props) => {
         });
     }
 
-    let duration = Duration.fromObject({seconds: props.historyItem.duration}).toFormat('hh:mm:ss');
+    let duration = Duration.fromObject({ seconds: props.historyItem.duration }).toFormat('hh:mm:ss');
     if (props.historyItem.direction === 'received' && props.historyItem.duration === 0) {
         duration = 'missed';
     }
@@ -104,43 +104,43 @@ const HistoryCard = (props) => {
     return (
         <Card
             className={classes.card}
-            onClick={() => {props.setTargetUri(identity.uri)}}
+            onClick={() => { props.setTargetUri(identity.uri) }}
             onDoubleClick={startVideoCall}
         >
             <div className={classes.column}>
-            <CardContent className={classes.content}>
-                <Typography noWrap className={classes.mainHeading} variant="h5">{name} ({duration})</Typography>
-                <Typography className={classes.biggerFont} variant="subtitle1" color="textSecondary">
-                    <strong><i className={directionIcon}></i></strong>&nbsp;{date}
-                </Typography>
-            </CardContent>
-            <CardActions className={classes.actions}>
-                <Button classes={{root: classes.iconSmall}} disabled={props.noConnection} onClick={startAudioCall} title={`Audio call to ${name}`}>
-                    <i className="fa fa-phone"></i>
-                </Button>
-                <Button classes={{root: classes.iconSmall}} disabled={props.noConnection} onClick={startVideoCall} title={`Video call to ${name}`}>
-                    <i className="fa fa-video-camera"></i>
-                </Button>
-                <Button classes={{root: classes.iconSmall}} onClick={startChat} title={`Chat to ${name}`}>
-                    <i className="fa fa-comments"></i>
-                </Button>
-            </CardActions>
+                <CardContent className={classes.content}>
+                    <Typography noWrap className={classes.mainHeading} variant="h5">{name} ({duration})</Typography>
+                    <Typography className={classes.biggerFont} variant="subtitle1" color="textSecondary">
+                        <strong><i className={directionIcon}></i></strong>&nbsp;{date}
+                    </Typography>
+                </CardContent>
+                <CardActions className={classes.actions}>
+                    <Button classes={{ root: classes.iconSmall }} disabled={props.noConnection} onClick={startAudioCall} title={`Audio call to ${name}`}>
+                        <i className="fa fa-phone"></i>
+                    </Button>
+                    <Button classes={{ root: classes.iconSmall }} disabled={props.noConnection} onClick={startVideoCall} title={`Video call to ${name}`}>
+                        <i className="fa fa-video-camera"></i>
+                    </Button>
+                    <Button classes={{ root: classes.iconSmall }} onClick={startChat} title={`Chat to ${name}`}>
+                        <i className="fa fa-comments"></i>
+                    </Button>
+                </CardActions>
             </div>
             <div className={classes.icon}>
-                <UserIcon identity={identity} card/>
+                <UserIcon identity={identity} card />
             </div>
         </Card>
     );
 }
 
 HistoryCard.propTypes = {
-    historyItem    : PropTypes.object,
-    startAudioCall : PropTypes.func.isRequired,
-    startVideoCall : PropTypes.func.isRequired,
-    startChat      : PropTypes.func.isRequired,
-    setTargetUri   : PropTypes.func.isRequired,
-    noConnection   : PropTypes.bool
+    historyItem: PropTypes.object,
+    startAudioCall: PropTypes.func.isRequired,
+    startVideoCall: PropTypes.func.isRequired,
+    startChat: PropTypes.func.isRequired,
+    setTargetUri: PropTypes.func.isRequired,
+    noConnection: PropTypes.bool
 };
 
 
-module.exports =  HistoryCard;
+module.exports = HistoryCard;

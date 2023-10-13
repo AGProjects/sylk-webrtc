@@ -106,14 +106,6 @@ const FileTransferMessage = ({
     const [state, setState] = useState('');
     const [parsedContent, setParsedContent] = useState();
     const [header, setHeader] = useState();
-    const [parsedJsonContent] = useState(() => {
-        try {
-            return JSON.parse(message.content);
-        }
-        catch (e) {
-            return {}
-        }
-    });
 
     const messageRef = useRef(null);
     const [anchorEl, setAnchorEl] = useState(null);
@@ -134,16 +126,17 @@ const FileTransferMessage = ({
     );
 
     useEffect(() => {
-        if (parsedJsonContent.filetype && !parsedJsonContent.filetype.startsWith('image/')) {
+        let file = message.json
+        if (file.filetype && !file.filetype.startsWith('image/')) {
             if (hidden) {
                 setHeader(
-                    <Typography className={classes.fixFont} style={{ fontSize: 12, alignSelf: 'center' }} variant="body2">{parsedJsonContent.filename.replace('.asc', '').replace(/_/g, ' ')}</Typography>
+                    <Typography className={classes.fixFont} style={{ fontSize: 12, alignSelf: 'center' }} variant="body2">{file.filename.replace('.asc', '').replace(/_/g, ' ')}</Typography>
                 )
             } else {
-                let filetype = parsedJsonContent.filetype;
-                if (parsedJsonContent.filetype) {
+                let filetype = file.filetype;
+                if (file.filetype) {
                     try {
-                        filetype = resolveMime(parsedJsonContent.filetype).name;
+                        filetype = resolveMime(file.filetype).name;
                     }
                     catch (error) {
                         // no op
@@ -155,38 +148,36 @@ const FileTransferMessage = ({
 
             }
         }
-    }, [hidden, classes.fixFont, parsedJsonContent])
+    }, [hidden, classes.fixFont, message])
 
     useEffect(() => {
+        let ignore = false;
+        let fileData = message.json
+
         const fileSize = (size) => {
             let i = Math.floor(Math.log(size) / Math.log(1024));
             return (size / Math.pow(1024, i)).toFixed(1) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
         }
 
-        const generateFileBlock = () => {
+        const generateFileBlock = (error) => {
             let filetype = 'Unknown';
-            if (parsedJsonContent.filetype) {
+            if (fileData.filetype) {
                 try {
-                    filetype = resolveMime(parsedJsonContent.filetype).name;
+                    filetype = resolveMime(fileData.filetype).name;
                 }
                 catch (error) {
-                    filetype = parsedJsonContent.filetype;
+                    filetype = fileData.filetype;
                     // no op
                 }
             }
-            if (Object.keys(parsedJsonContent).length === 0) {
-                setState('error');
-                setParsedContent(
-                    <Typography className={classes.fixFont} style={{ fontSize: 14, color: 'rgb(169, 68, 66)' }}>Couldn't parse filetransfer message</Typography>
-                );
-                return;
+            if (error) {
+                setHeader(
+                    <Typography className={classes.fixFont} style={{ fontSize: 12, alignSelf: 'center' }} variant="body2" color="textSecondary">{filetype}</Typography>
+                )
             }
-            setHeader(
-                <Typography className={classes.fixFont} style={{ fontSize: 12, alignSelf: 'center' }} variant="body2" color="textSecondary">{filetype}</Typography>
-            )
             setParsedContent(
                 <div
-                    onClick={(event) => { event.preventDefault(); fileTransferUtils.download(account, parsedJsonContent) }}
+                    onClick={(event) => { event.preventDefault(); fileTransferUtils.download(account, fileData) }}
                 >
                     <Paper variant="outlined">
                         <Grid container spacing={2}>
@@ -195,31 +186,46 @@ const FileTransferMessage = ({
                             </Grid>
                             <Grid style={{ display: 'flex', alignItems: 'center' }} item>
                                 <div>
-                                    <Typography className={classes.fixFont} style={{ fontSize: 16, fontWeight: 300 }} variant="subtitle1">{parsedJsonContent.filename.replace('.asc', '').replace(/_/g, ' ')}</Typography>
-                                    <Typography className={classes.fixFont} style={{ fontSize: 12 }} variant="body2" color="textSecondary">{fileSize(parsedJsonContent.filesize)} {filetype}</Typography>
+                                    <Typography className={classes.fixFont} style={{ fontSize: 16, fontWeight: 300 }} variant="subtitle1">
+                                        {fileData.filename.replace('.asc', '').replace(/_/g, ' ')}
+                                        {error &&
+                                            <ErrorOutlineIcon className={classes.warningIcon} titleAccess={error.toString()} />
+                                        }
+                                    </Typography>
+                                    <Typography className={classes.fixFont} style={{ fontSize: 12 }} variant="body2" color="textSecondary">{fileSize(fileData.filesize)} {filetype} {message.id}</Typography>
                                 </div>
                             </Grid>
                         </Grid>
-                    </Paper>
-                </div>
+                    </Paper >
+                </div >
             );
         }
 
+        if (message.jsonError) {
+            //setState('error');
+            setParsedContent(
+                <Typography className={classes.fixFont} style={{ fontSize: 14, color: 'rgb(169, 68, 66)' }}>Couldn't parse filetransfer message</Typography>
+            );
+            return;
+        }
+
         if (message.contentType == ('application/sylk-file-transfer')) {
-            if (parsedJsonContent.filetype && parsedJsonContent.filetype.startsWith('image/')) {
-                fileTransferUtils.generateThumbnail(account, message.id, parsedJsonContent)
+            if (fileData.filetype && fileData.filetype.startsWith('image/')) {
+                fileTransferUtils.generateThumbnail(account, message.id, fileData, message.state)
                     .then(([image, filename, w, h]) => {
-                        setHeader(
-                            <Typography className={classes.fixFont} style={{ display: 'flex', fontSize: 12, alignSelf: 'center' }} variant="body2" color="textSecondary">{filename.replace(/_/g, ' ')}
-                            </Typography>
-                        )
-                        setParsedContent(
-                            <Paper variant="outlined" style={{ display: 'inline-block', borderRadius: 7, overflow: 'hidden', cursor: 'zoom-in' }}>
-                                <img className="img-responsive img-rounded" style={{ ...w && { width: w }, ...h && { height: h } }} src={image} onClick={showModal} />
-                            </Paper>
-                        );
+                        if (!ignore) {
+                            setHeader(
+                                <Typography className={classes.fixFont} style={{ display: 'flex', fontSize: 12, alignSelf: 'center' }} variant="body2" color="textSecondary">{filename.replace(/_/g, ' ')}
+                                </Typography>
+                            )
+                            setParsedContent(
+                                <Paper variant="outlined" style={{ display: 'inline-block', borderRadius: 7, overflow: 'hidden', cursor: 'zoom-in' }}>
+                                    <img className="img-responsive img-rounded" style={{ ...w && { width: w }, ...h && { height: h } }} src={image} onClick={showModal} />
+                                </Paper>
+                            );
+                        }
                     }).catch(error => {
-                        generateFileBlock();
+                        generateFileBlock(error);
                     })
             } else {
                 generateFileBlock();
@@ -238,16 +244,12 @@ const FileTransferMessage = ({
             message.on('stateChanged', stateChanged);
         }
 
-        if (Object.keys(parsedJsonContent).length === 0) {
-            setState('error');
-        } else {
-            setState(message.state);
-        }
 
         return () => {
             if (message instanceof require('events').EventEmitter) {
                 message.removeListener('stateChanged', stateChanged);
             }
+            ignore = true;
         }
     }, [message, classes]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -276,7 +278,7 @@ const FileTransferMessage = ({
     let theme = clsx({
         'text-left': true,
         'pending': state === 'pending',
-        'text-danger': state === 'failed' || state === 'error',
+        'text-danger': state === 'failed' || state === 'error' || message.jsonError,
         'continued': cont && message.type !== 'status',
         'status': message.type === 'status'
     });
@@ -343,11 +345,18 @@ const FileTransferMessage = ({
         setAnchorEl(null);
     };
 
+    const handleDownload = () => {
+        fileTransferUtils.download(account, fileData)
+             .catch((error) => {
+                 console.log('ERROR')
+             });
+    }
     const generateMenu = () => {
-        if (!parsedJsonContent.filetype) {
+        let fileData = message.json
+        if (!fileData.filetype) {
             return;
         }
-        if (parsedJsonContent.filetype.startsWith('image/')) {
+        if (fileData.filetype.startsWith('image/')) {
             return (
                 <CustomContextMenu
                     open={Boolean(anchorEl)}
@@ -356,11 +365,11 @@ const FileTransferMessage = ({
                     keepMounted={false}
                 >
                     {!isElectron() &&
-                        <MenuItem className={classes.item} onClick={() => { fileTransferUtils.openInNewTab(account, parsedJsonContent); handleClose() }}>
+                        <MenuItem className={classes.item} onClick={() => { fileTransferUtils.openInNewTab(account, fileData); handleClose() }}>
                             Open in new tab
                         </MenuItem>
                     }
-                    <MenuItem className={classes.item} onClick={() => { fileTransferUtils.download(account, parsedJsonContent); handleClose() }} >
+                    <MenuItem className={classes.item} onClick={() => { handleDownload(); handleClose() }} >
                         Download Image
                     </MenuItem>
                     {!message.isSecure &&
@@ -383,7 +392,7 @@ const FileTransferMessage = ({
                 keepMounted={false}
             >
 
-                <MenuItem className={classes.item} onClick={() => { fileTransferUtils.download(account, parsedJsonContent); handleClose() }} >
+                <MenuItem className={classes.item} onClick={() => { handleDownload(); handleClose() }} >
                     Download File
                 </MenuItem>
                 {!message.isSecure &&
@@ -458,10 +467,13 @@ const FileTransferMessage = ({
                         <span className="pull-right" style={{ paddingRight: '15px' }}>
                             {message.isSecure && <LockIcon className={classes.lockIcon} />}
                             {statusIcon()}
+                            {message.jsonError &&
+                                <ErrorOutlineIcon className={classes.errorOutlineIcon} titleAccess="Parse Error" />
+                            }
                         </span>
                     </Media.Heading>
 
-                    {state !== 'error' &&
+                    {!message.jsonError &&
                         <div style={{ display: 'flex', alignItems: 'end' }}>
                             {header}
                             <IconButton

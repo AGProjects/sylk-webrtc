@@ -103,7 +103,7 @@ const FileTransferMessage = ({
     showModal
 }) => {
     const classes = styleSheet();
-    const [state, setState] = useState('');
+    const [state, setState] = useState(message.state);
     const [parsedContent, setParsedContent] = useState();
     const [header, setHeader] = useState();
 

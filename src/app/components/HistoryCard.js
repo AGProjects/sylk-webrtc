@@ -82,7 +82,11 @@ const HistoryCard = (props) => {
 
     const startChat = (e) => {
         e.stopPropagation();
-        props.startChat(identity.uri);
+        props.setTargetUri(identity.uri);
+        // We need to wait for targetURI
+        setImmediate(() => {
+            props.startChat(e);
+        });
     }
 
     let duration = Duration.fromObject({seconds: props.historyItem.duration}).toFormat('hh:mm:ss');

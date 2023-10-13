@@ -95,12 +95,15 @@ class ReadyBox extends React.Component {
         if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
             this.props.startConference(this.state.targetUri);
         } else {
-            this.props.startCall(this.getTargetUri(), {audio: true, video: true});
+            this.props.startCall(this.getTargetUri(), { audio: true, video: true });
         }
     }
 
-    handleChat(uri) {
-        this.props.startChat(uri);
+    handleChat(event) {
+        event.preventDefault();
+        if (!this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
+            this.props.startChat(this.getTargetUri());
+        }
     }
 
     showConferenceModal(event) {
@@ -162,6 +165,7 @@ class ReadyBox extends React.Component {
                                 <div className="form-group">
                                     <button aria-label="Start an audio call" title="Audio call" type="button" className={classes} disabled={this.state.targetUri.length === 0 || this.props.noConnection} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>
                                     <button aria-label="Start a video call" title="Video call" type="button" className={classes} disabled={this.state.targetUri.length === 0 || this.props.noConnection} onClick={this.handleVideoCall}><i className="fa fa-video-camera"></i></button>
+                                    <button aria-label="Start a chat" title="Chat" type="button" className={classes} disabled={this.state.targetUri.length === 0 || this.props.noConnection || this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)} onClick={this.handleChat}><i className="fa fa-comments"></i></button>
                                     <button aria-label="Join a video conference" title="Join video conference" type="button" className="btn btn-primary btn-round-big" disabled={this.props.noConnection} onClick={this.showConferenceModal}><i className="fa fa-users"></i></button>
                                 </div>
                             </div>

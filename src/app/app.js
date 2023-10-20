@@ -48,6 +48,7 @@ const config = require('./config');
 const storage = require('./storage');
 const messageStorage = require('./messageStorage');
 const keyStorage = require('./keyStorage');
+const cacheStorage = require('./cacheStorage');
 const history = require('./history');
 
 // attach debugger to the window for console access
@@ -434,6 +435,7 @@ class Blink extends React.Component {
             }
             messageStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
             keyStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
+            cacheStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
 
             let { privateKey, publicKey, revocationCertificate } = '';
 
@@ -1501,6 +1503,21 @@ class Blink extends React.Component {
         }
         this.calculateUnreadMessages(oldMessages);
         this.setState({ oldMessages: oldMessages });
+        cacheStorage.remove(message.id)
+            .then(() => {
+                DEBUG('File removed: %s', message.id);
+                return cacheStorage.remove(`thumb_${message.id}`)
+            })
+            .catch(() => {
+                DEBUG('File not removed for %s', message.id)
+            })
+            .then(() => {
+                DEBUG('Thumbnail removed: %s', message.id);
+            })
+            .catch(() => {
+                DEBUG('Thumbnail not removed for %s', message.id)
+            })
+
     }
 
     messageStateChanged(id, state, data, fromSync = false) {
@@ -1761,6 +1778,7 @@ class Blink extends React.Component {
 
     removeConversation(contact) {
         messageStorage.remove(contact)
+        cacheStorage.removeAll(contact)
         let oldMessages = cloneDeep(this.state.oldMessages);
         delete oldMessages[contact];
         if (this.lastMessageFocus === contact) {
@@ -2095,6 +2113,7 @@ class Blink extends React.Component {
         const removeChat = (contact) => {
             // DEBUG("REMOVE %s", contact);
             messageStorage.remove(contact);
+            cacheStorage.removeAll(contact);
             let oldMessages = cloneDeep(this.state.oldMessages);
             delete oldMessages[contact];
             this.state.account.removeConversation(contact);
@@ -2118,6 +2137,22 @@ class Blink extends React.Component {
             messageStorage.removeMessage(message).then(() => {
                 DEBUG('Message removed: %o', message.id);
             });
+            if (message.contentType == ('application/sylk-file-transfer')) {
+                cacheStorage.remove(message.id)
+                    .then(() => {
+                        DEBUG('File removed: %s', message.id);
+                        return cacheStorage.remove(`thumb_${message.id}`)
+                    })
+                    .catch(() => {
+                        DEBUG('File not removed for %s', message.id)
+                    })
+                    .then(() => {
+                        DEBUG('Thumbnail removed: %s', message.id);
+                    })
+                    .catch(() => {
+                        DEBUG('Thumbnail not removed for %s', message.id)
+                    })
+            }
             let oldMessages = cloneDeep(this.state.oldMessages);
             let contact = message.receiver;
             if (message.state === 'received') {

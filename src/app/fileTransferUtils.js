@@ -5,12 +5,21 @@ const debug = require('debug');
 
 const config = require('./config');
 const utils = require('./utils');
+const cacheStorage = require('./cacheStorage');
 
 const DEBUG = debug('blinkrtc:fileTransferUtils');
 
 
 const uploads = [];
 const imageCache = {};
+
+function isCached(id) {
+    if (imageCache[id] !== undefined) {
+        return true
+    }
+
+    return cacheStorage.isCached(id)
+}
 
 function upload({ notificationCenter, account }, files, uri) {
     for (const file of files) {
@@ -232,4 +241,4 @@ function getImage(account, message) {
         });
 };
 
-module.exports = { upload, download, openInNewTab, generateThumbnail, getImage }
+module.exports = { upload, download, openInNewTab, generateThumbnail, getImage, isCached }

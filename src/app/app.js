@@ -1140,7 +1140,7 @@ class Blink extends React.Component {
     toggleChatInCall() {
         const path = this.router.current.getPath();
         const domain = this.state.currentCall && this.state.currentCall.remoteIdentity.uri.substring(this.state.currentCall.remoteIdentity.uri.indexOf('@') + 1) || '';
-        if (path !== '/conference' && !domain.startsWith('guest')) {
+        if (path !== '/conference' && !domain.startsWith('guest') && this.lastMessageFocus === '') {
             this.lastMessageFocus = this.state.currentCall.remoteIdentity.uri;
         }
         this.setState({
@@ -2139,8 +2139,9 @@ class Blink extends React.Component {
         };
 
         const domain = this.state.currentCall && this.state.currentCall.remoteIdentity.uri.substring(this.state.currentCall.remoteIdentity.uri.indexOf('@') + 1) || '';
+        let lastMessageFocus = this.lastMessageFocus
         if (embed && !domain.startsWith('guest.')) {
-            this.lastMessageFocus = this.state.currentCall && this.state.currentCall.remoteIdentity.uri || '';
+            lastMessageFocus = this.state.currentCall && this.state.currentCall.remoteIdentity.uri || '';
         }
         return (
             <Chat
@@ -2151,7 +2152,7 @@ class Blink extends React.Component {
                 startCall={this.startCall}
                 messageStorage={messageStorage}
                 propagateKeyPress={this.togglePropagateKeyPress}
-                focusOn={this.lastMessageFocus}
+                focusOn={lastMessageFocus}
                 removeChat={removeChat}
                 loadMoreMessages={loadMoreMessages}
                 lastContactSelected={(uri) => {

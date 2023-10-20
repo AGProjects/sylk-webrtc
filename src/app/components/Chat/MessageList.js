@@ -100,7 +100,7 @@ const MessageList = ({
         let timestamp = null;
 
         const getImage = (message) => {
-            fileTransferUtils.getImage(account, message).then(([imageData, filename]) => {
+            fileTransferUtils.getAndReadFile(account, message).then(([imageData, filename]) => {
                 setImage(imageData)
                 message.filename = filename;
                 setMessage(message)

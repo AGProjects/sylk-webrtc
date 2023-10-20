@@ -230,7 +230,7 @@ function generateThumbnail(account, id, { url, filename, filetype }) {
         });
 };
 
-function getImage(account, message) {
+function getAndReadFile(account, message) {
     let { filename, filetype, url } = message.json
 
     if (filetype == null) {
@@ -247,9 +247,8 @@ function getImage(account, message) {
             return new Promise((resolve) => resolve(data.data))
         }
         return _downloadAndRead(account, url, filename, filetype, message.id, contact)
-    }).then(([imageData, filename]) => {
-        return [imageData, filename];
     });
 };
 
-module.exports = { upload, download, openInNewTab, generateThumbnail, getImage, isCached }
+
+module.exports = { upload, download, openInNewTab, generateThumbnail, getAndReadFile, isCached }

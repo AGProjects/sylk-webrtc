@@ -70,6 +70,29 @@ function _download(account, url, filename, filetype) {
         });
 }
 
+function _downloadAndRead(account, url, filename, filetype, id, contact) {
+    return _download(account, url, filename, filetype)
+        .then(file => {
+            let fr = new FileReader();
+            return new Promise((resolve, reject) => {
+                fr.onload = () => {
+                    if (filetype === 'image/svg+xml') {
+                        resolve(['data:image/svg+xml,' + encodeURIComponent(fr.result), file.file.name])
+                    }
+                    let result = fr.result.replace('application/octet-stream', filetype);
+                    cacheStorage.add({ id: id, data: [result, file.file.name], contact: contact })
+                    resolve([result, file.file.name])
+                }
+                fr.onerror = reject;
+                if (filetype === 'image/svg+xml') {
+                    fr.readAsText(file.file)
+                } else {
+                    fr.readAsDataURL(file.file)
+                }
+            });
+        })
+}
+
 function _parameterTest(name, bool) {
     if (typeof bool === 'undefined') {
         throw new Error(`Parameter ${name} invalid`);
@@ -208,37 +231,25 @@ function generateThumbnail(account, id, { url, filename, filetype }) {
 };
 
 function getImage(account, message) {
-    let { filename, filetype, url } = JSON.parse(message.content)
+    let { filename, filetype, url } = message.json
 
     if (filetype == null) {
         filetype = 'application/octet-stream'
     }
 
-    if (!filename.endsWith('.asc')) {
-        return new Promise((resolve) => resolve([url, filename]))
+    let contact = message.receiver;
+    if (message.state === 'received') {
+        contact = message.sender.uri;
     }
 
-    return _download(account, url, filename, filetype)
-        .then(file => {
-            let fr = new FileReader();
-            return new Promise((resolve, reject) => {
-                fr.onload = () => {
-                    if (filetype === 'image/svg+xml') {
-                        resolve(['data:image/svg+xml,' + encodeURIComponent(fr.result), file.file.name])
-                    }
-                    let result = fr.result.replace('application/octet-stream', filetype);
-                    resolve([result, file.file.name])
-                }
-                fr.onerror = reject;
-                if (filetype === 'image/svg+xml') {
-                    fr.readAsText(file.file)
-                } else {
-                    fr.readAsDataURL(file.file)
-                }
-            });
-        }).then(([imageData, filename]) => {
-            return [imageData, filename];
-        });
+    return cacheStorage.get(message.id).then(data => {
+        if (data) {
+            return new Promise((resolve) => resolve(data.data))
+        }
+        return _downloadAndRead(account, url, filename, filetype, message.id, contact)
+    }).then(([imageData, filename]) => {
+        return [imageData, filename];
+    });
 };
 
 module.exports = { upload, download, openInNewTab, generateThumbnail, getImage, isCached }

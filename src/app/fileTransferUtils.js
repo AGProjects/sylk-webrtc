@@ -13,12 +13,8 @@ const DEBUG = debug('blinkrtc:fileTransferUtils');
 const uploads = [];
 const imageCache = {};
 
-function isCached(id) {
-    if (imageCache[id] !== undefined) {
-        return true
-    }
-
-    return cacheStorage.isCached(id)
+function _isMemoryCached(id) {
+    return imageCache[id] !== undefined
 }
 
 function upload({ notificationCenter, account }, files, uri) {
@@ -259,4 +255,4 @@ function getAndReadFile(account, message) {
 };
 
 
-module.exports = { upload, download, openInNewTab, generateThumbnail, getAndReadFile, isCached }
+module.exports = { upload, download, openInNewTab, generateThumbnail, getAndReadFile }

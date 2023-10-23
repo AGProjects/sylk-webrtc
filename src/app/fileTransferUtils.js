@@ -151,7 +151,7 @@ function download(account, { url, filename, filetype }) {
         })
 }
 
-function openInNewTab(account, { url, filename, filetype, transfer_id }) {
+function openInNewTab(account, { url, filename, filetype, transfer_id: id }) {
     try {
         _parameterTest('url', url);
         _parameterTest('filename', filename);
@@ -162,7 +162,7 @@ function openInNewTab(account, { url, filename, filetype, transfer_id }) {
     }
 
     let newTab = window.open('', '_blank')
-    cacheStorage.get(transfer_id).then(data => {
+    cacheStorage.get(id).then(data => {
         if (data) {
             fetch(data.data[0])
                 .then(response => response.blob())

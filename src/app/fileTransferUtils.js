@@ -174,64 +174,68 @@ function openInNewTab(account, { url, filename, filetype }) {
         });
 }
 
-function generateThumbnail(account, id, { url, filename, filetype }) {
+function generateThumbnail(account, message) {
+    const { id, state } = message
+    const { url, filename, filetype, sender, receiver } = message.json;
+
     if (filetype == null) {
         filetype = 'application/octet-stream'
     }
 
-    if (!filename.endsWith('.asc')) {
-        return new Promise((resolve) => resolve([url, filename]))
-    }
 
-    if (imageCache[id] !== undefined) {
+    if (_isMemoryCached(id)) {
+        DEBUG('Thumbnail from memory cache: %s (%s)', filename, id);
         return new Promise((resolve) => resolve(imageCache[id]))
     }
 
-    return _download(account, url, filename, filetype)
-        .then(file => {
-            let fr = new FileReader();
-            return new Promise((resolve, reject) => {
-                fr.onload = () => {
-                    if (filetype === 'image/svg+xml') {
-                        resolve(['data:image/svg+xml;charset=utf-8,' + encodeURIComponent(fr.result), file.file.name])
-                    }
-                    let result = fr.result.replace('application/octet-stream', filetype);
-                    resolve([result, file.file.name])
-                }
-                fr.onerror = reject;
-                if (filetype === 'image/svg+xml') {
-                    fr.readAsText(file.file)
-                } else {
-                    fr.readAsDataURL(file.file)
-                }
-            });
-        }).then(([imageData, filename]) => {
-            return new Promise((resolve, reject) => {
-                let boundBox = [300, 300]
+    if (failedDownloads.has(id)) {
+        const error = `Thumbnail generation failed for ${filename}: download failed previously`;
+        DEBUG(error);
+        return Promise.reject(error);
+    }
 
-                const img = document.createElement('img');
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const scaleRatio = Math.min(boundBox[0] / img.width, boundBox[1] / img.height, 1);
-                    const dpi = window.devicePixelRatio;
-                    const w = Math.floor(img.width * scaleRatio * dpi);
-                    const h = Math.floor(img.height * scaleRatio * dpi);
-                    canvas.width = w;
-                    canvas.height = h;
-                    ctx.drawImage(img, 0, 0, w, h)
-                    resolve([canvas.toDataURL(), filename, w / dpi, h / dpi]);
-                }
-                img.onerror = reject;
-                img.src = imageData;
+    let contact = receiver.uri;
+    if (state === 'received') {
+        contact = sender.uri;
+    }
+
+    return cacheStorage.get(`thumb_${id}`).then(data => {
+        if (data) {
+            DEBUG('Thumbnail from file cache: %s (%s)', filename, id);
+            imageCache[id] = data.data;
+            return new Promise((resolve) => resolve(data.data))
+        }
+        return _downloadAndRead(account, url, filename, filetype, id, contact)
+            .then(([imageData, filename]) => {
+                DEBUG('Generating thumbnail from download: %s (%s)', filename, id);
+                return new Promise((resolve, reject) => {
+                    let boundBox = [300, 300]
+
+                    const img = document.createElement('img');
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const scaleRatio = Math.min(boundBox[0] / img.width, boundBox[1] / img.height, 1);
+                        const dpi = window.devicePixelRatio;
+                        const w = Math.floor(img.width * scaleRatio * dpi);
+                        const h = Math.floor(img.height * scaleRatio * dpi);
+                        canvas.width = w;
+                        canvas.height = h;
+                        ctx.drawImage(img, 0, 0, w, h)
+                        resolve([canvas.toDataURL(), filename, w / dpi, h / dpi]);
+                    }
+                    img.onerror = reject;
+                    img.src = imageData;
+                });
+            }).then(([imageData, filename, w, h]) => {
+                cacheStorage.addThumbnail({ id: id, data: [imageData, filename, w, h], contact: contact })
+                imageCache[id] = [imageData, filename, w, h];
+                return [imageData, filename, w, h];
+            }).catch(error => {
+                DEBUG('Thumbnail generation failed for %s: %s', filename, error);
+                return Promise.reject(error);
             });
-        }).then(([imageData, filename, w, h]) => {
-            imageCache[id] = [imageData, filename, w, h];
-            return [imageData, filename, w, h];
-        }).catch(error => {
-            DEBUG('Thumbnail generation failed: %s', error);
-            return Promise.reject(error);
-        });
+    });
 };
 
 function getAndReadFile(account, message) {

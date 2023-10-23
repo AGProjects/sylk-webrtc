@@ -211,7 +211,7 @@ const FileTransferMessage = ({
 
         if (message.contentType == ('application/sylk-file-transfer')) {
             if (fileData.filetype && fileData.filetype.startsWith('image/')) {
-                fileTransferUtils.generateThumbnail(account, message.id, fileData, message.state)
+                fileTransferUtils.generateThumbnail(account, message)
                     .then(([image, filename, w, h]) => {
                         if (!ignore) {
                             setHeader(

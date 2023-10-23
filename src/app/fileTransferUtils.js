@@ -172,7 +172,7 @@ function openInNewTab(account, { url, filename, filetype, transfer_id }) {
                     newTab.location = newBlob;
                     newTab.onload = (evt) => URL.revokeObjectURL(newBlob);
                 })
-                .catch(error => console.log(error))
+                .catch(error => DEBUG(error))
             return
         }
 

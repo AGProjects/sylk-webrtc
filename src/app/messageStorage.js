@@ -1,9 +1,10 @@
 'use strict';
 
 const localforage = require('localforage');
-const debug       = require('debug');
+const cacheStorage = require('./cacheStorage');
+const debug = require('debug');
 
-const { Queue }   = require('./utils');
+const { Queue } = require('./utils');
 
 const DEBUG = debug('blinkrtc:MessageStorage');
 
@@ -11,6 +12,8 @@ let store = null;
 
 const lastIdLoaded = new Map();
 const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
+const dateFormat1 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3,}[\+|-]\d{2}:\d{2}$/;
+
 const idsInStorage = new Map();
 
 class electronStorage {
@@ -68,7 +71,7 @@ class electronStorage {
                         }
                     });
                 });
-        });
+            });
     }
 
     _set(key, value) {
@@ -118,7 +121,7 @@ class electronStorage {
     }
 
     setItem(key, value) {
-        return this._set(key,value);
+        return this._set(key, value);
     }
 
     removeItem(key) {
@@ -188,7 +191,7 @@ class electronStorage {
                         return;
                     });
                 });
-        });
+            });
     }
 }
 
@@ -378,7 +381,15 @@ function loadLastMessages() {
             for (let key of keys) {
                 promises.push(store.getItem(key).then((messages) => {
                     if (messages) {
-                        lastMessages[key] = messages.slice(-30).map(message => JSON.parse(message, _parseDates));
+                        lastMessages[key] = _fixFileMessages(messages.slice(-30))
+                            .filter(message => {
+                                if (message.contentType === 'application/sylk-file-transfer' && message.isExpired) {
+                                    return cacheStorage.isCached(message.id)
+                                }
+                                return true;
+                            });
+
+
                         // lastMessages[key] = messages.map(message => JSON.parse(message, parseDates));
                         if (lastMessages[key].length !== 0) {
                             lastIdLoaded.set(key, lastMessages[key][0].id);
@@ -393,6 +404,34 @@ function loadLastMessages() {
     }));
 }
 
+function _fixFileMessages(messages) {
+    return messages.map(message => {
+        let fixedMessage = JSON.parse(message, _parseDates);
+        if (fixedMessage.contentType == 'application/sylk-file-transfer') {
+            let json = {};
+            let error = false;
+            try {
+                json = JSON.parse(fixedMessage.content, _parseDates)
+            } catch (e) {
+                error = true;
+            }
+            fixedMessage = {
+                ...fixedMessage,
+                get json() {
+                    return json;
+                },
+                get jsonError() {
+                    return error;
+                },
+                get isExpired() {
+                    return json.until && new Date(json.until) < new Date();
+                }
+            }
+        }
+        return fixedMessage
+    });
+}
+
 
 function loadMoreMessages(key) {
     if (store === null) return {};
@@ -401,20 +440,40 @@ function loadMoreMessages(key) {
     let loadExtraItems = 30;
     return Queue.enqueue(() => store.getItem(key).then((messages) => {
         if (messages) {
-            lastMessages = messages.map(message => JSON.parse(message, _parseDates));
+            lastMessages = _fixFileMessages(messages);
+
             DEBUG('Chat has %s stored messages', lastMessages.length);
+
             const matchesId = (element) => element.id === lastIdLoaded.get(key);
             const index = lastMessages.findIndex(matchesId);
+            let startIndex = loadExtraItems;
             if (index == 0) {
                 return;
             }
-            if (index < loadExtraItems) {
-                loadExtraItems = 0
+            if (index < startIndex) {
+                lastMessages = lastMessages.slice(0, index);
+                lastIdLoaded.set(key, lastMessages[0].id);
             } else {
-                loadExtraItems = index - loadExtraItems
+                startIndex = index - startIndex;
+                while (true) {
+                    if (startIndex < 0) {
+                        startIndex = 0;
+                    }
+                    let lastMessagesSlice = lastMessages.slice(startIndex, index);
+                    lastMessagesSlice = lastMessagesSlice.filter(message => {
+                        if (message.contentType === 'application/sylk-file-transfer' && message.isExpired) {
+                            return cacheStorage.isCached(message.id)
+                        }
+                        return true;
+                    });
+                    if (lastMessagesSlice.length === loadExtraItems || startIndex === 0) {
+                        lastMessages = lastMessagesSlice;
+                        lastIdLoaded.set(key, lastMessages[0].id);
+                        break;
+                    }
+                    startIndex = startIndex - loadExtraItems + lastMessagesSlice.length;
+                }
             }
-            lastMessages = lastMessages.slice(loadExtraItems, index);
-            lastIdLoaded.set(key, lastMessages[0].id);
             return lastMessages
         }
     }));

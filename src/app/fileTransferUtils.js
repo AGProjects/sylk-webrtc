@@ -151,7 +151,7 @@ function download(account, { url, filename, filetype }) {
         })
 }
 
-function openInNewTab(account, { url, filename, filetype }) {
+function openInNewTab(account, { url, filename, filetype, transfer_id }) {
     try {
         _parameterTest('url', url);
         _parameterTest('filename', filename);
@@ -161,18 +161,27 @@ function openInNewTab(account, { url, filename, filetype }) {
         return
     }
 
-    if (!filename.endsWith('.asc')) {
-        window.open(url, '_blank');
-        return;
-    }
-    let newTab = window.open('', '_blank');
+    let newTab = window.open('', '_blank')
+    cacheStorage.get(transfer_id).then(data => {
+        if (data) {
+            fetch(data.data[0])
+                .then(response => response.blob())
+                .then(blob => {
+                    let file = new File([blob], filename, { 'type': filetype })
+                    let newBlob = URL.createObjectURL(file);
+                    newTab.location = newBlob;
+                    newTab.onload = (evt) => URL.revokeObjectURL(newBlob);
+                })
+                .catch(error => console.log(error))
+            return
+        }
 
-    _download(account, url, filename, filetype)
-        .then(file => {
+        _download(account, url, filename, filetype).then(file => {
             let blob = URL.createObjectURL(file.file);
             newTab.location = blob;
             newTab.onload = (evt) => URL.revokeObjectURL(blob);
         });
+    });
 }
 
 function generateThumbnail(account, message) {

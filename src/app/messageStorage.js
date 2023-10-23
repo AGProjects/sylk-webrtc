@@ -200,6 +200,9 @@ function _parseDates(key, value) {
     if (typeof value === 'string' && dateFormat.test(value)) {
         return new Date(value);
     }
+    if (typeof value === 'string' && dateFormat1.test(value)) {
+        return new Date(value);
+    }
     return value;
 }
 

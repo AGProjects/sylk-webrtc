@@ -172,6 +172,9 @@ function download(account, { url, filename, filetype, transfer_id: id }) {
                 0, null);
             a.dispatchEvent(clickEvent);
             URL.revokeObjectURL(a.href);
+            return Promise.resolve();
+        }).catch((error) => {
+            return Promise.reject({ error, filename });
         })
     })
 }

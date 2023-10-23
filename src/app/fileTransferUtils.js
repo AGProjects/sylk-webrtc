@@ -104,7 +104,7 @@ function _parameterTest(name, bool) {
     }
 }
 
-function download(account, { url, filename, filetype }) {
+function download(account, { url, filename, filetype, transfer_id: id }) {
     try {
         _parameterTest('url', url);
         _parameterTest('filename', filename);
@@ -118,24 +118,48 @@ function download(account, { url, filename, filetype }) {
         filetype = 'application/octet-stream'
     }
 
-    if (!filename.endsWith('.asc')) {
-        const a = document.createElement('a');
-        a.href = url
-        a.target = '_blank';
-        a.download = filename;
-        a.rel = 'noopener noreferrer'
-        const clickEvent = document.createEvent('MouseEvent');
-        clickEvent.initMouseEvent('click', true, true, window, 0,
-            clickEvent.screenX, clickEvent.screenY, clickEvent.clientX, clickEvent.clientY,
-            clickEvent.ctrlKey, clickEvent.altKey, clickEvent.shiftKey, clickEvent.metaKey,
-            0, null);
+    return cacheStorage.get(id).then(data => {
+        if (data) {
+            DEBUG('Downloading file from file cache: %s (%s)', filename, id)
+            fetch(data.data[0])
+                .then(response => response.blob())
+                .then(blob => {
+                    let file = new File([blob], data.data[1], { 'type': filetype })
+                    let newBlob = URL.createObjectURL(file);
+                    const a = document.createElement('a');
+                    a.href = newBlob
+                    a.target = '_blank';
+                    a.download = file.name;
+                    a.rel = 'noopener noreferrer'
+                    const clickEvent = document.createEvent('MouseEvent');
+                    clickEvent.initMouseEvent('click', true, true, window, 0,
+                        clickEvent.screenX, clickEvent.screenY, clickEvent.clientX, clickEvent.clientY,
+                        clickEvent.ctrlKey, clickEvent.altKey, clickEvent.shiftKey, clickEvent.metaKey,
+                        0, null);
+                    a.dispatchEvent(clickEvent);
+                    URL.revokeObjectURL(newBlob);
+                    URL.revokeObjectURL(a.href);
+                })
+                .catch(error => DEBUG(error))
+            return
+        }
+        if (!filename.endsWith('.asc')) {
+            const a = document.createElement('a');
+            a.href = url
+            a.target = '_blank';
+            a.download = filename;
+            a.rel = 'noopener noreferrer'
+            const clickEvent = document.createEvent('MouseEvent');
+            clickEvent.initMouseEvent('click', true, true, window, 0,
+                clickEvent.screenX, clickEvent.screenY, clickEvent.clientX, clickEvent.clientY,
+                clickEvent.ctrlKey, clickEvent.altKey, clickEvent.shiftKey, clickEvent.metaKey,
+                0, null);
 
-        a.dispatchEvent(clickEvent);
-        return;
-    }
+            a.dispatchEvent(clickEvent);
+            return;
+        }
 
-    _download(account, url, filename, filetype)
-        .then(file => {
+        return _download(account, url, filename, filetype).then(file => {
             const a = document.createElement('a');
             a.href = URL.createObjectURL(file.file)
             a.target = '_blank';
@@ -149,6 +173,7 @@ function download(account, { url, filename, filetype }) {
             a.dispatchEvent(clickEvent);
             URL.revokeObjectURL(a.href);
         })
+    })
 }
 
 function openInNewTab(account, { url, filename, filetype, transfer_id: id }) {

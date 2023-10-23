@@ -12,6 +12,7 @@ const DEBUG = debug('blinkrtc:fileTransferUtils');
 
 const uploads = [];
 const imageCache = {};
+const failedDownloads = new Set();
 
 function _isMemoryCached(id) {
     return imageCache[id] !== undefined
@@ -233,6 +234,7 @@ function generateThumbnail(account, message) {
                 return [imageData, filename, w, h];
             }).catch(error => {
                 DEBUG('Thumbnail generation failed for %s: %s', filename, error);
+                failedDownloads.add(id);
                 return Promise.reject(error);
             });
     });

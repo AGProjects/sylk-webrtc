@@ -63,6 +63,14 @@ function upload({ notificationCenter, account }, files, uri) {
 }
 
 function _download(account, url, filename, filetype) {
+    if (!filename.endsWith('.asc')) {
+        return superagent
+            .get(`${url}`)
+            .responseType('blob')
+            .then((res) => {
+                return Promise.resolve({ file: new File([res.body], filename, { 'type': filetype }), didDecrypt: false });
+            });
+    }
     return superagent
         .get(`${url}`)
         .then((res) => {

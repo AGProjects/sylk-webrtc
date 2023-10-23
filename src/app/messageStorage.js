@@ -326,8 +326,12 @@ function update(message) {
         messages = storedMessages.map((storedMessage) => {
             storedMessage = JSON.parse(storedMessage, _parseDates);
             if (message.messageId === storedMessage.id && message.state !== storedMessage.state && storedMessage.state !== 'displayed') {
-                DEBUG('Updating state for stored message with id: %s', storedMessage.id);
+                if (storedMessage.state === 'delivered' && message.state === 'accepted') {
+                    return
+                }
+                DEBUG('Updating state for stored message with id: %s (%s => %s)', storedMessage.id, storedMessage.state, message.state);
                 storedMessage.state = message.state;
+                idsInStorage.set(storedMessage.id, message.state)
                 found = true;
             }
             return JSON.stringify(storedMessage);

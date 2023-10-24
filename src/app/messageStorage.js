@@ -11,6 +11,8 @@ const DEBUG = debug('blinkrtc:MessageStorage');
 let store = null;
 
 const lastIdLoaded = new Map();
+const lastFileIdLoaded = new Map();
+
 const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
 const dateFormat1 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3,}[\+|-]\d{2}:\d{2}$/;
 
@@ -148,7 +150,7 @@ class electronStorage {
                         }
                     });
                 });
-        });
+            });
     }
 
     iterate(iterator) {
@@ -400,6 +402,9 @@ function loadLastMessages() {
                         // lastMessages[key] = messages.map(message => JSON.parse(message, parseDates));
                         if (lastMessages[key].length !== 0) {
                             lastIdLoaded.set(key, lastMessages[key][0].id);
+                            lastFileIdLoaded.set(key, lastMessages[key][0].id);
+                        } else {
+                            delete lastMessages[key];
                         }
                     }
                 }))
@@ -439,6 +444,53 @@ function _fixFileMessages(messages) {
     });
 }
 
+function loadMoreFiles(key) {
+    if (store === null) return {};
+
+    let lastMessages = [];
+    let loadExtraItems = 200;
+
+    return Queue.enqueue(() => store.getItem(key).then((messages) => {
+        if (messages) {
+            lastMessages = _fixFileMessages(messages);
+
+            DEBUG('Chat has %s stored messages', lastMessages.length);
+
+            const matchesId = (element) => element.id === lastFileIdLoaded.get(key);
+            const index = lastMessages.findIndex(matchesId);
+            let startIndex = loadExtraItems
+            if (index == 0) {
+                return;
+            }
+            if (index < startIndex) {
+                lastMessages = lastMessages.slice(0, index);
+                lastFileIdLoaded.set(key, lastMessages[0].id);
+            } else {
+                startIndex = index - startIndex;
+                while (true) {
+                    if (startIndex < 0) {
+                        startIndex = 0;
+                    }
+                    let lastMessagesSlice = lastMessages.slice(startIndex, index);
+                    lastMessagesSlice = lastMessagesSlice.filter(message => {
+                        if (message.contentType === 'application/sylk-file-transfer' && message.isExpired) {
+                            return cacheStorage.isCached(message.id)
+                        }
+                        return true;
+                    });
+                    if (lastMessagesSlice.length === loadExtraItems || startIndex === 0) {
+                        lastMessages = lastMessagesSlice;
+                        lastFileIdLoaded.set(key, lastMessages[0].id);
+                        break;
+                    }
+                    startIndex = startIndex - loadExtraItems + lastMessagesSlice.length;
+                }
+            }
+            return lastMessages
+        }
+    }));
+
+}
 
 function loadMoreMessages(key) {
     if (store === null) return {};
@@ -505,6 +557,24 @@ function hasMore(key) {
     });
 }
 
+function hasMoreFiles(key) {
+    if (store === null) return false;
+
+    return store.getItem(key).then((messages) => {
+        if (messages && lastFileIdLoaded.get(key) !== undefined) {
+            let lastMessages = messages.map(message => JSON.parse(message, _parseDates));
+            const matchesId = (element) => element.id === lastFileIdLoaded.get(key);
+            const index = lastMessages.findIndex(matchesId);
+            if (index == 0) {
+                DEBUG('%s has no more files to load', key);
+                return false;
+            }
+            DEBUG('%s has more messages to load', key);
+            return true;
+        }
+    });
+}
+
 function updateIdMap() {
     return Queue.enqueue(() => new Promise((resolve) => {
         idsInStorage.clear();
@@ -519,6 +589,10 @@ function updateIdMap() {
     }))
 }
 
+function revertFiles(key) {
+    lastFileIdLoaded.set(key, lastIdLoaded.get(key));
+}
+
 exports.initialize = initialize;
 exports.set = set;
 exports.get = get;
@@ -531,6 +605,9 @@ exports.close = close;
 exports.updateDisposition = updateDisposition;
 exports.loadLastMessages = loadLastMessages;
 exports.loadMoreMessages = loadMoreMessages;
+exports.loadMoreFiles = loadMoreFiles;
 exports.removeMessage = removeMessage;
 exports.hasMore = hasMore;
+exports.hasMoreFiles = hasMoreFiles;
+exports.revertFiles = revertFiles;
 exports.updateIdMap = updateIdMap;

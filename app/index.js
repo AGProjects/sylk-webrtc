@@ -213,6 +213,7 @@ function createMainWindow() {
         minHeight: 600,
         title: 'Sylk',
         backgroundColor: '#333',
+        autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: true
         }

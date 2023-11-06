@@ -30,6 +30,18 @@ The default settings of the app are found in `src/app/config.js`.
 If you wish to use the client together with another instance of SylkServer,
 you must edit `src/app/config.js`.
 
+The keys in config.js have the following functions:
+
+* publicUrl - the Web URL where Sylk clients or Web browsers connect to SylkServer
+* enrollmentUrl - a Web URL where accounts can be created by the Sylk client.
+The account creation is realized by a POST request containing the following
+data: username, email, password, display_name. For a complete server-side
+example of handling such request see [createAccount function](https://github.com/AGProjects/cdrtool/blob/master/library/sip_settings.php#L11891)
+* serverCallHistoryUrl - a Web URL from where the last calls can be retrieved from by Sylk clients
+For a complete server-side example of handling such request see [sipSettings page](https://github.com/AGProjects/cdrtool/blob/master/library/sip_settings.php)
+* defaultConferenceDomain - all configured Sylk clients must share the same domain
+* downloadUrl - a Web URL where Sylk client can be downloaded from, shown when the web page is used to access SylkServer
+
 ## Development
 
 Node.js is needed for development.  Version >= 10.0 is recommended.  For

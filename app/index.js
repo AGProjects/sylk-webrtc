@@ -240,9 +240,6 @@ function createMainWindow() {
         ipc.on('close', function() {
             mainWindow.close();
         });
-        ipc.on('minimize', function() {
-            mainWindow.minimize();
-        });
         ipc.on('update-badge', function(event, num) {
             const dock = electron.app.dock;
             if (num === null || num === 0) {
@@ -255,6 +252,10 @@ function createMainWindow() {
         const badgeOptions = {};
         new Badge(mainWindow, badgeOptions);
     }
+
+    ipc.on('minimize', function() {
+        mainWindow.minimize();
+    });
 
     ipc.on('buttonClick', function(event, arg) {
         mainWindow.webContents.send('buttonClick',arg);

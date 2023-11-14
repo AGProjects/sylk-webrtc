@@ -913,6 +913,10 @@ class Blink extends React.Component {
             navigator.mediaDevices.getUserMedia(screenConstraints)
                 .then((screenStream) => {
                     this.state.currentCall.startScreensharing(screenStream.getVideoTracks()[0]);
+                    if (this.shouldUseHashRouting) {
+                        const ipcRenderer = window.require('electron').ipcRenderer;
+                        ipcRenderer.send('minimize');
+                    }
                     screenStream.getVideoTracks()[0].addEventListener('ended', (ev) => {
                         DEBUG('Screensharing stream ended by user action');
                         this.switchScreensharing();

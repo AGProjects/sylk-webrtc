@@ -108,9 +108,18 @@ const MessageList = ({
             })
         }
 
+        const sendDisplayed = () => {
+            if (message.state == 'received'
+                && message.dispositionState !== 'displayed'
+                && message.dispositionNotification.indexOf('display') !== -1
+            ) {
+                displayed(message.sender.uri, message.id, message.timestamp, 'displayed')
+            }
+        };
+
         prevMessages.current = messages;
         const entries = messages.filter((message) => {
-            return !message.content.startsWith('?OTRv')
+            return !message.content.startsWith('?OTRv');
         }).map((message) => {
             let continues = false;
             if (prevMessage !== null && prevMessage.sender.uri == message.sender.uri) {
@@ -123,45 +132,26 @@ const MessageList = ({
                 timestamp = null;
             }
             prevMessage = message;
+            const messageComponents = {
+                default: Message,
+                fileTransfer: FileTransferMessage
+            };
+            let MessageComponent = messageComponents['default'];
+            let extraProps = {}
             if (message.contentType == ('application/sylk-file-transfer')) {
-                return (
-                    <React.Fragment key={message.id}>
-                        {timestamp}
-                        <FileTransferMessage
-                            displayed={() => {
-                                if (message.state == 'received'
-                                    && message.dispositionState !== 'displayed'
-                                    && message.dispositionNotification.indexOf('display') !== -1
-                                ) {
-                                    displayed(message.sender.uri, message.id, message.timestamp, 'displayed')
-                                }
-                            }}
-                            focus={focus === message.id}
-                            message={message}
-                            cont={continues}
-                            scroll={scrollToBottom}
-                            contactCache={contactCache}
-                            removeMessage={() => removeMessage(message)}
-                            showModal={() => getImage(message)}
-                            account={account}
-                            imdnStates
-                            enableMenu
-                        />
-                    </React.Fragment>
-                )
+                MessageComponent = messageComponents['fileTransfer']
+                extraProps = {
+                    account: account,
+                    showModal: () => getImage(message),
+                    downloadFiles: downloadFiles
+                }
+
             }
             return (
                 <React.Fragment key={message.id}>
                     {timestamp}
-                    <Message
-                        displayed={() => {
-                            if (message.state == 'received'
-                                && message.dispositionState !== 'displayed'
-                                && message.dispositionNotification.indexOf('display') !== -1
-                            ) {
-                                displayed(message.sender.uri, message.id, message.timestamp, 'displayed')
-                            }
-                        }}
+                    <MessageComponent
+                        displayed={sendDisplayed}
                         focus={focus === message.id}
                         message={message}
                         cont={continues}
@@ -170,6 +160,7 @@ const MessageList = ({
                         removeMessage={() => removeMessage(message)}
                         imdnStates
                         enableMenu
+                        {...extraProps}
                     />
                 </React.Fragment>
             )

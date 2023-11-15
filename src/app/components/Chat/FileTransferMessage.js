@@ -100,7 +100,8 @@ const FileTransferMessage = ({
     imdnStates,
     enableMenu,
     account,
-    showModal
+    showModal,
+    downloadFiles
 }) => {
     const classes = styleSheet();
     const [state, setState] = useState(message.state);
@@ -346,10 +347,8 @@ const FileTransferMessage = ({
     };
 
     const handleDownload = () => {
-        fileTransferUtils.download(account, fileData)
-             .catch((error) => {
-                 console.log('ERROR')
-             });
+        let fileData = message.json;
+        downloadFiles(fileData);
     }
     const generateMenu = () => {
         let fileData = message.json
@@ -507,7 +506,8 @@ FileTransferMessage.propTypes = {
     imdnStates: PropTypes.bool,
     enableMenu: PropTypes.bool,
     account: PropTypes.object.isRequired,
-    showModal: PropTypes.func
+    showModal: PropTypes.func,
+    downloadFiles: PropTypes.func
 };
 
 

@@ -245,6 +245,18 @@ const Chat = (props) => {
         setMessages(oldMessages);
     };
 
+    const handleDownload = (...args) => {
+        let { filename } = args[0];
+        let notification = props.notificationCenter().postPreparingFileDownload(filename);
+
+        fileTransferUtils.download(props.account, ...args).then(() => {
+            props.notificationCenter().removeNotification(notification);
+        }).catch(({ error, filename }) => {
+            props.notificationCenter().removeNotification(notification);
+            props.notificationCenter().postFileDownloadFailed(filename, error)
+        })
+    };
+
     const defaultDomain = props.account.id.substring(props.account.id.indexOf('@') + 1);
 
     const startChat = () => {
@@ -324,6 +336,7 @@ const Chat = (props) => {
                 isLoadingMessages={props.isLoadingMessages}
                 account={props.account}
                 uploadFiles={(...args) => fileTransferUtils.upload(props, ...args, selectedUri)}
+                downloadFiles={handleDownload}
                 embed={props.embed}
             />
             <ConferenceChatEditor
@@ -430,7 +443,7 @@ const Chat = (props) => {
                                 setSelectedUri('');
                             }}
                             unread={unread}
-                            download={(...args) => fileTransferUtils.download(props.account, ...args)}
+                            downloadFiles={handleDownload}
                             uploadFiles={(...args) => fileTransferUtils.upload(props, ...args)}
                         />
                     </ConferenceDrawer>

@@ -55,6 +55,7 @@ const MessageList = ({
     removeMessage,
     account,
     uploadFiles,
+    downloadFiles,
     embed
 }) => {
     const [entries, setEntries] = useState([])
@@ -219,7 +220,7 @@ const MessageList = ({
                 contactCache={contactCache}
                 message={message}
                 openInNewTab={(...args) => fileTransferUtils.openInNewTab(account, ...args)}
-                download={(...args) => fileTransferUtils.download(account, ...args)}
+                download={downloadFiles}
                 removeMessage={removeMessage}
             />
             {more === true &&

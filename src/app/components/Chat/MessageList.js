@@ -252,6 +252,7 @@ MessageList.propTypes = {
     isLoadingMessages: PropTypes.bool.isRequired,
     account: PropTypes.object.isRequired,
     uploadFiles: PropTypes.func,
+    downloadFiles: PropTypes.func.isRequired,
     embed: PropTypes.bool
 };
 

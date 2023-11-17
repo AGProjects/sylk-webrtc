@@ -273,7 +273,7 @@ const ContactList = (props) => {
                 />
             );
         } else if (message.contentType == ('application/sylk-file-transfer')) {
-            let parsedJson = JSON.parse(message.content);
+            let file = message.json;
             return (
                 <Chip
                     component="span"
@@ -281,8 +281,8 @@ const ContactList = (props) => {
                     variant="outlined"
                     size="small"
                     icon={<DownloadIcon />}
-                    label={parsedJson.filename.replace(/_/g, ' ').replace('.asc', '')}
-                    onClick={(event) => { event.stopPropagation(); event.preventDefault(); props.download(parsedJson) }}
+                    label={file.filename.replace(/_/g, ' ').replace('.asc', '')}
+                    onClick={(event) => { event.stopPropagation(); event.preventDefault(); props.downloadFiles(file) }}
                 />
             );
         }
@@ -509,7 +509,7 @@ ContactList.propTypes = {
     filter: PropTypes.string,
     selectedUri: PropTypes.string,
     unread: PropTypes.string,
-    download: PropTypes.func,
+    downloadFiles: PropTypes.func,
     uploadFiles: PropTypes.func.isRequired
 };
 

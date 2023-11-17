@@ -282,6 +282,10 @@ const FileTransferMessage = ({
     };
 
     const handleContextMenu = (e) => {
+        if (!enableMenu) {
+            return
+        }
+
         e.preventDefault();
         const { clientX, clientY } = e;
         const virtualElement = {
@@ -324,6 +328,10 @@ const FileTransferMessage = ({
     }
 
     const generateMenu = () => {
+        if (!message) {
+            return;
+        }
+
         let fileData = message.json
         if (!fileData.filetype) {
             return;
@@ -363,7 +371,6 @@ const FileTransferMessage = ({
                 onClose={handleClose}
                 keepMounted={false}
             >
-
                 <MenuItem className={classes.item} onClick={() => { handleDownload(); handleClose() }} >
                     Download File
                 </MenuItem>

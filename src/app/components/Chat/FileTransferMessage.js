@@ -188,7 +188,7 @@ const FileTransferMessage = ({
                                             <ErrorOutlineIcon className={classes.warningIcon} titleAccess={error.toString()} />
                                         }
                                     </Typography>
-                                    <Typography className={classes.fixFont} style={{ fontSize: 12 }} variant="body2" color="textSecondary">{fileSize(fileData.filesize)} {filetype} {message.id}</Typography>
+                                    <Typography className={classes.fixFont} style={{ fontSize: 12 }} variant="body2" color="textSecondary">{fileSize(fileData.filesize)} {filetype}</Typography>
                                 </div>
                             </Grid>
                         </Grid>

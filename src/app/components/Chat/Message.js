@@ -227,7 +227,6 @@ const Message = ({
         }
 
         e.preventDefault();
-        console.log(e);
         const { clientX, clientY } = e;
         const virtualElement = {
             clientWidth: 0,

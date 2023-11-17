@@ -47,7 +47,6 @@ function isElectron() {
     }
     return false;
 }
-
 const styleSheet = makeStyles((theme) => ({
     chipSmall: {
         height: 18,
@@ -114,17 +113,16 @@ const FileTransferMessage = ({
 
     const sender = message.sender.displayName || message.sender.uri;
     const time = DateTime.fromJSDate(message.timestamp).toFormat('HH:mm');
+
     const { ref, inView, entry } = useInView({
         threshold: 0
     });
-
 
     useEffect(() => {
         if (parsedContent !== undefined) {
             scroll()
         }
-    }, [parsedContent, scroll]
-    );
+    }, [parsedContent, scroll]);
 
     useEffect(() => {
         let file = message.json
@@ -152,9 +150,6 @@ const FileTransferMessage = ({
     }, [hidden, classes.fixFont, message])
 
     useEffect(() => {
-        let ignore = false;
-        let fileData = message.json
-
         const fileSize = (size) => {
             let i = Math.floor(Math.log(size) / Math.log(1024));
             return (size / Math.pow(1024, i)).toFixed(1) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
@@ -201,6 +196,9 @@ const FileTransferMessage = ({
                 </div >
             );
         }
+
+        let ignore = false;
+        const fileData = message.json;
 
         if (message.jsonError) {
             //setState('error');
@@ -276,32 +274,6 @@ const FileTransferMessage = ({
         }
     }, [displayed]);
 
-    let theme = clsx({
-        'text-left': true,
-        'pending': state === 'pending',
-        'text-danger': state === 'failed' || state === 'error' || message.jsonError,
-        'continued': cont && message.type !== 'status',
-        'status': message.type === 'status'
-    });
-
-    const statusIcon = () => {
-        if (state === 'accepted') {
-            return (<DoneIcon style={{ color: '#888' }} className={classes.doneIcon} />);
-        }
-        if (state === 'delivered') {
-            return (<DoneIcon className={classes.doneIcon} />);
-        }
-        if (state === 'displayed') {
-            return (<DoneAllIcon className={classes.doneIcon} />);
-        }
-        if (state === 'failed') {
-            return (<ErrorOutlineIcon className={classes.errorOutlineIcon} titleAccess="Not Delivered" />);
-        }
-        if (state === 'error') {
-            return (<ErrorOutlineIcon className={classes.errorOutlineIcon} titleAccess="Display Error" />);
-        }
-    };
-
     const getDisplayName = (uri) => {
         if (contactCache !== undefined && contactCache.has(uri)) {
             return { uri: uri, displayName: contactCache.get(uri) };
@@ -325,7 +297,11 @@ const FileTransferMessage = ({
             })
         };
         setAnchorEl(virtualElement);
-    }
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
     const copy = () => {
         let { url } = JSON.parse(message.content);
@@ -342,14 +318,11 @@ const FileTransferMessage = ({
         }
     }
 
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
     const handleDownload = () => {
         let fileData = message.json;
         downloadFiles(fileData);
     }
+
     const generateMenu = () => {
         let fileData = message.json
         if (!fileData.filetype) {
@@ -405,7 +378,33 @@ const FileTransferMessage = ({
                 </MenuItem>
             </CustomContextMenu>
         );
-    }
+    };
+
+    const statusIcon = () => {
+        if (state === 'accepted') {
+            return (<DoneIcon style={{ color: '#888' }} className={classes.doneIcon} />);
+        }
+        if (state === 'delivered') {
+            return (<DoneIcon className={classes.doneIcon} />);
+        }
+        if (state === 'displayed') {
+            return (<DoneAllIcon className={classes.doneIcon} />);
+        }
+        if (state === 'failed') {
+            return (<ErrorOutlineIcon className={classes.errorOutlineIcon} titleAccess="Not Delivered" />);
+        }
+        if (state === 'error') {
+            return (<ErrorOutlineIcon className={classes.errorOutlineIcon} titleAccess="Display Error" />);
+        }
+    };
+
+    const theme = clsx({
+        'text-left': true,
+        'pending': state === 'pending',
+        'text-danger': state === 'failed' || state === 'error' || message.jsonError,
+        'continued': cont && message.type !== 'status',
+        'status': message.type === 'status'
+    });
 
     if (cont || message.type === 'status') {
         return (

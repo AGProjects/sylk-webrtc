@@ -222,21 +222,26 @@ const Message = ({
     };
 
     const handleContextMenu = (e) => {
-	e.preventDefault();
-	const { clientX, clientY } = e;
-	const virtualElement = {
+        if (!enableMenu) {
+            return
+        }
+
+        e.preventDefault();
+        console.log(e);
+        const { clientX, clientY } = e;
+        const virtualElement = {
             clientWidth: 0,
             clientHeight: 0,
             getBoundingClientRect: () => ({
                 width: 0,
                 height: 0,
                 top: clientY,
-		right: clientX,
+                right: clientX,
                 bottom: clientY,
                 left: clientX
             })
         };
-	setAnchorEl(virtualElement);
+        setAnchorEl(virtualElement);
     }
 
     const copy = () => {

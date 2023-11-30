@@ -14,6 +14,8 @@ const { resolveMime } = require('friendly-mimes');
 const ReactBootstrap = require('react-bootstrap');
 const Media = ReactBootstrap.Media;
 
+const WaveSurferPlayer = require('../WaveSurferPlayer');
+
 const { makeStyles } = require('@material-ui/core/styles');
 const {
     Divider,
@@ -141,6 +143,9 @@ const FileTransferMessage = ({
                         // no op
                     }
                 }
+                if (file.filename.startsWith('sylk-audio-recording')) {
+                    filetype = 'Audio Message';
+                }
                 setHeader(
                     <Typography className={classes.fixFont} style={{ fontSize: 12, alignSelf: 'center' }} variant="body2" color="textSecondary">{filetype}</Typography>
                 )
@@ -226,6 +231,26 @@ const FileTransferMessage = ({
                     }).catch(error => {
                         generateFileBlock(error);
                     })
+            } else if (fileData.filetype && fileData.filename.startsWith('sylk-audio-recording')) {
+                fileTransferUtils.getAndReadFile(account, message).then(([data, filename]) => {
+                    if (!ignore) {
+                        setParsedContent(
+                            <WaveSurferPlayer
+                                height={25}
+                                waveColor="rgb(150,150,150)"
+                                progressColor="rgb(51, 122, 183)"
+                                barWidth={4}
+                                barAlign="bottom"
+                                normalize={true}
+                                url={data}
+                            />
+                        )
+                    }
+                }).catch(error => {
+                    if (!ignore) {
+                        generateFileBlock(error);
+                    }
+                });
             } else {
                 generateFileBlock();
             }

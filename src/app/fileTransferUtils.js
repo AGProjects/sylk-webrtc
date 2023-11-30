@@ -95,6 +95,8 @@ function _downloadAndRead(account, url, filename, filetype, id, contact) {
                     fr.readAsDataURL(file.file)
                 }
             });
+        }).catch((error) => {
+            return Promise.reject({ error, filename });
         })
 }
 

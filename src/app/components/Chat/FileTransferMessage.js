@@ -144,7 +144,7 @@ const FileTransferMessage = ({
                     }
                 }
                 if (file.filename.startsWith('sylk-audio-recording')) {
-                    filetype = 'Audio Message';
+                    filetype = 'Voice Message';
                 }
                 setHeader(
                     <Typography className={classes.fixFont} style={{ fontSize: 12, alignSelf: 'center' }} variant="body2" color="textSecondary">{filetype}</Typography>

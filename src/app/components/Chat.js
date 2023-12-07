@@ -189,11 +189,6 @@ const Chat = (props) => {
         }
     }, [props.account, props.oldMessages]);
 
-    const handleFiles = (e) => {
-        DEBUG('Selected files %o', e.target.files);
-        fileTransferUtils.upload(props, e.target.files, selectedUri);
-        e.target.value = '';
-    }
 
     const loadMessages = (uri, id) => {
         // Remove entries with 0 messages from contact list
@@ -238,6 +233,11 @@ const Chat = (props) => {
     const contactMessages = messages[selectedUri] ? [...messages[selectedUri]] : [];
     const contactAudioMessages = messages[selectedAudioUri] ? [...messages[selectedAudioUri]] : [];
 
+    const handleFiles = (e) => {
+        DEBUG('Selected files %o', e.target.files);
+        fileTransferUtils.upload(props, e.target.files, selectedUri);
+        e.target.value = '';
+    }
 
     const handleMessage = (content, type) => {
         let message = props.account.sendMessage(selectedUri, content, type);

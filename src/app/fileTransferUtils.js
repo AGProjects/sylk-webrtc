@@ -286,6 +286,10 @@ function getAndReadFile(account, message) {
         filetype = 'application/octet-stream'
     }
 
+    if (filename.startsWith('sylk-audio-recording.wav')) {
+        filetype = 'audio/wav'
+    }
+
     let contact = message.receiver;
     if (message.state === 'received') {
         contact = message.sender.uri;
@@ -293,6 +297,10 @@ function getAndReadFile(account, message) {
 
     return cacheStorage.get(message.id).then(data => {
         if (data) {
+            if (filename.startsWith('sylk-audio-recording.wav')) {
+                data.data[0] = data.data[0].replace('application/octet-stream', filetype);
+                data.data[0] = data.data[0].replace('application/wav', filetype);
+            }
             return new Promise((resolve) => resolve(data.data))
         }
         return _downloadAndRead(account, url, filename, filetype, message.id, contact)

@@ -240,16 +240,8 @@ const Chat = (props) => {
 
 
     const handleMessage = (content, type) => {
-        const oldMessages = cloneDeep(messages);
-        if (!oldMessages[selectedUri]) {
-            oldMessages[selectedUri] = [];
-        }
-        if (oldMessages[selectedUri].length === 0) {
-            props.sendPublicKey(selectedUri);
-        }
         let message = props.account.sendMessage(selectedUri, content, type);
-        oldMessages[selectedUri].push(message);
-        setMessages(oldMessages);
+        setMessages({ ...messages, [selectedUri]: [...contactMessages, message] });
     };
 
     const handleDownload = (...args) => {

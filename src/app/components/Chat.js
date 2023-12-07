@@ -194,12 +194,10 @@ const Chat = (props) => {
 
     const loadMessages = (uri, id) => {
         // Remove entries with 0 messages from contact list
-        if (selectedUri) {
-            if (messages[selectedUri].length === 0) {
-                const oldMessages = cloneDeep(messages);
-                delete oldMessages[selectedUri];
-                setMessages(oldMessages);
-            }
+        if (contactMessages.length === 0) {
+            const oldMessages = cloneDeep(messagesRef.current);
+            delete oldMessages[selectedUri];
+            setMessages(oldMessages);
         }
 
         if (uri !== selectedUri) {

@@ -31,7 +31,8 @@ const {
     Done: DoneIcon,
     DoneAll: DoneAllIcon,
     ErrorOutline: ErrorOutlineIcon,
-    GetApp: DownloadIcon
+    GetApp: DownloadIcon,
+    GraphicEqRounded,
 } = require('@material-ui/icons');
 
 const UserIcon = require('../UserIcon');
@@ -249,7 +250,7 @@ const ContactList = (props) => {
         }
     };
 
-    const parseContent = (message) => {
+    const parseContent = (message, contact) => {
         const contentType = message.contentType;
         if (contentType === 'text/html') {
             const content = xss(message.content, {
@@ -274,6 +275,19 @@ const ContactList = (props) => {
             );
         } else if (message.contentType == ('application/sylk-file-transfer')) {
             let file = message.json;
+            if (file.filename.startsWith('sylk-audio-recording')) {
+                return (
+                    <Chip
+                        component="span"
+                        classes={{ sizeSmall: classes.chipSmall, iconSmall: classes.iconSmall }}
+                        variant="outlined"
+                        size="small"
+                        icon={<GraphicEqRounded />}
+                        label="Voice Message"
+                        onClick={(event) => { event.stopPropagation(); event.preventDefault(); props.selectAudio(message.id, contact.uri) }}
+                    />
+                );
+            }
             return (
                 <Chip
                     component="span"
@@ -418,7 +432,7 @@ const ContactList = (props) => {
                                                         color: contact.message && (contact.message.state === 'error' || contact.message.state === 'failed') && '#a94442'
                                                     }}
                                                 >
-                                                    {contact.message && parseContent(contact.message)}
+                                                    {contact.message && parseContent(contact.message, contact)}
                                                 </Typography>
                                             </Grid>
                                             {props.selectedUri !== contact.uri && numbers[contact.uri] !== 0 &&
@@ -487,7 +501,7 @@ const ContactList = (props) => {
                                             </Grid>
                                         </React.Fragment>
                                     }
-                                    secondary={message && getHighlightedText(parseContent(message), props.filter)}
+                                    secondary={message && getHighlightedText(parseContent(message, message.state === 'received' ? message.sender.uri : message.receiver.uri), props.filter)}
                                 />
                             </ListItem>,
                             <Divider component="li" key={`divider_${message.id}`} />

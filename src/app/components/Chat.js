@@ -18,6 +18,7 @@ const ConferenceChatEditor = require('./ConferenceChatEditor');
 
 const utils = require('../utils');
 const fileTransferUtils = require('../fileTransferUtils');
+const ToolbarAudioPlayer = require('./Chat/ToolbarAudioPlayer');
 
 const DEBUG = debug('blinkrtc:Chat');
 
@@ -50,6 +51,8 @@ const Chat = (props) => {
     const [show, setShow] = useState(false);
     const [focus, setFocus] = useState('');
     const [selectedUri, _setSelectedUri] = useState('');
+    const [selectedAudioUri, setSelectedAudioUri] = useState('');
+    const [selectedAudioId, setSelectedAudioId] = useState('');
 
     const selectedUriRef = useRef(selectedUri);
     const messagesRef = useRef(messages);
@@ -200,6 +203,10 @@ const Chat = (props) => {
             setMessages(oldMessages);
         }
 
+        if (uri !== selectedAudioUri && !selectedAudioUri) {
+            setSelectedAudioUri(uri);
+        }
+
         if (uri !== selectedUri) {
             setSelectedUri(uri);
             props.lastContactSelected(uri);
@@ -229,6 +236,8 @@ const Chat = (props) => {
     }
 
     const contactMessages = messages[selectedUri] ? [...messages[selectedUri]] : [];
+    const contactAudioMessages = messages[selectedAudioUri] ? [...messages[selectedAudioUri]] : [];
+
 
     const handleMessage = (content, type) => {
         const oldMessages = cloneDeep(messages);
@@ -271,6 +280,21 @@ const Chat = (props) => {
             setMessages(oldMessages);
         }
     };
+
+    const selectAudio = (id) => {
+        setSelectedAudioUri(selectedUri);
+        setSelectedAudioId(id);
+    }
+
+    const selectContactAudio = (id, uri) => {
+        setSelectedAudioUri(uri);
+        setSelectedAudioId(id);
+    }
+
+    const resetSelectedAudio = () => {
+        setSelectedAudioId('');
+        setSelectedAudioUri('');
+    }
 
     const getDisplayName = (uri) => {
         if (props.contactCache.has(uri)) {
@@ -363,38 +387,51 @@ const Chat = (props) => {
                         showClose={false}
                     >
 
+                        {selectedUri &&
+                            <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
+                                {matches &&
+                                    <button type="button" className="close" onClick={() => setSelectedUri('')}>
+                                        <span aria-hidden="true"><i className={chevronIcon} /></span>
+                                        <span className="sr-only">Close</span>
+                                    </button>
+                                }
+                                {props.isLoadingMessages === true
+                                    ?
+                                    <React.Fragment>
+                                        <CircularProgress style={{ color: '#888', margin: '5px', marginRight: '10px', width: '35px', height: '35px', display: 'block' }} />
+                                        <Typography className={classes.title} variant="h6" noWrap>Updating</Typography>
+                                    </React.Fragment>
+                                    :
+                                    <React.Fragment>
+                                        <UserIcon identity={getDisplayName(selectedUri)} active={false} small={true} />
+                                        <Typography className={classes.title} variant="h6" noWrap>
+                                            {getDisplayName(selectedUri).displayName || selectedUri}
+                                            {getDisplayName(selectedUri).displayName && <span className={classes.toolbarName}>({selectedUri})</span>}
+                                        </Typography>
+                                        {props.hideCallButtons === false && [
+                                            <IconButton key="callButton" className="fa fa-phone" onClick={() => props.startCall(selectedUri, { video: false })} />,
+                                            <IconButton key="videoCallButton" className="fa fa-video-camera" onClick={() => props.startCall(selectedUri)} />
+                                        ]}
+                                    </React.Fragment>
+                                }
+                                <Divider absolute />
+                            </Toolbar>
+                        }
+                        {selectedAudioId !== '' &&
+                            <ToolbarAudioPlayer
+                                account={props.account}
+                                messages={contactAudioMessages}
+                                contactCache={contactCache.current}
+                                selectedAudioUri={selectedAudioUri}
+                                selectedAudioId={selectedAudioId}
+                                close={resetSelectedAudio}
+                            />
+                        }
                         {selectedUri !== ''
                             ?
                             <React.Fragment>
-                                <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
-                                    {matches &&
-                                        <button type="button" className="close" onClick={() => setSelectedUri('')}>
-                                            <span aria-hidden="true"><i className={chevronIcon} /></span>
-                                            <span className="sr-only">Close</span>
-                                        </button>
-                                    }
-                                    {props.isLoadingMessages === true
-                                        ?
-                                        <React.Fragment>
-                                            <CircularProgress style={{ color: '#888', margin: '5px', marginRight: '10px', width: '35px', height: '35px', display: 'block' }} />
-                                            <Typography className={classes.title} variant="h6" noWrap>Updating</Typography>
-                                        </React.Fragment>
-                                        :
-                                        <React.Fragment>
-                                            <UserIcon identity={getDisplayName(selectedUri)} active={false} small={true} />
-                                            <Typography className={classes.title} variant="h6" noWrap>
-                                                {getDisplayName(selectedUri).displayName || selectedUri}
-                                                {getDisplayName(selectedUri).displayName && <span className={classes.toolbarName}>({selectedUri})</span>}
-                                            </Typography>
-                                            {props.hideCallButtons === false && [
-                                                <IconButton key="callButton" className="fa fa-phone" onClick={() => props.startCall(selectedUri, { video: false })} />,
-                                                <IconButton key="videoCallButton" className="fa fa-video-camera" onClick={() => props.startCall(selectedUri)} />
-                                            ]}
-                                        </React.Fragment>
-                                    }
-                                    <Divider absolute />
-                                </Toolbar>
-                                {props.account.pgp === null &&
+                                {
+                                    props.account.pgp === null &&
                                     <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
                                         <Typography className={classes.title} variant="h6" noWrap>End to end encryption for messaging is not enabled</Typography>
                                     </Toolbar>
@@ -443,6 +480,7 @@ const Chat = (props) => {
                             unread={unread}
                             downloadFiles={handleDownload}
                             uploadFiles={(...args) => fileTransferUtils.upload(props, ...args)}
+                            selectAudio={selectContactAudio}
                         />
                     </ConferenceDrawer>
                 </div>

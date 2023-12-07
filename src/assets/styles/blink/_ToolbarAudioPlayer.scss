@@ -1,0 +1,284 @@
+$rhap_theme-color: $bootstrap-primary !default;
+$rhap_background-color: #fff !default;
+$rhap_bar-color: #dddddd !default;
+$rhap_time-color: #333 !default;
+$rhap_font-family: inherit !default;
+
+.rhap_container {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    font-family: $rhap_font-family;
+    line-height: 1;
+    //padding: 10px 15px;
+    background-color: $rhap_background-color;
+    box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.2);
+
+    &:focus:not(:focus-visible) {
+        outline: 0;
+    }
+
+    svg {
+        vertical-align: initial; // overwrite Bootstrap default
+    }
+}
+
+.rhap_header {
+    margin-bottom: 10px;
+}
+
+.rhap_footer {
+    margin-top: 5px;
+}
+
+.rhap_main {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+}
+
+.rhap_stacked {
+    .rhap_controls-section {
+        margin-top: 8px;
+    }
+}
+
+.rhap_horizontal {
+    flex-direction: row;
+
+    .rhap_controls-section {
+        margin-left: 8px;
+    }
+}
+
+.rhap_horizontal-reverse {
+    flex-direction: row-reverse;
+
+    .rhap_controls-section {
+        margin-right: 8px;
+    }
+}
+
+.rhap_stacked-reverse {
+    flex-direction: column-reverse;
+
+    .rhap_controls-section {
+        // margin-bottom: 8px;
+    }
+}
+
+.rhap_progress-section {
+    display: flex;
+    flex: 3 1 auto;
+    align-items: center;
+}
+
+.rhap_progress-container {
+    display: flex;
+    flex: 1 0 auto;
+    align-items: center;
+    // height: 20px;
+    align-self: center;
+    //margin: 0 calc(10px + 1%);
+    margin: 0 -25px -3px;
+    cursor: pointer;
+    user-select: none;
+
+    &:focus:not(:focus-visible) {
+        outline: 0;
+    }
+    &:hover {
+        margin-bottom: -4px;
+    }
+}
+
+.rhap_time {
+    color: $rhap_time-color;
+    user-select: none;
+}
+
+.rhap_progress-bar {
+    &:focus:not(:focus-visible) {
+        outline: 0;
+    }
+    &:hover {
+        height: 4px;
+    }
+    position: relative;
+    z-index: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 3px;
+    background-color: $rhap_bar-color;
+    border-radius: 2px;
+}
+
+.rhap_progress-filled {
+    position: absolute;
+    z-index: 2;
+    height: 100%;
+    background-color: $rhap_theme-color;
+    border-radius: 2px;
+    transition: width .2s;
+}
+
+.rhap_progress-bar-show-download {
+    background-color: rgba($rhap_bar-color, 0.5);
+}
+
+.rhap_download-progress {
+    position: absolute;
+    z-index: 1;
+    height: 100%;
+    background-color: $rhap_bar-color;
+    border-radius: 3px;
+}
+
+.rhap_progress-indicator {
+    position: absolute;
+    top: -8px;
+    z-index: 3;
+    box-sizing: border-box;
+    //width: 20px;
+    //height: 20px;
+    margin-left: -10px;
+    background: $rhap_theme-color;
+    //border-radius: 50px;
+    box-shadow: rgba($rhap_theme-color, .5) 0 0 5px;
+}
+
+.rhap_controls-section {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.rhap_additional-controls {
+    display: flex;
+    flex: 1 0 auto;
+    align-items: center;
+}
+
+.rhap_repeat-button {
+    width: 26px;
+    height: 26px;
+    margin-right: 6px;
+    font-size: 26px;
+    color: $rhap_theme-color;
+}
+
+.rhap_main-controls {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    justify-content: center;
+}
+
+.rhap_main-controls-button {
+    width: 35px;
+    height: 35px;
+    margin: 0 3px;
+    font-size: 35px;
+    color: $rhap_theme-color;
+}
+
+.rhap_play-pause-button {
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+}
+
+.rhap_volume-controls {
+    display: flex;
+    flex: 1 0 auto;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.rhap_volume-button {
+    flex: 0 0 26px;
+    width: 26px;
+    height: 26px;
+    margin-right: 6px;
+    font-size: 26px;
+    color: $rhap_theme-color;
+}
+
+.rhap_volume-container {
+    display: flex;
+    flex: 0 1 100px;
+    align-items: center;
+    user-select: none;
+}
+
+.rhap_volume-bar-area {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 14px;
+    cursor: pointer;
+
+    &:focus:not(:focus-visible) {
+        outline: 0;
+    }
+}
+
+.rhap_volume-bar {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    height: 4px;
+    background: $rhap_bar-color;
+    border-radius: 2px;
+}
+
+.rhap_volume-indicator {
+    position: absolute;
+    top: -4px;
+    left: 0;
+    box-sizing: border-box;
+    width: 12px;
+    height: 12px;
+    margin-left: -6px;
+    cursor: pointer;
+    background: $rhap_theme-color;
+    border-radius: 50px;
+    box-shadow: rgba($rhap_theme-color, .5) 0 0 3px;
+    opacity: 0.9;
+
+    &:hover {
+        opacity: .9;
+    }
+}
+
+.rhap_volume-filled {
+    position: absolute;
+    z-index: 2;
+    height: 100%;
+    background-color: $rhap_theme-color;
+    border-radius: 2px;
+}
+
+/* Utils */
+.rhap_button-clear {
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+
+    &:hover {
+        opacity: .9;
+        transition-duration: .2s;
+    }
+
+    &:active {
+        opacity: .95;
+    }
+
+    &:focus:not(:focus-visible) {
+        outline: 0;
+    }
+}

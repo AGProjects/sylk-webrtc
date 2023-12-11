@@ -54,6 +54,7 @@
     "react-dom": "^16.14.0",
     "react-h5-audio-player": "^3.9.0",
     "react-intersection-observer": "^8.33.1",
+    "react-media-recorder": "tijmenNL/react-media-recorder",
     "react-mixin": "^5.0.0",
     "react-notification-system": "^0.4.0",
     "react-router-component": "^0.40.0",

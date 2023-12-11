@@ -44,7 +44,7 @@ For a complete server-side example of handling such request see [sipSettings pag
 
 ## Development
 
-Node.js is needed for development.  Version >= 10.0 is recommended.  For
+Node.js is needed for development.  Version >= 16.1.0 is required.  For
 convenience the `configure` script and `Makefile`  are provided.
 
 Node.js can be downloaded from https://nodejs.org

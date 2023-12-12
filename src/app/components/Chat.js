@@ -15,6 +15,7 @@ const ContactList = require('./Chat/ContactList');
 const UserIcon = require('./UserIcon');
 const MessageList = require('./Chat/MessageList');
 const ConferenceChatEditor = require('./ConferenceChatEditor');
+const VoiceMessageRecorderModal = require('./Chat/VoiceMessageRecorderModal');
 
 const utils = require('../utils');
 const fileTransferUtils = require('../fileTransferUtils');
@@ -53,10 +54,12 @@ const Chat = (props) => {
     const [selectedUri, _setSelectedUri] = useState('');
     const [selectedAudioUri, setSelectedAudioUri] = useState('');
     const [selectedAudioId, setSelectedAudioId] = useState('');
+    const [showVoiceMessageRecordModal, setVoiceMessageRecordModal] = useState(false);
 
     const selectedUriRef = useRef(selectedUri);
     const messagesRef = useRef(messages);
     const contactCache = useRef(props.contactCache);
+    const anchorEl = useRef(null);
     const input = useRef();
 
     let propagateFocus = false;
@@ -226,6 +229,11 @@ const Chat = (props) => {
         propagateFocus = !propagateFocus;
     };
 
+    const toggleRecordVoiceMessage = (target) => {
+        anchorEl.current = target || null;
+        setVoiceMessageRecordModal(!showVoiceMessageRecordModal);
+    };
+
     const filterMessages = () => {
         setFilter(input.current.value);
     }
@@ -360,6 +368,8 @@ const Chat = (props) => {
                 focus={toggleChatEditorFocus}
                 setFocus={true}
                 upload={handleFiles}
+                enableVoiceMessage={true}
+                toggleRecordVoiceMessage={toggleRecordVoiceMessage}
                 multiline
             />
         </React.Fragment>
@@ -488,6 +498,15 @@ const Chat = (props) => {
             }
             {props.embed &&
                 [messagePane]
+            }
+            {showVoiceMessageRecordModal &&
+                <VoiceMessageRecorderModal
+                    show={showAudioMessageModal}
+                    close={toggleRecordVoiceMessage}
+                    contact={selectedUri}
+                    anchorElement={anchorEl.current}
+                    sendAudioMessage={(...args) => fileTransferUtils.upload(props, ...args, selectedUri)}
+                />
             }
         </React.Fragment>
     );

@@ -39,6 +39,10 @@ const ConferenceChatEditor = (props) => {
         props.scroll();
     }
 
+    const toggleRecording = (event) => {
+        props.toggleRecordVoiceMessage(event.currentTarget)
+    }
+
     const handleInput = (e) => {
         DEBUG('Paste detected');
         let found = false;
@@ -269,6 +273,12 @@ const ConferenceChatEditor = (props) => {
                         </div>
                     </label>]
                 }
+                {props.enableVoiceMessage &&
+                    <div className="upload-button" onClick={toggleRecording}>
+                        <i className="fa fa-microphone fa-2x" />
+                    </div>
+                }
+
                 <div className={`emoji-button ${props.upload && 'padding-fixed'}`} onClick={togglePicker}>
                     <i className="fa fa-smile-o fa-2x" />
                 </div>
@@ -307,7 +317,9 @@ ConferenceChatEditor.propTypes = {
     onTyping: PropTypes.func.isRequired,
     scroll: PropTypes.func.isRequired,
     focus: PropTypes.func.isRequired,
-    upload: PropTypes.func
+    upload: PropTypes.func,
+    enableVoiceMessage: PropTypes.bool,
+    toggleRecordVoiceMessage: PropTypes.func
 };
 
 

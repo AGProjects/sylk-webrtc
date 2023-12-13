@@ -4,7 +4,11 @@ const React = require('react');
 const useEffect = React.useEffect;
 const useRef = React.useRef;
 const useState = React.useState;
+
+const { default: clsx } = require('clsx');
+
 const PropTypes = require('prop-types');
+
 const debug = require('debug');
 
 const { makeStyles } = require('@material-ui/core/styles');
@@ -241,7 +245,7 @@ const ToolbarAudioPlayer = (props) => {
     )
 
     return (
-        <Toolbar className={[classes.toolbar, 'audio-toolbar']}>
+        <Toolbar className={clsx([classes.toolbar, 'audio-toolbar'])}>
             {!audioLoaded ?
                 <React.Fragment>
                     <CircularProgress className={classes.progress} />

@@ -14,6 +14,7 @@ const ConferenceDrawer = require('./ConferenceDrawer');
 const ContactList = require('./Chat/ContactList');
 const UserIcon = require('./UserIcon');
 const MessageList = require('./Chat/MessageList');
+const InfoPanel = require('./Chat/InfoPanel');
 const ConferenceChatEditor = require('./ConferenceChatEditor');
 const VoiceMessageRecorderModal = require('./Chat/VoiceMessageRecorderModal');
 
@@ -36,11 +37,44 @@ const styleSheet = makeStyles((theme) => ({
         fontSize: '16px',
         fontFamily: 'inherit'
     },
+    centerTitle: {
+        display: 'block',
+        fontSize: '16px',
+        textAlign: 'center',
+        fontFamily: 'inherit'
+    },
     toolbarName: {
         paddingLeft: 5,
         fontWeight: 'normal',
         color: '#888'
-    }
+    },
+    spacer15: {
+        minHeight: '15px',
+        height: '15px'
+    },
+    spacer35: {
+        minHeight: '35px',
+        height: '35px'
+    },
+    spacer50: {
+        minHeight: '50px',
+        height: '50px'
+    },
+    audioToolbar: {
+        width: 'calc(100% - 415px)',
+        marginLeft: '415px',
+        height: '50px',
+        position: 'fixed',
+        textAlign: 'left',
+        color: '#333',
+        zIndex: 9999
+    },
+    [theme.breakpoints.down('sm')]: {
+        audioToolbar: {
+            width: '100%',
+            margin: 0
+        }
+    },
 }));
 
 const Chat = (props) => {
@@ -55,6 +89,7 @@ const Chat = (props) => {
     const [selectedAudioUri, setSelectedAudioUri] = useState('');
     const [selectedAudioId, setSelectedAudioId] = useState('');
     const [showVoiceMessageRecordModal, setVoiceMessageRecordModal] = useState(false);
+    const [showInfoPanel, setShowInfoPanel] = useState(false);
 
     const selectedUriRef = useRef(selectedUri);
     const messagesRef = useRef(messages);
@@ -67,6 +102,7 @@ const Chat = (props) => {
     const setSelectedUri = uri => {
         selectedUriRef.current = uri
         _setSelectedUri(uri);
+        setShowInfoPanel(false);
     }
 
     const setMessages = data => {
@@ -243,6 +279,10 @@ const Chat = (props) => {
         setFilter(input.current.value);
     }
 
+    const togglePanel = () => {
+        setShowInfoPanel(!showInfoPanel)
+    }
+
     const contactMessages = messages[selectedUri] ? [...messages[selectedUri]] : [];
     const contactAudioMessages = messages[selectedAudioUri] ? [...messages[selectedAudioUri]] : [];
 
@@ -380,18 +420,47 @@ const Chat = (props) => {
         </React.Fragment>
     );
 
+    const infoPane = (
+        <React.Fragment key="infopane">
+            <InfoPanel
+                key={selectedUri}
+                startMessages={contactMessages}
+                contactCache={contactCache.current}
+                removeMessage={(message) => props.removeMessage(message)}
+                account={props.account}
+                uploadFiles={(...args) => fileTransferUtils.upload(props, ...args, selectedUri)}
+                downloadFiles={handleDownload}
+                selectedUri={selectedUri}
+                selectAudio={selectAudio}
+            />
+        </React.Fragment>
+    );
+
     return (
         <React.Fragment>
             {!props.embed &&
                 <div className="chat">
+                    {selectedAudioId !== '' &&
+                        <div style={{ top: selectedUri ? '115px' : '68px' }} className={classes.audioToolbar}>
+                            <ToolbarAudioPlayer
+                                account={props.account}
+                                messages={contactAudioMessages}
+                                contactCache={contactCache.current}
+                                selectedAudioUri={selectedAudioUri}
+                                selectedAudioId={selectedAudioId}
+                                close={resetSelectedAudio}
+                            />
+                        </div>
+                    }
                     <ConferenceDrawer
-                        show={show && (!matches || selectedUri !== '')}
+                        show={show && !showInfoPanel && (!matches || selectedUri !== '')}
                         size="full"
                         anchor="right"
                         close={() => setShow(false)}
                         position="full"
                         noBackgroundColor
                         showClose={false}
+                        slideProps={{ direction: 'right', unmountOnExit: false }}
                     >
 
                         {selectedUri &&
@@ -410,11 +479,15 @@ const Chat = (props) => {
                                     </React.Fragment>
                                     :
                                     <React.Fragment>
-                                        <UserIcon identity={getDisplayName(selectedUri)} active={false} small={true} />
-                                        <Typography className={classes.title} variant="h6" noWrap>
-                                            {getDisplayName(selectedUri).displayName || selectedUri}
-                                            {getDisplayName(selectedUri).displayName && <span className={classes.toolbarName}>({selectedUri})</span>}
-                                        </Typography>
+                                        <div style={{ flex: 0 }} onClick={togglePanel}>
+                                            <UserIcon identity={getDisplayName(selectedUri)} active={false} small={true} />
+                                        </div>
+                                        <div onClick={togglePanel} style={{ flex: '1', display: 'flex', alignItems: 'center' }}>
+                                            <Typography className={classes.title} variant="h6" noWrap>
+                                                {getDisplayName(selectedUri).displayName || selectedUri}
+                                                {getDisplayName(selectedUri).displayName && <span className={classes.toolbarName}>({selectedUri})</span>}
+                                            </Typography>
+                                        </div>
                                         {props.hideCallButtons === false && [
                                             <IconButton key="callButton" className="fa fa-phone" onClick={() => props.startCall(selectedUri, { video: false })} />,
                                             <IconButton key="videoCallButton" className="fa fa-video-camera" onClick={() => props.startCall(selectedUri)} />
@@ -424,16 +497,7 @@ const Chat = (props) => {
                                 <Divider absolute />
                             </Toolbar>
                         }
-                        {selectedAudioId !== '' &&
-                            <ToolbarAudioPlayer
-                                account={props.account}
-                                messages={contactAudioMessages}
-                                contactCache={contactCache.current}
-                                selectedAudioUri={selectedAudioUri}
-                                selectedAudioId={selectedAudioId}
-                                close={resetSelectedAudio}
-                            />
-                        }
+                        {selectedAudioId !== '' && <div className={classes.spacer35} />}
                         {selectedUri !== ''
                             ?
                             <React.Fragment>
@@ -453,6 +517,65 @@ const Chat = (props) => {
                         }
                     </ConferenceDrawer>
                     <ConferenceDrawer
+                        show={show && showInfoPanel && (!matches || selectedUri !== '')}
+                        size="full"
+                        anchor="right"
+                        close={() => setShow(false)}
+                        position="full"
+                        noBackgroundColor
+                        showClose={false}
+                    >
+                        {selectedUri &&
+                            <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px', paddingLeft: '10px', paddingRight: '10px' }}>
+                                {props.isLoadingMessages === true
+                                    ?
+                                    <React.Fragment>
+                                        <CircularProgress style={{ color: '#888', margin: '5px', marginRight: '10px', width: '35px', height: '35px', display: 'block' }} />
+                                        <Typography className={classes.title} variant="h6" noWrap>Updating</Typography>
+                                    </React.Fragment>
+                                    :
+                                    <React.Fragment>
+                                        <div style={{ display: 'flex', flex: '1' }}>
+                                            <div style={{ flex: '1' }}>
+                                                <button type="button" className="close" timeout={10000} style={{ float: 'left', marginRight: '4px' }} onClick={togglePanel}>
+                                                    <span aria-hidden="true"><i className={chevronIcon} /></span>
+                                                    <span className="sr-only">Back</span>
+                                                </button>
+                                                <Typography className={classes.title} variant="h6" noWrap>Back</Typography>
+                                            </div>
+                                            <div style={{ flex: '1 1 auto' }}>
+                                                <Typography className={classes.centerTitle} variant="h6" noWrap>
+                                                    Info
+                                                </Typography>
+                                            </div>
+                                            <div style={{ flex: '1 0 auto' }}></div>
+                                        </div>
+                                    </React.Fragment>
+                                }
+                                <Divider absolute />
+                            </Toolbar>
+                        }
+                        {selectedAudioId !== '' && <div className={classes.spacer35} />}
+                        <div className={classes.spacer15} />
+                        {selectedUri !== ''
+                            ?
+                            <React.Fragment>
+                                {
+                                    props.account.pgp === null &&
+                                    <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
+                                        <Typography className={classes.title} variant="h6" noWrap>End to end encryption for messaging is not enabled</Typography>
+                                    </Toolbar>
+                                }
+                                {infoPane}
+                            </React.Fragment>
+                            :
+                            <div style={{ justifyContent: 'center', alignItems: 'center', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                                <div className="chat-image" />
+                                <h1 className="cover-heading">No chat selected</h1>
+                            </div>
+                        }
+                    </ConferenceDrawer>
+                    <ConferenceDrawer
                         show={show && (selectedUri === '' && matches) || !matches}
                         anchor="left"
                         showClose={false}
@@ -460,6 +583,7 @@ const Chat = (props) => {
                         size="normalWide"
                         noBackgroundColor
                     >
+                        {selectedAudioId !== '' && <div className={classes.spacer50} />}
                         <Toolbar className={classes.toolbar} style={{ margin: '-15px -15px 0' }}>
                             <input
                                 type="text"

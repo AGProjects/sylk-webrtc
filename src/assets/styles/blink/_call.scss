@@ -37,6 +37,12 @@
     width: 50% !important;
 }
 
+.drawer-wide-visible {
+    @extend .drawer-visible;
+    width: calc(100% - 450px) !important;
+    margin-right: 450px;
+}
+
 .call-header {
     padding: 4px 0;
     color: $white;

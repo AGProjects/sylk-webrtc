@@ -522,7 +522,6 @@ const Chat = (props) => {
                         anchor="right"
                         close={() => setShow(false)}
                         position="full"
-                        noBackgroundColor
                         showClose={false}
                     >
                         {selectedUri &&

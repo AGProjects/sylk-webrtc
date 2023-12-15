@@ -127,6 +127,8 @@ const ToolbarAudioPlayer = (props) => {
             return
         }
 
+        prevMessages.current = props.messages;
+
         let allMessages = [...props.messages];
         canLoadMore();
 
@@ -138,12 +140,7 @@ const ToolbarAudioPlayer = (props) => {
     useEffect(() => {
         let ignore = false;
 
-        if (JSON.stringify(prevMessages.current) === JSON.stringify(messages)) {
-            return;
-        }
-
         let newAudioMessages = [];
-        prevMessages.current = messages;
         messages.filter((message) => {
             return message.contentType === 'application/sylk-file-transfer' && message.json.filetype;
         }).reverse().map((message) => {

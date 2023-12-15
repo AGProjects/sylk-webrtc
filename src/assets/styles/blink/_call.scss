@@ -32,10 +32,9 @@
     margin-right: 350px;
 }
 
-.drawer-wide-visible {
+.drawer-half-visible {
     @extend .drawer-visible;
-    width: calc(100% - 450px) !important;
-    margin-right: 450px;
+    width: 50% !important;
 }
 
 .call-header {

@@ -401,7 +401,7 @@ class AudioCallBox extends React.Component {
         );
 
         const callClasses = clsx({
-            'drawer-wide-visible': this.state.showInlineChat && !this.state.showChat && !utils.isMobile.any(),
+            'drawer-half-visible': this.state.showInlineChat && !this.state.showChat && !utils.isMobile.any(),
             'drawer-visible': this.state.showInlineChat && !this.state.showChat && utils.isMobile.any()
         });
 
@@ -568,7 +568,7 @@ class AudioCallBox extends React.Component {
                         anchor="right"
                         showClose={true}
                         close={this.toggleInlineChat}
-                        size={utils.isMobile.any() ? 'normal' : 'wide'}
+                        size={utils.isMobile.any() ? 'normal' : 'half'}
                         noBackgroundColor
                     >
                         {this.props.inlineChat}

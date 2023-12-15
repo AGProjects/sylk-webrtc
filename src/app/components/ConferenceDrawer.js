@@ -36,6 +36,9 @@ const styleSheet = makeStyles(theme => {
         paperWide: {
             width: 450
         },
+        paperHalfWidth: {
+            width: '50%'
+        },
         paperFullWidth: {
             width: '100%'
         },
@@ -104,6 +107,7 @@ const ConferenceDrawer = (props) => {
         { [`${classes.paperNormal}`]: props.size === 'normal' || !props.size },
         { [`${classes.paperWide}`]: props.size === 'wide' },
         { [`${classes.paperNormalWide}`]: props.size === 'normalWide' },
+        { [`${classes.paperHalfWidth}`]: props.size === 'half' },
         { [`${classes.paperFullWidth}`]: props.size === 'full' },
         { [`${classes.paperAdjustedForSmallLeftDrawer}`]: props.anchor === 'left' && (props.position === 'middle' || props.position === 'right') },
         { [`${classes.paperAdjustedForSmallLeftDrawerFull}`]: props.anchor === 'left' && props.size === 'full' && props.position === 'right' },

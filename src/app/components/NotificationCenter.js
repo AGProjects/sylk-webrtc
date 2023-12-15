@@ -252,6 +252,27 @@ class NotificationCenter extends React.Component {
         });
     }
 
+    postFileDownloadFailed(filename, reason) {
+        filename = filename.replace('.asc', '').replace(/_/g, ' ');
+        this.refs.notificationSystem.addNotification({
+            message: `Download of ${filename} failed: ${reason}`,
+            title: 'File download failed',
+            autoDismiss: 10,
+            level: 'error',
+            position: 'br'
+        });
+    }
+
+    postPreparingFileDownload(filename) {
+        filename = filename.replace('.asc', '').replace(/_/g, ' ');
+        return this.refs.notificationSystem.addNotification({
+            message: `Preparing download for ${filename} `,
+            title: 'Preparing file download',
+            autoDismiss: 20,
+            level: 'info',
+            position: 'br'
+        });
+    }
     render() {
         const style = {
             Containers: {

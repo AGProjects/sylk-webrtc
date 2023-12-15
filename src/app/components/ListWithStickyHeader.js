@@ -31,7 +31,7 @@ const ListWithStickyHeader = ({ children, header }) => {
     return (
         <React.Fragment>
             <div ref={ref2} className={inView && !inView2 ? classes.sticky : ''}>{header}</div>
-            <div ref={ref}>{...children}</div>
+            <div ref={ref}>{children}</div>
         </React.Fragment>
     )
 }

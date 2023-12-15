@@ -625,11 +625,8 @@ const Chat = (props) => {
                     <Divider absolute />
                 </Toolbar>
             }
-            {props.embed &&
-                [messagePane]
-            }
-            {
-                showVoiceMessageRecordModal &&
+            {props.embed && [messagePane]}
+            {showVoiceMessageRecordModal &&
                 <VoiceMessageRecorderModal
                     show={showVoiceMessageRecordModal}
                     close={toggleRecordVoiceMessage}

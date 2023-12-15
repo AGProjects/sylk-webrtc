@@ -144,7 +144,7 @@ const ConferenceDrawer = (props) => {
             }}
             variant="persistent"
             open={props.show}
-            SlideProps={{ unmountOnExit: true }}
+            SlideProps={Object.assign({ unmountOnExit: true }, props.slideProps)}
             onClose={props.close}
         >
             <div className="conference-drawer">
@@ -173,7 +173,8 @@ ConferenceDrawer.propTypes = {
     title: PropTypes.object,
     children: PropTypes.node,
     noBackgroundColor: PropTypes.bool,
-    onTop: PropTypes.bool
+    onTop: PropTypes.bool,
+    slideProps: PropTypes.object
 };
 
 

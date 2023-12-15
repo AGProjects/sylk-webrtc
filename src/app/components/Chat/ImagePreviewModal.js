@@ -206,7 +206,7 @@ const ImagePreviewModal = (props) => {
                             actionIcon={
                                 <React.Fragment>
                                     <Tooltip title="Download">
-                                        <IconButton aria-label="close" className={classes.bottomButton} onClick={() => { props.download(parsedJsonContent()); props.close }}>
+                                        <IconButton aria-label="close" className={classes.bottomButton} onClick={() => { props.download(props.message.json); props.close }}>
                                             <GetApp classes={{ root: classes.iconSize }} />
                                         </IconButton>
                                     </Tooltip>
@@ -232,7 +232,7 @@ const ImagePreviewModal = (props) => {
                                         }}
                                     >
                                         {!isElectron() &&
-                                            <MenuItem className={classes.item} onClick={() => { props.openInNewTab(parsedJsonContent()); handleClose() }}>
+                                            <MenuItem className={classes.item} onClick={() => { props.openInNewTab(props.message.json); handleClose() }}>
                                                 Open in new tab
                                             </MenuItem>
                                         }

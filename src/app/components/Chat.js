@@ -579,7 +579,7 @@ const Chat = (props) => {
                         size="normalWide"
                         noBackgroundColor
                     >
-                        {selectedAudioId !== '' && <div className={classes.spacer50} />}
+                        {selectedAudioId !== '' && matches && <div className={classes.spacer50} />}
                         <Toolbar className={classes.toolbar} style={{ margin: '-15px -15px 0' }}>
                             <input
                                 type="text"

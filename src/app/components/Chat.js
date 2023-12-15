@@ -390,7 +390,7 @@ const Chat = (props) => {
                     >
 
                         {selectedUri &&
-                            <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
+                            <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px', paddingLeft: '10px', paddingRight: '10px' }}>
                                 {matches &&
                                     <button type="button" className="close" onClick={() => setSelectedUri('')}>
                                         <span aria-hidden="true"><i className={chevronIcon} /></span>

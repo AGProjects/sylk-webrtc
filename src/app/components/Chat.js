@@ -525,7 +525,7 @@ const Chat = (props) => {
                         showClose={false}
                     >
                         {selectedUri &&
-                            <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px', paddingLeft: '10px', paddingRight: '10px' }}>
+                            <Toolbar className={classes.toolbar} style={{ backgroundColor: '#fff', marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px', paddingLeft: '10px', paddingRight: '10px' }}>
                                 {props.isLoadingMessages === true
                                     ?
                                     <React.Fragment>

@@ -499,9 +499,10 @@ const Chat = (props) => {
             {props.embed &&
                 [messagePane]
             }
-            {showVoiceMessageRecordModal &&
+            {
+                showVoiceMessageRecordModal &&
                 <VoiceMessageRecorderModal
-                    show={showAudioMessageModal}
+                    show={showVoiceMessageRecordModal}
                     close={toggleRecordVoiceMessage}
                     contact={selectedUri}
                     anchorElement={anchorEl.current}

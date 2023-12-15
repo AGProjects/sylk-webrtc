@@ -74,7 +74,7 @@ const styleSheet = makeStyles((theme) => ({
             width: '100%',
             margin: 0
         }
-    },
+    }
 }));
 
 const Chat = (props) => {
@@ -537,7 +537,7 @@ const Chat = (props) => {
                                     <React.Fragment>
                                         <div style={{ display: 'flex', flex: '1' }}>
                                             <div style={{ flex: '1' }}>
-                                                <button type="button" className="close" timeout={10000} style={{ float: 'left', marginRight: '4px' }} onClick={togglePanel}>
+                                                <button type="button" className="close" style={{ float: 'left', marginRight: '4px' }} onClick={togglePanel}>
                                                     <span aria-hidden="true"><i className={chevronIcon} /></span>
                                                     <span className="sr-only">Back</span>
                                                 </button>

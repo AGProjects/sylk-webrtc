@@ -101,6 +101,11 @@ const Chat = (props) => {
         if (props.account === null) {
             return
         }
+
+        if (props.isLoadingMessages) {
+            return
+        }
+
         DEBUG('Loading messages');
         const incomingMessage = (message) => {
             DEBUG('Incoming Message from: %s', message.sender.uri);
@@ -190,7 +195,7 @@ const Chat = (props) => {
             props.account.removeListener('outgoingMessage', outgoingMessage);
             props.account.removeListener('removeMessage', removeMessage);
         }
-    }, [props.account, props.oldMessages]);
+    }, [props.account, props.oldMessages, props.isLoadingMessages]);
 
 
     const loadMessages = (uri, id) => {

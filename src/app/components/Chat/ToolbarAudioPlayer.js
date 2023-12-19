@@ -103,8 +103,11 @@ const ToolbarAudioPlayer = (props) => {
         DEBUG('Attempting to load all messages');
 
         const loadMore = () => messageStorage.loadMoreFiles(props.selectedAudioUri).then(loadedMessages => {
-            allMessages = [...loadedMessages, ...allMessages];
-            canLoadMore();
+            DEBUG('Load more files');
+            if (loadedMessages) {
+                allMessages = [...loadedMessages, ...allMessages];
+                canLoadMore();
+            }
         });
 
         const canLoadMore = () => {
@@ -250,7 +253,8 @@ const ToolbarAudioPlayer = (props) => {
                         width: '100%',
                         boxShadow: 'none',
                         fontSize: 'inherit',
-                        background: 'none'
+                        background: 'none',
+                        marginTop: '-2px'
                     }}
                     customProgressBarSection={
                         [

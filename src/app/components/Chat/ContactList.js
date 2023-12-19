@@ -522,7 +522,7 @@ ContactList.propTypes = {
     defaultDomain: PropTypes.string.isRequired,
     filter: PropTypes.string,
     selectedUri: PropTypes.string,
-    selectedAudio: PropTypes.func.isRequired,
+    selectAudio: PropTypes.func.isRequired,
     unread: PropTypes.string,
     downloadFiles: PropTypes.func,
     uploadFiles: PropTypes.func.isRequired

@@ -104,10 +104,8 @@ const ToolbarAudioPlayer = (props) => {
 
         const loadMore = () => messageStorage.loadMoreFiles(props.selectedAudioUri).then(loadedMessages => {
             DEBUG('Load more files');
-            if (loadedMessages) {
-                allMessages = [...loadedMessages, ...allMessages];
-                canLoadMore();
-            }
+            allMessages = [...loadedMessages, ...allMessages];
+            canLoadMore();
         });
 
         const canLoadMore = () => {

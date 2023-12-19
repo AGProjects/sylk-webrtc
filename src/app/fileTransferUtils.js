@@ -63,6 +63,10 @@ function _download(account, url, filename, filetype) {
     if (!filename.endsWith('.asc')) {
         return superagent
             .get(`${url}`)
+            .timeout({
+                response: 5000,
+                deadline: 60000
+            })
             .responseType('blob')
             .then((res) => {
                 return Promise.resolve({ file: new File([res.body], filename, { 'type': filetype }), didDecrypt: false });
@@ -70,6 +74,10 @@ function _download(account, url, filename, filetype) {
     }
     return superagent
         .get(`${url}`)
+        .timeout({
+            response: 5000,
+            deadline: 60000
+        })
         .then((res) => {
             return account.decryptFile(res.text, filename, filetype);
         });

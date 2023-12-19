@@ -98,9 +98,6 @@ const useInterval = (callback, delay) => {
         function tick() {
             savedCallback.current();
         }
-        if (cancel) {
-            console.log("Timer stp");
-        }
         if (delay !== null && !cancel) {
             let id = setInterval(tick, delay);
             return () => clearInterval(id);

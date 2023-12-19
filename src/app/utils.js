@@ -43,7 +43,7 @@ function copyToClipboard(text) {
     fakeElem.style.margin = '0';
     // Move element out of screen horizontally
     fakeElem.style.position = 'absolute';
-    fakeElem.style[ isRTL ? 'right' : 'left' ] = '-9999px';
+    fakeElem.style[isRTL ? 'right' : 'left'] = '-9999px';
     // Move element to the same position vertically
     fakeElem.style.top = (window.pageYOffset || document.documentElement.scrollTop) + 'px';
     fakeElem.setAttribute('readonly', '');
@@ -55,7 +55,7 @@ function copyToClipboard(text) {
     // Copy to clipboard
     try {
         document.execCommand('copy');
-    } catch(e) {
+    } catch (e) {
         success = false;
     }
     // De-select the element
@@ -69,7 +69,7 @@ function copyToClipboard(text) {
 function generateSillyName() {
     const adjective = SillyNames.randomAdjective();
     const number = Math.floor(Math.random() * 10);
-    const noun1 =  SillyNames.randomNoun();
+    const noun1 = SillyNames.randomNoun();
     const noun2 = SillyNames.randomNoun();
     return adjective + noun1 + noun2 + number;
 }
@@ -88,7 +88,7 @@ function generateVideoTrack(stream, width = 640, height = 480) {
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
-    const canvas = Object.assign(document.createElement('canvas'), {width, height});
+    const canvas = Object.assign(document.createElement('canvas'), { width, height });
     const ctx = canvas.getContext('2d');
 
     const img = new Image();
@@ -108,11 +108,11 @@ function generateVideoTrack(stream, width = 640, height = 480) {
         ctx.filter = 'grayscale(100%) brightness(90%)';
         ctx.drawImage(blinkLogo, (width / 2) - 150, (height / 2) - 150, 300, 300);
         ctx.filter = 'none';
-        ctx.drawImage(img, (width / 2) - 45 , height / 3, 90, 90);
+        ctx.drawImage(img, (width / 2) - 45, height / 3, 90, 90);
         const barWidth = (width / bufferLength) * 2.5;
         let barHeight;
         let x = 0;
-        for(var i = 0; i < bufferLength; i++) {
+        for (var i = 0; i < bufferLength; i++) {
             barHeight = dataArray[i] / 2;
 
             ctx.fillStyle = 'rgb(' + (barHeight + 100) + ', 50, 50)';
@@ -125,7 +125,7 @@ function generateVideoTrack(stream, width = 640, height = 480) {
     blinkLogo.src = 'assets/images/blink-white-big.png';
 
     const canvasStream = canvas.captureStream();
-    return Object.assign(canvasStream.getVideoTracks()[0], {enabled: true});
+    return Object.assign(canvasStream.getVideoTracks()[0], { enabled: true });
 }
 
 function getWindowHeight() {
@@ -140,8 +140,8 @@ function loadAudio(file, context) {
         request.onload = () => {
             if (request.status === 200) {
                 context.decodeAudioData(request.response,
-                    (buffer) => {resolve(buffer)},
-                    (error) => {reject(error)}
+                    (buffer) => { resolve(buffer) },
+                    (error) => { reject(error) }
                 )
             } else {
                 reject(Error(request.statusText));
@@ -152,13 +152,13 @@ function loadAudio(file, context) {
             reject(Error('Network Error'));
         }
         request.send();
-     });
+    });
 }
 
 var isMobile = {
-    Android: function() {return navigator.userAgent.match(/Android/i);},
-    iOS: function() {return navigator.userAgent.match(/iPhone|iPad|iPod/i);},
-    any: function() {return (isMobile.Android() || isMobile.iOS())}
+    Android: function() { return navigator.userAgent.match(/Android/i); },
+    iOS: function() { return navigator.userAgent.match(/iPhone|iPad|iPod/i); },
+    any: function() { return (isMobile.Android() || isMobile.iOS()) }
 };
 
 exports.copyToClipboard = copyToClipboard;

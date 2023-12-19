@@ -32,7 +32,7 @@ const {
     DoneAll: DoneAllIcon,
     ErrorOutline: ErrorOutlineIcon,
     GetApp: DownloadIcon,
-    GraphicEqRounded,
+    GraphicEqRounded
 } = require('@material-ui/icons');
 
 const UserIcon = require('../UserIcon');
@@ -522,6 +522,7 @@ ContactList.propTypes = {
     defaultDomain: PropTypes.string.isRequired,
     filter: PropTypes.string,
     selectedUri: PropTypes.string,
+    selectedAudio: PropTypes.func.isRequired,
     unread: PropTypes.string,
     downloadFiles: PropTypes.func,
     uploadFiles: PropTypes.func.isRequired

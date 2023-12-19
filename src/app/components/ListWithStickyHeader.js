@@ -27,7 +27,6 @@ const ListWithStickyHeader = ({ children, header }) => {
     const { ref: ref2, inView: inView2 } = useInView({
         threshold: [1]
     });
-
     return (
         <React.Fragment>
             <div ref={ref2} className={inView && !inView2 ? classes.sticky : ''}>{header}</div>

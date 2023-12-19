@@ -100,15 +100,19 @@ const MessageList = ({
             return;
         }
         DEBUG('Entries changed or focus, updating entries');
+
+        let ignore = false;
         let prevMessage = null;
         let timestamp = null;
 
         const getImage = (message) => {
             fileTransferUtils.getAndReadFile(account, message).then(([imageData, filename]) => {
-                setImage(imageData)
-                message.filename = filename;
-                setMessage(message)
-                setShowModal(true)
+                if (!ignore) {
+                    setImage(imageData)
+                    message.filename = filename;
+                    setMessage(message)
+                    setShowModal(true)
+                }
             })
         }
 
@@ -174,8 +178,13 @@ const MessageList = ({
                 </CSSTransition>
             )
         });
-        setEntries(entries);
-    }, [messages, focus, displayed, scrollToBottom, contactCache, removeMessage, account]);
+        if (!ignore) {
+            setEntries(entries);
+        }
+        return () => {
+            ignore = true;
+        }
+    }, [messages, focus, displayed, scrollToBottom, contactCache, removeMessage, account, downloadFiles]);
 
     useEffect(() => {
         const canLoadMore = () => {

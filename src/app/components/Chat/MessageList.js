@@ -10,6 +10,8 @@ const PropTypes = require('prop-types');
 const { DateTime } = require('luxon');
 const { CircularProgress } = require('@material-ui/core');
 const { useInView } = require('react-intersection-observer');
+const { default: TransitionGroup } = require('react-transition-group/TransitionGroup');
+const { default: CSSTransition } = require('react-transition-group/CSSTransition');
 
 const DividerWithText = require('../DividerWithText');
 const DragAndDrop = require('../DragAndDrop');
@@ -149,21 +151,26 @@ const MessageList = ({
 
             }
             return (
-                <React.Fragment key={message.id}>
-                    {timestamp}
-                    <MessageComponent
-                        displayed={sendDisplayed}
-                        focus={focus === message.id}
-                        message={message}
-                        cont={continues}
-                        scroll={scrollToBottom}
-                        contactCache={contactCache}
-                        removeMessage={() => removeMessage(message)}
-                        imdnStates
-                        enableMenu
-                        {...extraProps}
-                    />
-                </React.Fragment>
+                <CSSTransition
+                    key={message.id}
+                    timeout={1000}
+                    classNames='message'
+                >
+                    <React.Fragment key={message.id}>
+                        {timestamp}
+                        <MessageComponent
+                            displayed={() => sendDisplayed(message)}
+                            focus={focus === message.id}
+                            message={message}
+                            cont={continues}
+                            scroll={scrollToBottom}
+                            contactCache={contactCache}
+                            removeMessage={() => removeMessage(message)}
+                            imdnStates
+                            {...extraProps}
+                        />
+                    </React.Fragment>
+                </CSSTransition>
             )
         });
         setEntries(entries);
@@ -211,8 +218,7 @@ const MessageList = ({
         <div
             className="drawer-chat"
             ref={messagesRef}
-            style={display ? { visibility: 'visible' } : { visibility: 'hidden' }}
-        >
+            style={{ visibility: display ? 'visible' : 'hidden' }}>
             <ImagePreviewModal
                 show={showModal}
                 close={() => setShowModal(false)}
@@ -232,7 +238,9 @@ const MessageList = ({
                 entries
                 :
                 <DragAndDrop title="Drop files to share them" handleDrop={uploadFiles} marginTop={'100px'}>
-                    {entries}
+                    <TransitionGroup>
+                        {entries}
+                    </TransitionGroup>
                 </DragAndDrop>
             }
             <div ref={messagesEndRef} />

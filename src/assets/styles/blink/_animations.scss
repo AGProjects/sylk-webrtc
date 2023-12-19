@@ -99,3 +99,26 @@
     visibility: hidden;
     opacity: 0;
 }
+
+/* starting ENTER animation */
+.message-enter {
+    opacity: 0;
+}
+
+/* ending ENTER animation */
+.message-enter-active {
+    opacity: 1;
+    transition: all 1000ms ease-in-out;
+}
+
+/* starting EXIT animation */
+.message-exit {
+    opacity: 1;
+}
+
+/* ending EXIT animation */
+.messageout-exit-active {
+    opacity: 0;
+    transition: opacity 1000ms ease-in-out;
+}
+

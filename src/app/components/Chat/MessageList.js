@@ -19,6 +19,7 @@ const FileTransferMessage = require('./FileTransferMessage');
 const ImagePreviewModal = require('./ImagePreviewModal')
 const Message = require('./Message');
 
+const { useHasChanged } = require('../../hooks');
 const fileTransferUtils = require('../../fileTransferUtils');
 
 const DEBUG = debug('blinkrtc:MessageList');
@@ -71,7 +72,7 @@ const MessageList = ({
     const messagesRef = useRef(null);
     const messagesEndRef = useRef(null);
     const messagesBefore = useRef(null);
-    const prevMessages = useRef([])
+    const prevMessagesChanged = useHasChanged(messages);
 
     const { ref, inView, entry } = useInView({
         threshold: 0
@@ -95,7 +96,7 @@ const MessageList = ({
     useEffect(scrollToBottom, [scroll]);
 
     useEffect(() => {
-        if (JSON.stringify(prevMessages.current) === JSON.stringify(messages) && !focus) {
+        if (!prevMessagesChanged && !focus) {
             return;
         }
         DEBUG('Entries changed or focus, updating entries');

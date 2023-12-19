@@ -439,7 +439,7 @@ const Chat = (props) => {
             {!props.embed &&
                 <div className="chat">
                     {selectedAudioId !== '' &&
-                        <div style={{ top: selectedUri ? '115px' : '68px' }} className={classes.audioToolbar}>
+                        <div style={{ top: selectedUri ? '115px' : '66px' }} className={classes.audioToolbar}>
                             <ToolbarAudioPlayer
                                 account={props.account}
                                 messages={contactAudioMessages}

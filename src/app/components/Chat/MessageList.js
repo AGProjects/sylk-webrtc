@@ -116,7 +116,7 @@ const MessageList = ({
             })
         }
 
-        const sendDisplayed = () => {
+        const sendDisplayed = (message) => {
             if (message.state == 'received'
                 && message.dispositionState !== 'displayed'
                 && message.dispositionNotification.indexOf('display') !== -1

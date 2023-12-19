@@ -159,7 +159,7 @@ const MessageList = ({
                 <CSSTransition
                     key={message.id}
                     timeout={1000}
-                    classNames='message'
+                    classNames="message"
                 >
                     <React.Fragment key={message.id}>
                         {timestamp}
@@ -184,7 +184,7 @@ const MessageList = ({
         return () => {
             ignore = true;
         }
-    }, [messages, focus, displayed, scrollToBottom, contactCache, removeMessage, account, downloadFiles]);
+    }, [messages, focus, displayed, scrollToBottom, contactCache, removeMessage, account, downloadFiles]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         const canLoadMore = () => {
@@ -206,7 +206,6 @@ const MessageList = ({
             setLoading(false);
         }
     }, [entries, display]) // eslint-disable-line react-hooks/exhaustive-deps
-
 
     useEffect(() => {
         DEBUG('Top is now %s', inView ? 'visible' : 'hidden');
@@ -246,7 +245,8 @@ const MessageList = ({
         <div
             className="drawer-chat"
             ref={messagesRef}
-            style={{ visibility: display ? 'visible' : 'hidden' }}>
+            style={{ visibility: display ? 'visible' : 'hidden' }}
+        >
             <ImagePreviewModal
                 show={showModal}
                 close={() => setShowModal(false)}

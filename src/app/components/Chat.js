@@ -538,7 +538,7 @@ const Chat = (props) => {
                                                     <span aria-hidden="true"><i className={chevronIcon} /></span>
                                                     <span className="sr-only">Back</span>
                                                 </button>
-                                                <Typography className={classes.title} variant="h6" noWrap>Back</Typography>
+                                                <Typography onClick={togglePanel} className={classes.title} variant="h6" noWrap>Back</Typography>
                                             </div>
                                             <div style={{ flex: '1 1 auto' }}>
                                                 <Typography className={classes.centerTitle} variant="h6" noWrap>

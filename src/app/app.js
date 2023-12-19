@@ -106,7 +106,8 @@ class Blink extends React.Component {
             haveFocus: false,
             unreadMessages: 0,
             unreadCallMessages: 0,
-            showChatInCall: false
+            showChatInCall: false,
+            storageLoadEmpty: false
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -2132,8 +2133,10 @@ class Blink extends React.Component {
                 if (cache) {
                     let oldMessages = cloneDeep(this.state.oldMessages);
                     oldMessages[key] = cache.concat(oldMessages[key]);
-                    this.setState({ oldMessages: oldMessages });
+                    this.setState({ oldMessages: oldMessages, storageLoadEmpty: false });
+                    return;
                 }
+                this.setState({ storageLoadEmpty: true });
             });
         };
 
@@ -2203,6 +2206,7 @@ class Blink extends React.Component {
                 embed={embed}
                 hideCallButtons={hideCallButtons}
                 notificationCenter={this.notificationCenter}
+                storageLoadEmpty={this.state.storageLoadEmpty}
             />)
     }
 

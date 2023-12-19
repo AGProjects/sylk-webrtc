@@ -59,7 +59,8 @@ const MessageList = ({
     account,
     uploadFiles,
     downloadFiles,
-    embed
+    embed,
+    storageLoadEmpty
 }) => {
     const [entries, setEntries] = useState([])
     const [display, setDisplay] = useState(false);
@@ -214,6 +215,24 @@ const MessageList = ({
         }
     }, [inView, loadMore]);
 
+    useEffect(() => {
+        let ignore = false;
+        if (inView && storageLoadEmpty && more && loading) {
+            if (hasMore) {
+                Promise.resolve(hasMore()).then((value) => {
+                    if (!ignore) {
+                        setMore(value);
+                        setLoading(value);
+                    }
+                });
+            }
+        }
+
+        return () => {
+            ignore = true;
+        }
+    }, [storageLoadEmpty, inView, loading, more, messages, hasMore]);
+
     const loadMore = React.useCallback(() => {
         DEBUG('Attempting to load more messages');
         setLoading(true);
@@ -266,11 +285,11 @@ MessageList.propTypes = {
     hasMore: PropTypes.func.isRequired,
     displayed: PropTypes.func.isRequired,
     contactCache: PropTypes.object,
-    isLoadingMessages: PropTypes.bool.isRequired,
     account: PropTypes.object.isRequired,
     uploadFiles: PropTypes.func,
     downloadFiles: PropTypes.func.isRequired,
-    embed: PropTypes.bool
+    embed: PropTypes.bool,
+    storageLoadEmpty: PropTypes.bool
 };
 
 

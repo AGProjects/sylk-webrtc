@@ -478,6 +478,11 @@ function loadMoreFiles(key) {
                         }
                         return true;
                     });
+                    if (startIndex === 0 && lastMessagesSlice.length === 0) {
+                        lastIdLoaded.set(key, lastMessages[0].id);
+                        lastMessages = lastMessagesSlice;
+                        break;
+                    }
                     if (lastMessagesSlice.length === loadExtraItems || startIndex === 0) {
                         lastMessages = lastMessagesSlice;
                         lastFileIdLoaded.set(key, lastMessages[0].id);
@@ -485,6 +490,9 @@ function loadMoreFiles(key) {
                     }
                     startIndex = startIndex - loadExtraItems + lastMessagesSlice.length;
                 }
+            }
+            if (lastMessages.length === 0) {
+                return
             }
             return lastMessages
         }
@@ -525,6 +533,11 @@ function loadMoreMessages(key) {
                         }
                         return true;
                     });
+                    if (startIndex === 0 && lastMessagesSlice.length === 0) {
+                        lastIdLoaded.set(key, lastMessages[0].id);
+                        lastMessages = lastMessagesSlice;
+                        break;
+                    }
                     if (lastMessagesSlice.length === loadExtraItems || startIndex === 0) {
                         lastMessages = lastMessagesSlice;
                         lastIdLoaded.set(key, lastMessages[0].id);
@@ -532,6 +545,10 @@ function loadMoreMessages(key) {
                     }
                     startIndex = startIndex - loadExtraItems + lastMessagesSlice.length;
                 }
+            }
+
+            if (lastMessages.length === 0) {
+                return
             }
             return lastMessages
         }

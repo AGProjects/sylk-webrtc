@@ -402,6 +402,7 @@ const Chat = (props) => {
                 uploadFiles={(...args) => fileTransferUtils.upload(props, ...args, selectedUri)}
                 downloadFiles={handleDownload}
                 embed={props.embed}
+                storageLoadEmpty={props.storageLoadEmpty}
             />
             <ConferenceChatEditor
                 onSubmit={handleMessage}
@@ -651,7 +652,8 @@ Chat.propTypes = {
     sendPublicKey: PropTypes.func.isRequired,
     embed: PropTypes.bool,
     hideCallButtons: PropTypes.bool,
-    notificationCenter: PropTypes.func.isRequired
+    notificationCenter: PropTypes.func.isRequired,
+    storageLoadEmpty: PropTypes.bool
 };
 
 

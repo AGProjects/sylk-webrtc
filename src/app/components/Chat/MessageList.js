@@ -125,7 +125,6 @@ const MessageList = ({
             }
         };
 
-        prevMessages.current = messages;
         const entries = messages.filter((message) => {
             return !message.content.startsWith('?OTRv');
         }).map((message) => {

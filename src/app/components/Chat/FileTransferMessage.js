@@ -229,9 +229,11 @@ const FileTransferMessage = ({
                             );
                         }
                     }).catch(error => {
-                        generateFileBlock(error);
+                        if (!ignore) {
+                            generateFileBlock(error);
+                        }
                     })
-            } else if (fileData.filetype && fileData.filename.startsWith('sylk-audio-recording')) {
+            } else if (fileData.filename.startsWith('sylk-audio-recording')) {
                 fileTransferUtils.getAndReadFile(account, message).then(([data, filename]) => {
                     if (!ignore) {
                         setParsedContent(

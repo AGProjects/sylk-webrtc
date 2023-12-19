@@ -34,7 +34,8 @@ const stylesheet = makeStyles((theme) => ({
         height: 50,
         marginLeft: '-15px',
         marginTop: '-15px',
-        marginRight: '-15px'
+        marginRight: '-15px',
+        backgroundColor: '#fff'
     },
     title: {
         flexGrow: 1,

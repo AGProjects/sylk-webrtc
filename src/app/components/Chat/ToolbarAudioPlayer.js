@@ -21,6 +21,7 @@ const {
 
 const { default: AudioPlayer } = require('react-h5-audio-player');
 
+const { usePrevious, useHasChanged } = require('../../hooks');
 const messageStorage = require('../../messageStorage');
 const fileTransferUtils = require('../../fileTransferUtils');
 
@@ -77,18 +78,13 @@ const stylesheet = makeStyles((theme) => ({
 
 const ToolbarAudioPlayer = (props) => {
     const classes = stylesheet(props);
-    const prevMessages = useRef([])
     const [messages, setMessages] = useState([]);
-    const [audioMessages, _setAudioMessages] = useState(null)
+    const [audioMessages, setAudioMessages] = useState(null)
     const [currentTrack, setTrackIndex] = useState(null)
 
-    const oldAudioMessages = useRef([]);
+    const prevMessagesChanged = useHasChanged(props.messages);
+    const oldAudioMessages = usePrevious(audioMessages);
     const player = useRef();
-
-    const setAudioMessages = (newAudioMessages) => {
-        oldAudioMessages.current = audioMessages;
-        _setAudioMessages(newAudioMessages);
-    }
 
     const getDisplayName = React.useCallback((uri) => {
         if (props.contactCache.has(uri)) {
@@ -123,11 +119,10 @@ const ToolbarAudioPlayer = (props) => {
             });
         };
 
-        if (JSON.stringify(prevMessages.current) === JSON.stringify(props.messages)) {
-            return
-        }
 
-        prevMessages.current = props.messages;
+        if (!prevMessagesChanged) {
+            return;
+        }
 
         let allMessages = [...props.messages];
         canLoadMore();
@@ -135,7 +130,7 @@ const ToolbarAudioPlayer = (props) => {
         return () => {
             ignore = true;
         }
-    }, [props.messages, props.selectedAudioUri]);
+    }, [props.messages, props.selectedAudioUri]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         let ignore = false;
@@ -162,7 +157,7 @@ const ToolbarAudioPlayer = (props) => {
         Promise.allSettled(newAudioMessages).then(results => {
             let newData = results.filter(result => result.status === 'fulfilled').map(result => result.value)
             if (!ignore) {
-                if (JSON.stringify(newData) !== JSON.stringify(oldAudioMessages.current)) {
+                if (JSON.stringify(newData) !== JSON.stringify(oldAudioMessages)) {
                     setAudioMessages(newData);
                 }
             }
@@ -170,7 +165,7 @@ const ToolbarAudioPlayer = (props) => {
         return () => {
             ignore = true;
         }
-    }, [messages, props.account]);
+    }, [messages, props.account]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
     useEffect(() => {

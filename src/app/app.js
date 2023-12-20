@@ -612,7 +612,7 @@ class Blink extends React.Component {
             server: config.wsServer,
             userAgent: {
                 name: `Sylk${this.shouldUseHashRouting ? 'App' : 'Web'}`,
-                version: PACKAGE_VERSION
+                version: 'PACKAGE_VERSION'
             }
         });
         connection.on('stateChanged', this.connectionStateChanged);

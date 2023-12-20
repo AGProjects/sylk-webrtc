@@ -363,7 +363,9 @@ const InfoPanel = ({
         setLoading(true);
         setMore(false);
         messageStorage.loadMoreFiles(selectedUri).then(loadedMessages => {
-            setMessages([...loadedMessages, ...messages]);
+            if (loadedMessages) {
+                setMessages([...loadedMessages, ...messages]);
+            }
             busy.current = false;
         });
     }, [messages, selectedUri]);

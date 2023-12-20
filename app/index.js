@@ -48,7 +48,7 @@ autoUpdater.on('error', (error) => {
 
 autoUpdater.on('update-available', (info) => {
     if (updater == null) {
-        notification = new Notification({ 
+        notification = new Notification({
             title: 'A new version is ready to download',
             body: `${app.getName()} version ${info.version} can be downloaded and installed`
         });
@@ -77,14 +77,14 @@ autoUpdater.on('update-not-available', () => {
 // There is progress in the download
 autoUpdater.on('download-progress', (progressObj) => {
     progressBar.value = progressObj.percent;
-    progressBar.detail =  `Downloading...  ${(progressObj.bytesPerSecond / 1000).toFixed(2)} KB/s (${(progressObj.transferred / 1000000).toFixed(2)} MB / ${(progressObj.total / 1000000).toFixed(2)} MB)`;
+    progressBar.detail = `Downloading...  ${(progressObj.bytesPerSecond / 1000).toFixed(2)} KB/s (${(progressObj.transferred / 1000000).toFixed(2)} MB / ${(progressObj.total / 1000000).toFixed(2)} MB)`;
 });
 
 // The update is downloaded
 autoUpdater.on('update-downloaded', () => {
     progressBar.setCompleted();
     progressBar.close();
-    
+
     dialog.showMessageBox({
         title: 'Ready to Install',
         message: 'The software has been downloaded. Click Restart to relaunch the new version...',
@@ -116,10 +116,11 @@ const aboutOptions = {
 const appMenu = Menu.buildFromTemplate([{
     label: 'Sylk',
     submenu: [
-        { label: 'Check for updates...', click: (item, win, event) => { checkForUpdates(item, win, event); }},
-        { label: 'About', click: () => { openAboutWindow(Object.assign({}, aboutOptions)); }},
-        { label: 'Quit', accelerator: 'Command+Q', click: () => { app.quit(); }}
-    ]}, {
+        { label: 'Check for updates...', click: (item, win, event) => { checkForUpdates(item, win, event); } },
+        { label: 'About', click: () => { openAboutWindow(Object.assign({}, aboutOptions)); } },
+        { label: 'Quit', accelerator: 'Command+Q', click: () => { app.quit(); } }
+    ]
+}, {
     label: 'Edit',
     submenu: [
         { label: 'Undo', accelerator: 'CmdOrCtrl+Z', selector: 'undo:' },
@@ -129,11 +130,13 @@ const appMenu = Menu.buildFromTemplate([{
         { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
         { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
         { label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' }
-    ]}, {
+    ]
+}, {
     label: 'Debug',
     submenu: [
-        { label: 'Open DevTools', click: () => { mainWindow.webContents.openDevTools({mode: 'detach'}); } }
-    ]}
+        { label: 'Open DevTools', click: () => { mainWindow.webContents.openDevTools({ mode: 'detach' }); } }
+    ]
+}
 ]);
 
 function ensureSafeQuitAndInstall() {
@@ -142,7 +145,7 @@ function ensureSafeQuitAndInstall() {
     browserWindows.forEach(function(browserWindow) {
         browserWindow.removeAllListeners('close');
     });
-    setImmediate(() => {autoUpdater.quitAndInstall();})
+    setImmediate(() => { autoUpdater.quitAndInstall(); })
 }
 
 function startDownload() {
@@ -190,7 +193,7 @@ function createUpdateDialog(info) {
             message: 'A new version of Sylk is available!',
             detail: `Sylk ${info.version} is now available\u2014you have ${autoUpdater.currentVersion}. Would you like to download it now?`,
             buttons: ['Yes', 'Remind me Later']
-        }).then(({response, checkboxChecked}) => {
+        }).then(({ response, checkboxChecked }) => {
             if (response === 0) {
                 startDownload();
             } else {
@@ -258,7 +261,7 @@ function createMainWindow() {
     });
 
     ipc.on('buttonClick', function(event, arg) {
-        mainWindow.webContents.send('buttonClick',arg);
+        mainWindow.webContents.send('buttonClick', arg);
     });
 
     ipc.on('getStorage', () => {
@@ -316,7 +319,7 @@ app.on('activate', () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) {
-       createMainWindow();
+        createMainWindow();
     }
     mainWindow.show();
 });

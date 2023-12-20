@@ -344,7 +344,7 @@ const InfoPanel = ({
                                     sortedFiles[key].map((message) => (
                                         <ListItem key={`vm-${message.id}`} >
                                             <ListItemIcon>
-                                                <IconButton onClick={() => selectAudio(message.id)} classes={{ root: classes.root }}><PlayArrowRounded style={{ fontSize: '3rem' }} /></IconButton>
+                                                <IconButton component="span" onClick={() => selectAudio(message.id)} classes={{ root: classes.root }}><PlayArrowRounded style={{ fontSize: '3rem' }} /></IconButton>
                                             </ListItemIcon>
                                             <ListItemText classes={{ primary: classes.item, secondary: classes.secondary }} primary={formatTime(message.json.timestamp)} secondary={getContact(message)} />
                                         </ListItem>

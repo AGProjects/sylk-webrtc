@@ -7236,7 +7236,7 @@ react-lifecycles-compat@^3.0.4:
 
 react-media-recorder@tijmenNL/react-media-recorder:
   version "1.6.7"
-  resolved "https://codeload.github.com/tijmenNL/react-media-recorder/tar.gz/c15e22afcb4bb640b6a20492daf5e86524042c65"
+  resolved "https://codeload.github.com/tijmenNL/react-media-recorder/tar.gz/f0b6e93b0b188ed16f06c86e9302770b72de2440"
   dependencies:
     extendable-media-recorder "^9.1.5"
     extendable-media-recorder-wav-encoder "^7.0.101"

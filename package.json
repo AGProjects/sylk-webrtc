@@ -50,6 +50,7 @@
     "parcel": "^2.10.3",
     "parcel-reporter-clean-dist": "^1.0.4",
     "parcel-reporter-static-files-copy": "^1.5.3",
+    "parcel-transformer-env-variables-injection": "^0.1.2",
     "posthtml-expressions": "^1.7.1",
     "process": "^0.11.10",
     "prop-types": "^15.8.1",

@@ -66,40 +66,6 @@ const CallQuality = ({ audioData, videoData, inbound, thumb }) => {
         rootClass = classes.rootThumb;
     }
 
-    React.useEffect(() => {
-        let latencyMeasurements = [];
-        let packets = 0;
-        let packetsLost = 0;
-
-        if (videoData && videoData.length !== 0) {
-            const lastVideoData = videoData.slice(-30);
-            latencyMeasurements = lastVideoData.map((data) => { return data.latency});
-            if (inbound) {
-                packets = lastVideoData.reduce((a,b) => a + b['packetRateInbound'] || 0, 0) || 0;
-                packetsLost = lastVideoData.reduce((a,b) => a + b['packetsLostInbound'] || 0, 0) || 0;
-            } else {
-                packets = lastVideoData.reduce((a,b) => a + b['packetRateOutbound'] || 0, 0) || 0;
-                packetsLost = lastVideoData.reduce((a,b) => a + b['packetsLostOutbound'] || 0, 0) || 0;
-            }
-        }
-
-        if (audioData && audioData.length !== 0) {
-            const lastAudioData = audioData.slice(-30);
-            latencyMeasurements = latencyMeasurements.concat(lastAudioData.map((data) => { return data.latency}));
-            if (inbound) {
-                packets = packets + lastAudioData.reduce((a,b) => a + b['packetRateInbound'] || 0, 0) || 0;
-                packetsLost = packetsLost + lastAudioData.reduce((a,b) => a + b['packetsLostInbound'] || 0, 0) || 0;
-            } else {
-                packets = packets + lastAudioData.reduce((a,b) => a + b['packetRateOutbound'] || 0, 0) || 0;
-                packetsLost = packetsLost + lastAudioData.reduce((a,b) => a + b['packetsLostOutbound'] || 0, 0) || 0;
-            }
-        }
-
-        if (audioData && audioData !== 0 || videoData && videoData.length !== 0) {
-            update(latencyMeasurements, packetsLost, packets);
-        }
-    }, [update, audioData, videoData, inbound])
-
     const update = React.useCallback((latencyMeasurements, packetsLost, packets) => {
         latencyMeasurements = latencyMeasurements.filter(data => data !== 0 && data !== undefined);
         const averageLatency = latencyMeasurements.reduce((sum, value) => {
@@ -141,6 +107,40 @@ const CallQuality = ({ audioData, videoData, inbound, thumb }) => {
         }
         setCallQuality(quality);
     }, []);
+
+    React.useEffect(() => {
+        let latencyMeasurements = [];
+        let packets = 0;
+        let packetsLost = 0;
+
+        if (videoData && videoData.length !== 0) {
+            const lastVideoData = videoData.slice(-30);
+            latencyMeasurements = lastVideoData.map((data) => { return data.latency });
+            if (inbound) {
+                packets = lastVideoData.reduce((a, b) => a + b['packetRateInbound'] || 0, 0) || 0;
+                packetsLost = lastVideoData.reduce((a, b) => a + b['packetsLostInbound'] || 0, 0) || 0;
+            } else {
+                packets = lastVideoData.reduce((a, b) => a + b['packetRateOutbound'] || 0, 0) || 0;
+                packetsLost = lastVideoData.reduce((a, b) => a + b['packetsLostOutbound'] || 0, 0) || 0;
+            }
+        }
+
+        if (audioData && audioData.length !== 0) {
+            const lastAudioData = audioData.slice(-30);
+            latencyMeasurements = latencyMeasurements.concat(lastAudioData.map((data) => { return data.latency }));
+            if (inbound) {
+                packets = packets + lastAudioData.reduce((a, b) => a + b['packetRateInbound'] || 0, 0) || 0;
+                packetsLost = packetsLost + lastAudioData.reduce((a, b) => a + b['packetsLostInbound'] || 0, 0) || 0;
+            } else {
+                packets = packets + lastAudioData.reduce((a, b) => a + b['packetRateOutbound'] || 0, 0) || 0;
+                packetsLost = packetsLost + lastAudioData.reduce((a, b) => a + b['packetsLostOutbound'] || 0, 0) || 0;
+            }
+        }
+
+        if (audioData && audioData !== 0 || videoData && videoData.length !== 0) {
+            update(latencyMeasurements, packetsLost, packets);
+        }
+    }, [update, audioData, videoData, inbound])
 
     return (
         <React.Fragment>

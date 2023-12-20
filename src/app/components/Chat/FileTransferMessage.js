@@ -120,6 +120,12 @@ const FileTransferMessage = ({
         threshold: 0
     });
 
+    const isDisplayed = React.useCallback(() => {
+        if (displayed) {
+            displayed();
+        }
+    }, [displayed]);
+
     useEffect(() => {
         if (parsedContent !== undefined) {
             scroll()
@@ -294,12 +300,6 @@ const FileTransferMessage = ({
             isDisplayed();
         }
     }, [inView, isDisplayed]);
-
-    const isDisplayed = React.useCallback(() => {
-        if (displayed) {
-            displayed();
-        }
-    }, [displayed]);
 
     const getDisplayName = (uri) => {
         if (contactCache !== undefined && contactCache.has(uri)) {

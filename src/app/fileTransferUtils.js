@@ -223,8 +223,8 @@ function openInNewTab(account, { url, filename, filetype, transfer_id: id }) {
 }
 
 function generateThumbnail(account, message) {
-    const { id, state } = message
-    const { url, filename, filetype, sender, receiver } = message.json;
+    let { id, state } = message
+    let { url, filename, filetype, sender, receiver } = message.json;
 
     if (filetype == null) {
         filetype = 'application/octet-stream'

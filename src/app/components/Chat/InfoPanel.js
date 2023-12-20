@@ -190,6 +190,8 @@ const InfoPanel = ({
         setValue(newValue);
     };
 
+    const matches = useMediaQuery('(max-width:1059.95px)');
+
     const getImage = (message) => {
         fileTransferUtils.getAndReadFile(account, message).then(([imageData, filename]) => {
             setImage(imageData)
@@ -356,6 +358,16 @@ const InfoPanel = ({
         })
     }
 
+    const loadMore = React.useCallback(() => {
+        DEBUG('Attempting to load more messages');
+        setLoading(true);
+        setMore(false);
+        messageStorage.loadMoreFiles(selectedUri).then(loadedMessages => {
+            setMessages([...loadedMessages, ...messages]);
+            busy.current = false;
+        });
+    }, [messages, selectedUri]);
+
     useEffect(() => {
         if (!prevMessagesChanged) {
             //if (JSON.stringify(prevMessages) === JSON.stringify(messages)) {
@@ -462,17 +474,6 @@ const InfoPanel = ({
         }
     }, [inView, loadMore]);
 
-    const loadMore = React.useCallback(() => {
-        DEBUG('Attempting to load more messages');
-        setLoading(true);
-        setMore(false);
-        messageStorage.loadMoreFiles(selectedUri).then(loadedMessages => {
-            setMessages([...loadedMessages, ...messages]);
-            busy.current = false;
-        });
-    }, [messages, selectedUri]);
-
-    const matches = useMediaQuery('(max-width:1059.95px)');
 
     return (
         <div

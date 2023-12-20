@@ -90,6 +90,12 @@ const Message = ({
 
     const customUrlRegexp = () => (/((?:https?(?::\/\/))(?:www\.)?(?:[a-zA-Z\d-_.]+(?:(?:\.|@)[a-zA-Z\d]{2,})|localhost)(?:(?:[-a-zA-Z\d:%_+.~#!?&//=@();]*)(?:[,](?![\s]))*)*)/g);
 
+    const isDisplayed = React.useCallback(() => {
+        if (displayed) {
+            displayed();
+        }
+    }, [displayed]);
+
     useEffect(() => {
         if (parsedContent !== undefined) {
             scroll()
@@ -181,12 +187,6 @@ const Message = ({
             isDisplayed();
         }
     }, [inView, isDisplayed]);
-
-    const isDisplayed = React.useCallback(() => {
-        if (displayed) {
-            displayed();
-        }
-    }, [displayed]);
 
     let theme = clsx({
         'text-left'     : true,

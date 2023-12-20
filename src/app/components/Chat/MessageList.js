@@ -94,6 +94,15 @@ const MessageList = ({
         }
     }, [focus, loading, display]);
 
+    const loadMore = React.useCallback(() => {
+        DEBUG('Attempting to load more messages');
+        setLoading(true);
+        messagesBefore.current = [messagesRef.current.scrollHeight, messagesRef.current.scrollTop];
+        setTimeout(() => {
+            loadMoreMessages();
+        }, 150);
+    }, [loadMoreMessages]);
+
     useEffect(scrollToBottom, [scroll]);
 
     useEffect(() => {
@@ -231,15 +240,6 @@ const MessageList = ({
             ignore = true;
         }
     }, [storageLoadEmpty, inView, loading, more, messages, hasMore]);
-
-    const loadMore = React.useCallback(() => {
-        DEBUG('Attempting to load more messages');
-        setLoading(true);
-        messagesBefore.current = [messagesRef.current.scrollHeight, messagesRef.current.scrollTop];
-        setTimeout(() => {
-            loadMoreMessages();
-        }, 150);
-    }, [loadMoreMessages]);
 
     return (
         <div

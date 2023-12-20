@@ -104,7 +104,7 @@ const WaveSurferPlayer = (props) => {
 
     return (
         <div style={{ display: 'flex', alignItems: 'center', height: '70px' }}>
-            <Grid container spacing={2} style={{ ...!ready ? { opacity: 0, display: 'none' } : { animation: 'fadeIn ease .5s' } }}>
+            <Grid container spacing={2} style={{ ...!ready ? { opacity: 0, display: 'none' } : { animation: 'fadeIn ease .6s' } }}>
                 <Grid item >
                     <IconButton onClick={onPlayClick} classes={{ root: classes.root }}>
                         {isPlaying ?

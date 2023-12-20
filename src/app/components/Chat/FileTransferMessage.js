@@ -68,6 +68,12 @@ const styleSheet = makeStyles((theme) => ({
         verticalAlign: 'middle',
         color: '#a94442'
     },
+    warningIcon: {
+        fontSize: 17,
+        verticalAlign: 'middle',
+        color: '#a94442',
+        marginLeft: '4px'
+    },
     item: {
         fontSize: '14px',
         fontFamily: 'inherit',

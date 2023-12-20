@@ -112,7 +112,7 @@ const Chat = (props) => {
 
     const componentJustMounted = useRef(true);
 
-    this.timer = null
+    let timer = null
     useEffect(() => {
         setSelectedUri(props.focusOn);
     }, [props.focusOn]);
@@ -359,10 +359,10 @@ const Chat = (props) => {
             timestamp,
             state
         );
-        if (this.timer !== null) {
-            clearTimeout(this.timer);
+        if (timer !== null) {
+            clearTimeout(timer);
         }
-        this.timer = setTimeout(() => {
+        timer = setTimeout(() => {
             let sendMark = true;
             for (let message of messages[uri]) {
                 if (message.state === 'received'
@@ -381,7 +381,7 @@ const Chat = (props) => {
                     setUnread(uri)
                 }
                 props.account.markConversationRead(uri);
-                this.timer = null;
+                timer = null;
             }
         }, 500);
     };

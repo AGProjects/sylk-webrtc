@@ -1,3 +1,5 @@
+@use "sass:math";
+
 .conference-drawer {
     display: flex;
     flex-direction: column;
@@ -226,8 +228,8 @@
         position: relative;
         z-index: 1;
         width: 100%;
-        min-height: 20 / 14 * 1em;
-        max-height: 20 / 14 * 3em;
+        min-height: math.div(20, 14) * 1em;
+        max-height: math.div(20, 14) * 3em;
         overflow: auto;
         word-wrap: break-word;
         white-space: pre-wrap;
@@ -238,7 +240,7 @@
             align-items: center;
             justify-content: flex-end;
             width: 50%;
-            height: 20 / 14 * 3em;
+            height: math.div(20, 14) * 3em;
             padding-right: 10px;
             font-weight: 600;
             user-select: all;

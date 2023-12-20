@@ -117,12 +117,10 @@ const MessageList = ({
 
         const getImage = (message) => {
             fileTransferUtils.getAndReadFile(account, message).then(([imageData, filename]) => {
-                if (!ignore) {
-                    setImage(imageData)
-                    message.filename = filename;
-                    setMessage(message)
-                    setShowModal(true)
-                }
+                setImage(imageData)
+                message.filename = filename;
+                setMessage(message)
+                setShowModal(true)
             })
         }
 
@@ -181,6 +179,7 @@ const MessageList = ({
                             contactCache={contactCache}
                             removeMessage={() => removeMessage(message)}
                             imdnStates
+                            enableMenu
                             {...extraProps}
                         />
                     </React.Fragment>

@@ -3,14 +3,18 @@
   "version": "3.5.1",
   "license": "AGPL-3.0-or-later",
   "private": true,
+  "browserslist": "> 0.5%, last 2 versions, not dead, electron 8.5.5",
   "devDependencies": {
     "@babel/core": "^7.21.8",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/preset-env": "^7.21.5",
     "@babel/preset-react": "^7.18.6",
+    "@futureportal/parcel-transformer-package-version": "^1.0.0",
     "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.3",
+    "@parcel/transformer-sass": "2.10.3",
     "animate.css": "^3.7.2",
+    "assert": "^2.0.0",
     "audio-context": "^1.0.3",
     "autocomplete.js": "^0.38.0",
     "babel-eslint": "^10.1.0",
@@ -28,6 +32,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-react": "^7.31.10",
     "eslint-plugin-react-hooks": "^3.0.0",
+    "events": "^3.1.0",
     "fontawesome-actions": "^0.17.0",
     "friendly-mimes": "^2.0.0",
     "hark": "^1.1.6",
@@ -42,11 +47,11 @@
     "murmurhash-js": "^1.0.0",
     "notifyjs": "^3.0.0",
     "npm-run-all": "^4.1.5",
-    "parcel-bundler": "^1.12.5",
-    "parcel-plugin-nuke-dist": "^1.0.1",
-    "parcel-plugin-package-version": "^1.0.2",
-    "parcel-plugin-static-files-copy": "^2.6.0",
+    "parcel": "^2.10.3",
+    "parcel-reporter-clean-dist": "^1.0.4",
+    "parcel-reporter-static-files-copy": "^1.5.3",
     "posthtml-expressions": "^1.7.1",
+    "process": "^0.11.10",
     "prop-types": "^15.8.1",
     "react": "^16.14.0",
     "react-auth-code-input": "^1.2.1",
@@ -69,6 +74,7 @@
     "stylelint-scss": "^3.19.0",
     "superagent": "^3.8.3",
     "sylkrtc": "AGProjects/sylkrtc.js",
+    "timers-browserify": "^2.0.11",
     "uuid": "^8.3.2",
     "wavesurfer.js": "^7.3.8",
     "webrtc-adapter": "6.4.8",
@@ -83,28 +89,28 @@
     "build-osx": "electron-builder --mac --x64",
     "build-win": "electron-builder --win --ia32 --x64",
     "build-linux": "electron-builder --linux --ia32 --x64",
-    "predev": "rm -f .posthtmlrc & cp .posthtmlrc_no_electron .posthtmlrc",
+    "predev": "npm run preserve",
     "dev": "parcel ./src/index.html --https --cert ./test/tls/test.pem  --key ./test/tls/test.pem --port 3000 --hmr-port 3001",
-    "preserve": "rm -f .posthtmlrc & cp .posthtmlrc_no_electron .posthtmlrc",
+    "preserve": "(rm -f .posthtmlrc && cp .posthtmlrc_no_electron .posthtmlrc) || cp .posthtmlrc_no_electron .posthtmlrc",
     "serve": "parcel serve ./src/index.html --https --cert ./test/tls/test.pem  --key ./test/tls/test.pem --port 3000 --hmr-port 3001",
-    "prebuild": "rm -f .posthtmlrc & cp .posthtmlrc_no_electron .posthtmlrc & npm run lint:eslint",
+    "prebuild": "npm run preserve && npm run lint:eslint",
     "build": "parcel build ./src/index.html --no-source-maps",
-    "prebuild-dev": "rm -f .posthtmlrc & cp .posthtmlrc_no_electron .posthtmlrc & npm run lint:eslint",
+    "prebuild-dev": "npm run preserve && npm run lint:eslint",
     "build-dev": "parcel build ./src/index.html",
-    "preelectron": "rm -f .posthtmlrc & cp .posthtmlrc_electron .posthtmlrc & npm run lint:eslint",
-    "electron": "parcel build ./src/index.html ./src/incomingWindow.html -d ./app/www/ --public-url ./ --no-source-maps",
+    "preelectron": "(rm -f .posthtmlrc && cp .posthtmlrc_electron .posthtmlrc) || cp .posthtmlrc_electron .posthtmlrc && npm run lint:eslint",
+    "electron": "parcel build ./src/index.html ./src/incomingWindow.html --dist-dir ./app/www/ --public-url ./ --no-source-maps",
     "lint:eslint": "eslint src/app",
     "lint:sass": "stylelint \"src/**/*.scss\"",
     "lint": "npm-run-all --parallel  lint:*"
   },
-  "staticPath": [
+  "staticFiles": [
     {
       "staticPath": "src/assets/sounds",
-      "staticOutDir": "assets/sounds"
+      "staticOutPath": "assets/sounds"
     },
     {
       "staticPath": "src/assets/images",
-      "staticOutDir": "assets/images"
+      "staticOutPath": "assets/images"
     }
   ],
   "build": {

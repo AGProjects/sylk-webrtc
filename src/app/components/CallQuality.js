@@ -1,10 +1,10 @@
 'use strict';
 
-const React          = require('react');
-const PropTypes      = require('prop-types');
-const debug          = require('debug');
-const { Tooltip }    = require ('../MaterialUIAsBootstrap');
-const { makeStyles }     = require('@material-ui/core/styles');
+const React = require('react');
+const PropTypes = require('prop-types');
+const debug = require('debug');
+const { Tooltip } = require('../MaterialUIAsBootstrap');
+const { makeStyles } = require('@material-ui/core/styles');
 
 const DEBUG = debug('blinkrtc:CallQuality');
 
@@ -41,7 +41,7 @@ const styleSheet = makeStyles((theme) => ({
     }
 }));
 
-const CallQuality = ({audioData, videoData, inbound, thumb}) => {
+const CallQuality = ({ audioData, videoData, inbound, thumb }) => {
     const classes = styleSheet();
     const [quality, setCallQuality] = React.useState(1);
 
@@ -137,19 +137,19 @@ const CallQuality = ({audioData, videoData, inbound, thumb}) => {
             return;
         }
         if (quality >= 2) {
-           DEBUG('Bad quality: latency: %s, loss: %s', latency, packetLossPercentage);
+            DEBUG('Bad quality: latency: %s, loss: %s', latency, packetLossPercentage);
         }
         setCallQuality(quality);
     }, []);
 
     return (
         <React.Fragment>
-            { quality === 3 &&
+            {quality === 3 &&
                 <Tooltip title={titles[quality]}>
                     <span className={rootClass}><i className={`fa fa-warning ${classes.danger}`} /></span>
                 </Tooltip>
             }
-            { quality === 2 &&
+            {quality === 2 &&
                 <Tooltip title={titles[quality]}>
                     <span className={rootClass}><i className={`fa fa-exclamation-circle ${classes.warning}`} /></span>
                 </Tooltip>

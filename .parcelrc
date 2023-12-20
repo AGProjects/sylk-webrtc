@@ -1,7 +1,7 @@
 {
-  "extends": ["@parcel/config-default"],
-  	"transformers": {
+    "extends": ["@parcel/config-default"],
+    "transformers": {
 		"app.js": ["@futureportal/parcel-transformer-package-version", "..."],
 	},
-  "reporters":  ["...", "parcel-reporter-clean-dist", "parcel-reporter-static-files-copy"]
+    "reporters":  ["...", "parcel-reporter-clean-dist", "parcel-reporter-static-files-copy"]
 }

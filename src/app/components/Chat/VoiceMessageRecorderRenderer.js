@@ -243,20 +243,20 @@ const VoiceMessageRecorderRenderer = (props) => {
                     <Grid item>
                         {isRecording || isPlaying ?
                             <div className={classes.wrapper}>
-                                <IconButton onClick={onPlayClick} className={classes.stopButton} classes={{ root: classes.root }}>
+                                <IconButton component="span" onClick={onPlayClick} className={classes.stopButton} classes={{ root: classes.root }}>
                                     <StopIcon style={{ fontSize: '2rem' }} />
                                     <CircularProgress size={40} variant="determinate" value={(seconds / maxDuration) * 100} className={classes.progress} />
                                 </IconButton>
                             </div>
                             :
-                            <IconButton onClick={onPlayClick} classes={{ root: classes.root }}>
+                            <IconButton component="span" onClick={onPlayClick} classes={{ root: classes.root }}>
                                 <PlayIcon style={{ fontSize: '2rem' }} />
                             </IconButton>
                         }
                     </Grid>
                     {canPlay &&
                         <Grid item>
-                            <IconButton ref={sendRef} onClick={props.send} className={classes.sendButton} classes={{ root: classes.root }}>
+                            <IconButton component="span" ref={sendRef} onClick={props.send} className={classes.sendButton} classes={{ root: classes.root }}>
                                 <i className="fa fa-paper-plane" aria-hidden="true" ></i>
                             </IconButton>
                         </Grid>

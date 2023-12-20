@@ -211,6 +211,7 @@ const ToolbarAudioPlayer = (props) => {
 
     const previousButton = (
         <IconButton
+            component="span"
             disabled={audioMessages && currentTrack === audioMessages.length - 1}
             classes={{ root: classes.root }}
             onClick={handleClickPrev}
@@ -221,6 +222,7 @@ const ToolbarAudioPlayer = (props) => {
 
     const nextButton = (
         <IconButton
+            component="span"
             disabled={currentTrack === 0}
             classes={{ root: classes.root }}
             onClick={handleClickNext}
@@ -265,7 +267,7 @@ const ToolbarAudioPlayer = (props) => {
                             'MAIN_CONTROLS',
                             nextButton,
                             playerText,
-                            <IconButton classes={{ root: classes.root }} onClick={props.close}><CloseIcon style={{ fontSize: '24px' }} /></IconButton>
+                            <IconButton component="span" classes={{ root: classes.root }} onClick={props.close}><CloseIcon style={{ fontSize: '24px' }} /></IconButton>
                         ]
                     }
                     ref={player}

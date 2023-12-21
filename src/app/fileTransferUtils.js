@@ -280,9 +280,10 @@ function generateThumbnail(account, message) {
                 imageCache[id] = [imageData, filename, w, h];
                 return [imageData, filename, w, h];
             }).catch(error => {
-                DEBUG('Thumbnail generation failed for %s: %s', filename, error.error);
+                const errorMsg = `Thumbnail generation failed for ${filename}: ${error.error}`;
+                DEBUG(errorMsg);
                 failedDownloads.add(id);
-                return Promise.reject(error);
+                return Promise.reject(errorMsg);
             });
     });
 };

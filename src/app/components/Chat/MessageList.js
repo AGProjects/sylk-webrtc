@@ -94,14 +94,6 @@ const MessageList = ({
         }
     }, [focus, loading, display]);
 
-    const loadMore = React.useCallback(() => {
-        DEBUG('Attempting to load more messages');
-        setLoading(true);
-        messagesBefore.current = [messagesRef.current.scrollHeight, messagesRef.current.scrollTop];
-        setTimeout(() => {
-            loadMoreMessages();
-        }, 150);
-    }, [loadMoreMessages]);
 
     useEffect(scrollToBottom, [scroll]);
 
@@ -220,7 +212,7 @@ const MessageList = ({
         if (inView) {
             loadMore();
         }
-    }, [inView, loadMore]);
+    }, [inView]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         let ignore = false;
@@ -239,6 +231,15 @@ const MessageList = ({
             ignore = true;
         }
     }, [storageLoadEmpty, inView, loading, more, messages, hasMore]);
+
+    const loadMore = React.useCallback(() => {
+        DEBUG('Attempting to load more messages');
+        setLoading(true);
+        messagesBefore.current = [messagesRef.current.scrollHeight, messagesRef.current.scrollTop];
+        setTimeout(() => {
+            loadMoreMessages();
+        }, 150);
+    }, [loadMoreMessages]);
 
     return (
         <div

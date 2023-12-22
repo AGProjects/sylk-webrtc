@@ -1,3 +1,25 @@
+Version 3.6.0 Thu Dec 22 16:00:00 +01 2023
+
+  * Added cache for images and voice messages
+  * Added voice message playback support
+  * Added voice message record support
+  * Added info panel with images/files/voice messages
+  * Added start chat button in main screen
+  * Added download notifications
+  * Updated text in outgoing calls to reflect the state
+  * Updated text when different PGP key is detected
+  * Updated dependencies
+  * Fixed jumping to chat contact while in a call
+  * Skip decryption for non decrypted files
+  * Prevent redownloading images if download failed
+  * Handle download errors and added timeout
+  * Updated documentation
+  * Auto hide menubar in app on windows and linux
+  * Minimize app window on screen sharing
+  * Filter out expired file transfers
+  * Fixed message state display
+  * Various bugs fixes
+
 Version 3.5.0 Tue May  9 11:11:02 -03 2023
 
   * Added support for asynchronous end-to-end encrypted file transfers

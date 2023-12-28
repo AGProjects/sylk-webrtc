@@ -6377,9 +6377,9 @@ msgpackr-extract@^3.0.2:
     "@msgpackr-extract/msgpackr-extract-win32-x64" "3.0.2"
 
 msgpackr@^1.9.5, msgpackr@^1.9.9:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/msgpackr/-/msgpackr-1.10.0.tgz#adbca9c951f06647a808f76bc00a519cf6f7fbe4"
-  integrity sha512-rVQ5YAQDoZKZLX+h8tNq7FiHrPJoeGHViz3U4wIcykhAEpwF/nH2Vbk8dQxmpX5JavkI8C7pt4bnkJ02ZmRoUw==
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/msgpackr/-/msgpackr-1.10.1.tgz#51953bb4ce4f3494f0c4af3f484f01cfbb306555"
+  integrity sha512-r5VRLv9qouXuLiIBrLpl2d5ZvPt8svdQTl5/vMvE4nzDMyEX4sgW5yWhuBBj5UmgwOTWj8CIdSXn5sAfsHAWIQ==
   optionalDependencies:
     msgpackr-extract "^3.0.2"
 
@@ -6757,6 +6757,11 @@ parcel-reporter-static-files-copy@^1.5.3:
   integrity sha512-Ukq2SyJYn3GFIPCLamXuQ+2t+0j54llujjOUoRjtmVvfsuGnJDEpMznADeIoKuQDvy0jpxtWzWkQvxqI/j+U4A==
   dependencies:
     "@parcel/plugin" "^2.0.0-beta.1"
+
+parcel-transformer-env-variables-injection@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/parcel-transformer-env-variables-injection/-/parcel-transformer-env-variables-injection-0.1.2.tgz#82b305e0ad80f656c0cd390db975ffc2ec47bcfd"
+  integrity sha512-B8SkRY2gVje3Y3m/Vx4d9Z0Y7cRzDbC7S86bOu/nikwTamuaOHo34EEftABhBkHz4wVQP8ul/ccR3u384oD6AA==
 
 parcel@^2.10.3:
   version "2.10.3"

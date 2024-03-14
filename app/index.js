@@ -218,7 +218,9 @@ function createMainWindow() {
         backgroundColor: '#333',
         autoHideMenuBar: true,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            enableRemoteModule: true,
+            contextIsolation: false,
         }
     };
     if (isDarwin) {

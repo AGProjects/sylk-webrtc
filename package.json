@@ -3,7 +3,7 @@
   "version": "3.6.0",
   "license": "AGPL-3.0-or-later",
   "private": true,
-  "browserslist": "> 0.5%, last 2 versions, not dead, electron 8.5.5",
+  "browserslist": "> 0.5%, last 2 versions, not dead, electron 13.6.9",
   "devDependencies": {
     "@babel/core": "^7.21.8",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
@@ -24,8 +24,8 @@
     "debug": "^4.3.4",
     "digest-auth-request": "tijmenNL/digest-auth-request",
     "dotenv": "^8.6.0",
-    "electron": "^8.5.5",
-    "electron-builder": "22.10.5",
+    "electron": "^13.6.9",
+    "electron-builder": "23.0.3",
     "electron-notarize": "^1.0.0",
     "emoji-mart": "^3.0.0",
     "eslint": "^6.8.0",
@@ -87,7 +87,7 @@
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "start": "electron ./app",
-    "build-osx": "electron-builder --mac --x64",
+    "build-osx": "electron-builder --mac --universal",
     "build-win": "electron-builder --win --ia32 --x64",
     "build-linux": "electron-builder --linux --ia32 --x64",
     "predev": "npm run preserve",

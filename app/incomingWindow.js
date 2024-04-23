@@ -1,9 +1,9 @@
 'use strict';
-const electron    = require('electron');
+const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
 
 document.addEventListener('keyup', onKeyUp);
-      
+
 const div = document.createElement("div");
 div.style.position = "absolute";
 div.style.top = 0;
@@ -28,7 +28,7 @@ function onKeyUp(event) {
     }
 };
 
-ipcRenderer.on('updateContent', function (event,store) {
+ipcRenderer.on('updateContent', function(event, store) {
     document.querySelector('#app').innerHTML = store;
 
     for (let btn of document.getElementsByTagName('button')) {
@@ -38,8 +38,10 @@ ipcRenderer.on('updateContent', function (event,store) {
     }
 });
 
-ipcRenderer.on('updateStyles', function (event,store) {
+ipcRenderer.on('updateStyles', function(event, store) {
     const newStyleEl = document.createElement('style');
     newStyleEl.appendChild(document.createTextNode(store));
     document.head.appendChild(newStyleEl)
 });
+
+0;

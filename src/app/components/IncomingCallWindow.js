@@ -1,6 +1,6 @@
 'use strict';
-const React     = require('react');
-const ReactDOM  = require('react-dom');
+const React = require('react');
+const ReactDOM = require('react-dom');
 const PropTypes = require('prop-types');
 
 
@@ -11,20 +11,22 @@ class IncomingCallWindow extends React.Component {
         this.width = 425;
         this.height = 475;
         this.ipcRenderer = null;
-        const {BrowserWindow} = window.require('electron').remote;
+        const { BrowserWindow } = window.require('electron').remote;
 
         this.browserWindowObject = new BrowserWindow({
-            show            : false,
-            width           : this.width,
-            height          : this.height,
-            frame           : false,
-            skipTaskBar     : true,
-            title           : 'Incoming Call',
-            alwaysOnTop     : true,
-            backgroundColor : '#333',
-            type            : 'toolbar',
+            show: false,
+            width: this.width,
+            height: this.height,
+            frame: false,
+            skipTaskBar: true,
+            title: 'Incoming Call',
+            alwaysOnTop: true,
+            backgroundColor: '#333',
+            type: 'toolbar',
             webPreferences: {
-                nodeIntegration: true
+                nodeIntegration: true,
+                enableRemoteModule: true,
+                contextIsolation: false
             }
         });
         this.el = document.createElement('div');
@@ -52,10 +54,11 @@ class IncomingCallWindow extends React.Component {
             const fs = window.require('fs');
             const incomingWindow = fs.readFileSync(`${window.__dirname}/../incomingWindow.js`).toString('utf-8');
             this.browserWindowObject.webContents.executeJavaScript(incomingWindow)
-            .then(() => {
-                this.browserWindowObject.webContents.send('updateContent', this.el.innerHTML);
-                this.copyStyles(document);
-            });
+                .then(() => {
+                    this.browserWindowObject.webContents.send('updateContent', this.el.innerHTML);
+                    this.copyStyles(document);
+                })
+                .catch(error => console.warn(error))
         });
 
         this.ipcRenderer = window.require('electron').ipcRenderer;
@@ -104,11 +107,11 @@ class IncomingCallWindow extends React.Component {
     }
 
     answerAudioOnly() {
-        this.props.onAnswer({audio: true, video: false});
+        this.props.onAnswer({ audio: true, video: false });
     }
 
     answer() {
-        this.props.onAnswer({audio: true, video: true});
+        this.props.onAnswer({ audio: true, video: true });
     };
 
     render() {
@@ -117,11 +120,11 @@ class IncomingCallWindow extends React.Component {
 }
 
 IncomingCallWindow.propTypes = {
-    onAnswer : PropTypes.func.isRequired,
-    onHangup : PropTypes.func.isRequired,
-    setFocus : PropTypes.func.isRequired,
-    enabled  : PropTypes.bool,
-    children : PropTypes.node
+    onAnswer: PropTypes.func.isRequired,
+    onHangup: PropTypes.func.isRequired,
+    setFocus: PropTypes.func.isRequired,
+    enabled: PropTypes.bool,
+    children: PropTypes.node
 };
 
 module.exports = IncomingCallWindow;

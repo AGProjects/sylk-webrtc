@@ -56,6 +56,7 @@ const MessageList = ({
     loadMoreMessages,
     contactCache,
     removeMessage,
+    editMessage,
     account,
     uploadFiles,
     downloadFiles,
@@ -170,8 +171,10 @@ const MessageList = ({
                             scroll={scrollToBottom}
                             contactCache={contactCache}
                             removeMessage={() => removeMessage(message)}
+                            editMessage={() => editMessage(message)}
                             imdnStates
                             enableMenu
+                            fromSelf={account.id === message.sender.uri}
                             {...extraProps}
                         />
                     </React.Fragment>
@@ -266,7 +269,8 @@ const MessageList = ({
                 entries
                 :
                 <DragAndDrop title="Drop files to share them" handleDrop={uploadFiles} marginTop={'100px'}>
-                    <TransitionGroup>
+                    <TransitionGroup
+                        exit={false}>
                         {entries}
                     </TransitionGroup>
                 </DragAndDrop>

@@ -90,6 +90,7 @@ const Chat = (props) => {
     const [selectedAudioId, setSelectedAudioId] = useState('');
     const [showVoiceMessageRecordModal, setVoiceMessageRecordModal] = useState(false);
     const [showInfoPanel, setShowInfoPanel] = useState(false);
+    const [editMessage, setEditMessage] = useState('');
 
     const selectedUriRef = useRef(selectedUri);
     const messagesRef = useRef(messages);
@@ -137,7 +138,6 @@ const Chat = (props) => {
         if (props.account === null) {
             return
         }
-
 
         DEBUG('Loading messages');
         const incomingMessage = (message) => {
@@ -194,6 +194,7 @@ const Chat = (props) => {
                 setMessages(oldMessages);
             }
         };
+
         const newMessages = cloneDeep(props.oldMessages);
         for (let message of props.account.messages) {
             const senderUri = message.sender.uri;
@@ -251,6 +252,7 @@ const Chat = (props) => {
                 setFocus(id);
                 setTimeout(() => { setFocus('') }, 750)
             }
+            setEditMessage('');
         } else {
             DEBUG('Focus message: %s', id);
             setFocus(id);
@@ -290,6 +292,15 @@ const Chat = (props) => {
     }
 
     const handleMessage = (content, type) => {
+        if (editMessage) {
+            if (editMessage.content !== content) {
+                let message = props.account.sendMessage(selectedUri, content, editMessage.contentType, { timestamp: editMessage.timestamp }, () => {
+                    props.removeMessage(editMessage);
+                });
+            }
+            setEditMessage();
+            return;
+        }
         let message = props.account.sendMessage(selectedUri, content, type);
         setMessages({ ...messages, [selectedUri]: [...contactMessages, message] });
     };
@@ -305,6 +316,10 @@ const Chat = (props) => {
             props.notificationCenter().postFileDownloadFailed(filename, error)
         })
     };
+
+    const handleMessageEdit = (message) => {
+        setEditMessage(message);
+    }
 
     const defaultDomain = props.account.id.substring(props.account.id.indexOf('@') + 1);
 
@@ -397,6 +412,7 @@ const Chat = (props) => {
                 contactCache={contactCache.current}
                 displayed={messageDisplayed}
                 removeMessage={(message) => props.removeMessage(message)}
+                editMessage={(message) => handleMessageEdit(message)}
                 isLoadingMessages={props.isLoadingMessages}
                 account={props.account}
                 uploadFiles={(...args) => fileTransferUtils.upload(props, ...args, selectedUri)}
@@ -413,6 +429,8 @@ const Chat = (props) => {
                 upload={handleFiles}
                 enableVoiceMessage={true}
                 toggleRecordVoiceMessage={toggleRecordVoiceMessage}
+                editMessage={editMessage}
+                cancelEdit={() => { setEditMessage(''); }}
                 multiline
             />
         </React.Fragment>

@@ -170,7 +170,7 @@
         }
     }
 
-    .top-editor-wrapper {
+    .editor-row {
         position: relative;
         display: flex;
         flex-direction: row;
@@ -195,6 +195,49 @@
         position: relative;
         width: 100%;
         overflow: hidden;
+    }
+
+    .old-message {
+        flex: 1 1 100%;
+        padding-left: 4px;
+        margin-top: -5px;
+        margin-bottom: 4px;
+        overflow: hidden;
+        color: $gray888;
+        border-left: 2px solid $bootstrap-text-info;
+
+        span {
+            color: $gray888 !important;
+            white-space: nowrap !important;
+        }
+
+        .media-heading {
+            font-size: inherit;
+            font-weight: 500;
+            color: $bootstrap-text-info;
+
+            span {
+                font-weight: normal;
+                color: $gray888;
+            }
+        }
+
+        pre {
+            min-height: math.div(20, 14) * 1em;
+            max-height: math.div(20, 14) * 5em;
+            padding: 0;
+            margin: 0;
+            margin-right: 10px;
+            overflow: hidden;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            color: $gray888;
+            text-overflow: ellipsis;
+            word-break: break-word;
+            white-space: nowrap;
+            background: none;
+            border: 0;
+        }
     }
 
     .emoji-button {
@@ -229,7 +272,7 @@
         z-index: 1;
         width: 100%;
         min-height: math.div(20, 14) * 1em;
-        max-height: math.div(20, 14) * 3em;
+        max-height: math.div(20, 14) * 5em;
         overflow: auto;
         word-wrap: break-word;
         white-space: pre-wrap;

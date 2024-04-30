@@ -67,7 +67,8 @@ const Message = ({
     removeMessage,
     editMessage,
     imdnStates,
-    enableMenu
+    enableMenu,
+    fromSelf
 }) => {
     const classes = styleSheet();
     const [state, setState] = useState('');
@@ -263,6 +264,12 @@ const Message = ({
         }
     }
 
+    const _editMessage = () => {
+        if (typeof removeMessage === 'function') {
+            editMessage();
+        }
+    }
+
     const handleClose = () => {
         setAnchorEl(null);
     };
@@ -282,6 +289,11 @@ const Message = ({
                                 Copy
                             </MenuItem>
                             <Divider />
+                            {fromSelf &&
+                                <MenuItem className={classes.item} onClick={() => { _editMessage(); handleClose() }}>
+                                    Edit Message
+                                </MenuItem>
+                            }
                             <MenuItem className={classes.item} onClick={() => { _removeMessage(); handleClose() }}>
                                 Remove Message
                             </MenuItem>
@@ -323,6 +335,11 @@ const Message = ({
                             Copy
                         </MenuItem>
                         <Divider />
+                        {fromSelf &&
+                            <MenuItem className={classes.item} onClick={() => { _editMessage(); handleClose() }}>
+                                Edit Message
+                            </MenuItem>
+                        }
                         <MenuItem className={classes.item} onClick={() => { _removeMessage(); handleClose() }}>
                             Remove Message
                         </MenuItem>

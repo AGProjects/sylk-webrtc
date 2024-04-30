@@ -13,6 +13,12 @@ const data = require('emoji-mart/data/apple.json');
 const Picker = require('emoji-mart/dist-modern/components/picker/nimble-picker').default;
 const computedStyleToInlineStyle = require('computed-style-to-inline-style');
 
+const {
+    CancelOutlined: CloseIcon,
+    Create: CreateIcon
+} = require('@material-ui/icons');
+const OldMessage = require('./Chat/OldMessage');
+
 const DEBUG = debug('blinkrtc:ConferenceChatEditor');
 
 
@@ -32,6 +38,22 @@ const ConferenceChatEditor = (props) => {
     const setType = type => {
         typeRef.current = type
         _setType(type);
+    }
+
+    useEffect(() => {
+        if (props.editMessage) {
+            setName(props.editMessage.content);
+            editor.current.blur();
+            editor.current.focus();
+        } else {
+            setName('');
+        }
+    }, [props.editMessage]);
+
+    const setMessage = () => {
+        return {
+            __html: props.editMessage && props.editMessage.content
+        }
     }
 
     const togglePicker = () => {
@@ -242,71 +264,92 @@ const ConferenceChatEditor = (props) => {
         <div style={{ margin: '0 -15px' }}>
             {picker ? <div style={{ minHeight: '360px', flex: '0 0 auto', order: 2 }} /> : ''}
             <div className="top-editor-wrapper">
-                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%' }}>
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%' }}>
-                        {picker ?
-                            <Picker
-                                set="apple"
-                                data={data}
-                                showPreview={false}
-                                sheetSize={32}
-                                showSkinTones={false}
-                                onSelect={addEmoji}
-                                style={{ position: 'relative', width: '100%' }}
-                                backgroundImageFn={() =>
-                                    'assets/images/32.png'}
-                            /> : ''}
-                    </div>
-                </div>
-                {props.upload && [
-                    <input
-                        style={{ display: 'none' }}
-                        id="outlined-button-file"
-                        multiple
-                        type="file"
-                        onChange={props.upload}
-                        key="1"
-                    />,
-                    <label key="shareFiles" className="upload-button-label" htmlFor="outlined-button-file">
-                        <div className="upload-button">
-                            <i className="fa fa-plus fa-2x" />
+                {props.editMessage &&
+                    <div className="editor-row">
+                        <div style={{ flex: 'auto', marginLeft: '70px', marginRight: '23px', marginBottom: '8px', marginTop: '-10px' }}><CreateIcon style={{ fontSize: '24px', color: '#31708f' }} /></div>
+                        <div className="old-message">
+                            <OldMessage
+                                message={props.editMessage}
+                            />
                         </div>
-                    </label>]
-                }
-                {props.enableVoiceMessage &&
-                    <div className="upload-button" onClick={toggleRecording}>
-                        <i className="fa fa-microphone fa-2x" />
+                        <IconButton
+                            onClick={() => props.cancelEdit()} variant="text" title="Cancel edit"
+                            disableFocusRipple={true}
+                            disableRipple={true}
+                            style={{ marginTop: '-10px', marginLeft: '-10px', marginRight: '4px', marginBottom: '8px', padding: '10px', fontSize: 'inherit' }}
+                        >
+                            <CloseIcon style={{ fontSize: '24px', margin: '-5px' }} />
+                        </IconButton>
                     </div>
                 }
+                <div className="editor-row">
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%' }}>
+                        <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%' }}>
+                            {picker ?
+                                <Picker
+                                    set="apple"
+                                    data={data}
+                                    showPreview={false}
+                                    sheetSize={32}
+                                    showSkinTones={false}
+                                    onSelect={addEmoji}
+                                    style={{ position: 'relative', width: '100%' }}
+                                    backgroundImageFn={() =>
+                                        'assets/images/32.png'}
+                                /> : ''}
+                        </div>
+                    </div>
+                    {props.upload && [
+                        <input
+                            style={{ display: 'none' }}
+                            id="outlined-button-file"
+                            multiple
+                            type="file"
+                            onChange={props.upload}
+                            key="1"
+                        />,
+                        <label key="shareFiles" className="upload-button-label" htmlFor="outlined-button-file">
+                            <div className="upload-button">
+                                <i className="fa fa-plus fa-2x" />
+                            </div>
+                        </label>]
+                    }
+                    {props.enableVoiceMessage &&
+                        <div className="upload-button" onClick={toggleRecording}>
+                            <i className="fa fa-microphone fa-2x" />
+                        </div>
+                    }
 
-                <div className={`emoji-button ${props.upload && 'padding-fixed'}`} onClick={togglePicker}>
-                    <i className="fa fa-smile-o fa-2x" />
-                </div>
-                <div className="editor-wrapper">
-                    <div className="editor-inner-wrapper">
-                        <div className="pre-editor" style={{ visibility: name.length !== 0 ? 'hidden' : 'visible' }}>
-                            Type a message
-                        </div>
-                        <div className="editor"
-                            contentEditable="true"
-                            onPaste={handleInput}
-                            onKeyDown={onKeyDown}
-                            onFocus={(e) => { moveCursorToEnd(e.target); props.focus() }}
-                            onBlur={() => props.focus()}
-                            ref={editor}
-                        ></div>
+                    <div className={`emoji-button ${props.upload && 'padding-fixed'}`} onClick={togglePicker}>
+                        <i className="fa fa-smile-o fa-2x" />
                     </div>
+                    <div className="editor-wrapper">
+                        <div className="editor-inner-wrapper">
+                            <div className="pre-editor" style={{ visibility: name.length !== 0 ? 'hidden' : 'visible' }}>
+                                Type a message
+                            </div>
+                            <div className="editor"
+                                contentEditable="true"
+                                onPaste={handleInput}
+                                onKeyDown={onKeyDown}
+                                onFocus={(e) => { moveCursorToEnd(e.target); props.focus() }}
+                                onBlur={() => props.focus()}
+                                ref={editor}
+                                dangerouslySetInnerHTML={setMessage()}
+                            ></div>
+                        </div>
+                    </div>
+                    {name.length !== 0 &&
+                        <IconButton
+                            onClick={() => sendMessage()} variant="text" title="Send"
+                            disableFocusRipple={true}
+                            disableRipple={true}
+                            style={{ marginLeft: '-10px', marginRight: '4px', padding: '10px', fontSize: 'inherit' }}
+                        >
+                            <i className="fa fa-paper-plane" aria-hidden="true" ></i>
+                        </IconButton>
+                    }
                 </div>
-                {name.length !== 0 &&
-                    <IconButton
-                        onClick={() => sendMessage()} variant="text" title="Send"
-                        disableFocusRipple={true}
-                        disableRipple={true}
-                        style={{ marginLeft: '-10px', marginRight: '4px', padding: '10px', fontSize: 'inherit' }}
-                    >
-                        <i className="fa fa-paper-plane" aria-hidden="true" ></i>
-                    </IconButton>
-                }
             </div>
         </div >
     );
@@ -319,7 +362,9 @@ ConferenceChatEditor.propTypes = {
     focus: PropTypes.func.isRequired,
     upload: PropTypes.func,
     enableVoiceMessage: PropTypes.bool,
-    toggleRecordVoiceMessage: PropTypes.func
+    toggleRecordVoiceMessage: PropTypes.func,
+    editMessage: PropTypes.any,
+    cancelEdit: PropTypes.func
 };
 
 

@@ -1521,8 +1521,7 @@ class Blink extends React.Component {
             })
             .catch(() => {
                 DEBUG('Thumbnail not removed for %s', message.id)
-            })
-
+            });
     }
 
     messageStateChanged(id, state, data, fromSync = false) {

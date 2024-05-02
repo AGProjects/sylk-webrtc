@@ -11,7 +11,7 @@ const linkifyUrls = require('linkify-urls');
 const { Chip } = require('@material-ui/core');
 const { makeStyles } = require('@material-ui/core/styles');
 const {
-    Lock: LockIcon,
+    Lock: LockIcon
 } = require('@material-ui/icons');
 
 

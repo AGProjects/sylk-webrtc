@@ -265,7 +265,7 @@ const Message = ({
     }
 
     const _editMessage = () => {
-        if (typeof removeMessage === 'function') {
+        if (typeof editMessage === 'function') {
             editMessage();
         }
     }
@@ -374,7 +374,9 @@ Message.propTypes = {
     focus: PropTypes.bool,
     contactCache: PropTypes.object,
     imdnStates: PropTypes.bool,
-    enableMenu: PropTypes.bool
+    enableMenu: PropTypes.bool,
+    editMessage: PropTypes.func,
+    fromSelf: PropTypes.bool
 };
 
 

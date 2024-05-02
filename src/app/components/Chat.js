@@ -294,7 +294,7 @@ const Chat = (props) => {
     const handleMessage = (content, type) => {
         if (editMessage) {
             if (editMessage.content !== content) {
-                let message = props.account.sendMessage(selectedUri, content, editMessage.contentType, { timestamp: editMessage.timestamp }, () => {
+                props.account.sendMessage(selectedUri, content, editMessage.contentType, { timestamp: editMessage.timestamp }, () => {
                     props.removeMessage(editMessage);
                 });
             }

@@ -57,8 +57,7 @@ class IncomingCallWindow extends React.Component {
                 .then(() => {
                     this.browserWindowObject.webContents.send('updateContent', this.el.innerHTML);
                     this.copyStyles(document);
-                })
-                .catch(error => console.warn(error))
+                });
         });
 
         this.ipcRenderer = window.require('electron').ipcRenderer;

@@ -270,7 +270,8 @@ const MessageList = ({
                 :
                 <DragAndDrop title="Drop files to share them" handleDrop={uploadFiles} marginTop={'100px'}>
                     <TransitionGroup
-                        exit={false}>
+                        exit={false}
+                    >
                         {entries}
                     </TransitionGroup>
                 </DragAndDrop>
@@ -293,7 +294,8 @@ MessageList.propTypes = {
     uploadFiles: PropTypes.func,
     downloadFiles: PropTypes.func.isRequired,
     embed: PropTypes.bool,
-    storageLoadEmpty: PropTypes.bool
+    storageLoadEmpty: PropTypes.bool,
+    editMessage: PropTypes.func
 };
 
 

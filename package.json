@@ -60,7 +60,7 @@
     "react-dom": "^16.14.0",
     "react-h5-audio-player": "^3.9.0",
     "react-intersection-observer": "^8.33.1",
-    "react-media-recorder": "tijmenNL/react-media-recorder",
+    "react-media-recorder": "github:tijmenNL/react-media-recorder",
     "react-mixin": "^5.0.0",
     "react-notification-system": "^0.4.0",
     "react-router-component": "^0.40.0",
@@ -91,9 +91,9 @@
     "build-win": "electron-builder --win --ia32 --x64",
     "build-linux": "electron-builder --linux --ia32 --x64",
     "predev": "npm run preserve",
-    "dev": "parcel ./src/index.html --https --cert ./test/tls/test.pem  --key ./test/tls/test.pem --port 3000 --hmr-port 3001",
+    "dev": "parcel ./src/index.html --https --cert ./test/tls/test.pem  --key ./test/tls/test.pem --port 3000 --hmr-port 3000",
     "preserve": "(rm -f .posthtmlrc && cp .posthtmlrc_no_electron .posthtmlrc) || cp .posthtmlrc_no_electron .posthtmlrc",
-    "serve": "parcel serve ./src/index.html --https --cert ./test/tls/test.pem  --key ./test/tls/test.pem --port 3000 --hmr-port 3001",
+    "serve": "parcel serve ./src/index.html --https --cert ./test/tls/test.pem  --key ./test/tls/test.pem --port 3000 --hmr-port 3000",
     "prebuild": "npm run preserve && npm run lint:eslint",
     "build": "parcel build ./src/index.html --no-source-maps",
     "prebuild-dev": "npm run preserve && npm run lint:eslint",
@@ -158,5 +158,13 @@
       ]
     }
   },
-  "dependencies": {}
+  "alias": {
+    "react-media-recorder": "react-media-recorder/lib/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "react-input-mask": "^2.0.4",
+    "react-web-component": "^2.0.2"
+  }
 }

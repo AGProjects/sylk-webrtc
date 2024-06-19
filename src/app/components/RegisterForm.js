@@ -1,18 +1,19 @@
 'use strict';
 
-const React      = require('react');
-const PropTypes  = require('prop-types');
+const React = require('react');
+const PropTypes = require('prop-types');
 const { default: clsx } = require('clsx');
-const ipaddr     = require('ipaddr.js');
+const ipaddr = require('ipaddr.js');
+const InputMask = require('react-input-mask');
 
-const { withStyles }                    = require('@material-ui/core/styles');
-const { FormGroup, FormControlLabel }   = require('@material-ui/core');
-const { Checkbox }                      = require('@material-ui/core');
+const { withStyles } = require('@material-ui/core/styles');
+const { FormGroup, FormControlLabel } = require('@material-ui/core');
+const { Checkbox } = require('@material-ui/core');
 
 const EnrollmentModal = require('./EnrollmentModal');
-const storage         = require('../storage');
-const config          = require('../config');
-
+const storage = require('../storage');
+const config = require('../config');
+// console.log("DEBUGGING ------> ",config.defaultDomain)
 const styles = {
     root: {
         color: '#ffffff',
@@ -63,7 +64,7 @@ class RegisterForm extends React.Component {
     componentDidMount() {
         storage.get('account').then((account) => {
             if (account) {
-                this.setState(Object.assign({}, account, {remember: true}));
+                this.setState(Object.assign({}, account, { remember: true }));
                 if (this.props.autoLogin && this.state.password !== '') {
                     this.props.handleRegistration(this.state.accountId, this.state.password);
                 }
@@ -72,31 +73,32 @@ class RegisterForm extends React.Component {
     }
 
     handleAccountIdChange(event) {
-        this.setState({accountId: event.target.value});
+        this.setState({ accountId: event.target.value });
     }
 
     handlePasswordChange(event) {
-        this.setState({password: event.target.value});
+        this.setState({ password: event.target.value });
     }
 
     handleRememberChange(event) {
-        this.setState({remember: event.target.checked});
+        this.setState({ remember: event.target.checked });
     }
 
     handleSubmit(event) {
         event.preventDefault();
         let accountId = this.state.accountId;
+        console.log(accountId);
         if (this.state.accountId.indexOf('@') === -1) {
-            // take the domain part from the default
-            accountId = this.state.accountId + '@' + config.defaultDomain;
+            accountId = 'tangtalk-' + this.state.accountId + '@' + config.defaultDomain;
+            console.log(accountId);
         }
         this.props.handleRegistration(accountId, this.state.password, this.state.remember);
     }
 
     handleEnrollment(account) {
-        this.setState({showEnrollmentModal: false});
+        this.setState({ showEnrollmentModal: false });
         if (account !== null) {
-            this.setState({accountId: account.accountId, password: account.password, registering: true});
+            this.setState({ accountId: account.accountId, password: account.password, registering: true });
             this.props.handleRegistration(account.accountId, account.password);
         }
     }
@@ -109,25 +111,25 @@ class RegisterForm extends React.Component {
 
     createAccount(event) {
         event.preventDefault();
-        this.setState({showEnrollmentModal: true});
+        this.setState({ showEnrollmentModal: true });
     }
 
     render() {
         const domain = this.state.accountId.substring(this.state.accountId.indexOf('@') + 1);
         const validDomain = !ipaddr.IPv4.isValidFourPartDecimal(domain) && !ipaddr.IPv6.isValid(domain);
-        const validInput =  validDomain && this.state.password !== '';
+        const validInput = validDomain && this.state.password !== '';
         const classes = clsx({
-            'btn'        : true,
-            'btn-lg'     : true,
-            'btn-block'  : true,
+            'btn': true,
+            'btn-lg': true,
+            'btn-block': true,
             'btn-default': !validInput,
             'btn-primary': validInput && !this.state.registering,
-            'btn-info'   : this.state.registering
+            'btn-info': this.state.registering
         });
 
         const formClasses = clsx({
-            'form-signin'          : true,
-            'form-signin-electron' : this.props.autoLogin
+            'form-signin': true,
+            'form-signin-electron': this.props.autoLogin
         });
 
         let rememberBox;
@@ -161,12 +163,22 @@ class RegisterForm extends React.Component {
 
         return (
             <div>
-                <p className="lead">Sign in to continue</p>
+                {/* <p className="lead">Sign in to continue</p> */}
                 <form className={formClasses} onSubmit={this.handleSubmit}>
-                    <label htmlFor="inputUser" className="sr-only">Sip Account</label>
+                    <label htmlFor="inputUser" className="sr-only">Phone Number</label>
                     <div className="input-group">
-                        <span className="input-group-addon first"><i className="fa fa-globe fa-fw"></i></span>
-                        <input type="email" onInvalid={this.handleInvalid} id="inputUser" className="form-control" placeholder="Enter your account" value={this.state.accountId} onChange={this.handleAccountIdChange} required autoFocus/>
+                        <span className="input-group-addon first"><i className="fa fa-phone fa-fw"></i></span>
+                        <InputMask
+                            mask="999-999-9999"
+                            maskChar={null}
+                            value={this.state.accountId}
+                            onChange={this.handleAccountIdChange}
+                            className="form-control"
+                            placeholder="###-###-####"
+                            id="inputUser"
+                            required
+                            autoFocus
+                        />
                     </div>
                     <label htmlFor="inputPassword" className="sr-only">Password</label>
                     <div className="input-group">
@@ -176,14 +188,14 @@ class RegisterForm extends React.Component {
 
                     {rememberBox}
 
-                    <div className="btn-group btn-group-justified">
+                    <div className="btn-group">
                         <div className="btn-group">
-                            <button type="submit" className={classes} disabled={this.props.registrationInProgress || !validInput}>
+                            <button type="submit" className="btn btn-primary">
                                 <i className="fa fa-sign-in"></i>&nbsp;Sign In
                             </button>
                         </div>
                         <div className="btn-group">
-                            <button className="btn btn-lg btn-primary" onClick={this.createAccount} disabled={this.props.registrationInProgress}>
+                            <button className="btn btn-primary" onClick={this.createAccount} disabled={this.props.registrationInProgress}>
                                 <i className="fa fa-plus"></i>&nbsp;Sign Up
                             </button>
                         </div>
@@ -196,11 +208,10 @@ class RegisterForm extends React.Component {
 }
 
 RegisterForm.propTypes = {
-    classes                : PropTypes.object.isRequired,
-    handleRegistration     : PropTypes.func.isRequired,
-    registrationInProgress : PropTypes.bool.isRequired,
-    autoLogin              : PropTypes.bool
+    classes: PropTypes.object.isRequired,
+    handleRegistration: PropTypes.func.isRequired,
+    registrationInProgress: PropTypes.bool.isRequired,
+    autoLogin: PropTypes.bool
 };
-
 
 module.exports = withStyles(styles)(RegisterForm);

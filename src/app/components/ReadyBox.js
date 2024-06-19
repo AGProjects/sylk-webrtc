@@ -52,8 +52,11 @@ class ReadyBox extends React.Component {
     }
 
     getTargetUri() {
-        const defaultDomain = this.props.account.id.substring(this.props.account.id.indexOf('@') + 1);
-        return utils.normalizeUri(this.state.targetUri, defaultDomain);
+        const defaultDomain = config.defaultDomain;
+        console.log("Default Domain: ", defaultDomain)
+        const uri = 'tangtalk-' + this.state.targetUri + '@' + defaultDomain
+        console.log("getTargetUri: ", uri)
+        return uri;
     }
 
     handleTargetChange(value) {
@@ -84,8 +87,10 @@ class ReadyBox extends React.Component {
     handleAudioCall(event) {
         event.preventDefault();
         if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
+            console.log(this.state.targetUri);
             this.props.startConference(this.state.targetUri);
         } else {
+            console.log('tangtalk-' + this.state.targetUri + '@' + config.defaultDomain);
             this.props.startCall(this.getTargetUri(), { audio: true, video: false });
         }
     }
@@ -153,14 +158,14 @@ class ReadyBox extends React.Component {
                     <div className="inner cover scroll" style={{ height: this.state.height }}>
                         <div className={stickyClasses} ref={this.stickyTopRef}>
                             <div className="form-dial">
-                                <p className="lead">Enter the address you wish to call</p>
+                                <p className="lead">Enter the number you wish to call</p>
                                 <URIInput
                                     defaultValue={this.state.targetUri}
                                     data={history}
                                     onChange={this.handleTargetChange}
                                     onSelect={this.handleTargetSelect}
                                     autoFocus={!/Mobi|Android/i.test(navigator.userAgent) || true}
-                                    placeholder="Eg. alice@sip2sip.info or 3333"
+                                    placeholder="###-###-####"
                                 />
                                 <div className="form-group">
                                     <button aria-label="Start an audio call" title="Audio call" type="button" className={classes} disabled={this.state.targetUri.length === 0 || this.props.noConnection} onClick={this.handleAudioCall}><i className="fa fa-phone"></i></button>

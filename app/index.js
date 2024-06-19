@@ -105,8 +105,8 @@ let quitting = false;
 // options for about window
 const aboutOptions = {
     icon_path: `${__dirname}/www/assets/images/blink.ico`,
-    copyright: 'Copyright (c) AG Projects',
-    homepage: 'http://sylkserver.com',
+    copyright: 'TangTalk.io',
+    homepage: 'http://tangtalk.io',
     win_options: {
         titleBarStyle: 'hiddenInset'
     }

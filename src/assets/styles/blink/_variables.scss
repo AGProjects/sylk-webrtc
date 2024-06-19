@@ -15,10 +15,10 @@ $white-less-transparent:  rgba($white, .8);
 $bootstrap-danger:       #a94442;
 $bootstrap-danger-bg:    #f2dede;
 $bootstrap-danger-border: darken(adjust-hue($bootstrap-danger-bg, -10), 5%);
-$bootstrap-base:         #428bca;
+$bootstrap-base:         #ff8400;
 $bootstrap-primary:      darken($bootstrap-base, 6.5%); // #337ab7
 $bootstrap-link-hover-bg: #f5f5f5;
-$bootstrap-text-info:    #31708f;
+$bootstrap-text-info:    #ff6600;
 
 $base-foreground-color: $white;
 $base-background-color: $gray;
@@ -26,17 +26,55 @@ $base-background-color: $gray;
 $default-button-foreground-color: $gray;
 $default-button-background-color: $white;
 
-$base-background-image: '../images/dark_linen';
+$base-background-image: '../images/orange_linen';
 
 // Needs to be 125 x 125px
-$base-logo-image: '../images/blink-white';
+$base-logo-image: '../images/ttw-white';
 
-$navbar-logo-image: '../images/blink-white';
+$navbar-logo-image: '../images/ttw-white';
 $navbar-height:     50px;
 
-$video-poster-image:        '../images/blink-white';
-$video-big-poster-image:    '../images/blink-white-big';
+$video-poster-image:        '../images/ttw-white';
+$video-big-poster-image:    '../images/ttw-white-big';
 $video-watermark-image:     '../images/aglogo-white.svg';
 
 $video-thumbnail-width:     150px;
 $video-thumbnail-height:    100px;
+
+
+$primary: #FF9800; // Orange color
+$primary-hover: darken($primary, 10%); // Slightly darker for hover state
+$primary-active: darken($primary, 20%); // Even darker for active state
+$primary-disabled: lighten($primary, 20%); // Lighter for disabled state
+$primary-box-shadow: rgba(255, 152, 0, 0.5); // Orange shadow
+
+// Additional custom styles for primary button states (if needed)
+.btn-primary {
+    background-color: $primary; /* Normal state */
+    border-color: $primary;
+}
+
+.btn-primary:hover {
+    background-color: $primary-hover; /* Hover state */
+    border-color: $primary-hover;
+}
+
+.btn-primary:focus, .btn-primary.focus {
+    background-color: $primary-hover; /* Focus state */
+    border-color: $primary-hover;
+    box-shadow: 0 0 0 0.2rem $primary-box-shadow; /* Focus outline */
+}
+
+.btn-primary:active, .btn-primary.active, .show > .btn-primary.dropdown-toggle {
+    background-color: $primary-active; /* Active state */
+    border-color: $primary-active;
+}
+
+.btn-primary:disabled, .btn-primary.disabled {
+    background-color: $primary-disabled; /* Disabled state */
+    border-color: $primary-disabled;
+}
+
+.modal-content{
+    background-color: #ff8d00;
+}

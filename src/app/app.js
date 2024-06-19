@@ -1851,7 +1851,7 @@ class Blink extends React.Component {
         DEBUG('Requesting call history from server');
         let getServerCallHistory = new DigestAuthRequest(
             'GET',
-            `${config.serverCallHistoryUrl}?action=get_history&realm=${this.state.account.id.split('@')[1]}`,
+            `${config.serverCallHistoryUrl}?action=get_history&realm=${config.defaultDomain}`,
             this.state.account.id.split('@')[0],
             this.state.password
         );

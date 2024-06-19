@@ -170,10 +170,6 @@ class NavigationBar extends React.Component {
         return (
             <Navbar inverse={true} fixedTop={true} fluid={true}>
                 <Navbar.Header>
-                    <div className="navbar-blink-logo pull-left"></div>
-                    <Navbar.Brand>
-                        Sylk
-                    </Navbar.Brand>
                     <HtmlTooltip title={title}>
                         <p className="navbar-text hidden-xs">
                             {notRegistered ? 'Not signed' : 'Signed'} in as: <strong className={registrationClasses}>{this.props.account.id}</strong>
@@ -203,7 +199,7 @@ class NavigationBar extends React.Component {
                         </MenuItem>
                         <MenuItem divider />
                         <MenuItem eventKey="about">
-                            <i className="fa fa-info-circle"></i> About Sylk
+                            {/* <i className="fa fa-info-circle"></i> About Sylk */}
                         </MenuItem>
                         <MenuItem eventKey="callMeMaybe">
                             <i className="fa fa-share"></i> Call me, maybe?

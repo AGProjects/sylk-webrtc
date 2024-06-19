@@ -8,7 +8,7 @@ const FooterBox = () => {
         <div className="cover-container">
             <div className="footer">
                 <div className="inner-small">
-                    <p>Copyright &copy; <a href="http://ag-projects.com" target="_blank" rel="noopener noreferrer">AG Projects</a></p>
+                    {/* <p>Copyright &copy; <a href="http://ag-projects.com" target="_blank" rel="noopener noreferrer">AG Projects</a></p> */}
                 </div>
             </div>
         </div>

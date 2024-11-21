@@ -12,7 +12,7 @@ deploy: dist
 
 deploy-test: dist-dev
 	echo `date +"%Y-%m-%d_%H:%M:%S"` > dist/.timestamp
-	rsync -av --exclude .htaccess --delete dist/ agp@node08.dns-hosting.info:/var/www/webrtc-test/
+	rsync -av --exclude .htaccess --delete dist/ -e 'ssh -A -J agp@ca-node02.dns-hosting.info:22' agp@10.208.120.103:/var/www/webrtc-test/
 
 deploy-osx:
 	#rsync -avz --progress dist-electron/Sylk*.dmg dist-electron/Sylk*.zip dist-electron/latest-mac*yml -e 'ssh -A -J agp@de-node02.dns-hosting.info:22' agp@10.208.118.4:/var/www/download/Sylk/

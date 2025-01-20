@@ -539,9 +539,9 @@ through2@^2.0.0, through2@~2.0.3:
     readable-stream "~2.3.6"
     xtend "~4.0.1"
 
-"titlebar@git+https://github.com/saghul/titlebar.git":
+titlebar@saghul/titlebar.git:
   version "1.4.0"
-  resolved "git+ssh://git@github.com/saghul/titlebar.git#da1d387f8e07acf57aa387019a80ce028606148d"
+  resolved "https://codeload.github.com/saghul/titlebar/tar.gz/da1d387f8e07acf57aa387019a80ce028606148d"
   dependencies:
     brfs "^1.4.0"
     defaultcss "^1.1.1"

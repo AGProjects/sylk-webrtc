@@ -8570,21 +8570,6 @@ svgo@^2.4.0:
     picocolors "^1.0.0"
     stable "^0.1.8"
 
-sylkrtc@../../../darcs-repo/sylkrtc.js:
-  version "1.7.7"
-  dependencies:
-    "@rifflearning/attachmediastream" "^3.0.0"
-    blueimp-md5 "^2.19.0"
-    bowser "^2.11.0"
-    debug "^4.3.3"
-    dompurify "^2.0.10"
-    openpgp tijmenNL/openpgpjs#4eb26e0
-    regenerator-runtime "^0.13.9"
-    sdp-transform "^2.14.1"
-    uuid "^7.0.3"
-    webrtc-adapter "^6.4.8"
-    websocket "^1.0.34"
-
 sylkrtc@AGProjects/sylkrtc.js:
   version "1.7.7"
   resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/ad5b4156a881308d6bc30d37cc1a42a97a1a95b5"

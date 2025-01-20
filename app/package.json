@@ -13,6 +13,6 @@
     "electron-progressbar": "^2.0.1",
     "electron-updater": "5.0.6",
     "electron-windows-badge": "^1.1.0",
-    "titlebar": "git+https://github.com/saghul/titlebar.git"
+    "titlebar": "saghul/titlebar.git"
   }
 }

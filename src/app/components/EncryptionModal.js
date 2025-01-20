@@ -67,7 +67,11 @@ const EncryptionModal = (props) => {
 
     React.useEffect(() => {
         if (props.show === true) {
+            setStep(0);
             setPassword(Math.random().toString().substr(2, 6));
+        } else {
+            setStep(0);
+            setPassword('')
         }
     }, [props.show]);
 

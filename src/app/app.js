@@ -2519,8 +2519,19 @@ class Blink extends React.Component {
             if (this.state.connection.state !== 'ready') {
                 this.state.connection.close();
             }
-            this.setState({ registrationState: null, status: null, serverHistory: [], oldMessages: {}, enableMessaging: false, unreadMessages: 0, unreadCallMessages: 0, accountId: '' });
-            setImmediate(() => this.setState({ account: null }));
+            setImmediate(() => this.setState(
+                {
+                    registrationState: null,
+                    status: null,
+                    serverHistory: [],
+                    oldMessages: {},
+                    enableMessaging: false,
+                    unreadMessages: 0,
+                    unreadCallMessages: 0,
+                    accountId: '',
+                    account: null
+                }
+            ));
             this.isRetry = false;
             if (config.showGuestCompleteScreen && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
                 this.router.current.navigate('/call-complete');

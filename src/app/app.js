@@ -306,7 +306,11 @@ class Blink extends React.Component {
                 if (this.state.showRedialScreen === true) {
                     this.toggleRedialScreen(true);
                 }
-                this.processRegistration(this.state.accountId, this.state.password, this.state.displayName);
+                if (this.state.accountId) {
+                    this.processRegistration(this.state.accountId, this.state.password, this.state.displayName);
+                } else {
+                    this.setState({ loading: null });
+                }
                 break;
             case 'disconnected':
                 this.audioPlayerOutbound.current.stop();
@@ -2509,7 +2513,7 @@ class Blink extends React.Component {
             if (this.state.connection.state !== 'ready') {
                 this.state.connection.close();
             }
-            this.setState({ registrationState: null, status: null, serverHistory: [], oldMessages: {}, enableMessaging: false, unreadMessages: 0, unreadCallMessages: 0 });
+            this.setState({ registrationState: null, status: null, serverHistory: [], oldMessages: {}, enableMessaging: false, unreadMessages: 0, unreadCallMessages: 0, accountId: '' });
             setImmediate(() => this.setState({ account: null }));
             this.isRetry = false;
             if (config.showGuestCompleteScreen && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {

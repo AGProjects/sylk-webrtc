@@ -1071,6 +1071,7 @@ class Blink extends React.Component {
         this.setState({ targetUri: targetUri });
         if (this.isRetry) {
             this.getLocalMedia({ audio: true, video: true }, `/call/${targetUri}`);
+            this.isRetry = false;
         } else {
             // this.getLocalMedia(Object.assign({audio: true, video: true}, options));
         }
@@ -1225,13 +1226,18 @@ class Blink extends React.Component {
         const roomMedia = extraOptions.roomMedia || { audio: true, video: true };
         const lowBandwidth = extraOptions.lowBandwidth || false;
         this.setState({ targetUri: targetUri, roomMedia: roomMedia, lowBandwidth: lowBandwidth });
-        this.getLocalMedia(mediaConstraints, '/conference');
+        let uri = '/conference';
+        if (this.state.mode == MODE_GUEST_CONFERENCE) {
+            uri = `/conference/${targetUri}`
+        }
+        this.getLocalMedia(mediaConstraints, uri);
     }
 
     startGuestConference(targetUri) {
         this.setState({ targetUri: targetUri });
         if (this.isRetry) {
             this.getLocalMedia(this.state.preferredGuestMedia, `/conference/${targetUri}`);
+            this.isRetry = false;
         } else {
             // this.getLocalMedia(this.state.preferredGuestMedia);
         }

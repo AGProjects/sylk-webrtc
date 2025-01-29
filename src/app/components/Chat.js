@@ -195,6 +195,12 @@ const Chat = (props) => {
             }
         };
 
+        const removeConversation = (account) => {
+            if (selectedUriRef.current == account) {
+                setSelectedUri('');
+            }
+        };
+
         const newMessages = cloneDeep(props.oldMessages);
         for (let message of props.account.messages) {
             const senderUri = message.sender.uri;
@@ -219,6 +225,7 @@ const Chat = (props) => {
         props.account.on('messageStateChanged', messageStateChanged);
         props.account.on('outgoingMessage', outgoingMessage);
         props.account.on('removeMessage', removeMessage);
+        props.account.on('removeConversation', removeConversation);
 
         componentJustMounted.current = false;
         return () => {
@@ -228,6 +235,7 @@ const Chat = (props) => {
             props.account.removeListener('messageStateChanged', messageStateChanged);
             props.account.removeListener('outgoingMessage', outgoingMessage);
             props.account.removeListener('removeMessage', removeMessage);
+            props.account.removeListener('removeConversation', removeConversation);
         }
     }, [props.account, props.oldMessages]);
 

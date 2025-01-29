@@ -239,6 +239,8 @@ function get(key) {
 function remove(key) {
     return Queue.enqueue(() => store.removeItem(key).then(() => {
         DEBUG('Removed conversation for %s', key);
+        lastIdLoaded.delete(key);
+        lastFileIdLoaded.delete(key);
         return;
     }));
 }

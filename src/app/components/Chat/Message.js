@@ -113,6 +113,15 @@ const Message = ({
                         domNode.attribs.target = '_blank';
                         return;
                     }
+
+                    if (domNode.attribs && domNode.attribs.class) {
+                        const classList = domNode.attribs.class.split(' ').filter((cls) => cls !== 'sr-only');
+                        if (classList.length > 0) {
+                            domNode.attribs.classList = classList.join(' ');
+                        } else {
+                            delete domNode.attribs.class;
+                        }
+                    }
                     if (domNode.type === 'text') {
                         if (!domNode.parent || (domNode.parent.type === 'tag' && domNode.parent.name !== 'a')) {
                             let url = linkifyUrls(preHtmlEntities(domNode.data), {

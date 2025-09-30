@@ -304,7 +304,7 @@ const SwitchDevicesMenu = (props) => {
     }
 
     const isCurrentVideoDevice = () => {
-        let currentVideo = current.Stream.getVideoTracks() && currentStream.getVideoTracks()[0].label;
+        let currentVideo = currentStream.getVideoTracks() && currentStream.getVideoTracks()[0].label;
         let selectedVideo = mediaStreams[videoInput].getVideoTracks()[0].label;
         return selectedVideo === currentVideo;
     }

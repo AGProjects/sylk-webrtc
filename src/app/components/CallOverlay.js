@@ -7,6 +7,8 @@ const { DateTime }      = require('luxon');
 const { default: TransitionGroup } = require('react-transition-group/TransitionGroup');
 const { default: CSSTransition } = require('react-transition-group/CSSTransition');
 
+const Timer = require('./Timer');
+
 const stateMap = {
     ringing: 'Ringing...',
     connecting: 'Connecting...'
@@ -16,9 +18,6 @@ class CallOverlay extends React.Component {
     constructor(props) {
         super(props);
 
-        this.duration = null;
-        this.timer = null;
-        this._isMounted = true;
         this._electron = false;
 
         this.state = { callState: 'connecting' };
@@ -29,9 +28,7 @@ class CallOverlay extends React.Component {
 
     componentDidMount() {
         if (this.props.call) {
-            if (this.props.call.state === 'accepted' || this.props.forceTimerStart === true) {
-                this.startTimer();
-            } else if (this.props.call.state !== 'terminated') {
+            if (this.props.call.state !== 'terminated') {
                 this.props.call.on('stateChanged', this.callStateChanged);
             }
         }
@@ -45,24 +42,13 @@ class CallOverlay extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.call == null && this.props.call) {
-            if (this.props.call.state === 'accepted') {
-                this.startTimer();
-            } else if (this.props.call.state !== 'terminated') {
+            if (this.props.call.state !== 'terminated') {
                 this.props.call.on('stateChanged', this.callStateChanged);
             }
         }
     }
 
-    componentWillUnmount() {
-        this._isMounted = false;
-        clearTimeout(this.timer);
-    }
-
     callStateChanged(oldState, newState, data) {
-        // Prevent starting timer / state update when we are unmounted
-        if (!this._isMounted) {
-            return
-        }
         switch (newState) {
             case 'ringing':
                 if (this.state.callState !== 'ringing') {
@@ -75,7 +61,6 @@ class CallOverlay extends React.Component {
                 }
                 break;
             case 'accepted':
-                this.startTimer();
                 this.props.call.removeListener('stateChanged', this.callStateChanged);
                 break;
             default:
@@ -83,33 +68,26 @@ class CallOverlay extends React.Component {
         }
     }
 
-    startTimer() {
-        if (this.timer !== null) {
-            // already armed
-            return;
-        }
-
-        // TODO: consider using window.requestAnimationFrame
-        const startTime = DateTime.local();
-        this.timer = setInterval(() => {
-            const now = DateTime.local();
-            this.duration = now.diff(startTime, 'seconds').toFormat('hh:mm:ss')
-            if (this.props.show) {
-                this.forceUpdate();
-            }
-        }, 300);
-    }
-
-
     render() {
         let header;
 
         if (this.props.show) {
             let callDetail;
-            if (this.duration !== null) {
-                callDetail = <span><i className="fa fa-clock-o"></i> {this.duration} {this.props.callQuality}</span>;
+
+            if (this.props.call && (this.props.call.state === 'accepted' || this.props.call.state === 'established')) {
+                if (!this.props.call._startTime) {
+                    this.props.call._startTime = DateTime.local();
+                }
+
+                callDetail = (
+                    <span>
+                    <i className="fa fa-clock-o"></i>{" "}
+                    <Timer startTime={this.props.call._startTime} />{" "}
+                    {this.props.callQuality}
+                    </span>
+                );
             } else {
-                callDetail = stateMap[this.state.callState]
+                callDetail = stateMap[this.state.callState] || '';
             }
 
             const headerClasses = clsx(
@@ -171,7 +149,6 @@ CallOverlay.propTypes = {
     show: PropTypes.bool.isRequired,
     remoteIdentity: PropTypes.string.isRequired,
     call: PropTypes.object,
-    forceTimerStart: PropTypes.bool,
     callQuality: PropTypes.object,
     onTop: PropTypes.bool,
     buttons: PropTypes.object

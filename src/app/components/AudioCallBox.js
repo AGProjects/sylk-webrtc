@@ -486,7 +486,6 @@ class AudioCallBox extends React.Component {
                             show={true}
                             remoteIdentity={this.props.remoteIdentity}
                             call={this.props.call}
-                            forceTimerStart={this.props.forceTimerStart}
                             onTop={this.state.showChat}
                             disableHide={this.state.showChat || this.state.showInlineChat}
                             callQuality={callQuality}
@@ -585,7 +584,6 @@ AudioCallBox.propTypes = {
     hangupCall: PropTypes.func,
     mediaPlaying: PropTypes.func,
     remoteIdentity: PropTypes.string,
-    forceTimerStart: PropTypes.bool,
     notificationCenter: PropTypes.func,
     toggleChatInCall: PropTypes.func,
     inlineChat: PropTypes.object,

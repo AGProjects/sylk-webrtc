@@ -1509,6 +1509,7 @@ class ConferenceBox extends React.Component {
                         onTop={chatLayout || this.state.showChat}
                         transparent={!chatLayout && !this.state.showChat}
                         callQuality={callQuality}
+                        call={this.props.call}
                     />
                     <TransitionGroup>
                         {watermark}

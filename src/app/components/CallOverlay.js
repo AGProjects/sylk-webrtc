@@ -7,7 +7,13 @@ const { DateTime }      = require('luxon');
 const { default: TransitionGroup } = require('react-transition-group/TransitionGroup');
 const { default: CSSTransition } = require('react-transition-group/CSSTransition');
 
+const ReactBootstrap = require('react-bootstrap');
+const Navbar = ReactBootstrap.Navbar;
+const ButtonToolbar = ReactBootstrap.ButtonToolbar;
+
 const Timer = require('./Timer');
+const UserIcon = require('./UserIcon');
+const config = require('../config');
 
 const stateMap = {
     ringing: 'Ringing...',
@@ -73,6 +79,7 @@ class CallOverlay extends React.Component {
 
         if (this.props.show) {
             let callDetail;
+            let isConference = false;
 
             if (this.props.call && (this.props.call.state === 'accepted' || this.props.call.state === 'established')) {
                 if (!this.props.call._startTime) {
@@ -102,30 +109,73 @@ class CallOverlay extends React.Component {
                 'electron-margin': this._electron
             });
 
-            header = (
-                <CSSTransition
-                    key="call-trans"
-                    classNames="videoheader"
-                    timeout={{ enter: 300, exit: 300 }}
-                >
-                    <div key="header" className={headerClasses}>
-                        <div className="container-fluid">
-                            {this.props.buttons && this.props.buttons.top && this.props.buttons.top.left &&
-                                <div className={leftButtonClasses}>
-                                    {this.props.buttons.top.left}
+            const rightButtonClasses = clsx({
+                'call-top-buttons': true
+            });
+
+            let remoteIdentity;
+            let type = 'Call with';
+
+            if (this.props.call !== null) {
+                if (this.props.call.remoteIdentity.uri.endsWith(`@${config.defaultConferenceDomain}`)) {
+                    type = 'Conference';
+                    isConference = true;
+                }
+                remoteIdentity = this.props.call.remoteIdentity;
+            } else {
+                remoteIdentity = { uri: this.props.remoteIdentity };
+            }
+
+            if (this.props.alternativeLayout) {
+                header = (
+                    <CSSTransition
+                        key="call-trans"
+                        classNames="videoheader"
+                        timeout={{ enter: 300, exit: 300 }}
+                    >
+                        <Navbar inverse={true} fixedTop={true} fluid={true} style={{borderBottom: '3px solid #4cae4c'}}>
+                            <Navbar.Header>
+                                <div style={{float: 'left', margin: '0 auto 0 15px'}}>
+                                    <UserIcon identity={remoteIdentity} active={false} small={true} isConference={isConference}/>
                                 </div>
+                                <Navbar.Brand style={{color: '#f0f0f0', padding: '15px'}}>
+                                    <strong>{type}:</strong> {this.props.remoteIdentity} - {callDetail}
+                                </Navbar.Brand>
+                            </Navbar.Header>
+                            {this.props.buttons &&
+                                <ButtonToolbar bsClass="btn-toolbar navbar-btn-toolbar pull-right">
+                                    {this.props.buttons}
+                                </ButtonToolbar>
                             }
-                            <p className="lead"><strong>Call with</strong> {this.props.remoteIdentity}</p>
-                            <p className="lead">{callDetail}</p>
-                            {this.props.buttons && this.props.buttons.top && this.props.buttons.top.right &&
-                                <div className="call-top-buttons">
-                                    {this.props.buttons.top.right}
-                                </div>
-                            }
+                        </Navbar>
+                    </CSSTransition>
+                )
+            } else {
+                header = (
+                    <CSSTransition
+                        key="call-trans"
+                        classNames="videoheader"
+                        timeout={{ enter: 300, exit: 300 }}
+                    >
+                        <div key="header" className={headerClasses}>
+                            <div className="container-fluid">
+                                {this.props.buttons && this.props.buttons.top && this.props.buttons.top.left &&
+                                    <div className={leftButtonClasses}>
+                                        {this.props.buttons.top.left}
+                                    </div>
+                                }
+                                <p className="lead"><strong>Call with</strong> {this.props.remoteIdentity}</p>
+                                <p className="lead">{callDetail}</p>
+                                {this.props.buttons && this.props.buttons.top && this.props.buttons.top.right &&
+                                    <div className={rightButtonClasses}>
+                                        {this.props.buttons.top.right}
+                                    </div>
+                                }
+                            </div>
                         </div>
-                    </div>
-                </CSSTransition>
-            );
+                    </CSSTransition>
+                );
+            }
         }
 
         const overlayClasses = clsx(
@@ -151,7 +201,8 @@ CallOverlay.propTypes = {
     call: PropTypes.object,
     callQuality: PropTypes.object,
     onTop: PropTypes.bool,
-    buttons: PropTypes.object
+    buttons: PropTypes.object,
+    alternativeLayout: PropTypes.bool
 };
 
 

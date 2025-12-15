@@ -42,6 +42,7 @@ const EncryptionModal = require('./components/EncryptionModal');
 const ImportModal = require('./components/ImportModal');
 const NewDeviceModal = require('./components/NewDeviceModal');
 const LogoutModal = require('./components/LogoutModal');
+const ParticipantAudioManager = require('./components/ParticipantAudioManager');
 
 const utils = require('./utils');
 const config = require('./config');
@@ -208,6 +209,7 @@ class Blink extends React.Component {
         this.notificationCenterRef = React.createRef();
 
         this.remoteAudio = React.createRef();
+        this.audioManager = React.createRef();
     }
 
     get _notificationCenter() {
@@ -2082,6 +2084,7 @@ class Blink extends React.Component {
                 <AudioPlayer ref={this.audioPlayerOutbound} sourceFile="assets/sounds/outbound_ringtone.wav" />
                 <AudioPlayer ref={this.audioPlayerHangup} sourceFile="assets/sounds/hangup_tone.wav" />
                 <audio id="remoteAudio" ref={this.remoteAudio} autoPlay />
+                <ParticipantAudioManager ref={this.audioManager} />
                 <TransitionGroup>
                     {incomingCallModal}
                 </TransitionGroup>

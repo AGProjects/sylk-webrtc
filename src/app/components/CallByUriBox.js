@@ -66,6 +66,7 @@ class CallByUriBox extends React.Component {
                     shareScreen = {this.props.shareScreen}
                     generatedVideoTrack = {this.props.generatedVideoTrack}
                     setDevice = {this.props.setDevice}
+                    remoteAudio = {this.props.remoteAudio}
                 />
             );
         } else {
@@ -126,7 +127,8 @@ CallByUriBox.propTypes = {
     localMedia          : PropTypes.object,
     account             : PropTypes.object,
     currentCall         : PropTypes.object,
-    generatedVideoTrack : PropTypes.bool
+    generatedVideoTrack : PropTypes.bool,
+    remoteAudio         : PropTypes.object,
 };
 
 

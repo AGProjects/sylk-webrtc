@@ -207,6 +207,7 @@ class Blink extends React.Component {
         this.audioPlayerHangup = React.createRef();
         this.notificationCenterRef = React.createRef();
 
+        this.remoteAudio = React.createRef();
     }
 
     get _notificationCenter() {
@@ -2080,6 +2081,7 @@ class Blink extends React.Component {
                 <AudioPlayer ref={this.audioPlayerInbound} sourceFile="assets/sounds/inbound_ringtone.wav" />
                 <AudioPlayer ref={this.audioPlayerOutbound} sourceFile="assets/sounds/outbound_ringtone.wav" />
                 <AudioPlayer ref={this.audioPlayerHangup} sourceFile="assets/sounds/hangup_tone.wav" />
+                <audio id="remoteAudio" ref={this.remoteAudio} autoPlay />
                 <TransitionGroup>
                     {incomingCallModal}
                 </TransitionGroup>
@@ -2303,6 +2305,7 @@ class Blink extends React.Component {
                     unreadMessages={{ total: this.state.unreadMessages, call: this.state.unreadCallMessages }}
                     notificationCenter={this.notificationCenter}
                     propagateKeyPress={this.state.propagateKeyPress}
+                    remoteAudio={this.remoteAudio}
                 />
             </React.Fragment>
         )
@@ -2336,6 +2339,7 @@ class Blink extends React.Component {
                 generatedVideoTrack={this.state.generatedVideoTrack}
                 getLocalMedia={this.getLocalMedia}
                 setDevice={this.setDevice}
+                remoteAudio={this.remoteAudio}
             />
         );
     }

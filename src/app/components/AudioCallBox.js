@@ -76,7 +76,6 @@ class AudioCallBox extends React.Component {
         };
         this.speechEvents = null;
 
-        this.remoteAudio = React.createRef();
         this._notificationCenter = null;
 
         // ES6 classes no longer autobind
@@ -212,7 +211,7 @@ class AudioCallBox extends React.Component {
 
     attachStream(call) {
         const remoteStream = call.getRemoteStreams()[0];
-        sylkrtc.utils.attachMediaStream(remoteStream, this.remoteAudio.current);
+        sylkrtc.utils.attachMediaStream(remoteStream, this.props.remoteAudio.current);
         const options = {
             interval: 225,
             play: false
@@ -493,7 +492,6 @@ class AudioCallBox extends React.Component {
                             callQuality={callQuality}
                             buttons={topButtons}
                         />
-                        <audio id="remoteAudio" ref={this.remoteAudio} autoPlay />
                         <div className="call-user-icon">
                             <UserIcon identity={remoteIdentity} large={true} active={this.state.active} />
                         </div>
@@ -592,7 +590,8 @@ AudioCallBox.propTypes = {
     toggleChatInCall: PropTypes.func,
     inlineChat: PropTypes.object,
     unreadMessages: PropTypes.object,
-    propagateKeyPress: PropTypes.bool
+    propagateKeyPress: PropTypes.bool,
+    remoteAudio: PropTypes.object
 };
 
 

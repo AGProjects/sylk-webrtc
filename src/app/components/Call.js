@@ -143,6 +143,7 @@ class Call extends React.Component {
                         unreadMessages={this.props.unreadMessages}
                         notificationCenter={this.props.notificationCenter}
                         propagateKeyPress={this.props.propagateKeyPress}
+                        remoteAudio={this.props.remoteAudio}
                     />
                 );
             } else {
@@ -163,6 +164,7 @@ class Call extends React.Component {
                             unreadMessages={this.props.unreadMessages}
                             notificationCenter={this.props.notificationCenter}
                             propagateKeyPress={this.props.propagateKeyPress}
+                            remoteAudio={this.props.remoteAudio}
                         />
                     );
                 } else {
@@ -200,7 +202,8 @@ Call.propTypes = {
     inlineChat: PropTypes.object,
     notificationCenter: PropTypes.func,
     unreadMessages: PropTypes.object,
-    propagateKeyPress: PropTypes.bool
+    propagateKeyPress: PropTypes.bool,
+    remoteAudio: PropTypes.object
 };
 
 

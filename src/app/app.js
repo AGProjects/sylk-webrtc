@@ -184,7 +184,9 @@ class Blink extends React.Component {
             'getLocalMedia',
             'toggleChatInCall',
             'toggleChatInConference',
-            'chatWrapper'
+            'chatWrapper',
+            'saveConferenceState',
+            'getConferenceState'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -200,6 +202,7 @@ class Blink extends React.Component {
         this.lastMessageFocus = '';
         this.retransmittedMessages = [];
         this.unreadTimer = null;
+        this.savedConferenceState = null;
 
         // Refs
         this.router = React.createRef();
@@ -598,6 +601,7 @@ class Blink extends React.Component {
                     previousTargetUri: this.state.targetUri,
                     showChatInCall: false
                 });
+                this.savedConferenceState = null;
                 this.audioManager.current.destroy();
                 this.setFocusEvents(false);
                 this.participantsToInvite = null;
@@ -1188,6 +1192,7 @@ class Blink extends React.Component {
         this.setState({ showIncomingModal: false });
         this.audioPlayerInbound.current.stop();
         this.audioManager.current.destroy();
+        this.savedConferenceState = null;
         this.setFocusEvents(false);
         if (this.state.inboundCall !== this.state.currentCall) {
             // terminate current call to switch to incoming one
@@ -1207,6 +1212,7 @@ class Blink extends React.Component {
 
     hangupCall() {
         this.audioManager.current.destroy();
+        this.savedConferenceState = null;
         if (this.state.currentCall != null) {
             this.state.currentCall.terminate();
         } else {
@@ -1956,6 +1962,14 @@ class Blink extends React.Component {
         this.prevPath = nextPath;
     }
 
+    saveConferenceState(state) {
+        this.savedConferenceState = state;
+    };
+
+    getConferenceState() {
+        return this.savedConferenceState;
+    };
+
     render() {
         if (this.redirectTo !== null) {
             window.location.href = this.redirectTo;
@@ -2412,6 +2426,8 @@ class Blink extends React.Component {
                     toggleChatInCall={this.toggleChatInConference}
                     unreadMessages={{ total: this.state.unreadMessages }}
                     audioManager={this.audioManager.current}
+                    saveState={this.saveConferenceState}
+                    getSavedState={this.getConferenceState}
                 />
             </React.Fragment>
         )
@@ -2456,6 +2472,8 @@ class Blink extends React.Component {
                 getLocalMedia={this.getLocalMediaGuestWrapper}
                 setDevice={this.setDevice}
                 audioManager={this.audioManager.current}
+                saveState={this.saveConferenceState}
+                getSavedState={this.getConferenceState}
             />
         );
     }

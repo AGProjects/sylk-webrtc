@@ -199,6 +199,8 @@ class ConferenceByUriBox extends React.Component {
                     lowBandwidth={this.state.lowBandwidth}
                     setDevice={this.props.setDevice}
                     audioManager = {this.props.audioManager}
+                    saveState = {this.props.saveState}
+                    getSavedState = {this.props.getSavedState}
                 />
             );
         } else {

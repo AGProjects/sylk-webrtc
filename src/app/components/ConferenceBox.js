@@ -227,8 +227,14 @@ class ConferenceBox extends React.Component {
         this.props.call.statistics.on('stats', this.statistics);
         this.props.call.account.on('incomingMessage', this.incomingMessage);
 
-        this.armOverlayTimer();
+        // this.armOverlayTimer();
 
+        const saved = this.props.getSavedState?.();
+        if (saved) {
+            this.setState(saved);
+        } else {
+            this.armOverlayTimer();
+        }
         // attach to ourselves first if there are no other participants
         if (this.state.participants.length === 0) {
             setTimeout(() => {
@@ -261,6 +267,7 @@ class ConferenceBox extends React.Component {
 
     componentWillUnmount() {
         clearTimeout(this.overlayTimer);
+        this.props.saveState(this.state);
         this.uploads.forEach((upload) => {
             this.props.notificationCenter().removeNotification(upload[1]);
             upload[0].abort();

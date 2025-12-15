@@ -76,6 +76,8 @@ class Conference extends React.Component {
                         toggleChatInCall = {this.props.toggleChatInCall}
                         unreadMessages = {this.props.unreadMessages}
                         audioManager = {this.props.audioManager}
+                        saveState = {this.props.saveState}
+                        getSavedState = {this.props.getSavedState}
                     />
                 );
             } else {

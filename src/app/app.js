@@ -351,6 +351,7 @@ class Blink extends React.Component {
                     localMedia: null,
                     generatedVideoTrack: false
                 });
+                this.audioManager.current.destroy();
                 break;
             default:
                 if (this.state.account === null) {
@@ -597,6 +598,7 @@ class Blink extends React.Component {
                     previousTargetUri: this.state.targetUri,
                     showChatInCall: false
                 });
+                this.audioManager.current.destroy();
                 this.setFocusEvents(false);
                 this.participantsToInvite = null;
                 this.router.current.navigate(this.entryPath);
@@ -1185,6 +1187,7 @@ class Blink extends React.Component {
     answerCall(options) {
         this.setState({ showIncomingModal: false });
         this.audioPlayerInbound.current.stop();
+        this.audioManager.current.destroy();
         this.setFocusEvents(false);
         if (this.state.inboundCall !== this.state.currentCall) {
             // terminate current call to switch to incoming one
@@ -1203,6 +1206,7 @@ class Blink extends React.Component {
     }
 
     hangupCall() {
+        this.audioManager.current.destroy();
         if (this.state.currentCall != null) {
             this.state.currentCall.terminate();
         } else {
@@ -2407,6 +2411,7 @@ class Blink extends React.Component {
                     setDevice={this.setDevice}
                     toggleChatInCall={this.toggleChatInConference}
                     unreadMessages={{ total: this.state.unreadMessages }}
+                    audioManager={this.audioManager.current}
                 />
             </React.Fragment>
         )
@@ -2450,6 +2455,7 @@ class Blink extends React.Component {
                 lowBandwidth={this.state.lowBandwidth}
                 getLocalMedia={this.getLocalMediaGuestWrapper}
                 setDevice={this.setDevice}
+                audioManager={this.audioManager.current}
             />
         );
     }

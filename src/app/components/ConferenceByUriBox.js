@@ -185,19 +185,20 @@ class ConferenceByUriBox extends React.Component {
         if (this.props.account !== null && this.props.localMedia) {
             content = (
                 <Conference
-                    notificationCenter = {this.props.notificationCenter}
-                    localMedia = {this.props.localMedia}
-                    account = {this.props.account}
-                    currentCall = {this.props.currentCall}
-                    targetUri = {this.props.targetUri}
-                    hangupCall = {this.props.hangupCall}
-                    shareScreen = {this.props.shareScreen}
-                    generatedVideoTrack = {this.props.generatedVideoTrack}
-                    participantIsGuest = {true}
-                    propagateKeyPress = {this.props.propagateKeyPress}
-                    toggleShortcuts = {this.props.toggleShortcuts}
-                    lowBandwidth = {this.state.lowBandwidth}
-                    setDevice = {this.props.setDevice}
+                    notificationCenter={this.props.notificationCenter}
+                    localMedia={this.props.localMedia}
+                    account={this.props.account}
+                    currentCall={this.props.currentCall}
+                    targetUri={this.props.targetUri}
+                    hangupCall={this.props.hangupCall}
+                    shareScreen={this.props.shareScreen}
+                    generatedVideoTrack={this.props.generatedVideoTrack}
+                    participantIsGuest={true}
+                    propagateKeyPress={this.props.propagateKeyPress}
+                    toggleShortcuts={this.props.toggleShortcuts}
+                    lowBandwidth={this.state.lowBandwidth}
+                    setDevice={this.props.setDevice}
+                    audioManager = {this.props.audioManager}
                 />
             );
         } else {
@@ -333,21 +334,22 @@ class ConferenceByUriBox extends React.Component {
 }
 
 ConferenceByUriBox.propTypes = {
-    classes             : PropTypes.object.isRequired,
-    notificationCenter  : PropTypes.func.isRequired,
-    handler             : PropTypes.func.isRequired,
-    hangupCall          : PropTypes.func.isRequired,
-    setDevice           : PropTypes.func.isRequired,
-    shareScreen         : PropTypes.func.isRequired,
-    propagateKeyPress   : PropTypes.func.isRequired,
-    toggleShortcuts     : PropTypes.func.isRequired,
-    getLocalMedia       : PropTypes.func.isRequired,
-    targetUri           : PropTypes.string,
-    localMedia          : PropTypes.object,
-    account             : PropTypes.object,
-    currentCall         : PropTypes.object,
-    generatedVideoTrack : PropTypes.bool,
-    lowBandwidth        : PropTypes.bool
+    classes: PropTypes.object.isRequired,
+    notificationCenter: PropTypes.func.isRequired,
+    handler: PropTypes.func.isRequired,
+    hangupCall: PropTypes.func.isRequired,
+    setDevice: PropTypes.func.isRequired,
+    shareScreen: PropTypes.func.isRequired,
+    propagateKeyPress: PropTypes.func.isRequired,
+    toggleShortcuts: PropTypes.func.isRequired,
+    getLocalMedia: PropTypes.func.isRequired,
+    targetUri: PropTypes.string,
+    localMedia: PropTypes.object,
+    account: PropTypes.object,
+    currentCall: PropTypes.object,
+    generatedVideoTrack: PropTypes.bool,
+    lowBandwidth: PropTypes.bool,
+    audioManager: PropTypes.object.isRequired
 };
 
 

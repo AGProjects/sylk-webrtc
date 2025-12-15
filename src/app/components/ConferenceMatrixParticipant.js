@@ -85,7 +85,10 @@ class ConferenceMatrixParticipant extends React.Component {
     maybeAttachStream() {
         const streams = this.props.participant.streams;
         if (streams.length > 0) {
-            sylkrtc.utils.attachMediaStream(streams[0], this.videoElement.current, {muted: this.props.isLocal});
+            sylkrtc.utils.attachMediaStream(streams[0], this.videoElement.current, {muted: true});
+            const el = this.props.audioManager.createAudio(this.props.participant.id)
+            sylkrtc.utils.attachMediaStream(streams[0], el);
+
             this.setState({hasVideo: streams[0].getVideoTracks().length > 0});
             if (this.props.pauseVideo && !this.props.isLocal) {
                 this.props.participant.pauseVideo();
@@ -174,7 +177,8 @@ ConferenceMatrixParticipant.propTypes = {
     handleHandSelected: PropTypes.func,
     audioOnly: PropTypes.bool,
     pauseVideo: PropTypes.bool,
-    stats: PropTypes.object
+    stats: PropTypes.object,
+    audioManager: PropTypes.object.isRequired
 };
 
 

@@ -1378,6 +1378,7 @@ class ConferenceBox extends React.Component {
                             disableHandToggle={disableHandToggle}
                             pauseVideo={this.props.lowBandwidth}
                             stats={this.participantStats[p.id]}
+                            audioManager={this.props.audioManager}
                         />
                     );
                 });
@@ -1394,6 +1395,7 @@ class ConferenceBox extends React.Component {
                                 disableHandToggle={disableHandToggle}
                                 pauseVideo={this.props.lowBandwidth}
                                 stats={this.participantStats[p.id]}
+                                audioManager={this.props.audioManager}
                             />
                         );
                     }
@@ -1431,6 +1433,7 @@ class ConferenceBox extends React.Component {
                             audioOnly={chatLayout}
                             pauseVideo={this.props.lowBandwidth}
                             stats={this.participantStats[p.id]}
+                            audioManager={this.props.audioManager}
                         />
                     );
 
@@ -1649,7 +1652,8 @@ ConferenceBox.propTypes = {
     participantIsGuest: PropTypes.bool,
     lowBandwidth: PropTypes.bool,
     toggleChatInCall: PropTypes.func,
-    unreadMessages: PropTypes.object
+    unreadMessages: PropTypes.object,
+    audioManager: PropTypes.object.isRequired
 };
 
 ReactMixin(ConferenceBox.prototype, FullscreenMixin);

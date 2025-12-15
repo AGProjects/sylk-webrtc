@@ -81,7 +81,10 @@ class ConferenceParticipant extends React.Component {
     maybeAttachStream() {
         const streams = this.props.participant.streams;
         if (streams.length > 0) {
-            sylkrtc.utils.attachMediaStream(streams[0], this.videoElement.current);
+            sylkrtc.utils.attachMediaStream(streams[0], this.videoElement.current, {muted: true});
+            const el = this.props.audioManager.createAudio(this.props.participant.id)
+            sylkrtc.utils.attachMediaStream(streams[0], el);
+
             if (this.props.pauseVideo) {
                 this.props.participant.pauseVideo();
             }
@@ -173,7 +176,8 @@ ConferenceParticipant.propTypes = {
     handleHandSelected: PropTypes.func.isRequired,
     disableHandToggle: PropTypes.bool,
     pauseVideo: PropTypes.bool,
-    stats: PropTypes.object
+    stats: PropTypes.object,
+    audioManager: PropTypes.object.isRequired
 };
 
 

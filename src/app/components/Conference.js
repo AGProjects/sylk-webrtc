@@ -75,6 +75,7 @@ class Conference extends React.Component {
                         setDevice = {this.props.setDevice}
                         toggleChatInCall = {this.props.toggleChatInCall}
                         unreadMessages = {this.props.unreadMessages}
+                        audioManager = {this.props.audioManager}
                     />
                 );
             } else {
@@ -116,8 +117,8 @@ Conference.propTypes = {
     roomMedia               : PropTypes.object,
     lowBandwidth            : PropTypes.bool,
     toggleChatInCall        : PropTypes.func,
-    unreadMessages          : PropTypes.object
-
+    unreadMessages          : PropTypes.object,
+    audioManager            : PropTypes.object.isRequired
 };
 
 

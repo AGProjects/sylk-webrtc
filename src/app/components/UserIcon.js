@@ -74,6 +74,10 @@ const UserIcon = (props) => {
         initials = <i className="fa fa-user fa-2x fa-fw"></i>;
     }
 
+    if (props.isConference) {
+        initials = <i className="fa fa-users fa-2x fa-fw"></i>;
+    }
+
     return (
         <Avatar className={avatarClasses} style={{backgroundColor: color}}>
             {initials}
@@ -88,7 +92,8 @@ UserIcon.propTypes = {
     carousel: PropTypes.bool,
     small: PropTypes.bool,
     active: PropTypes.bool,
-    chatContact: PropTypes.bool
+    chatContact: PropTypes.bool,
+    isConference: PropTypes.bool
 };
 
 

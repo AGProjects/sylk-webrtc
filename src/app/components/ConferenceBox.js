@@ -484,6 +484,7 @@ class ConferenceBox extends React.Component {
                 participants: participants
             });
         }
+        this.props.audioManager.removeAudio(p.id)
         p.detach(true);
         // this.changeResolution();
     }

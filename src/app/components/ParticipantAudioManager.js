@@ -47,4 +47,5 @@ const ParticipantAudioManager = forwardRef((props, ref) => {
     );
 });
 
+ParticipantAudioManager.displayName = 'ParticipantAudioManager';
 module.exports = ParticipantAudioManager;

@@ -88,8 +88,8 @@ class CallOverlay extends React.Component {
 
                 callDetail = (
                     <span>
-                    <i className="fa fa-clock-o"></i>{" "}
-                    <Timer startTime={this.props.call._startTime} />{" "}
+                    <i className="fa fa-clock-o"></i>{' '}
+                    <Timer startTime={this.props.call._startTime} />{' '}
                     {this.props.callQuality}
                     </span>
                 );

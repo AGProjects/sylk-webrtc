@@ -5,8 +5,8 @@ const PropTypes         = require('prop-types');
 const { default: clsx } = require('clsx');
 const { default: TransitionGroup } = require('react-transition-group/TransitionGroup');
 const { default: CSSTransition } = require('react-transition-group/CSSTransition');
-const { DateTime }      = require("luxon");
-const Timer = require("./Timer");
+const { DateTime }      = require('luxon');
+const Timer = require('./Timer');
 
 
 const ConferenceHeader = (props) => {
@@ -26,7 +26,7 @@ const ConferenceHeader = (props) => {
 
         const callDetail = (
             <span>
-                <i className="fa fa-clock-o"></i>{" "}
+                <i className="fa fa-clock-o"></i>{' '}
                 <Timer startTime={props.call._startTime} />
                 &nbsp;&mdash;&nbsp;
                 <i className="fa fa-users"></i> {participantCount} participant{participantCount > 1 ? 's' : ''}

@@ -600,7 +600,7 @@ class Blink extends React.Component {
                     inboundCall: null,
                     localMedia: null,
                     generatedVideoTrack: false,
-                    previousTargetUri: this.state.targetUri,
+                    previousTargetUri: this.state.targetUri
                 });
                 this.savedConferenceState = null;
                 this.audioManager.current.destroy();

@@ -1661,7 +1661,9 @@ ConferenceBox.propTypes = {
     lowBandwidth: PropTypes.bool,
     toggleChatInCall: PropTypes.func,
     unreadMessages: PropTypes.object,
-    audioManager: PropTypes.object.isRequired
+    audioManager: PropTypes.object.isRequired,
+    getSavedState: PropTypes.func,
+    saveState: PropTypes.func.isRequired
 };
 
 ReactMixin(ConferenceBox.prototype, FullscreenMixin);

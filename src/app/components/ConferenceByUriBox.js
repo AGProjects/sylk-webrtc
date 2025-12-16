@@ -351,7 +351,9 @@ ConferenceByUriBox.propTypes = {
     currentCall: PropTypes.object,
     generatedVideoTrack: PropTypes.bool,
     lowBandwidth: PropTypes.bool,
-    audioManager: PropTypes.object.isRequired
+    audioManager: PropTypes.object.isRequired,
+    getSavedState: PropTypes.func,
+    saveState: PropTypes.func.isRequired
 };
 
 

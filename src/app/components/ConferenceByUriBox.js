@@ -1,13 +1,13 @@
 'use strict';
 
-const React      = require('react');
-const PropTypes  = require('prop-types');
-const  { default: clsx } = require('clsx');
+const React = require('react');
+const PropTypes = require('prop-types');
+const { default: clsx } = require('clsx');
 
 const ReactBootstrap = require('react-bootstrap');
-const Popover        = ReactBootstrap.Popover;
+const Popover = ReactBootstrap.Popover;
 const OverlayTrigger = ReactBootstrap.OverlayTrigger;
-const { withStyles }    = require('@material-ui/core/styles');
+const { withStyles } = require('@material-ui/core/styles');
 const { Switch, FormGroup, FormControl, FormControlLabel, Typography } = require('@material-ui/core');
 const { ButtonGroup } = require('@material-ui/core');
 const { Popper, ClickAwayListener, Paper, Grow } = require('@material-ui/core');
@@ -15,11 +15,11 @@ const { MenuItem, MenuList, ListItemIcon } = require('@material-ui/core');
 
 const { Button } = require('../MaterialUIAsBootstrap');
 const Conference = require('./Conference');
-const FooterBox  = require('./FooterBox');
-const Logo       = require('./Logo');
-const PreMedia   = require('./PreMedia');
+const FooterBox = require('./FooterBox');
+const Logo = require('./Logo');
+const PreMedia = require('./PreMedia');
 
-const sylkrtc               = require('sylkrtc');
+const sylkrtc = require('sylkrtc');
 
 
 const styles = {
@@ -132,39 +132,39 @@ class ConferenceByUriBox extends React.Component {
 
     callStateChanged(oldState, newState, data) {
         if (newState === 'terminated') {
-            this._notificationCenter.postSystemNotification('Thanks for calling with Sylk!', {timeout: 10});
+            this._notificationCenter.postSystemNotification('Thanks for calling with Sylk!', { timeout: 10 });
         }
     }
 
     handleDisplayNameChange(event) {
-        this.setState({displayName: event.target.value});
+        this.setState({ displayName: event.target.value });
     }
 
     handleAudio(event) {
         let preferredMedia = Object.assign({}, this.state.preferredMedia);
         preferredMedia.video = false;
-        this.setState({preferredMedia, open: false});
+        this.setState({ preferredMedia, open: false });
         event.persist();
-        setImmediate(() => {this.handleSubmit(event)});
+        setImmediate(() => { this.handleSubmit(event) });
     }
 
     handleToggle(event) {
         event.currentTarget.blur();
-        this.setState({open: !this.state.open});
+        this.setState({ open: !this.state.open });
     }
 
     handleClose(event) {
         if (this.anchorRef.current && this.anchorRef.current.contains(event.target)) {
             return;
         }
-        this.setState({open: false});
+        this.setState({ open: false });
     }
 
     handleSubmit(event) {
         event.preventDefault();
         let displayName;
         if (this.state.displayName === '') {
-            this.setState({displayName: 'Guest'});
+            this.setState({ displayName: 'Guest' });
             displayName = 'Guest';
         } else {
             displayName = this.state.displayName;
@@ -177,7 +177,7 @@ class ConferenceByUriBox extends React.Component {
         if (this.state.lowBandwidth) {
             preferredMedia.video = false;
         }
-        this.props.handler(displayName, this.props.targetUri, {lowBandwidth: this.state.lowBandwidth, mediaConstraints: preferredMedia});
+        this.props.handler(displayName, this.props.targetUri, { lowBandwidth: this.state.lowBandwidth, mediaConstraints: preferredMedia });
     }
 
     render() {
@@ -205,34 +205,34 @@ class ConferenceByUriBox extends React.Component {
             );
         } else {
             const classes = clsx({
-                'capitalize' : true,
-                'btn'        : true,
-                'btn-lg'     : true,
-                'btn-block'  : true,
+                'capitalize': true,
+                'btn': true,
+                'btn-lg': true,
+                'btn-block': true,
                 'btn-primary': true
             });
             const caretClasses = clsx({
-                'fa'           : true,
+                'fa': true,
                 'fa-caret-down': !this.state.open,
-                'fa-caret-up'  : this.state.open
+                'fa-caret-up': this.state.open
             });
 
             const friendlyName = this.props.targetUri.split('@')[0];
 
             const popoverBottom = (
                 <Popover id="popover-positioned-bottom" title="Low Bandwidth mode">
-                        <Typography align="left">In low bandwidth mode you will participate with audio and chat. Video and screen-sharing are not available.</Typography>
+                    <Typography align="left">In low bandwidth mode you will participate with audio and chat. Video and screen-sharing are not available.</Typography>
                 </Popover>
             );
 
             content = (
                 <div>
                     <PreMedia
-                        localMedia={this.props.generatedVideoTrack ? null : this.props.localMedia }
+                        localMedia={this.props.generatedVideoTrack ? null : this.props.localMedia}
                         hide={this.state.lowBandwidth}
                     />
                     <Logo />
-                    <h2>Join conference room:<br/><strong>{friendlyName}</strong></h2>
+                    <h2>Join conference room:<br /><strong>{friendlyName}</strong></h2>
                     <form className="form-guest" onSubmit={this.handleSubmit}>
                         <label className="sr-only">Name</label>
                         <div className="input-group">
@@ -252,10 +252,10 @@ class ConferenceByUriBox extends React.Component {
                                         control={
                                             <GreenSwitch
                                                 checked={this.state.lowBandwidth}
-                                                onChange={(event) => this.setState({lowBandwidth: event.target.checked})}
+                                                onChange={(event) => this.setState({ lowBandwidth: event.target.checked })}
                                                 color="primary"
                                                 name="low-bandwith"
-                                                inputProps={{'aria-label': 'enable low bandwidth mode'}}
+                                                inputProps={{ 'aria-label': 'enable low bandwidth mode' }}
                                             />
                                         }
                                         className={this.props.classes.label}
@@ -291,7 +291,7 @@ class ConferenceByUriBox extends React.Component {
                             placement="bottom-start"
                             transition
                             disablePortal
-                            style={{marginTop: '8px', width: '300px'}}
+                            style={{ marginTop: '8px', width: '300px' }}
                         >
                             {({ TransitionProps, placement }) => (
                                 <Grow
@@ -300,7 +300,7 @@ class ConferenceByUriBox extends React.Component {
                                         transformOrigin: placement === 'bottom-start' ? 'right top' : 'left bottom'
                                     }}
                                 >
-                                    <Paper style={{width: '100%'}}>
+                                    <Paper style={{ width: '100%' }}>
                                         <ClickAwayListener onClickAway={this.handleClose}>
                                             <MenuList id="split-button-menu">
                                                 <MenuItem

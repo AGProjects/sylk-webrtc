@@ -2422,16 +2422,7 @@ class Blink extends React.Component {
                         account={this.state.account}
                         targetUri={this.state.targetUri}
                         currentCall={this.state.currentCall}
-                        escalateToConference={this.escalateToConference}
                         hangupCall={this.hangupCall}
-                        shareScreen={this.switchScreensharing}
-                        generatedVideoTrack={this.state.generatedVideoTrack}
-                        setDevice={this.setDevice}
-                        toggleChatInCall={this.toggleChatInCall}
-                        inlineChat={this.chatWrapper(true)}
-                        unreadMessages={{ total: this.state.unreadMessages, call: this.state.unreadCallMessages }}
-                        notificationCenter={this.notificationCenter}
-                        propagateKeyPress={this.state.propagateKeyPress}
                         remoteAudio={this.remoteAudio}
                         router={this.router.current}
                     />

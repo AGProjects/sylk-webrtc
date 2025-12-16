@@ -341,18 +341,9 @@ Call.propTypes = {
     router: PropTypes.object.isRequired,
     account: PropTypes.object.isRequired,
     hangupCall: PropTypes.func.isRequired,
-    setDevice: PropTypes.func.isRequired,
-    shareScreen: PropTypes.func.isRequired,
     currentCall: PropTypes.object,
-    escalateToConference: PropTypes.func,
     localMedia: PropTypes.object,
     targetUri: PropTypes.string,
-    generatedVideoTrack: PropTypes.bool,
-    toggleChatInCall: PropTypes.func,
-    inlineChat: PropTypes.object,
-    notificationCenter: PropTypes.func,
-    unreadMessages: PropTypes.object,
-    propagateKeyPress: PropTypes.bool,
     remoteAudio: PropTypes.object
 };
 

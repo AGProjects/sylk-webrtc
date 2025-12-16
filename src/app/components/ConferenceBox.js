@@ -208,6 +208,11 @@ class ConferenceBox extends React.Component {
         });
 
         this.participantStats = {};
+
+        this.audioPlayerParticipantJoined = React.createRef();
+        this.audioPlayerParticipantLeft = React.createRef();
+        this.shareOverlay = React.createRef();
+        this.largeVideo = React.createRef();
     }
 
     componentDidMount() {
@@ -459,7 +464,7 @@ class ConferenceBox extends React.Component {
 
     onParticipantJoined(p) {
         DEBUG(`Participant joined: ${p.identity}`);
-        this.refs.audioPlayerParticipantJoined.play();
+        this.audioPlayerParticipantJoined.current.play();
         p.on('stateChanged', this.onParticipantStateChanged);
         p.attach();
         this.setState({
@@ -470,7 +475,7 @@ class ConferenceBox extends React.Component {
 
     onParticipantLeft(p) {
         DEBUG(`Participant left: ${p.identity}`);
-        this.refs.audioPlayerParticipantLeft.play();
+        this.audioPlayerParticipantLeft.current.play();
         const participants = this.state.participants.slice();
         const idx = participants.indexOf(p);
         if (idx !== -1) {
@@ -650,7 +655,7 @@ class ConferenceBox extends React.Component {
     selectVideo(item, self = false) {
         DEBUG('Switching video to: %o', item);
         if (item.stream) {
-            sylkrtc.utils.attachMediaStream(item.stream, this.refs.largeVideo, { muted: self });
+            sylkrtc.utils.attachMediaStream(item.stream, this.largeVideo.current, { muted: self });
             this.setState({ selfDisplayedLarge: true });
         }
     }
@@ -678,7 +683,7 @@ class ConferenceBox extends React.Component {
     handleClipboardButton() {
         utils.copyToClipboard(this.callUrl);
         this.props.notificationCenter().postSystemNotification('Join me, maybe?', { body: 'Link copied to the clipboard' });
-        this.refs.shareOverlay.hide();
+        this.shareOverlay.current.hide();
     }
 
     handleEmailButton(event) {
@@ -690,7 +695,7 @@ class ConferenceBox extends React.Component {
         } else {
             window.open(this.emailLink, '_self');
         }
-        this.refs.shareOverlay.hide();
+        this.shareOverlay.current.hide();
     }
 
     handleShareOverlayEntered() {
@@ -899,8 +904,8 @@ class ConferenceBox extends React.Component {
         for (let participant of this.state.participants) {
             participant.detach();
         }
-        if (typeof this.refs.largeVideo !== 'undefined') {
-            this.refs.largeVideo.pause();
+        if (typeof this.largeVideo.current !== 'undefined') {
+            this.largeVideo.current.pause();
         }
         this.props.hangup();
     }
@@ -930,8 +935,8 @@ class ConferenceBox extends React.Component {
 
     toggleInviteModal() {
         this.setState({ showInviteModal: !this.state.showInviteModal });
-        if (this.refs.showOverlay) {
-            this.refs.shareOverlay.hide();
+        if (this.showOverlay.current) {
+            this.shareOverlay.current.hide();
         }
     }
 

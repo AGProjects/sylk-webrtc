@@ -4,16 +4,16 @@ const React = require('react');
 const { useState, useEffect, useRef } = React;
 const { DateTime } = require('luxon');
 
-function Timer({ startTime, updateInterval = 300 }) {
-  const [duration, setDuration] = useState("00:00:00");
+const Timer = ({ startTime, updateInterval = 300 }) => {
+  const [duration, setDuration] = useState('00:00:00');
   const intervalRef = useRef(null);
 
   useEffect(() => {
     if (!startTime) return;
 
     const tick = () => {
-        const elapsed = DateTime.local().diff(startTime, "seconds");
-        const formatted = elapsed.toFormat("hh:mm:ss");
+        const elapsed = DateTime.local().diff(startTime, 'seconds');
+        const formatted = elapsed.toFormat('hh:mm:ss');
         setDuration(formatted);
     };
     tick();
@@ -25,5 +25,10 @@ function Timer({ startTime, updateInterval = 300 }) {
 
   return <>{duration}</>;
 }
+
+Timer.propTypes = {
+        startTime: PropTypes.object,
+        updateInterval: PropTypes.number
+};
 
 module.exports = Timer;

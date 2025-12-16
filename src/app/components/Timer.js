@@ -2,6 +2,7 @@
 
 const React = require('react');
 const { useState, useEffect, useRef } = React;
+const PropTypes = require('prop-types');
 const { DateTime } = require('luxon');
 
 const Timer = ({ startTime, updateInterval = 300 }) => {

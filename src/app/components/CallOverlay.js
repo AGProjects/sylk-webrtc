@@ -201,7 +201,7 @@ CallOverlay.propTypes = {
     call: PropTypes.object,
     callQuality: PropTypes.object,
     onTop: PropTypes.bool,
-    buttons: PropTypes.object,
+    buttons: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
     alternativeLayout: PropTypes.bool
 };
 

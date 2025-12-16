@@ -2427,7 +2427,7 @@ class Blink extends React.Component {
                         router={this.router.current}
                     />
                 }
-                {this.chatWrapper(false, call)}
+                {this.chatWrapper(false, Boolean(call))}
             </div>
         )
     }

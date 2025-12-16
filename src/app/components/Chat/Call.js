@@ -319,14 +319,15 @@ class Call extends React.Component {
                 callQuality={callQuality}
                 buttons={buttons}
                 alternativeLayout={true}
+                key="overlay"
             />
         ];
 
         if (this.props.currentCall != null && !this.state.audioOnly && !isConference &&
             (this.props.currentCall.state === 'accepted' || this.props.currentCall.state === 'established')
         ) {
-            box.push(<video id="remoteVideo" className={this.props.classes.remoteVideo} poster="assets/images/transparent-1px.png" ref={this.remoteVideo} autoPlay />);
-            box.push(<video id="localVideo" className={this.props.classes.localVideo} ref={this.localVideo} autoPlay />);
+            box.push(<video key="remotevideo" id="remoteVideo" className={this.props.classes.remoteVideo} poster="assets/images/transparent-1px.png" ref={this.remoteVideo} autoPlay />);
+            box.push(<video key="localvideo" id="localVideo" className={this.props.classes.localVideo} ref={this.localVideo} autoPlay />);
         }
         return (
             <div>

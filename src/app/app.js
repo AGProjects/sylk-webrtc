@@ -1254,6 +1254,7 @@ class Blink extends React.Component {
         this.router.current.navigate('/ready');
         this.setState({ currentCall: null, localMedia: null });
         this.participantsToInvite = participants;
+        this.savedConferenceState = null;
         const uri = `${utils.generateSillyName()}@${config.defaultConferenceDomain}`;
         this.startConference(uri);
     }
@@ -1853,6 +1854,7 @@ class Blink extends React.Component {
                 this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
                 this.state.currentCall.terminate();
                 this.setState({ currentCall: null, showIncomingModal: false, localMedia: null, generatedVideoTrack: false });
+                this.savedConferenceState = null;
             }
             setTimeout(() => {
                 this.startConference(data.room);

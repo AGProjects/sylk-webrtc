@@ -206,6 +206,15 @@ class Blink extends React.Component {
         this.showCall = true;
         this.savedConferenceState = null;
 
+        // Check if we should use hash routing
+        if (typeof window.process !== 'undefined') {
+            if (window.process.versions.electron !== '') {
+                this.shouldUseHashRouting = true;
+            }
+        }
+
+        storage.initialize(this.shouldUseHashRouting);
+
         // Refs
         this.router = React.createRef();
         this.audioPlayerInbound = React.createRef();
@@ -215,25 +224,6 @@ class Blink extends React.Component {
 
         this.remoteAudio = React.createRef();
         this.audioManager = React.createRef();
-    }
-
-    get _notificationCenter() {
-        // getter to lazy-load the NotificationCenter ref
-        if (!this.__notificationCenter) {
-            this.__notificationCenter = this.notificationCenterRef.current;
-        }
-        return this.__notificationCenter;
-    }
-
-    componentWillMount() {
-        // Check if we should use hash routing
-        if (typeof window.process !== 'undefined') {
-            if (window.process.versions.electron !== '') {
-                this.shouldUseHashRouting = true;
-            }
-        }
-
-        storage.initialize(this.shouldUseHashRouting);
 
         if (window.location.hash.startsWith('#!/')) {
             this.redirectTo = window.location.hash.replace('#!', '');
@@ -248,7 +238,22 @@ class Blink extends React.Component {
             if (/^\/conference\/?$/g.test(window.location.pathname)) {
                 this.redirectTo = `/conference/${utils.generateSillyName()}`;
             }
+        }
+    }
 
+    get _notificationCenter() {
+        // getter to lazy-load the NotificationCenter ref
+        if (!this.__notificationCenter) {
+            this.__notificationCenter = this.notificationCenterRef.current;
+        }
+        return this.__notificationCenter;
+    }
+
+    componentDidMount() {
+
+        if (this.redirectTo) {
+            window.location.replace(this.redirectTo);
+            return;
         }
 
         history.load().then((entries) => {
@@ -270,9 +275,7 @@ class Blink extends React.Component {
                 this.setState({ contactCache: new Map(cache) })
             }
         });
-    }
 
-    componentDidMount() {
         if (!window.RTCPeerConnection) {
             setTimeout(() => {
                 this.router.current.navigate('/not-supported');
@@ -1998,8 +2001,7 @@ class Blink extends React.Component {
 
     render() {
         if (this.redirectTo !== null) {
-            window.location.href = this.redirectTo;
-            return false;
+            return null;
         }
 
         let loadingScreen;

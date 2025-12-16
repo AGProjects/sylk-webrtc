@@ -1,6 +1,6 @@
 {
   "name": "Sylk",
-  "version": "3.7.0",
+  "version": "3.8.0",
   "license": "AGPL-3.0-or-later",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead, electron 13.6.9",

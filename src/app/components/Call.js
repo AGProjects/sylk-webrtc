@@ -30,7 +30,7 @@ class Call extends React.Component {
         this.hangupCall = this.hangupCall.bind(this);
 
         // If current call is available on mount we must have incoming
-        if (this.props.currentCall != null) {
+        if (this.props.currentCall != null && this.props.currentCall.state !== 'established') {
             this.props.currentCall.on('stateChanged', this.callStateChanged);
         }
     }

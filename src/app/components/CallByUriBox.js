@@ -128,7 +128,7 @@ CallByUriBox.propTypes = {
     account             : PropTypes.object,
     currentCall         : PropTypes.object,
     generatedVideoTrack : PropTypes.bool,
-    remoteAudio         : PropTypes.object,
+    remoteAudio         : PropTypes.object
 };
 
 

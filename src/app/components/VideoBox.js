@@ -122,6 +122,8 @@ class VideoBox extends React.Component {
         if (promise !== undefined) {
             promise.then(_ => {
                 this.setState({ localVideoShow: true });    // eslint-disable-line react/no-did-mount-set-state
+                const localStream = this.props.call.getLocalStreams()[0];
+                this.setState({audioMuted: !localStream.getAudioTracks()[0].enabled});
                 // Autoplay started!
             }).catch(error => {
                 // Autoplay was prevented.
@@ -451,6 +453,7 @@ class VideoBox extends React.Component {
         );
         e.target.value = '';
     }
+
     render() {
         if (this.props.call == null) {
             return (<div></div>);

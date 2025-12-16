@@ -69,7 +69,6 @@ class AudioCallBox extends React.Component {
             showEscalateConferenceModal: false,
             showAudioSwitchMenu: false,
             showStatistics: false,
-            showChat: false,
             showInlineChat: false,
             audioGraphData: data,
             lastData: {}
@@ -89,7 +88,6 @@ class AudioCallBox extends React.Component {
             'toggleAudioSwitchMenu',
             'toggleStatistics',
             'toggleChatInCall',
-            'toggleCall',
             'toggleInlineChat',
             'escalateToConference',
             'onKeyDown',
@@ -125,6 +123,8 @@ class AudioCallBox extends React.Component {
             }
             this.props.call.statistics.on('stats', this.statistics);
             this.props.call.account.on('incomingMessage', this.incomingMessage);
+            const localStream = this.props.call.getLocalStreams()[0];
+            this.setState({audioMuted: !localStream.getAudioTracks()[0].enabled});
         } else {
             this.props.mediaPlaying();
         }
@@ -285,21 +285,7 @@ class AudioCallBox extends React.Component {
     }
 
     toggleChatInCall() {
-        if (!this.state.showChat) {
-            this.setState({
-                showChat: !this.state.showChat
-            });
-            this.props.toggleChatInCall();
-        }
-    }
-
-    toggleCall() {
-        if (this.state.showChat) {
-            this.setState({
-                showChat: !this.state.showChat
-            });
-            this.props.toggleChatInCall();
-        }
+        this.props.toggleChatInCall();
     }
 
     toggleInlineChat() {
@@ -384,24 +370,13 @@ class AudioCallBox extends React.Component {
             'btn-link',
         );
 
-        const callButtonClasses = clsx(
-            baseLink,
-            {
-                'active': !this.state.showChat,
-                'blink': this.state.showChat
-            }
-        );
-
         const chatButtonClasses = clsx(
-            baseLink,
-            {
-                'active': this.state.showChat
-            }
+            baseLink
         );
 
         const callClasses = clsx({
-            'drawer-half-visible': this.state.showInlineChat && !this.state.showChat && !utils.isMobile.any(),
-            'drawer-visible': this.state.showInlineChat && !this.state.showChat && utils.isMobile.any()
+            'drawer-half-visible': this.state.showInlineChat && !utils.isMobile.any(),
+            'drawer-visible': this.state.showInlineChat && utils.isMobile.any()
         });
 
         const shareButtonClasses = clsx(
@@ -444,27 +419,16 @@ class AudioCallBox extends React.Component {
                         >
                             <i className="fa fa-comments fa-2x" />
                         </button>
-                    </Badge>,
-                    <button key="callButton" type="button" className={callButtonClasses} onClick={this.toggleCall} title="Call screen">
-                        <i className="fa fa-2x fa-phone" />
-                    </button>
+                    </Badge>
                 ]
             } else {
-                if (this.state.showChat) {
-                    topButtons.top.left = [
-                        <button key="callButton" type="button" className={callButtonClasses} onClick={this.toggleCall}>
-                            <i className="fa fa-2x fa-phone" />
+                topButtons.top.left = [
+                    <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
+                        <button key="chatButton" type="button" className={chatButtonClasses} onClick={this.toggleChatInCall}>
+                            <i className="fa fa-comments fa-2x" />
                         </button>
-                    ]
-                } else {
-                    topButtons.top.left = [
-                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
-                            <button key="chatButton" type="button" className={chatButtonClasses} onClick={this.toggleChatInCall}>
-                                <i className="fa fa-comments fa-2x" />
-                            </button>
-                        </Badge>
-                    ]
-                }
+                    </Badge>
+                ]
             }
         }
         return (

@@ -22,6 +22,7 @@ const Call = require('./components/Call');
 const CallByUriBox = require('./components/CallByUriBox');
 const CallCompleteBox = require('./components/CallCompleteBox');
 const Chat = require('./components/Chat');
+const ChatCall = require('./components/Chat/Call');
 const Conference = require('./components/Conference');
 const ConferenceByUriBox = require('./components/ConferenceByUriBox');
 const AudioPlayer = require('./components/AudioPlayer');
@@ -107,7 +108,6 @@ class Blink extends React.Component {
             haveFocus: false,
             unreadMessages: 0,
             unreadCallMessages: 0,
-            showChatInCall: false,
             storageLoadEmpty: false
         };
         this.state = Object.assign({}, this._initialSstate);
@@ -129,6 +129,7 @@ class Blink extends React.Component {
             'handleRetry',
             'handleRegistration',
             'startCall',
+            'startChatCall',
             'startConference',
             'answerCall',
             'resumeCall',
@@ -202,6 +203,7 @@ class Blink extends React.Component {
         this.lastMessageFocus = '';
         this.retransmittedMessages = [];
         this.unreadTimer = null;
+        this.showCall = true;
         this.savedConferenceState = null;
 
         // Refs
@@ -599,7 +601,6 @@ class Blink extends React.Component {
                     localMedia: null,
                     generatedVideoTrack: false,
                     previousTargetUri: this.state.targetUri,
-                    showChatInCall: false
                 });
                 this.savedConferenceState = null;
                 this.audioManager.current.destroy();
@@ -1076,6 +1077,20 @@ class Blink extends React.Component {
         this.getLocalMedia(Object.assign({ audio: true, video: true }, options), '/call');
     }
 
+    startChatCall(targetUri, options) {
+        options = Object.assign({ audio: true, video: true }, options);
+        if (options.video) {
+            this.showCall = false;
+            this.startCall(targetUri, options)
+            return;
+        }
+        this.showCall = true;
+        this.setState({ targetUri: targetUri });
+        this.addCallHistoryEntry(targetUri);
+        this.getLocalMedia(options, null);
+    }
+
+
     startGuestCall(targetUri, options) {
         this.setState({ targetUri: targetUri });
         if (this.isRetry) {
@@ -1164,26 +1179,28 @@ class Blink extends React.Component {
         if (path !== '/conference' && !domain.startsWith('guest') && this.lastMessageFocus === '') {
             this.lastMessageFocus = this.state.currentCall.remoteIdentity.uri;
         }
-        this.setState({
-            showChatInCall: !this.state.showChatInCall
-        });
+        this.showCall = true;
+        this.router.current.navigate('/chat');
     }
 
     toggleChatInConference() {
-        this.setState({
-            showChatInCall: !this.state.showChatInCall
-        });
+        this.toggleChatInCall()
     }
 
     resumeCall() {
         if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
+            this.showCall = false;
             this.startConference(this.state.targetUri, {
                 mediaConstraints: { audio: true, video: this.resumeVideoCall },
                 roomMedia: this.state.roomMedia,
                 lowBandwidth: this.state.lowBandwidth
             });
         } else {
-            this.startCall(this.state.targetUri, { audio: true, video: this.resumeVideoCall });
+            if (this.router.current.getPath() == '/chat') {
+                this.startChatCall(this.state.targetUri, { audio: true, video: this.resumeVideoCall });
+            } else {
+                this.startCall(this.state.targetUri, { audio: true, video: this.resumeVideoCall });
+            }
             this.resumeVideoCall = true;
         }
     }
@@ -1202,7 +1219,14 @@ class Blink extends React.Component {
             this.setState({ currentCall: this.state.inboundCall, inboundCall: this.state.inboundCall, localMedia: null });
             this.state.inboundCall.on('stateChanged', this.callStateChanged);
         }
-        this.getLocalMedia(Object.assign({ audio: true, video: true }, options), '/call');
+        options = Object.assign({ audio: true, video: true }, options);
+        if (!options.video && this.router.current.getPath() == '/chat') {
+            this.showCall = true;
+            this.getLocalMedia(options);
+            return;
+        }
+        this.showCall = false;
+        this.getLocalMedia(options, '/call');
     }
 
     rejectCall() {
@@ -2223,7 +2247,7 @@ class Blink extends React.Component {
                 account={this.state.account}
                 contactCache={this.state.contactCache}
                 oldMessages={this.state.oldMessages}
-                startCall={this.startCall}
+                startCall={this.startChatCall}
                 messageStorage={messageStorage}
                 propagateKeyPress={this.togglePropagateKeyPress}
                 focusOn={lastMessageFocus}
@@ -2305,12 +2329,6 @@ class Blink extends React.Component {
     call() {
         return (
             <React.Fragment>
-                {this.state.showChatInCall && this.state.messagesLoadingProgress &&
-                    <MessagesLoadingScreen progress={this.state.messagesLoadingProgress} />
-                }
-                {this.state.showChatInCall &&
-                    [this.chatWrapper(false, true)]
-                }
                 <Call
                     localMedia={this.state.localMedia}
                     account={this.state.account}
@@ -2377,6 +2395,8 @@ class Blink extends React.Component {
     }
 
     chat() {
+        let call = false;
+        call = this.showCall && this.state.localMedia !== null && (this.state.targetUri || this.state.inboundCall != null);
         return (
             <div>
                 <NavigationBar
@@ -2394,7 +2414,27 @@ class Blink extends React.Component {
                 {this.state.messagesLoadingProgress &&
                     <MessagesLoadingScreen progress={this.state.messagesLoadingProgress} />
                 }
-                {this.chatWrapper()}
+                {(call) &&
+                    <ChatCall
+                        localMedia={this.state.localMedia}
+                        account={this.state.account}
+                        targetUri={this.state.targetUri}
+                        currentCall={this.state.currentCall}
+                        escalateToConference={this.escalateToConference}
+                        hangupCall={this.hangupCall}
+                        shareScreen={this.switchScreensharing}
+                        generatedVideoTrack={this.state.generatedVideoTrack}
+                        setDevice={this.setDevice}
+                        toggleChatInCall={this.toggleChatInCall}
+                        inlineChat={this.chatWrapper(true)}
+                        unreadMessages={{ total: this.state.unreadMessages, call: this.state.unreadCallMessages }}
+                        notificationCenter={this.notificationCenter}
+                        propagateKeyPress={this.state.propagateKeyPress}
+                        remoteAudio={this.remoteAudio}
+                        router={this.router.current}
+                    />
+                }
+                {this.chatWrapper(false, call)}
             </div>
         )
     }
@@ -2402,12 +2442,6 @@ class Blink extends React.Component {
     conference() {
         return (
             <React.Fragment>
-                {this.state.showChatInCall && this.state.messagesLoadingProgress &&
-                    <MessagesLoadingScreen progress={this.state.messagesLoadingProgress} />
-                }
-                {this.state.showChatInCall &&
-                    [this.chatWrapper(false, true)]
-                }
                 <Conference
                     notificationCenter={this.notificationCenter}
                     localMedia={this.state.localMedia}

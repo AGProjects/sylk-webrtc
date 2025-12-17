@@ -407,29 +407,19 @@ class AudioCallBox extends React.Component {
         };
 
         if (this.props.toggleChatInCall !== undefined) {
-            if (!utils.isMobile.any()) {
-                topButtons.top.left = [
-                    <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
-                        <button
-                            key="chatButton"
-                            type="button"
-                            className={chatButtonClasses}
-                            onClick={this.toggleChatInCall}
-                            title="Chat screen"
-                        >
-                            <i className="fa fa-comments fa-2x" />
-                        </button>
-                    </Badge>
-                ]
-            } else {
-                topButtons.top.left = [
-                    <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
-                        <button key="chatButton" type="button" className={chatButtonClasses} onClick={this.toggleChatInCall}>
-                            <i className="fa fa-comments fa-2x" />
-                        </button>
-                    </Badge>
-                ]
-            }
+            topButtons.top.left = [
+                <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
+                    <button
+                        key="chatButton"
+                        type="button"
+                        className={chatButtonClasses}
+                        onClick={this.toggleChatInCall}
+                        title="Chat screen"
+                    >
+                        <i className="fa fa-comments fa-2x" />
+                    </button>
+                </Badge>
+            ]
         }
         return (
             <React.Fragment>

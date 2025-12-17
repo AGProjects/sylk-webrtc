@@ -1158,36 +1158,13 @@ class ConferenceBox extends React.Component {
 
         const topLeftButtons = [];
         if (!this.props.participantIsGuest) {
-            if (!utils.isMobile.any()) {
-                topLeftButtons.push(
-                    <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ root: this.props.classes.root, badge: this.props.classes.badge }} overlap="circular">
-                        <button key="chatButton" type="button" className={commonButtonTopClasses} onClick={this.toggleChatInCall}>
-                            <i className="fa fa-comments fa-2x" />
-                        </button>
-                    </Badge>
-                );
-                topLeftButtons.push(
-                    <button key="callButton" type="button" className={callButtonClasses} onClick={this.toggleCall}>
-                        <i className="fa fa-2x fa-phone" />
+            topLeftButtons.push(
+                <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
+                    <button key="chatButton" type="button" className={commonButtonTopClasses} onClick={this.toggleChatInCall}>
+                        <i className="fa fa-comments fa-2x" />
                     </button>
-                );
-            } else {
-                if (this.state.showChat) {
-                    topLeftButtons.push(
-                        <button key="callButton" type="button" className={callButtonClasses} onClick={this.toggleCall}>
-                            <i className="fa fa-2x fa-phone" />
-                        </button>
-                    );
-                } else {
-                    topLeftButtons.push(
-                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ root: this.props.classes.root, badge: this.props.classes.badge }} overlap="circular">
-                            <button key="chatButton" type="button" className={commonButtonTopClasses} onClick={this.toggleChatInCall}>
-                                <i className="fa fa-comments fa-2x" />
-                            </button>
-                        </Badge>
-                    );
-                }
-            }
+                </Badge>
+            );
         }
         buttons.top = { left: topLeftButtons, right: topButtons };
 

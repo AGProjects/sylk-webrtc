@@ -649,40 +649,19 @@ class VideoBox extends React.Component {
         };
 
         if (this.props.toggleChatInCall !== undefined) {
-            if (!utils.isMobile.any()) {
-                topButtons.top.left = [
-                    <Badge
-                        key="unreadBadge"
-                        badgeContent={unreadMessages}
-                        color="primary"
-                        classes={{ badge: this.props.classes.badge }}
-                        overlap="circular"
-                    >
-                        <button key="chatButton" type="button" className={chatButtonClasses} onClick={this.toggleChatInCall} title="Chat screen">
-                            <i className="fa fa-comments fa-2x" />
-                        </button>
-                    </Badge>,
-                    <button key="callButton" type="button" className={callButtonClasses} onClick={this.toggleCall} title="Call screen">
-                        <i className="fa fa-2x fa-phone" />
+            topButtons.top.left = [
+                <Badge
+                    key="unreadBadge"
+                    badgeContent={unreadMessages}
+                    color="primary"
+                    classes={{ badge: this.props.classes.badge }}
+                    overlap="circular"
+                >
+                    <button key="chatButton" type="button" className={chatButtonClasses} onClick={this.toggleChatInCall} title="Chat screen">
+                        <i className="fa fa-comments fa-2x" />
                     </button>
-                ]
-            } else {
-                if (this.state.showChat) {
-                    topButtons.top.left = [
-                        <button key="callButton" type="button" className={callButtonClasses} onClick={this.toggleCall}>
-                            <i className="fa fa-2x fa-phone" />
-                        </button>
-                    ]
-                } else {
-                    topButtons.top.left = [
-                        <Badge key="unreadBadge" badgeContent={unreadMessages} color="primary" classes={{ root: this.props.classes.root, badge: this.props.classes.badge }} overlap="circular">
-                            <button key="chatButton" type="button" className={chatButtonClasses} onClick={this.toggleChatInCall}>
-                                <i className="fa fa-comments fa-2x" />
-                            </button>
-                        </Badge>
-                    ]
-                }
-            }
+                </Badge>
+            ]
         }
 
         return (

@@ -1462,6 +1462,13 @@ class Blink extends React.Component {
             return;
         }
 
+        if (message.contentType === 'text/pgp-public-key-imported') {
+            if (this.state.showEncryptionModal) {
+                this.toggleEncryptionModal();
+                return;
+            }
+        }
+
         storage.set(`lastMessageId-${this.state.accountId}`, message.id);
         messageStorage.add(message);
 

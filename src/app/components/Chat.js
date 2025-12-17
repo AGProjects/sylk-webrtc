@@ -142,6 +142,9 @@ const Chat = (props) => {
         DEBUG('Loading messages');
         const incomingMessage = (message) => {
             DEBUG('Incoming Message from: %s', message.sender.uri);
+            if (message.contentType === 'text/pgp-public-key-imported') {
+                return;
+            }
             let oldMessages = Object.assign({}, messagesRef.current);
             let hasId = false;
             if (!oldMessages[message.sender.uri]) {

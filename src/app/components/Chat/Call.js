@@ -313,7 +313,6 @@ class Call extends React.Component {
                 show={true}
                 remoteIdentity={remoteIdentity}
                 call={this.props.currentCall}
-                forceTimerStart={false}
                 onTop={true}
                 disableHide={true}
                 callQuality={callQuality}

@@ -127,6 +127,9 @@ const MessageList = ({
         };
 
         const entries = messages.filter((message) => {
+            if (message.contentType === 'text/pgp-public-key-imported') {
+                return false;
+            }
             return !message.content.startsWith('?OTRv');
         }).map((message) => {
             let continues = false;

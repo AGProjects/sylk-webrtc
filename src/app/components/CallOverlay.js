@@ -34,7 +34,7 @@ class CallOverlay extends React.Component {
 
     componentDidMount() {
         if (this.props.call) {
-            if (this.props.call.state !== 'terminated') {
+            if (!['terminated', 'accepted', 'established'].includes(this.props.call.state)) {
                 this.props.call.on('stateChanged', this.callStateChanged);
             }
         }
@@ -48,7 +48,7 @@ class CallOverlay extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.call == null && this.props.call) {
-            if (this.props.call.state !== 'terminated') {
+            if (!['terminated', 'accepted', 'established'].includes(this.props.call.state)) {
                 this.props.call.on('stateChanged', this.callStateChanged);
             }
         }

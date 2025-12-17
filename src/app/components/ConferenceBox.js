@@ -1224,7 +1224,7 @@ class ConferenceBox extends React.Component {
             </button>
         );
         bottomButtons.push(
-            <OverlayTrigger key="shareOverlay" ref="shareOverlay" trigger="click" placement={!chatLayout ? 'bottom' : 'right'} overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
+            <OverlayTrigger key="shareOverlay" ref={this.shareOverlay} trigger="click" placement={!chatLayout ? 'bottom' : 'right'} overlay={shareOverlay} onEntered={this.handleShareOverlayEntered} onExited={this.handleShareOverlayExited} rootClose>
                 <button key="shareButton" type="button" title="Share link to this conference" className={commonButtonClasses}> <i className="fa fa-user-plus"></i> </button>
             </OverlayTrigger>
         );
@@ -1336,7 +1336,7 @@ class ConferenceBox extends React.Component {
 
         if (this.state.participants.length === 0) {
             videos.push(
-                <video ref="largeVideo" key="largeVideo" className={largeVideoClasses} poster="assets/images/transparent-1px.png" autoPlay muted />
+                <video ref={this.largeVideo} key="largeVideo" className={largeVideoClasses} poster="assets/images/transparent-1px.png" autoPlay muted />
             );
             if (this.props.call.getLocalStreams()[0].getVideoTracks().length === 0) {
                 videos.push(<UserIcon key="icon" identity={this.props.call.localIdentity} large />)
@@ -1512,8 +1512,8 @@ class ConferenceBox extends React.Component {
                             {participants}
                         </ConferenceCarousel>
                     </div>
-                    <AudioPlayer ref="audioPlayerParticipantJoined" sourceFile="assets/sounds/participant_joined.wav" />
-                    <AudioPlayer ref="audioPlayerParticipantLeft" sourceFile="assets/sounds/participant_left.wav" />
+                    <AudioPlayer ref={this.audioPlayerParticipantJoined} sourceFile="assets/sounds/participant_joined.wav" />
+                    <AudioPlayer ref={this.audioPlayerParticipantLeft} sourceFile="assets/sounds/participant_left.wav" />
                     <InviteParticipantsModal
                         show={this.state.showInviteModal}
                         call={this.props.call}

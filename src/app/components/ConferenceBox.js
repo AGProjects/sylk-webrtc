@@ -905,8 +905,9 @@ class ConferenceBox extends React.Component {
         for (let participant of this.state.participants) {
             participant.detach();
         }
-        if (typeof this.largeVideo.current !== 'undefined') {
-            this.largeVideo.current.pause();
+        const video = this.largeVideo.current;
+        if (video !== null) {
+              video.pause();
         }
         this.props.hangup();
     }

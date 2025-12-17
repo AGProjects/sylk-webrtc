@@ -250,7 +250,6 @@ class Blink extends React.Component {
     }
 
     componentDidMount() {
-
         if (this.redirectTo) {
             window.location.replace(this.redirectTo);
             return;
@@ -2239,7 +2238,6 @@ class Blink extends React.Component {
                 }
             });
         };
-
         const domain = this.state.currentCall && this.state.currentCall.remoteIdentity.uri.substring(this.state.currentCall.remoteIdentity.uri.indexOf('@') + 1) || '';
         let lastMessageFocus = this.lastMessageFocus
         if (embed && !domain.startsWith('guest.')) {

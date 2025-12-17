@@ -103,7 +103,6 @@ class VideoBox extends React.Component {
             'toggleSwitchMenu',
             'toggleAudioSwitchMenu',
             'toggleStatistics',
-            'toggleCall',
             'toggleChatInCall',
             'toggleInlineChat',
             'escalateToConference',
@@ -391,15 +390,6 @@ class VideoBox extends React.Component {
             });
             this.props.toggleChatInCall();
             clearTimeout(this.overlayTimer);
-        }
-    }
-
-    toggleCall() {
-        if (this.state.showChat) {
-            this.setState({
-                showChat: !this.state.showChat
-            });
-            this.props.toggleChatInCall();
         }
     }
 

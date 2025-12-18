@@ -142,7 +142,11 @@ class VideoBox extends React.Component {
         this.props.call.account.on('incomingMessage', this.incomingMessage);
 
         sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.remoteVideo.current, { disableContextMenu: true });
-        sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.props.remoteAudio.current, {muted: true,  disableContextMenu: true });
+        const stream = this.props.remoteAudio.current.srcObject;
+        if (stream.id !== this.props.call.getRemoteStreams()[0].id) {
+            DEBUG('Attaching audio');
+            sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.props.remoteAudio.current, {muted: true,  disableContextMenu: true });
+        }
         this.props.call.statistics.on('stats', this.statistics);
         document.addEventListener('keydown', this.onKeyDown);
     }

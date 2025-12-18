@@ -100,8 +100,12 @@ class Call extends React.Component {
         }
         if (this.props.currentCall != null) {
             this.props.currentCall.statistics.on('stats', this.statistics);
-            const localStream = this.props.currentCall.getLocalStreams()[0];
-            this.setState({ audioMuted: !localStream.getAudioTracks()[0].enabled});
+            const localStream = this.props.currentCall?.getLocalStreams?.()[0];
+            const audioTrack = localStream?.getAudioTracks?.()[0];
+
+            if (audioTrack) {
+                this.setState({ audioMuted: !audioTrack.enabled });
+            }
         }
     }
 

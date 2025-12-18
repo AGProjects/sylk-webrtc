@@ -2408,7 +2408,6 @@ class Blink extends React.Component {
         call = this.showCall && this.state.localMedia !== null && (this.state.targetUri || this.state.inboundCall != null);
         if (call) {
             this.audioManager.current.setAllMute(false);
-            this.remoteAudio.current.mute = false;
         }
         return (
             <div>

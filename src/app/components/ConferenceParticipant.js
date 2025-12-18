@@ -81,9 +81,9 @@ class ConferenceParticipant extends React.Component {
     maybeAttachStream() {
         const streams = this.props.participant.streams;
         if (streams.length > 0) {
-            sylkrtc.utils.attachMediaStream(streams[0], this.videoElement.current, {muted: true});
+            sylkrtc.utils.attachMediaStream(streams[0], this.videoElement.current);
             const el = this.props.audioManager.createAudio(this.props.participant.id)
-            sylkrtc.utils.attachMediaStream(streams[0], el);
+            sylkrtc.utils.attachMediaStream(streams[0], el, {muted: true});
 
             if (this.props.pauseVideo) {
                 this.props.participant.pauseVideo();

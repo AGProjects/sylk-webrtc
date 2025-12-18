@@ -13,6 +13,13 @@ const ParticipantAudioManager = forwardRef((props, ref) => {
         return audioRefs.current[id] || null;
     };
 
+
+    const setAllMute = (muted) => {
+        Object.values(audioRefs.current).forEach(el => {
+            if (el) el.muted = muted;
+        });
+    };
+
     // Remove audio element
     const removeAudio = (id) => {
         setAudios(prev => {
@@ -29,6 +36,7 @@ const ParticipantAudioManager = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => ({
         createAudio,
         removeAudio,
+        setAllMute,
         destroy
     }));
 

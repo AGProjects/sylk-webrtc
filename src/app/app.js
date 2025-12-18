@@ -2406,6 +2406,10 @@ class Blink extends React.Component {
     chat() {
         let call = false;
         call = this.showCall && this.state.localMedia !== null && (this.state.targetUri || this.state.inboundCall != null);
+        if (call) {
+            this.audioManager.current.setAllMute(false);
+            this.remoteAudio.current.mute = false;
+        }
         return (
             <div>
                 <NavigationBar
@@ -2440,6 +2444,7 @@ class Blink extends React.Component {
     }
 
     conference() {
+        this.audioManager.current.setAllMute(true);
         return (
             <React.Fragment>
                 <Conference

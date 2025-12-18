@@ -1238,6 +1238,7 @@ class Blink extends React.Component {
 
     hangupCall() {
         this.audioManager.current.destroy();
+        this.remoteAudio.current.srcObject = null;
         this.savedConferenceState = null;
         if (this.state.currentCall != null) {
             this.state.currentCall.terminate();

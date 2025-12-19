@@ -212,7 +212,7 @@ class AudioCallBox extends React.Component {
     attachStream(call) {
         const remoteStream = call.getRemoteStreams()[0];
         const stream = this.props.remoteAudio.current.srcObject;
-        if (stream.id !== remoteStream.id) {
+        if (!stream || stream.id !== remoteStream.id) {
             DEBUG('Attaching audio');
             sylkrtc.utils.attachMediaStream(remoteStream, this.props.remoteAudio.current);
         }

@@ -1,3 +1,53 @@
+Version 3.8.0 Fri Dec 19 11:37:47 CET 2025
+
+  * Fixed attaching audio in call
+  * Reverted using video for audio in 1-to-1 calls
+  * Only attach stream if the stream is not already attached
+  * Improved message rendering
+  * Fixed conference hangup
+  * Hide dialog on pgp imported message and skip it in chat
+  * Skip key imported messages
+  * Fixed refs in conference
+  * Fixed attaching multiple times to call state
+  * Removed/Simplified top buttons in headers
+  * Cleanup audio on participant leave
+  * Reset conference state in more cases
+  * Switch to chat from calls using routing
+  * Added call component to use in chat
+  * Save conferenence UI state when conference is active
+  * Support conference icon
+  * Extend call overlay to support navbar with call
+  * Use timer component in conference
+  * Use timer component in calls
+  * Use participant audio manager
+  * Added audio manager for conferences
+  * Added 'shared' audio element to continue audio between routes
+  * Added timer component
+  * Fixed typo in camera switching in conferences
+  * Strip out sr-only class in html messages
+
+Version 3.7.0 Wed Apr 23 15:32:39 CEST 2025
+
+  * Updated notarize process
+  * Updated electron-notarize dependency
+  * Reset last loaded messages on conversation remove
+  * Unselect message pane on removeConversation from other device
+  * Fixed invalid dependency url in app
+  * Refactored PGP public key comparison
+  * Try to always reset state encryption model
+  * Raised sylkrtc.js dependency
+  * Fixed entering logout route twice
+  * Fixed reconnection to a guest conference/call
+  * Prevent sign in on connection loss when signed out
+  * Update makefile for new test webserver location
+  * Updated makefile
+  * Updated makefile for new webservers
+  * Fixed linting warnings and removed not needed variable
+  * Added support for editing sent messages
+  * Fixed incoming call window in electron and formatted files
+  * Added native Apple silicon support
+
+
 Version 3.6.0 Thu Dec 22 16:00:00 +01 2023
 
   * Added cache for images and voice messages

@@ -42,7 +42,7 @@
     "ipaddr.js": "^1.9.1",
     "linkify-urls": "tijmenNL/linkify-urls#v2.2.1",
     "localforage": "^1.10.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "luxon": "^1.25.0",
     "murmurhash-js": "^1.0.0",
     "notifyjs": "^3.0.0",

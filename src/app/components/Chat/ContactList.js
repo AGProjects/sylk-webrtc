@@ -38,6 +38,7 @@ const {
 const UserIcon = require('../UserIcon');
 const CustomContextMenu = require('../CustomContextMenu');
 const DragAndDrop = require('../DragAndDrop');
+const ContactListItem = require('./ContactListItem').default;
 
 const DEBUG = debug('blinkrtc:ContactList');
 
@@ -363,93 +364,22 @@ const ContactList = (props) => {
                 </MenuItem>
             </CustomContextMenu>
             {contacts.map(contact => (
-                [
-                    <ListItem
-                        className={props.selectedUri === contact.uri ? classes.selected : classes.listItem}
-                        alignItems="flex-start"
-                        key={contact.uri}
-                        onClick={() => switchChat(contact.uri)}
-                        onContextMenu={(e) => {
-                            e.preventDefault();
-                            contactRef.current = contact.uri;
-                            const { clientX, clientY } = e;
-                            const virtualElement = {
-                                clientWidth: 0,
-                                clientHeight: 0,
-                                getBoundingClientRect: () => ({
-                                    width: 0,
-                                    height: 0,
-                                    top: clientY,
-                                    right: clientX,
-                                    bottom: clientY,
-                                    left: clientX
-                                })
-                            };
-                            setAnchorEl(virtualElement);
-                        }}
-                        disableGutters
-                    >
-                        <DragAndDrop
-                            title="Drop files to share them" small useFlex
-                            handleDrop={(files) => { props.uploadFiles(files, contact.uri) }}
-                        >
-                            <ListItemAvatar style={{ minWidth: 60, marginTop: 0 }}>
-                                <UserIcon identity={contact} active={false} chatContact={true} />
-                            </ListItemAvatar>
-                            <ListItemText
-                                disableTypography
-                                primary={
-                                    <React.Fragment>
-                                        <Grid container spacing={0} justifyContent="space-between" alignItems="baseline" wrap="nowrap">
-                                            <Grid item zeroMinWidth>
-                                                <Typography
-                                                    variant="h4"
-                                                    className={classes.header}
-                                                    style={{ flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}
-                                                >
-                                                    {getHighlightedText(contact.displayName || contact.uri, props.filter)}
-                                                </Typography>
-                                            </Grid>
-                                            <Grid item className={classes.grid}>
-                                                <Typography className={classes.date}>
-                                                    {contact.message && statusIcon(contact.message)}
-                                                    {contact.message && formatTime(contact.message)}
-                                                </Typography>
-                                            </Grid>
-                                        </Grid>
-                                    </React.Fragment>
-                                }
-                                secondary={
-                                    <React.Fragment>
-                                        <Grid component="span" container spacing={2} justifyContent="space-between" alignItems="baseline" wrap="nowrap">
-                                            <Grid component="span" item zeroMinWidth>
-                                                <Typography
-                                                    className={classes.root}
-                                                    style={{
-                                                        flexGrow: 1,
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        color: contact.message && (contact.message.state === 'error' || contact.message.state === 'failed') && '#a94442'
-                                                    }}
-                                                >
-                                                    {contact.message && parseContent(contact.message, contact)}
-                                                </Typography>
-                                            </Grid>
-                                            {props.selectedUri !== contact.uri && numbers[contact.uri] !== 0 &&
-                                                <Grid component="span" item>
-                                                    <Avatar component="span" style={{ backgroundColor: 'rgb(92,184,92)', width: '20px', height: '20px' }}>
-                                                        {numbers[contact.uri]}
-                                                    </Avatar>
-                                                </Grid>
-                                            }
-                                        </Grid>
-                                    </React.Fragment>
-                                }
-                            />
-                        </DragAndDrop>
-                    </ListItem>,
-                    <Divider style={props.selectedUri === contact.uri ? { background: 'transparent' } : {}} component="li" key={`divider_${contact.uri}`} />
-                ]
+                <ContactListItem
+                    key={contact.uri}
+                    contact={contact}
+                    selectedUri={props.selectedUri}
+                    numbers={numbers}
+                    filter={props.filter}
+                    switchChat={switchChat}
+                    uploadFiles={props.uploadFiles}
+                    classes={classes}
+                    getHighlightedText={getHighlightedText}
+                    parseContent={parseContent}
+                    formatTime={formatTime}
+                    statusIcon={statusIcon}
+                    contactRef={contactRef}
+                    setAnchorEl={setAnchorEl}
+                />
             ))}
             {props.filter && filteredMessages.length !== 0 &&
                 <React.Fragment>

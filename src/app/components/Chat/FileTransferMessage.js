@@ -39,6 +39,7 @@ const CustomContextMenu = require('../CustomContextMenu');
 const UserIcon = require('../UserIcon');
 
 const fileTransferUtils = require('../../fileTransferUtils');
+const {isNodeEmitter} = require('../../utils');
 
 
 function isElectron() {
@@ -276,7 +277,7 @@ const FileTransferMessage = ({
             setState(newState);
         };
 
-        if (message instanceof require('events').EventEmitter
+        if (isNodeEmitter(message)
             && (message.state === 'pending' || (imdnStates && !finalStates.has(message.state)))
         ) {
             message.on('stateChanged', stateChanged);
@@ -284,7 +285,7 @@ const FileTransferMessage = ({
 
 
         return () => {
-            if (message instanceof require('events').EventEmitter) {
+            if (isNodeEmitter(message)) {
                 message.removeListener('stateChanged', stateChanged);
             }
             ignore = true;

@@ -24,6 +24,8 @@ const { useInView } = require('react-intersection-observer');
 const CustomContextMenu = require('../CustomContextMenu');
 const UserIcon = require('../UserIcon');
 
+const { isNodeEmitter } = require('../../utils');
+
 
 const styleSheet = makeStyles((theme) => ({
     chipSmall: {
@@ -170,7 +172,7 @@ const Message = ({
             setState(newState);
         };
 
-        if (message instanceof require('events').EventEmitter
+        if (isNodeEmitter(message)
             && (message.state === 'pending' || (imdnStates && !finalStates.has(message.state)))
         ) {
             message.on('stateChanged', stateChanged);
@@ -178,7 +180,7 @@ const Message = ({
         setState(message.state);
 
         return () => {
-            if (message instanceof require('events').EventEmitter) {
+            if (isNodeEmitter(message)) {
                 message.removeListener('stateChanged', stateChanged);
             }
         }

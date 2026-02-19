@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const SillyNames = require('./SillyNames');
 const MaterialColors = require('./MaterialColors');
 const { Queue } = require('./utils/Queue');
+const { EventEmitter } = require('events');
 
 function generateUniqueId() {
     const uniqueId = uuidv4().replace(/-/g, '').slice(0, 16);
@@ -161,6 +162,18 @@ var isMobile = {
     any: function() { return (isMobile.Android() || isMobile.iOS()) }
 };
 
+function isNodeEmitter(obj) {
+    if (!obj || typeof obj !== 'object') return false;
+
+    const hasEmitterMethods =
+        typeof obj.on === 'function' &&
+        typeof obj.emit === 'function' &&
+        typeof obj.removeListener === 'function';
+
+    return EventEmitter.prototype.isPrototypeOf(obj) || hasEmitterMethods;
+};
+
+
 exports.copyToClipboard = copyToClipboard;
 exports.normalizeUri = normalizeUri;
 exports.generateSillyName = generateSillyName;
@@ -171,3 +184,4 @@ exports.getWindowHeight = getWindowHeight;
 exports.loadAudio = loadAudio;
 exports.Queue = Queue;
 exports.isMobile = isMobile;
+exports.isNodeEmitter = isNodeEmitter;

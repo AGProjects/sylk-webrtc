@@ -1619,7 +1619,7 @@ class Blink extends React.Component {
             const oldMessages = cloneDeep(this.state.oldMessages);
             for (const [key, messages] of Object.entries(oldMessages)) {
                 const newMessages = cloneDeep(messages).map(message => {
-                    if (!(message instanceof require('events').EventEmitter)
+                    if (!(utils.isNodeEmitter(message))
                         && message.id === id && message.dispositionState !== state) {
                         message.dispositionState = state;
                         found = true;
@@ -1812,7 +1812,7 @@ class Blink extends React.Component {
         let found = false;
         const newMessages = cloneDeep(messages).map(message => {
             messageStorage.updateDisposition(message.id, 'displayed');
-            if (!(message instanceof require('events').EventEmitter)
+            if (!(utils.isNodeEmitter(message))
                 && message.state == 'received'
                 && message.dispositionState !== 'displayed'
                 && message.dispositionNotification.indexOf('display') !== -1

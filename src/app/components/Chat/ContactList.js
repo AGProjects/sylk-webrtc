@@ -38,7 +38,7 @@ const {
 const UserIcon = require('../UserIcon');
 const CustomContextMenu = require('../CustomContextMenu');
 const DragAndDrop = require('../DragAndDrop');
-const ContactListItem = require('./ContactListItem').default;
+const ContactListContact = require('./ContactListContact').default;
 
 const DEBUG = debug('blinkrtc:ContactList');
 
@@ -364,7 +364,7 @@ const ContactList = (props) => {
                 </MenuItem>
             </CustomContextMenu>
             {contacts.map(contact => (
-                <ContactListItem
+                <ContactListContact
                     key={contact.uri}
                     contact={contact}
                     selectedUri={props.selectedUri}

@@ -13,7 +13,7 @@ import UserIcon from '../UserIcon';
 import {Contact} from '../../types/Contact';
 
 
-interface ContactListItemProps {
+interface ContactListContactProps {
     contact: Contact;
     selectedUri: string;
     numbers: Record<string, number>;
@@ -29,7 +29,7 @@ interface ContactListItemProps {
     setAnchorEl: (el: any) => void;
 }
 
-const ContactListItem: React.FC<ContactListItemProps> = ({
+const ContactListContact: React.FC<ContactListContactProps> = ({
     contact,
     selectedUri,
     numbers,
@@ -143,5 +143,5 @@ const ContactListItem: React.FC<ContactListItemProps> = ({
     );
 };
 
-export default ContactListItem;
+export default ContactListContact;
 

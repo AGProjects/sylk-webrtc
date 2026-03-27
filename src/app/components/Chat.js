@@ -312,8 +312,15 @@ const Chat = (props) => {
             setEditMessage();
             return;
         }
-        let message = props.account.sendMessage(selectedUri, content, type);
-        setMessages({ ...messages, [selectedUri]: [...contactMessages, message] });
+
+        const isFirstMessage = !messages[selectedUri] || messages[selectedUri].length === 0;
+
+        if (isFirstMessage) {
+            props.sendPublicKey(selectedUri);
+        }
+
+        let message = props.account.sendMessage(selectedUri.uris[0].uri, content, type);
+        setMessages({ ...messages, [selectedUri.uris[0].uri]: [...contactMessages, message] });
     };
 
     const handleDownload = (...args) => {

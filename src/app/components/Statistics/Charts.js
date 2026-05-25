@@ -53,11 +53,13 @@ const Charts = ({
     if (videoGraphs) {
         const videoData = lastData && lastData.video;
         const videoDataInbound = videoData && videoData.inbound && videoData.inbound[0];
-        localFrameRate = videoData && (videoData.outbound[0].framesPerSecond || videoData.outbound[0].framerateMean)
-        localResolution = videoData && [ videoData.outbound[0].frameWidth, videoData.outbound[0].frameHeight ].join(' x ');
+        const videoDataOutbound = videoData && videoData.outbound && videoData.outbound[0];
+
+        localFrameRate = videoDataOutbound && (videoDataOutbound.framesPerSecond || videoDataOutbound.framerateMean)
+        localResolution = videoDataOutbound && [videoDataOutbound.frameWidth, videoDataOutbound.frameHeight].join(' x ');
         localFrameRate = isFloat(localFrameRate) && localFrameRate.toFixed(1);
-        remoteFrameRate = videoDataInbound && (videoData.inbound[0].framesPerSecond || videoData.inbound[0].framerateMean)
-        remoteResolution = videoDataInbound && [ videoData.inbound[0].frameWidth, videoData.inbound[0].frameHeight ].join(' x ');
+        remoteFrameRate = videoDataInbound && (videoDataInbound.framesPerSecond || videoDataInbound.framerateMean)
+        remoteResolution = videoDataInbound && [videoDataInbound.frameWidth, videoDataInbound.frameHeight].join(' x ');
         remoteFrameRate = isFloat(remoteFrameRate) && remoteFrameRate.toFixed(1);
 
         // Firefox does not support video size from getStats(), so we get it from the video element

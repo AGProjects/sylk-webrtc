@@ -1,10 +1,10 @@
 
 'use strict';
 
-const React          = require('react');
-const PropTypes      = require('prop-types');
+const React = require('react');
+const PropTypes = require('prop-types');
 
-const { makeStyles }     = require('@material-ui/core/styles');
+const { makeStyles } = require('@material-ui/core/styles');
 
 const AreaGradientChart = require('./AreaGradientChart');
 const LineChart = require('./LineChart')
@@ -18,7 +18,7 @@ const styleSheet = makeStyles((theme) => ({
 }));
 
 const isFloat = (n) => {
-        return Number(n) === n && n % 1 !== 0;
+    return Number(n) === n && n % 1 !== 0;
 };
 
 const prefixBits = (bits) => {
@@ -78,13 +78,13 @@ const Charts = ({
 
     return (
         <div>
-            { videoGraphs && showDetails &&
+            {videoGraphs && showDetails &&
                 <table className="table table-condensed table-bordered">
                     <thead>
                         <tr>
                             <th></th>
-                            <th style={{width: '30%'}}>Incoming</th>
-                            <th style={{width: '30%'}}>Outgoing</th>
+                            <th style={{ width: '30%' }}>Incoming</th>
+                            <th style={{ width: '30%' }}>Outgoing</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -93,13 +93,13 @@ const Charts = ({
                             <td>{remoteResolution}</td>
                             <td>{localResolution}</td>
                         </tr>
-                {localFrameRate && remoteFrameRate &&
-                        <tr>
-                            <td>Framerate</td>
-                            <td>{remoteFrameRate}</td>
-                            <td>{localFrameRate}</td>
-                        </tr>
-                }
+                        {localFrameRate && remoteFrameRate &&
+                            <tr>
+                                <td>Framerate</td>
+                                <td>{remoteFrameRate}</td>
+                                <td>{localFrameRate}</td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             }
@@ -109,17 +109,17 @@ const Charts = ({
                 <div className={classes.graphText}>Out: {lastGraphData.outgoingBitrate && prefixBits(lastGraphData.outgoingBitrate)}</div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div style={{width: '48%' }}>
+                <div style={{ width: '48%' }}>
                     <AreaGradientChart data={data} dataKey="incomingBitrate" color="green" height={70} />
                 </div>
-                <div style={{width: '48%' }}>
+                <div style={{ width: '48%' }}>
                     <AreaGradientChart data={data} dataKey="outgoingBitrate" height={70} />
                 </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div style={{width: '100%' }}>
-                    <h5>Latency: {lastGraphData.latency && lastGraphData.latency * 1000 } ms</h5>
+                <div style={{ width: '100%' }}>
+                    <h5>Latency (RTT): {lastGraphData.latency && (lastGraphData.latency * 1000).toFixed(2)} ms</h5>
                     <AreaGradientChart data={data} dataKey="latency" color="blue" />
                 </div>
                 {/* <div style={{width: '48%' }}>
@@ -141,15 +141,15 @@ const Charts = ({
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div style={{width: '48%' }}>
+                <div style={{ width: '48%' }}>
                     <LineChart data={data} dataKey="packetsLostInbound" height={60} />
                 </div>
-                <div style={{width: '48%' }}>
+                <div style={{ width: '48%' }}>
                     <LineChart data={data} dataKey="packetsLostOutbound" height={60} />
                 </div>
             </div>
 
-    </div>
+        </div>
     )
 };
 

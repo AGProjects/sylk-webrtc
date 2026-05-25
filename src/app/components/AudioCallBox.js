@@ -192,7 +192,7 @@ class AudioCallBox extends React.Component {
             timestamp: audioData.timestamp,
             incomingBitrate: audioData.inbound[0].bitrate || 0,
             outgoingBitrate: audioData.outbound[0].bitrate || 0,
-            latency: audioRTT / 2,
+            latency: audioRTT,
             jitter: audioJitter,
             packetsLostOutbound: audioPacketsLostOutbound,
             packetsLostInbound: audioPacketsLostInbound,

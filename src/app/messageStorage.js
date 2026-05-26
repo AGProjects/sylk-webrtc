@@ -4,7 +4,9 @@ const localforage = require('localforage');
 const cacheStorage = require('./cacheStorage');
 const debug = require('debug');
 
+const electronStorage = require('./electronStorage');
 const { Queue } = require('./utils');
+
 
 const DEBUG = debug('blinkrtc:MessageStorage');
 
@@ -17,186 +19,6 @@ const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
 const dateFormat1 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3,}[\+|-]\d{2}:\d{2}$/;
 
 const idsInStorage = new Map();
-
-class electronStorage {
-    constructor(store) {
-        this._store = store;
-        this.ipcRenderer = window.require('electron').ipcRenderer;
-        this._initializing = null;
-        this.options = {};
-    }
-
-    init(account) {
-        DEBUG('Initialize electron storage for messages');
-        this._initializing = new Promise((resolve, reject) => {
-            const storage = this._store.getDataPath();
-            this.options['dataPath'] = `${storage}/messages/${account}/`;
-        })
-    }
-
-    ready() {
-        return new Promise((resolve, reject) => {
-            if (this._store === null) {
-                if (this._initializing !== null) {
-                    return this._initializing
-                        .then(() => {
-                            // DEBUG('Promise init fullfilled');
-                            resolve();
-                        });
-                }
-                DEBUG('Store is not being initialized, init was never called, calling it now');
-                this.init();
-                return this._initializing
-                    .then(() => {
-                        // DEBUG('Promise init fullfilled');
-                        resolve()
-                    });
-            }
-            resolve();
-        });
-    }
-
-    _get(key) {
-        return this.ready()
-            .then(() => {
-                // DEBUG('Store is ready to query');
-                return new Promise((resolve, reject) => {
-                    this._store.get(key, this.options, function(error, data) {
-                        if (error) {
-                            reject(error);
-                            return;
-                        }
-                        if (JSON.stringify(data) === JSON.stringify({})) {
-                            resolve(null);
-                        } else {
-                            resolve(data);
-                        }
-                    });
-                });
-            });
-    }
-
-    _set(key, value) {
-        return this.ready().then(() => {
-            return new Promise((resolve, reject) => {
-                this._store.set(key, value, this.options, function(error) {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(value);
-                })
-            })
-        });
-    }
-
-    _remove(key) {
-        return this.ready().then(() => {
-            return new Promise((resolve, reject) => {
-                this._store.remove(key, this.options, function(error) {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve();
-                })
-            })
-        });
-    }
-
-    _clear() {
-        return this.ready().then(() => {
-            return new Promise((resolve, reject) => {
-                this._store.clear(this.options, function(error) {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve();
-                })
-            })
-        });
-    }
-
-    getItem(key) {
-        return this._get(key);
-    }
-
-    setItem(key, value) {
-        return this._set(key, value);
-    }
-
-    removeItem(key) {
-        return this._remove(key);
-    }
-
-    clear() {
-        return this._clear();
-    }
-
-    keys() {
-        return this.ready()
-            .then(() => {
-                return new Promise((resolve, reject) => {
-                    this._store.keys(this.options, function(error, data) {
-                        if (error) {
-                            reject(error);
-                            return;
-                        }
-                        if (JSON.stringify(data) === JSON.stringify([])) {
-                            resolve(null);
-                        } else {
-                            resolve(data);
-                        }
-                    });
-                });
-            });
-    }
-
-    iterate(iterator) {
-        return this.ready()
-            .then(() => {
-                return new Promise((resolve, reject) => {
-                    // getAll has a bug, it splits the object on .
-                    this.keys().then(data => {
-                        if (data === null || JSON.stringify(data) === JSON.stringify([])) {
-                            resolve();
-                        } else {
-                            let itertionNumber = 1;
-                            let promises = [];
-                            for (const key of data) {
-                                promises.push(this._get(key).then((value) => {
-                                    if (JSON.stringify(value) === JSON.stringify({})) {
-                                        resolve(null);
-                                    } else {
-                                        let result = iterator(
-                                            value,
-                                            key,
-                                            itertionNumber++
-                                        );
-
-                                        if (result !== void 0) {
-                                            resolve(result);
-                                        }
-                                    }
-                                }).catch(error => {
-                                    reject(error);
-                                    return;
-                                }));
-                            }
-                            Promise.all(promises).then(() => {
-                                resolve();
-                            });
-                        }
-                    }).catch(error => {
-                        reject(error);
-                        return;
-                    });
-                });
-            });
-    }
-}
-
 
 function _parseDates(key, value) {
     if (typeof value === 'string' && dateFormat.test(value)) {
@@ -219,8 +41,8 @@ function initialize(account, electronStore, electron = false) {
                 storeName: `messages_${account}`
             });
         } else {
-            store = new electronStorage(electronStore);
-            store.init(account);
+            store = new electronStorage(electronStore, {debug: DEBUG});
+            store.init(account, 'messages');
         }
     }
 }

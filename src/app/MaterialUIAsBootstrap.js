@@ -1,11 +1,11 @@
 'use strict';
 
 const React = require('react');
-const { withStyles, makeStyles } = require('@material-ui/core/styles');
+const { withStyles, makeStyles, alpha } = require('@material-ui/core/styles');
 const { Button, Tab, Tabs, Tooltip } = require('@material-ui/core');
 const { InputBase } = require('@material-ui/core');
 
-const BootstrapButton = withStyles({
+const BootstrapButton = withStyles((theme) => ({
     root: {
         boxShadow: 'none',
         textTransform: 'none',
@@ -38,6 +38,50 @@ const BootstrapButton = withStyles({
             boxShadow: 'inset 0px 3px 5px 0px rgba(0,0,0,.125)'
         }
     },
+    containedSecondary: {
+        color: '#fff',
+        backgroundColor: '#d9534f',
+        borderColor: '#d43f3a',
+
+        '&:hover': {
+            backgroundColor: '#c9302c',
+            borderColor: '#ac2925'
+        },
+        '&:focus': {
+            backgroundColor: '#c9302c',
+            borderColor: '#761c19'
+        }
+    },
+    outlined: {
+        border: `1px solid ${theme.palette.type === 'light' ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)'}`,
+        '&$disabled': {
+            border: `1px solid ${theme.palette.action.disabledBackground}`,
+        },
+    },
+    outlinedPrimary: {
+        color: theme.palette.primary.main,
+        border: `1px solid ${alpha(theme.palette.primary.main, 0.5)}`,
+        '&:hover': {
+            border: `1px solid ${theme.palette.primary.main}`,
+            backgroundColor: alpha(theme.palette.primary.main, theme.palette.action.hoverOpacity),
+            // Reset on touch devices, it doesn't add specificity
+            '@media (hover: none)': {
+                backgroundColor: 'transparent',
+            },
+        },
+    },
+    outlinedSecondary: {
+        color: '#d9534f',
+        border: `1px solid ${alpha('#d43f3a', 0.5)}`,
+        '&:hover': {
+            border: `1px solid ${theme.palette.secondary.main}`,
+            backgroundColor: alpha('#d9534f', theme.palette.action.hoverOpacity),
+            // Reset on touch devices, it doesn't add specificity
+            '@media (hover: none)': {
+                backgroundColor: 'transparent',
+            },
+        },
+    },
     disabled: {
         border: '1px solid #fff',
         cursor: 'not-allowed'
@@ -49,6 +93,9 @@ const BootstrapButton = withStyles({
         borderRadius: '6px',
         lineHeight: 1.33333
     },
+    outlinedSizeLarge: {
+        fontWeight: 'normal'
+    },
     label: {
         display: 'block'
     },
@@ -58,7 +105,7 @@ const BootstrapButton = withStyles({
         color: '#337ab7',
         boxShadow: 'none'
     }
-})(Button);
+}))(Button);
 
 
 const BootstrapInputBase = withStyles((theme) => ({
@@ -85,6 +132,7 @@ const BootstrapInputBase = withStyles((theme) => ({
     }
 }))(InputBase);
 
+
 const BootstrapTabs = withStyles({
     root: {
         borderBottom: '1px solid rgba(0, 0, 0, .12)'
@@ -93,6 +141,7 @@ const BootstrapTabs = withStyles({
         backgroundColor: '#337ab7'
     }
 })(Tabs);
+
 
 const BootstrapTab = withStyles((theme) => ({
     root: {

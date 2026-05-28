@@ -8,7 +8,7 @@ class electronStorage {
         this.options = {};
     }
 
-    init(account, dataPath=None) {
+    init(account, dataPath=null) {
         if (!dataPath) {
             this.debug(`Can't initialize electron storage, no path given`);
             return Promise.reject(new Error("No dataPath"));
@@ -182,6 +182,10 @@ class electronStorage {
                     });
                 });
             });
+    }
+
+    instance() {
+        return this._store;
     }
 }
 

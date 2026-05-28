@@ -3,16 +3,15 @@
 const localforage = require('localforage');
 const debug       = require('debug');
 
+const electronStorageBase = require('./electronStorage');
 const DEBUG = debug('blinkrtc:Storage');
 
 let store = null;
 
 
-class electronStorage {
+class electronStorage extends electronStorageBase {
     constructor() {
-        this._store = null;
-        this.ipcRenderer = window.require('electron').ipcRenderer;
-        this._initializing = null;
+        super(null, { debug: DEBUG });
     }
 
     init() {
@@ -31,28 +30,6 @@ class electronStorage {
                     })
             });
         })
-    }
-
-    ready() {
-        return new Promise((resolve, reject) => {
-            if (this._store === null) {
-                if (this._initializing !== null) {
-                    return this._initializing
-                        .then(() => {
-                            // DEBUG('Promise init fullfilled');
-                            resolve();
-                        });
-                }
-                DEBUG('Store is not being initialized, init was never called, calling it now');
-                this.init();
-                return this._initializing
-                    .then(() => {
-                        // DEBUG('Promise init fullfilled');
-                        resolve()
-                    });
-            }
-            resolve();
-        });
     }
 
     _migrateFromLocalStorage(_store) {
@@ -119,71 +96,6 @@ class electronStorage {
                 }
             });
         });
-    }
-
-    _get(key) {
-        return this.ready()
-            .then(() => {
-                // DEBUG('Store is ready to query');
-                return new Promise((resolve, reject) => {
-                    DEBUG('Fetch: ' + key);
-                    this._store.get(key, function(error, data) {
-                        if (error) {
-                            reject(error);
-                            return;
-                        }
-                        if (JSON.stringify(data) === JSON.stringify({})) {
-                            resolve(null);
-                        } else {
-                            resolve(data);
-                        }
-                    });
-                });
-        });
-    }
-
-    _set(key, value) {
-        return this.ready().then(() => {
-            return new Promise((resolve, reject) => {
-                this._store.set(key, value, function(error) {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(value);
-                })
-            })
-        });
-    }
-
-    _remove(key) {
-        return this.ready().then(() => {
-            return new Promise((resolve, reject) => {
-                this._store.remove(key, function(error) {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve();
-                })
-            })
-        });
-    }
-
-    getItem(key) {
-        return this._get(key);
-    }
-
-    setItem(key, value) {
-        return this._set(key,value);
-    }
-
-    removeItem(key) {
-        return this._remove(key);
-    }
-
-    instance() {
-        return this._store;
     }
 }
 

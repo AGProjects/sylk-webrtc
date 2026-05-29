@@ -327,7 +327,7 @@ const Chat = (props) => {
         let { filename } = args[0];
         let notification = props.notificationCenter().postPreparingFileDownload(filename);
 
-        fileTransferUtils.download(props.account, ...args).then(() => {
+        fileTransferUtils.download(props.account, ...args, notification, props.notificationCenter).then(() => {
             props.notificationCenter().removeNotification(notification);
         }).catch(({ error, filename }) => {
             props.notificationCenter().removeNotification(notification);

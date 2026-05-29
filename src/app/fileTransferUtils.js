@@ -59,29 +59,36 @@ function upload({ notificationCenter, account }, files, uri) {
     }
 }
 
-function _download(account, url, filename, filetype) {
-    if (!filename.endsWith('.asc')) {
-        return superagent
-            .get(`${url}`)
-            .timeout({
-                response: 5000,
-                deadline: 60000
-            })
-            .responseType('blob')
-            .then((res) => {
-                return Promise.resolve({ file: new File([res.body], filename, { 'type': filetype }), didDecrypt: false });
-            });
-    }
-    return superagent
-        .get(`${url}`)
+function _download(account, url, filename, filetype, onProgress = null) {
+    const req = superagent
+        .get(url)
         .timeout({
             response: 5000,
             deadline: 60000
-        })
-        .then((res) => {
-            return account.decryptFile(res.text, filename, filetype);
         });
+
+    if (onProgress) {
+        req.on('progress', onProgress);
+    }
+
+    const isEncrypted = filename.endsWith('.asc');
+
+    if (!isEncrypted) {
+        req.responseType('blob');
+    }
+
+    const promise = !isEncrypted
+        ? req.then(res => ({
+            file: new File([res.body], filename, { type: filetype }),
+            didDecrypt: false
+        }))
+        : req.then(res => account.decryptFile(res.text, filename, filetype));
+
+    promise.abort = () => req.abort();
+
+    return promise;
 }
+
 
 function _downloadAndRead(account, url, filename, filetype, id, contact) {
     return _download(account, url, filename, filetype)
@@ -114,7 +121,7 @@ function _parameterTest(name, bool) {
     }
 }
 
-function download(account, { url, filename, filetype, transfer_id: id }) {
+function download(account, { url, filename, filetype, transfer_id: id }, notification=null, notificationCenter=null) {
     try {
         _parameterTest('url', url);
         _parameterTest('filename', filename);
@@ -153,6 +160,7 @@ function download(account, { url, filename, filetype, transfer_id: id }) {
                 .catch(error => DEBUG(error))
             return
         }
+
         if (!filename.endsWith('.asc')) {
             const a = document.createElement('a');
             a.href = url
@@ -169,7 +177,31 @@ function download(account, { url, filename, filetype, transfer_id: id }) {
             return;
         }
 
-        return _download(account, url, filename, filetype).then(file => {
+        if (notification && notificationCenter) {
+            notificationCenter().editFileDownloadNotification(0, filename, notification);
+        }
+
+        let complete = false;
+
+        function onProgress(e) {
+            if (notification && notificationCenter) {
+                notificationCenter().editFileDownloadNotification(
+                    e.percent,
+                    filename,
+                    notification, () => {
+                        if (!complete) {
+                            DEBUG('Abort download for %s', filename);
+                            promise.abort()
+                        }
+                    }
+                );
+            }
+        }
+
+        const promise = _download(account, url, filename, filetype, onProgress=onProgress)
+
+        return promise.then(file => {
+            complete = true;
             const a = document.createElement('a');
             a.href = URL.createObjectURL(file.file)
             a.target = '_blank';
@@ -184,6 +216,7 @@ function download(account, { url, filename, filetype, transfer_id: id }) {
             URL.revokeObjectURL(a.href);
             return Promise.resolve();
         }).catch((error) => {
+            complete = true;
             return Promise.reject({ error, filename });
         })
     })

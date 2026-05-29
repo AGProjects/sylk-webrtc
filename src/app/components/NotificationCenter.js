@@ -263,13 +263,43 @@ class NotificationCenter extends React.Component {
         });
     }
 
-    postPreparingFileDownload(filename) {
+    postPreparingFileDownload(filename, cb) {
         filename = filename.replace('.asc', '').replace(/_/g, ' ');
         return this.refs.notificationSystem.addNotification({
             message: `Preparing download for ${filename} `,
             title: 'Preparing file download',
-            autoDismiss: 20,
+            autoDismiss: 0,
             level: 'info',
+            position: 'br',
+            onRemove: cb,
+        });
+    }
+
+    editFileDownloadNotification(progress, filename, notification, cb=null) {
+        if (progress === undefined) {
+            progress = 100;
+        }
+        filename = filename.replace('.asc', '').replace(/_/g, ' ');
+        this.refs.notificationSystem.editNotification(notification,
+            {
+                message: `${filename}`,
+                title: 'Downloading file',
+                autoDismiss: 0,
+                level: 'info',
+                onRemove: cb,
+                children: (
+                    <div>
+                        <LinearProgress
+                            style={{ marginTop: '2px' }}
+                            classes={{ barColorPrimary: 'blue-bar' }}
+                            variant="determinate"
+                            value={progress}
+                        />
+                    </div>
+                )
+            }
+        );
+    }
             position: 'br'
         });
     }

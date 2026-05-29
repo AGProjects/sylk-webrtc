@@ -191,7 +191,7 @@ const FileTransferMessage = ({
             }
             setParsedContent(
                 <div
-                    onClick={(event) => { event.preventDefault(); fileTransferUtils.download(account, fileData) }}
+                    onClick={(event) => { event.preventDefault(); handleDownload() }}
                 >
                     <Paper variant="outlined">
                         <Grid container spacing={2}>

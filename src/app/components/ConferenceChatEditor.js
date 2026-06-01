@@ -12,6 +12,7 @@ const { IconButton } = require('@material-ui/core');
 const data = require('emoji-mart/data/apple.json');
 const Picker = require('emoji-mart/dist-modern/components/picker/nimble-picker').default;
 const computedStyleToInlineStyle = require('computed-style-to-inline-style');
+const xss = require('xss');
 
 const {
     CancelOutlined: CloseIcon,
@@ -42,6 +43,13 @@ const ConferenceChatEditor = (props) => {
 
     useEffect(() => {
         if (props.editMessage) {
+            if (props.editMessage.contentType === 'application/sylk-file-transfer') {
+                const metadata = props.editMessage.metadata?.find(m => m.action === 'label');
+                setName(metadata?.value || '');
+                editor.current.blur();
+                editor.current.focus();
+                return
+            }
             setName(props.editMessage.content);
             editor.current.blur();
             editor.current.focus();
@@ -50,7 +58,13 @@ const ConferenceChatEditor = (props) => {
         }
     }, [props.editMessage]);
 
+    const isCaptionEditor = props.type === 'caption';
+
     const setMessage = () => {
+        if (props.editMessage?.contentType === 'application/sylk-file-transfer') {
+            const metadata = props.editMessage.metadata?.find(m => m.action === 'label');
+            return { __html: metadata?.value || '' }
+        }
         return {
             __html: props.editMessage && props.editMessage.content
         }
@@ -110,29 +124,53 @@ const ConferenceChatEditor = (props) => {
                 }
             } else {
                 DEBUG('HTML data on clipboard, content type will change');
-                setType('text/html');
-                const cleanData = data.replace(/\n|\t/g, '');
-                if (target.innerHTML === '') {
-                    e.preventDefault();
-                    target.innerHTML = cleanData;
+                e.preventDefault();
+                let cleanData = data;
+                if (isCaptionEditor) {
+                    setType('text/plain');
+                    const div = document.createElement('div');
+                    div.innerHTML = cleanData;
+                    div.querySelectorAll('a').forEach(el => el.replaceWith(el.href));
+                    div.querySelectorAll('br').forEach(el => el.replaceWith('\n'));
+                    div.querySelectorAll('p, div, li, h1, h2, h3, h4, h5, h6').forEach(el => {
+                        el.after(document.createTextNode('\n'));
+                    });
+                    cleanData = div.textContent.trim();
+                    cleanData = xss(cleanData, {
+                        whiteList: [], // empty, means filter out all tags
+                        stripIgnoreTag: true, // filter out all HTML not in the whitelist
+                        stripIgnoreTagBody: ['script', 'style'], // the script tag is a special case, we need
+                        // to filter out its content
+                    }).replace(/&nbsp;/g, ' ');
                 } else {
-                    e.preventDefault();
+                    setType('text/html');
+                    cleanData = data.replace(/\n|\t/g, '');
+                }
+                if (target.innerHTML === '') {
+                    if (isCaptionEditor) {
+                        target.innerText = cleanData;
+                    } else {
+                        target.innerHTML = cleanData;
+                    }
+                } else {
                     const selection = document.getSelection();
                     selection.deleteFromDocument();
                     const div = document.createElement('template');
                     div.innerHTML = cleanData;
                     selection.getRangeAt(0).insertNode(div.content.cloneNode(true));
                 }
-                computedStyleToInlineStyle(target, {
-                    recursive: true,
-                    properties: [
-                        'font-family',
-                        'font-size',
-                        'margin',
-                        'color',
-                        'background-color'
-                    ]
-                });
+                if (!isCaptionEditor) {
+                    computedStyleToInlineStyle(target, {
+                        recursive: true,
+                        properties: [
+                            'font-family',
+                            'font-size',
+                            'margin',
+                            'color',
+                            'background-color'
+                        ]
+                    });
+                }
             }
             setTimeout(() => {
                 if (type === 'text/html' || typeRef.current == 'text/html') {
@@ -150,7 +188,7 @@ const ConferenceChatEditor = (props) => {
         if (timer !== null) {
             clearTimeout(timer);
         }
-        if (name !== '' && name !== '\n') {
+        if ((name !== '' && name !== '\n') || isCaptionEditor) {
             if (type === 'text/html') {
                 DEBUG('Sending HTML content');
                 props.onSubmit(name, type);
@@ -326,7 +364,7 @@ const ConferenceChatEditor = (props) => {
                     <div className="editor-wrapper">
                         <div className="editor-inner-wrapper">
                             <div className="pre-editor" style={{ visibility: name.length !== 0 ? 'hidden' : 'visible' }}>
-                                Type a message
+                                Type a {isCaptionEditor ? "caption" : "message"}
                             </div>
                             <div className="editor"
                                 contentEditable="true"
@@ -339,11 +377,12 @@ const ConferenceChatEditor = (props) => {
                             ></div>
                         </div>
                     </div>
-                    {name.length !== 0 &&
+                    {(name.length !== 0 || isCaptionEditor) &&
                         <IconButton
                             onClick={() => sendMessage()} variant="text" title="Send"
                             disableFocusRipple={true}
                             disableRipple={true}
+                            color="primary"
                             style={{ marginLeft: '-10px', marginRight: '4px', padding: '10px', fontSize: 'inherit' }}
                         >
                             <i className="fa fa-paper-plane" aria-hidden="true" ></i>
@@ -364,7 +403,8 @@ ConferenceChatEditor.propTypes = {
     enableVoiceMessage: PropTypes.bool,
     toggleRecordVoiceMessage: PropTypes.func,
     editMessage: PropTypes.any,
-    cancelEdit: PropTypes.func
+    cancelEdit: PropTypes.func,
+    type: PropTypes.string
 };
 
 

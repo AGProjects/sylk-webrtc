@@ -1488,23 +1488,27 @@ class Blink extends React.Component {
         const path = this.router.current.getPath();
         if (path !== '/chat') {
             if (this.state.currentCall === null) {
-                this._notificationCenter.postNewMessage(message, () => {
-                    this.lastMessageFocus = message.sender.uri;
-                    this.router.current.navigate('/chat');
-                });
+                if (message.contentType !== 'application/sylk-message.metadata') {
+                    this._notificationCenter.postNewMessage(message, () => {
+                        this.lastMessageFocus = message.sender.uri;
+                        this.router.current.navigate('/chat');
+                    });
+                }
             }
         }
         if (this.shouldUseHashRouting) {
             const remote = window.require('electron').remote;
             const currentWindow = remote.getCurrentWindow();
             if (!currentWindow.isFocused()) {
-                this._notificationCenter.postSystemNotification('New message',
-                    {
-                        body: `From ${message.sender.displayName || message.sender.uri}`,
-                        timeout: 15,
-                        silent: false
-                    }
-                );
+                if (message.contentType !== 'application/sylk-message.metadata') {
+                    this._notificationCenter.postSystemNotification('New message',
+                        {
+                            body: `From ${message.sender.displayName || message.sender.uri}`,
+                            timeout: 15,
+                            silent: false
+                        }
+                    );
+                }
             }
         }
 
@@ -1548,7 +1552,26 @@ class Blink extends React.Component {
 
     sendingMessage(message) {
         if (message.contentType !== 'text/pgp-private-key') {
-            messageStorage.add(message);
+            messageStorage.add(message).then(() => {
+                if (message.contentType === 'application/sylk-message-metadata') {
+                    const contact = message.receiver;
+                    let oldMessages = cloneDeep(this.state.oldMessages);
+                    if (oldMessages[contact]) {
+                        const idx = oldMessages[contact].findIndex(x => {
+                            return x.id == message.json.messageId;
+                        });
+                        if (idx !== -1) {
+                            const metadata = [...(oldMessages[contact][idx].metadata || [])];
+                            const metaIdx = metadata.findIndex(m => m.action === message.json.action);
+                            if (metaIdx !== -1) {
+                                metadata[metaIdx] = message.json;
+                                oldMessages[contact][idx] = { ...oldMessages[contact][idx], metadata };
+                                this.setState({ oldMessages });
+                            }
+                        }
+                    }
+                }
+            });
         }
     }
 

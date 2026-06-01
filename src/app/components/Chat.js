@@ -23,7 +23,28 @@ const fileTransferUtils = require('../fileTransferUtils');
 const ToolbarAudioPlayer = require('./Chat/ToolbarAudioPlayer');
 
 const DEBUG = debug('blinkrtc:Chat');
+const messageStorage = require("../messageStorage");
 
+const { isNodeEmitter } = require('../utils');
+
+function enrichWithMetadata(message) {
+    if (message.metadata.length > 0) {
+        return Promise.resolve(message);
+    }
+
+    return messageStorage.getMetadata(message.id).then(metadata => {
+        if (metadata) {
+            metadata = metadata.map(meta => {
+                if (meta.snapshot) {
+                    meta.snapshot = messageStorage.fixMessage(meta.snapshot);
+                }
+                return meta;
+            });
+            message._metadata = metadata;
+        }
+        return message;
+    });
+}
 
 const styleSheet = makeStyles((theme) => ({
     toolbar: {
@@ -145,6 +166,38 @@ const Chat = (props) => {
             if (message.contentType === 'text/pgp-public-key-imported') {
                 return;
             }
+
+            if (message.contentType === 'application/sylk-message-metadata') {
+                if (message.jsonError || !message.json || !message.json.messageId) return;
+
+                if (message.json.action === 'reply' && message.json.value) {
+                    for (const msgs of Object.values(messagesRef.current)) {
+                        const original = msgs.find(m => m.id === message.json.value);
+                        if (original) {
+                            message.json.snapshot = original;
+                            break;
+                        }
+                    }
+                }
+
+                const oldMessages = Object.assign({}, messagesRef.current);
+                for (const [key, messages] of Object.entries(oldMessages)) {
+                    const idx = messages.findIndex(m => m.id === message.json.messageId);
+                    if (idx !== -1) {
+                        const existing = messages[idx].metadata || [];
+                        const metaIdx = existing.findIndex(m => m.action === message.json.action);
+                        if (metaIdx !== -1) {
+                            existing[metaIdx] = message.json;
+                        } else {
+                            existing.push(message.json);
+                        }
+                        setMessages(oldMessages);
+                        break;
+                    }
+                }
+                return;
+            }
+
             let oldMessages = Object.assign({}, messagesRef.current);
             let hasId = false;
             if (!oldMessages[message.sender.uri]) {
@@ -157,16 +210,19 @@ const Chat = (props) => {
                     }
                 }
             }
+
             if (hasId) {
                 return;
             }
-
-            oldMessages[message.sender.uri].push(message);
-            oldMessages[message.sender.uri].sort((a, b) => a.timestamp - b.timestamp);
-            if (selectedUriRef.current === message.sender.uri) {
-                DEBUG('We have this contact selected');
-            }
-            setMessages(oldMessages);
+            const key = message.sender.uri;
+            enrichWithMetadata(message).then(enriched => {
+                oldMessages[key].push(enriched);
+                oldMessages[key].sort((a, b) => a.timestamp - b.timestamp);
+                if (selectedUriRef.current === message.sender.uri) {
+                    DEBUG('We have this contact selected');
+                }
+                setMessages(oldMessages);
+            });
         };
 
         const messageStateChanged = (message) => {
@@ -181,8 +237,10 @@ const Chat = (props) => {
                 if (!oldMessages[message.receiver]) {
                     oldMessages[message.receiver] = [];
                 }
-                oldMessages[message.receiver].push(message);
-                setMessages(oldMessages);
+                enrichWithMetadata(message).then(enriched => {
+                    oldMessages[message.receiver].push(enriched);
+                    setMessages(oldMessages);
+                });
             }
         };
 
@@ -205,7 +263,12 @@ const Chat = (props) => {
         };
 
         const newMessages = cloneDeep(props.oldMessages);
+        const metadataPromises = [];
         for (let message of props.account.messages) {
+            if (message.contentType === 'application/sylk-message-metadata') {
+                continue; // skip, handled separately
+            }
+
             const senderUri = message.sender.uri;
             const receiver = message.receiver;
             let key = receiver;
@@ -215,15 +278,29 @@ const Chat = (props) => {
             if (!newMessages[key]) {
                 newMessages[key] = [];
             }
-            newMessages[key].push(message);
+            metadataPromises.push(
+                new Promise(resolve => {
+                    const existing = messagesRef.current[key]?.find(m => m.id === message.id);
+                    if (existing) {
+                        newMessages[key].push(existing);
+                        resolve();
+                    } else {
+                        enrichWithMetadata(message).then(enriched => {
+                            newMessages[key].push(enriched);
+                            resolve();
+                        });
+                    }
+                })
+            );
         };
+        Promise.all(metadataPromises).then(() => {
+            for (let contact of Object.keys(newMessages)) {
+                newMessages[contact].sort((a, b) => a.timestamp - b.timestamp);
+            }
+            setMessages(newMessages);
+            setShow(true);
+        });
 
-        for (let contact of Object.keys(newMessages)) {
-            newMessages[contact].sort((a, b) => a.timestamp - b.timestamp);
-        }
-
-        setMessages(newMessages);
-        setShow(true);
         props.account.on('incomingMessage', incomingMessage);
         props.account.on('messageStateChanged', messageStateChanged);
         props.account.on('outgoingMessage', outgoingMessage);

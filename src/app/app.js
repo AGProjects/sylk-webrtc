@@ -1819,6 +1819,15 @@ class Blink extends React.Component {
             promises.push(storage.set(`lastMessageId-${this.state.accountId}`, lastId));
         }
         Promise.all(promises).then(() => {
+            if (messages.length !== 0) {
+                this.state.account?.syncConversations(lastId, (error) => {
+                    if (error) {
+                        this.retransmitMessages();
+                        this.setState({ messagesLoading: false, messagesLoadingProgress: false });
+                    }
+                })
+                return;
+            }
             messageStorage.loadLastMessages().then(messages => {
                 if (messages) {
                     this.setState({ oldMessages: messages, messagesLoading: false, messagesLoadingProgress: false });

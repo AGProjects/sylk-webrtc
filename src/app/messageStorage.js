@@ -11,6 +11,7 @@ const { Queue } = require('./utils');
 const DEBUG = debug('blinkrtc:MessageStorage');
 
 let store = null;
+let metadataStore = null;
 
 const lastIdLoaded = new Map();
 const lastFileIdLoaded = new Map();
@@ -40,9 +41,16 @@ function initialize(account, electronStore, electron = false) {
                 name: 'Sylk',
                 storeName: `messages_${account}`
             });
+            metadataStore = localforage.createInstance({
+                driver: localforage.INDEXEDDB,
+                name: 'Sylk',
+                storeName: `metadata_${account}`
+            });
         } else {
-            store = new electronStorage(electronStore, {debug: DEBUG});
+            store = new electronStorage(electronStore, { debug: DEBUG });
             store.init(account, 'messages');
+            metadataStore = new electronStorage(electronStore, { debug: DEBUG });
+            metadataStore.init(account, "metadata");
         }
     }
 }
@@ -70,26 +78,93 @@ function remove(key) {
 
 function dropInstance() {
     if (store instanceof electronStorage) {
-        return store.clear();
+        return Promise.all([store.clear(), metadataStore.clear()]);
     }
-    return store.dropInstance();
+    return Promise.all([store.dropInstance(), metadataStore.dropInstance()]);
 }
 
 
 function close() {
     store = null;
+    metadataStore = null;
     return;
 }
 
+function addMetadata(message) {
+    if (message.jsonError || !message.json || !message.json.messageId) return Promise.resolve();
 
-function add(message) {
-    if (store === null) return [];
+    const messageId = message.json.messageId;
+    const meta = { ...message.json }
 
     let contact = message.receiver;
     if (message.state === 'received') {
         contact = message.sender.uri;
     }
-    Queue.enqueue(() => get(contact).then((messages) => {
+    const enrichMeta = () => {
+        if (meta.action !== 'reply' || !meta.value) return Promise.resolve(meta);
+
+        return Queue.enqueue(() => get(contact).then(storedMessages => {
+            if (!storedMessages) return meta;
+            const original = storedMessages.map(m => JSON.parse(m, _parseDates))
+                .find(m => m.id === meta.value);
+            if (original) {
+                meta.snapshot = original;
+            }
+            return meta;
+        }));
+    };
+
+    return enrichMeta().then((enrichedMeta) => {
+        const metaPromise = Queue.enqueue(() => metadataStore.getItem(messageId).then(existing => {
+            const entries = existing || [];
+            const idx = entries.findIndex(m => m.action === message.json.action);
+            if (idx !== -1) {
+                DEBUG("Metadata updated");
+                entries[idx] = enrichedMeta; // replace existing
+            } else {
+                DEBUG("Metadata stored");
+                entries.push(enrichedMeta); // new action type
+            }
+            return metadataStore.setItem(messageId, entries);
+        }));
+
+        if (!idsInStorage.has(messageId)) return Promise.resolve(); // not stored yet, nothing to update
+
+        return Promise.all([metaPromise, Queue.enqueue(() => get(contact).then(storedMessages => {
+            if (!storedMessages) return;
+            const msgs = storedMessages.map(m => {
+                const parsed = JSON.parse(m, _parseDates);
+                if (parsed.id !== messageId) return m;
+                parsed.metadata = parsed.metadata || [];
+                const idx = parsed.metadata.findIndex(m => m.action === message.json.action);
+                if (idx !== -1) {
+                    DEBUG("Message metadata updated");
+                    parsed.metadata[idx] = enrichedMeta;
+                } else {
+                    DEBUG("Message metadata added");
+                    parsed.metadata.push(enrichedMeta);
+                }
+                return JSON.stringify(parsed);
+            });
+            set(contact, msgs);
+        }))]);
+    });
+}
+
+function add(message) {
+    if (store === null) return Promise.resolve([]);
+
+    let contact = message.receiver;
+    if (message.state === 'received') {
+        contact = message.sender.uri;
+    }
+
+    if (message.contentType === 'application/sylk-message-metadata') {
+        DEBUG('Storing metadata message');
+        return addMetadata(message);
+    }
+
+    return Queue.enqueue(() => get(contact).then((messages) => {
         if (!messages) {
             messages = [];
         } else {
@@ -102,10 +177,13 @@ function add(message) {
             };
         }
         idsInStorage.set(message.id, message.state);
-        messages.push(JSON.stringify(message));
-        DEBUG('Saving message in storage: %o', message);
-        set(contact, messages);
-        return messages;
+
+        return metadataStore.getItem(message.id).then(metadata => {
+            DEBUG('Old metadata found for message, appending metadata to message');
+            const plain = { ...message.toJSON(), metadata: metadata || [] };
+            messages.push(JSON.stringify(plain));
+            set(contact, messages);
+        });
     }));
 }
 
@@ -127,6 +205,9 @@ function removeMessage(message) {
                     return true;
                 }
                 idsInStorage.delete(storedMessage.id);
+                if (storedMessage.contentType === 'application/sylk-file-transfer') {
+                    metadataStore.removeItem(storedMessage.id);
+                }
                 return false;
             });
             set(contact, messages);
@@ -251,6 +332,7 @@ function _fixFileMessages(messages) {
             } catch (e) {
                 error = true;
             }
+
             fixedMessage = {
                 ...fixedMessage,
                 get json() {
@@ -261,8 +343,16 @@ function _fixFileMessages(messages) {
                 },
                 get isExpired() {
                     return json.until && new Date(json.until) < new Date();
-                }
+                },
             }
+        }
+        if (fixedMessage.metadata) {
+            fixedMessage.metadata = fixedMessage.metadata.map(meta => {
+                if (meta.snapshot) {
+                    meta.snapshot = _fixFileMessages([JSON.stringify(meta.snapshot)])[0];
+                }
+                return meta;
+            });
         }
         return fixedMessage
     });
@@ -434,6 +524,15 @@ function revertFiles(key) {
     lastFileIdLoaded.set(key, lastIdLoaded.get(key));
 }
 
+function getMetadata(messageId) {
+    return metadataStore.getItem(messageId);
+}
+
+function fixMessage(message) {
+    return _fixFileMessages([JSON.stringify(message)])[0];
+}
+
+
 exports.initialize = initialize;
 exports.set = set;
 exports.get = get;
@@ -452,3 +551,5 @@ exports.hasMore = hasMore;
 exports.hasMoreFiles = hasMoreFiles;
 exports.revertFiles = revertFiles;
 exports.updateIdMap = updateIdMap;
+exports.getMetadata = getMetadata;
+exports.fixMessage = fixMessage;

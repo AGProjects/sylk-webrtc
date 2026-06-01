@@ -18,6 +18,7 @@ const InfoPanel = require('./Chat/InfoPanel');
 const ConferenceChatEditor = require('./ConferenceChatEditor');
 const VoiceMessageRecorderModal = require('./Chat/VoiceMessageRecorderModal');
 
+const { useConfig } = require('../ConfigProvider')
 const utils = require('../utils');
 const fileTransferUtils = require('../fileTransferUtils');
 const ToolbarAudioPlayer = require('./Chat/ToolbarAudioPlayer');
@@ -112,7 +113,7 @@ const Chat = (props) => {
     const [showVoiceMessageRecordModal, setVoiceMessageRecordModal] = useState(false);
     const [showInfoPanel, setShowInfoPanel] = useState(false);
     const [editMessage, setEditMessage] = useState('');
-
+    const { domain } = useConfig();
     const selectedUriRef = useRef(selectedUri);
     const messagesRef = useRef(messages);
     const contactCache = useRef(props.contactCache);
@@ -416,7 +417,7 @@ const Chat = (props) => {
         setEditMessage(message);
     }
 
-    const defaultDomain = props.account.id.substring(props.account.id.indexOf('@') + 1);
+    const defaultDomain = domain;
 
     const startChat = () => {
         if (input.current.value !== '') {

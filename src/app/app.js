@@ -44,6 +44,7 @@ const ImportModal = require('./components/ImportModal');
 const NewDeviceModal = require('./components/NewDeviceModal');
 const LogoutModal = require('./components/LogoutModal');
 const ParticipantAudioManager = require('./components/ParticipantAudioManager');
+const ConfigProvider = require('./ConfigProvider').default;
 
 const utils = require('./utils');
 const config = require('./config');
@@ -108,7 +109,8 @@ class Blink extends React.Component {
             haveFocus: false,
             unreadMessages: 0,
             unreadCallMessages: 0,
-            storageLoadEmpty: false
+            storageLoadEmpty: false,
+            domain: null
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -187,7 +189,8 @@ class Blink extends React.Component {
             'toggleChatInConference',
             'chatWrapper',
             'saveConferenceState',
-            'getConferenceState'
+            'getConferenceState',
+            'onConfigReady'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -382,6 +385,12 @@ class Blink extends React.Component {
 
     notificationCenter() {
         return this._notificationCenter;
+    }
+
+    onConfigReady() {
+        if (this.state.accountId && this.state.connection === null) {
+            this.connect();
+        }
     }
 
     retransmitMessages() {
@@ -698,20 +707,30 @@ class Blink extends React.Component {
     handleRegistration(accountId, password, remember) {
         // Needed for ready event in connection
         remember = this.shouldUseHashRouting ? true : remember;
+        let domain = accountId.split('@')[1];
+        const reconnect = domain !== this.state.domain;
+
         this.setState({
             accountId: accountId,
             password: password,
             mode: remember ? MODE_NORMAL : MODE_PRIVATE,
-            loading: 'Connecting...'
+            loading: 'Connecting...',
+            domain: domain
         });
 
-        if (this.state.connection === null) {
-            this.connect();
-        } else {
-            DEBUG('Connection Present, try to register');
+        if (reconnect && this.state.connection !== null) {
+            DEBUG('Connection Present, domain changed, reconnecting');
+            this.state.connection.off('stateChanged', this.connectionStateChanged);
+            this.state.connection.close();
+            this.setState({ connection: null });
+        } else if (this.state.connection !== null) {
+            DEBUG('Connection Present, same domain, try to register');
             this.processRegistration(accountId, password, '');
+            return;
         }
+        // connect() will be called by onConfigReady once config is fetched for the new domain
     }
+
 
     processRegistration(accountId, password, displayName) {
         let pendingFailedMessages = [];
@@ -2161,26 +2180,29 @@ class Blink extends React.Component {
                 <AudioPlayer ref={this.audioPlayerHangup} sourceFile="assets/sounds/hangup_tone.wav" />
                 <audio id="remoteAudio" ref={this.remoteAudio} autoPlay />
                 <ParticipantAudioManager ref={this.audioManager} />
-                <TransitionGroup>
-                    {incomingCallModal}
-                </TransitionGroup>
-                {incomingWindow}
                 {screenSharingModal}
-                <Locations hash={this.shouldUseHashRouting} ref={this.router} onBeforeNavigation={this.checkRoute}>
-                    <Location path="/" handler={this.main} />
-                    <Location path="/login" handler={this.login} />
-                    <Location path="/logout" handler={this.logout} />
-                    <Location path="/ready" handler={this.ready} />
-                    <Location path="/call" handler={this.call} />
-                    <Location path="/call/:targetUri" urlPatternOptions={{ segmentValueCharset: 'a-zA-Z0-9-_ \.@' }} handler={this.callByUri} />
-                    <Location path="/call-complete" handler={this.callComplete} />
-                    <Location path="/chat" handler={this.chat} />
-                    <Location path="/conference" handler={this.conference} />
-                    <Location path="/conference/:targetUri" urlPatternOptions={{ segmentValueCharset: 'a-zA-Z0-9-_~ %\.@' }} handler={this.conferenceByUri} />
-                    <Location path="/not-supported" handler={this.notSupported} />
-                    <Location path="/preview" handler={this.preview} />
-                    <NotFound handler={this.notFound} />
-                </Locations>
+                <ConfigProvider domain={this.state.domain} onConfigReady={this.onConfigReady}>
+                    <TransitionGroup>
+                        {incomingCallModal}
+                    </TransitionGroup>
+                    {incomingWindow}
+
+                    <Locations hash={this.shouldUseHashRouting} ref={this.router} onBeforeNavigation={this.checkRoute}>
+                        <Location path="/" handler={this.main} />
+                        <Location path="/login" handler={this.login} />
+                        <Location path="/logout" handler={this.logout} />
+                        <Location path="/ready" handler={this.ready} />
+                        <Location path="/call" handler={this.call} />
+                        <Location path="/call/:targetUri" urlPatternOptions={{ segmentValueCharset: 'a-zA-Z0-9-_ \.@' }} handler={this.callByUri} />
+                        <Location path="/call-complete" handler={this.callComplete} />
+                        <Location path="/chat" handler={this.chat} />
+                        <Location path="/conference" handler={this.conference} />
+                        <Location path="/conference/:targetUri" urlPatternOptions={{ segmentValueCharset: 'a-zA-Z0-9-_~ %\.@' }} handler={this.conferenceByUri} />
+                        <Location path="/not-supported" handler={this.notSupported} />
+                        <Location path="/preview" handler={this.preview} />
+                        <NotFound handler={this.notFound} />
+                    </Locations>
+                </ConfigProvider>
             </div>
         );
     }

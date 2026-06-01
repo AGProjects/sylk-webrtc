@@ -2,6 +2,7 @@
 
 const localforage = require('localforage');
 const cacheStorage = require('./cacheStorage');
+const mainStorage = require('./storage');
 const debug = require('debug');
 
 const electronStorage = require('./electronStorage');
@@ -32,6 +33,80 @@ function _parseDates(key, value) {
 }
 
 
+function migrateMetadataMessages() {
+    return mainStorage.get('metadata_migrated').then(value => {
+        if (value === true) {
+            DEBUG('Metadata migration already done');
+            return true;
+        }
+        return Queue.enqueue(() => store.keys().then(keys => {
+            if (!keys) return;
+            return Promise.all(keys.map(key => {
+                return store.getItem(key).then(storedMessages => {
+                    if (!storedMessages) return;
+                    let changed = false;
+                    const toMigrate = [];
+                    const msgs = storedMessages.filter(m => {
+                        const parsed = JSON.parse(m, _parseDates);
+                        if (parsed.contentType === 'application/sylk-message-metadata') {
+                            changed = true;
+                            let json = {};
+                            try {
+                                json = JSON.parse(parsed.content, _parseDates);
+                            } catch (e) { return false; }
+                            if (!json.messageId) return false;
+                            toMigrate.push(json);
+                            return false;
+                        }
+                        return true;
+                    });
+                    const seen = new Set();
+                    const uniqueMigrate = toMigrate.reverse().filter(json => {
+                        const key = `${json.messageId}:${json.action}`;
+                        if (seen.has(key)) return false;
+                        seen.add(key);
+                        return true;
+                    });
+                    return Promise.all(uniqueMigrate.map(json =>
+                        metadataStore.getItem(json.messageId).then(existing => {
+                            const entries = existing || [];
+                            const idx = entries.findIndex(e => e.action === json.action);
+                            if (idx !== -1) {
+                                DEBUG('Metadata message updated')
+                                entries[idx] = json;
+                            } else {
+                                DEBUG('Metadata message stored')
+                                entries.push(json);
+                            }
+                            return metadataStore.setItem(json.messageId, entries);
+                        })
+                    )).then(() => {
+                        if (changed) {
+                            const enriched = msgs.map(m => {
+                                const parsed = JSON.parse(m, _parseDates);
+                                const meta = uniqueMigrate.filter(j => j.messageId === parsed.id);
+                                if (meta.length > 0) {
+                                    DEBUG('Metadata found for message id: %s, attaching metadata', parsed.id);
+                                    parsed.metadata = meta;
+                                    return JSON.stringify(parsed);
+                                }
+                                return m;
+                            });
+                            return set(key, enriched);
+                        }
+                    });
+                });
+            }));
+        })).then(() => {
+            mainStorage.setItem('metadata_migrated', true);
+            DEBUG('Metadata migration done');
+        }).catch(() => {
+            DEBUG('Migration error: %o', err);
+        });
+    });
+}
+
+
 function initialize(account, electronStore, electron = false) {
     DEBUG('Message store init');
     if (store === null) {
@@ -52,6 +127,7 @@ function initialize(account, electronStore, electron = false) {
             metadataStore = new electronStorage(electronStore, { debug: DEBUG });
             metadataStore.init(account, "metadata");
         }
+        migrateMetadataMessages();
     }
 }
 

@@ -18,7 +18,20 @@ function _isMemoryCached(id) {
     return imageCache[id] !== undefined
 }
 
-function upload({ notificationCenter, account }, files, uri) {
+function sendMetadata(account, id, uri, caption, cb = null) {
+    const messageId = utils.generateUniqueId();
+    const date = new Date().toISOString()
+    const metaData = {
+        "action": "label",
+        "value": caption,
+        "metadataId": messageId,
+        "messageId": id,
+        "uri": uri,
+    }
+    account.sendMessage(uri, JSON.stringify(metaData), 'application/sylk-message-metadata', { "timestamp": date, "id": messageId }, cb);
+}
+
+function upload({ notificationCenter, account }, files, uri, caption) {
     for (const file of files) {
         if (file instanceof File) {
             let uploadRequest;
@@ -34,8 +47,12 @@ function upload({ notificationCenter, account }, files, uri) {
                 }
             );
             account.encryptFile(uri, file).then((encryptionResult) => {
+                const id = utils.generateUniqueId();
+                if (caption) {
+                    sendMetadata(account, id, uri, caption);
+                }
                 uploadRequest = superagent
-                    .post(`${config.fileTransferUrl}/${account.id}/${uri}/${utils.generateUniqueId()}/${encryptionResult.file.name}`)
+                    .post(`${config.fileTransferUrl}/${account.id}/${uri}/${id}/${encryptionResult.file.name}`)
                     .set('Content-Type', encryptionResult.file.type)
                     //.set('Original-Content-Length', file.size)
                     .send(encryptionResult.file)
@@ -384,4 +401,4 @@ function getAndReadFile(account, message) {
 };
 
 
-module.exports = { upload, download, openInNewTab, generateThumbnail, getAndReadFile, getThumbnail }
+module.exports = { upload, download, openInNewTab, generateThumbnail, getAndReadFile, sendMetadata, getThumbnail }

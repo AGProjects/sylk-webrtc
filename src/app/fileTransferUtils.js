@@ -89,7 +89,6 @@ function _download(account, url, filename, filetype, onProgress = null) {
     return promise;
 }
 
-
 function _downloadAndRead(account, url, filename, filetype, id, contact) {
     return _download(account, url, filename, filetype)
         .then(file => {
@@ -121,7 +120,7 @@ function _parameterTest(name, bool) {
     }
 }
 
-function download(account, { url, filename, filetype, transfer_id: id }, notification=null, notificationCenter=null) {
+function download(account, { url, filename, filetype, transfer_id: id }, notification = null, notificationCenter = null) {
     try {
         _parameterTest('url', url);
         _parameterTest('filename', filename);
@@ -198,7 +197,7 @@ function download(account, { url, filename, filetype, transfer_id: id }, notific
             }
         }
 
-        const promise = _download(account, url, filename, filetype, onProgress=onProgress)
+        const promise = _download(account, url, filename, filetype, onProgress = onProgress)
 
         return promise.then(file => {
             complete = true;
@@ -252,6 +251,41 @@ function openInNewTab(account, { url, filename, filetype, transfer_id: id }) {
             newTab.location = blob;
             newTab.onload = (evt) => URL.revokeObjectURL(blob);
         });
+    });
+}
+
+function getThumbnail(message) {
+    let { id, state } = message
+    let { url, filename, filetype, sender, receiver } = message.json;
+
+    if (filetype == null) {
+        filetype = 'application/octet-stream'
+    }
+
+
+    if (_isMemoryCached(id)) {
+        //DEBUG('Thumbnail from memory cache: %s (%s)', filename, id);
+        return new Promise((resolve) => resolve(imageCache[id]))
+    }
+
+    if (failedDownloads.has(id)) {
+        const error = `Thumbnail generation failed for ${filename}: download failed previously`;
+        DEBUG(error);
+        return Promise.reject(error);
+    }
+
+    let contact = receiver.uri;
+    if (state === 'received') {
+        contact = sender.uri;
+    }
+
+    return cacheStorage.get(`thumb_${id}`).then(data => {
+        if (data) {
+            DEBUG('Thumbnail from file cache: %s (%s)', filename, id);
+            imageCache[id] = data.data;
+            return new Promise((resolve) => resolve(data.data))
+        }
+        return Promise.reject("No thumb");
     });
 }
 
@@ -350,4 +384,4 @@ function getAndReadFile(account, message) {
 };
 
 
-module.exports = { upload, download, openInNewTab, generateThumbnail, getAndReadFile }
+module.exports = { upload, download, openInNewTab, generateThumbnail, getAndReadFile, getThumbnail }

@@ -5,6 +5,9 @@ const MaterialColors = require('./MaterialColors');
 const { Queue } = require('./utils/Queue');
 const { EventEmitter } = require('events');
 
+const { default: parse } = require('html-react-parser');
+const linkifyUrls = require('linkify-urls');
+
 function generateUniqueId() {
     const uniqueId = uuidv4().replace(/-/g, '').slice(0, 16);
     return uniqueId;
@@ -173,11 +176,38 @@ function isNodeEmitter(obj) {
     return EventEmitter.prototype.isPrototypeOf(obj) || hasEmitterMethods;
 };
 
+function uniqueId(prefix = 'id') {
+    return `${prefix}${generateUniqueId()}`;
+};
+
+function preHtmlEntities(str) {
+    return String(str).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+};
+
+function postHtmlEntities(str) {
+    return String(str).replace(/(?!&amp;|&lt;|&gt;|&quot;)&/g, '&amp;');
+};
+
+function customUrlRegexp() {
+    return (/((?:https?(?::\/\/))(?:www\.)?(?:[a-zA-Z\d-_.]+(?:(?:\.|@)[a-zA-Z\d]{2,})|localhost)(?:(?:[-a-zA-Z\d:%_+.~#!?&//=@();]*)(?:[,](?![\s]))*)*)/g);
+}
+
+function linkify(content) {
+    let linkfiedContent = linkifyUrls(preHtmlEntities(content), {
+        customUrlRegexp,
+        attributes: {
+            target: '_blank',
+            rel: 'noopener noreferrer'
+        }
+    });
+    return parse(postHtmlEntities(linkfiedContent));
+};
 
 exports.copyToClipboard = copyToClipboard;
 exports.normalizeUri = normalizeUri;
 exports.generateSillyName = generateSillyName;
 exports.generateUniqueId = generateUniqueId;
+exports.uniqueId = uniqueId;
 exports.generateMaterialColor = generateMaterialColor;
 exports.generateVideoTrack = generateVideoTrack;
 exports.getWindowHeight = getWindowHeight;
@@ -185,3 +215,5 @@ exports.loadAudio = loadAudio;
 exports.Queue = Queue;
 exports.isMobile = isMobile;
 exports.isNodeEmitter = isNodeEmitter;
+exports.linkify = linkify;
+exports.customUrlRegexp = customUrlRegexp;

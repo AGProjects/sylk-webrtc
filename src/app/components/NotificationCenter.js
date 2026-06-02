@@ -275,7 +275,7 @@ class NotificationCenter extends React.Component {
         });
     }
 
-    editFileDownloadNotification(progress, filename, notification, cb=null) {
+    editFileDownloadNotification(progress, filename, notification, cb = null) {
         if (progress === undefined) {
             progress = 100;
         }
@@ -300,9 +300,7 @@ class NotificationCenter extends React.Component {
             }
         );
     }
-            position: 'br'
-        });
-    }
+
     render() {
         const style = {
             Containers: {

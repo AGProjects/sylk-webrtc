@@ -156,7 +156,21 @@ const Chat = (props) => {
         }
     }, [show, props.focusOn])
 
+    const isElectron = navigator.userAgent.includes('Electron');
+
     useEffect(() => {
+        if (props.account === null && isElectron) {
+            DEBUG('Loading messages with electron and no account');
+            const newMessages = cloneDeep(props.oldMessages);
+
+            for (let contact of Object.keys(newMessages)) {
+                newMessages[contact].sort((a, b) => a.timestamp - b.timestamp);
+            }
+            setMessages(newMessages);
+            setShow(true);
+            return
+        }
+
         if (props.account === null) {
             return
         }
@@ -318,7 +332,7 @@ const Chat = (props) => {
             props.account.removeListener('removeMessage', removeMessage);
             props.account.removeListener('removeConversation', removeConversation);
         }
-    }, [props.account, props.oldMessages]);
+    }, [props.account, props.oldMessages, isElectron]);
 
 
     const loadMessages = (uri, id) => {
@@ -601,8 +615,8 @@ const Chat = (props) => {
                                             </Typography>
                                         </div>
                                         {props.hideCallButtons === false && [
-                                            <IconButton key="callButton" className="fa fa-phone" onClick={() => props.startCall(selectedUri, { video: false })} />,
-                                            <IconButton key="videoCallButton" className="fa fa-video-camera" onClick={() => props.startCall(selectedUri)} />
+                                            <IconButton key="callButton" className="fa fa-phone" disabled={props.noConnection} onClick={() => props.startCall(selectedUri, { video: false })} />,
+                                            <IconButton key="videoCallButton" className="fa fa-video-camera" disabled={props.noConnection} onClick={() => props.startCall(selectedUri)} />
                                         ]}
                                     </React.Fragment>
                                 }
@@ -614,7 +628,7 @@ const Chat = (props) => {
                             ?
                             <React.Fragment>
                                 {
-                                    props.account.pgp === null &&
+                                    props.account?.pgp === null &&
                                     <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
                                         <Typography className={classes.title} variant="h6" noWrap>End to end encryption for messaging is not enabled</Typography>
                                     </Toolbar>
@@ -672,7 +686,7 @@ const Chat = (props) => {
                             ?
                             <React.Fragment>
                                 {
-                                    props.account.pgp === null &&
+                                    props.account?.pgp === null &&
                                     <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
                                         <Typography className={classes.title} variant="h6" noWrap>End to end encryption for messaging is not enabled</Typography>
                                     </Toolbar>
@@ -767,7 +781,8 @@ Chat.propTypes = {
     embed: PropTypes.bool,
     hideCallButtons: PropTypes.bool,
     notificationCenter: PropTypes.func.isRequired,
-    storageLoadEmpty: PropTypes.bool
+    storageLoadEmpty: PropTypes.bool,
+    noConnection: PropTypes.bool
 };
 
 

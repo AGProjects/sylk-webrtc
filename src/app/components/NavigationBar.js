@@ -110,7 +110,9 @@ class NavigationBar extends React.Component {
     }
 
     render() {
-        const notRegistered = this.props.account.registrationState !== 'registered';
+        const notRegistered = this.props.account?.registrationState !== 'registered';
+        const notConnected = this.props.account?._connection.state !== 'ready';
+
         const muteClasses = clsx({
             'fa': true,
             'fa-2x': true,
@@ -140,6 +142,13 @@ class NavigationBar extends React.Component {
                 <React.Fragment>
                     You're unable to receive SIP calls.<br />
                     You <strong>can</strong> still make outbound calls.
+                </React.Fragment>
+            );
+        }
+        if (notConnected) {
+            title = (
+                <React.Fragment>
+                    You're unable to receive/make calls.<br />
                 </React.Fragment>
             );
         }
@@ -178,6 +187,7 @@ class NavigationBar extends React.Component {
                         <p className="navbar-text hidden-xs">
                             {notRegistered ? 'Not signed' : 'Signed'} in as: <strong className={registrationClasses}>{this.props.account.id}</strong>
                             {notRegistered ? <span>&nbsp;<i className="fa fa-exclamation-circle text-warning" /></span> : ''}
+                            {notConnected ? <span>&nbsp; - Waiting for network</span> : ''}
                         </p>
                     </HtmlTooltip>
                 </Navbar.Header>

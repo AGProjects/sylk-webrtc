@@ -208,6 +208,9 @@ class Blink extends React.Component {
         this.unreadTimer = null;
         this.showCall = true;
         this.savedConferenceState = null;
+        this.wasConnected = false;
+        this.loggingOut = false;
+        this.failureReason = null;
 
         // Check if we should use hash routing
         if (typeof window.process !== 'undefined') {
@@ -312,6 +315,7 @@ class Blink extends React.Component {
                 this.setState({ connection: null, loading: null });
                 break;
             case 'ready':
+                this.wasConnected = true;
                 if (this.connectionNotification !== null) {
                     this._notificationCenter.removeNotification(this.connectionNotification);
                     this.connectionNotification = null;
@@ -365,8 +369,12 @@ class Blink extends React.Component {
                 break;
             default:
                 if (this.state.account === null) {
-                    this.setState({ loading: 'Connecting...' });
+                    if (this.state.accountId !== '') {
+                        this.setState({ loading: 'Connecting...' });
+                    }
                 } else {
+                    if (!this.wasConnected) break;
+
                     if (!this.state.showRedialScreen) {
                         const reconnect = () => {
                             this._notificationCenter.toggleConnectionLostNotification(true, this.connectionNotification);
@@ -390,6 +398,33 @@ class Blink extends React.Component {
     onConfigReady() {
         if (this.state.accountId && this.state.connection === null) {
             this.connect();
+            setTimeout(() => {
+                if (this.shouldUseHashRouting && this.state.connection.state !== 'ready') {
+                    messageStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
+                    keyStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
+                    cacheStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
+
+                    let privateKey, publicKey = '';
+
+                    const options = {
+                        account: this.state.accountId,
+                        password: this.state.password,
+                        displayName: this.state.displayName,
+                        ha1: true
+                    };
+                    const account = new sylkrtc.Account(options, this.state.connection)
+                    this.setState({ enableMessaging: true, loading: null, account: account });
+
+                    storage.get(`pgpKeys-${this.state.accountId}`).then(pgpKeys => {
+                        if (pgpKeys) {
+                            privateKey = pgpKeys.privateKey;
+                            publicKey = pgpKeys.publicKey;
+                            this.enableEncryption(publicKey, privateKey, true);
+                        }
+                    });
+                    this.router.current.navigate('/ready')
+                }
+            }, 2000);
         }
     }
 
@@ -1466,9 +1501,10 @@ class Blink extends React.Component {
         messageStorage.loadLastMessages().then((cache) => {
             this.setState({ oldMessages: cache })
             storage.get(`lastMessageId-${this.state.accountId}`).then(id =>
-                this.state.account.syncConversations(id, (error) => {
+                this.state.account?.syncConversations(id, (error) => {
                     if (error) {
                         this.retransmitMessages();
+                        this.setState({ messagesLoading: false, messagesLoadingProgress: false });
                     }
                 })
             );
@@ -2307,7 +2343,7 @@ class Blink extends React.Component {
         }
         return (
             <Chat
-                key={this.state.account}
+                key={this.state.accountId}
                 account={this.state.account}
                 contactCache={this.state.contactCache}
                 oldMessages={this.state.oldMessages}
@@ -2327,7 +2363,9 @@ class Blink extends React.Component {
                 hideCallButtons={hideCallButtons}
                 notificationCenter={this.notificationCenter}
                 storageLoadEmpty={this.state.storageLoadEmpty}
-            />)
+                noConnection={this.state.connection.state !== 'ready'}
+            />
+        );
     }
 
     notFound() {
@@ -2602,7 +2640,10 @@ class Blink extends React.Component {
     }
 
     logout(removeData = false) {
-        setTimeout(() => {
+        if (this.loggingOut) return <div></div>;
+        this.loggingOut = true;
+
+        setTimeout(async () => {
             if (this.state.registrationState !== null && (this.state.mode === MODE_NORMAL || this.state.mode === MODE_PRIVATE)) {
                 this.state.account.unregister();
             }
@@ -2613,16 +2654,16 @@ class Blink extends React.Component {
             }
             if (removeData === true) {
                 DEBUG('Clearing message storage for: %s', this.state.accountId);
-                Promise.all([messageStorage.dropInstance().then(() => {
+                await Promise.all([messageStorage.dropInstance().then(() => {
                     messageStorage.close();
                     DEBUG('Closing storage: %s', this.state.accountId);
                     this.setState({ oldMessages: {} });
                 })]);
                 storage.remove(`pgpKeys-${this.state.accountId}`);
                 storage.remove(`lastMessageId-${this.state.accountId}`);
+            } else {
+                messageStorage.close();
             }
-
-            messageStorage.close()
             if (this.state.account !== null) {
                 try {
                     this.state.connection.removeAccount(this.state.account,
@@ -2637,31 +2678,39 @@ class Blink extends React.Component {
                 }
             }
             if (this.shouldUseHashRouting || removeData === true) {
-                storage.set('account', { accountId: this.state.accountId, password: '' });
+                DEBUG('Clearing password: %s', this.state.accountId);
+                await storage.set('account', { accountId: this.state.accountId, password: '' });
             }
-
             if (this.state.connection.state !== 'ready') {
                 this.state.connection.close();
             }
-            setImmediate(() => this.setState(
+            this.isRetry = false;
+            this.failureReason = null;
+            this.setState(
                 {
                     registrationState: null,
                     status: null,
                     serverHistory: [],
+                    password: '',
                     oldMessages: {},
                     enableMessaging: false,
+                    accountId: '',
                     unreadMessages: 0,
                     unreadCallMessages: 0,
-                    accountId: '',
-                    account: null
+                    history: [],
+                    contactCache: new Map()
+                },
+                () => {
+                    // needed to prevent complain from readybox and navbar.
+                    setImmediate(() => this.setState({ account: null }));
+                    this.loggingOut = false;
+                    if (config.showGuestCompleteScreen && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
+                        this.router.current.navigate('/call-complete');
+                    } else {
+                        this.router.current.navigate('/login');
+                    }
                 }
-            ));
-            this.isRetry = false;
-            if (config.showGuestCompleteScreen && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
-                this.router.current.navigate('/call-complete');
-            } else {
-                this.router.current.navigate('/login');
-            }
+            );
         });
         return <div></div>;
     }

@@ -4,14 +4,14 @@ class electronStorage {
         this._store = store;
         this.ipcRenderer = window.require('electron').ipcRenderer;
         this._initializing = null;
-        this.debug = debug || (() => {})
+        this.debug = debug || (() => { })
         this.options = {};
     }
 
-    init(account, dataPath=null) {
+    init(account, dataPath = null) {
         if (!dataPath) {
-            this.debug(`Can't initialize electron storage, no path given`);
-            return Promise.reject(new Error("No dataPath"));
+            this.debug('Can not initialize electron storage, no path given');
+            return Promise.reject(new Error('No dataPath'));
         }
         this.debug(`Initialize electron storage for ${dataPath}`);
         this._initializing = new Promise((resolve, reject) => {
@@ -167,9 +167,9 @@ class electronStorage {
                                         }
                                     }
                                 }).catch(error => {
-                                        reject(error);
-                                        return;
-                                    })
+                                    reject(error);
+                                    return;
+                                })
                                 );
                             }
                             Promise.all(promises).then(() => {

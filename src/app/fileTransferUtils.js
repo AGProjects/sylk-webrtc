@@ -22,13 +22,13 @@ function sendMetadata(account, id, uri, caption, cb = null) {
     const messageId = utils.generateUniqueId();
     const date = new Date().toISOString()
     const metaData = {
-        "action": "label",
-        "value": caption,
-        "metadataId": messageId,
-        "messageId": id,
-        "uri": uri,
+        action: 'label',
+        value: caption,
+        metadataId: messageId,
+        messageId: id,
+        uri: uri
     }
-    account.sendMessage(uri, JSON.stringify(metaData), 'application/sylk-message-metadata', { "timestamp": date, "id": messageId }, cb);
+    account.sendMessage(uri, JSON.stringify(metaData), 'application/sylk-message-metadata', { timestamp: date, id: messageId }, cb);
 }
 
 function upload({ notificationCenter, account }, files, uri, caption) {
@@ -302,7 +302,7 @@ function getThumbnail(message) {
             imageCache[id] = data.data;
             return new Promise((resolve) => resolve(data.data))
         }
-        return Promise.reject("No thumb");
+        return Promise.reject('No thumbnail found');
     });
 }
 

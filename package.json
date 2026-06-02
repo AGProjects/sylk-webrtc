@@ -16,6 +16,7 @@
     "@parcel/transformer-sass": "2.10.3",
     "@types/react": "16",
     "@types/react-dom": "16",
+    "@typescript-eslint/parser": "^8.60.1",
     "animate.css": "^3.7.2",
     "assert": "^2.0.0",
     "audio-context": "^1.0.3",

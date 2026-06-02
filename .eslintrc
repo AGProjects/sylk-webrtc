@@ -16,9 +16,9 @@
     },
     "settings": {
         "react": {
-          "createClass": "createReactClass", 
+          "createClass": "createReactClass",
           "pragma": "React",
-          "version": "detect", 
+          "version": "detect",
           "flowVersion": "0.53"
         },
         "propWrapperFunctions": [
@@ -64,5 +64,20 @@
          "space-before-blocks": 2,
          "id-length": 0,
          "camelcase": [2, {"properties": "always"}]
-    }
+    },
+    "overrides": [
+        {
+            "files": ["**/*.ts", "**/*.tsx"],
+            "parser": "@typescript-eslint/parser",
+            "parserOptions": {
+                "ecmaVersion": 2020,
+                "ecmaFeatures": {
+                    "jsx": true
+                }
+            },
+            "rules": {
+                "react/prop-types": "off"
+            }
+        }
+    ]
 }

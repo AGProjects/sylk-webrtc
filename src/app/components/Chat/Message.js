@@ -24,7 +24,7 @@ const { useInView } = require('react-intersection-observer');
 const CustomContextMenu = require('../CustomContextMenu');
 const UserIcon = require('../UserIcon');
 
-const { isNodeEmitter } = require('../../utils');
+const { isNodeEmitter, linkify, customUrlRegexp } = require('../../utils');
 
 
 const styleSheet = makeStyles((theme) => ({
@@ -84,16 +84,6 @@ const Message = ({
         threshold: 0
     });
 
-    const preHtmlEntities = (str) => {
-        return String(str).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    };
-
-    const postHtmlEntities = (str) => {
-        return String(str).replace(/(?!&amp;|&lt;|&gt;|&quot;)&/g, '&amp;');
-    };
-
-    const customUrlRegexp = () => (/((?:https?(?::\/\/))(?:www\.)?(?:[a-zA-Z\d-_.]+(?:(?:\.|@)[a-zA-Z\d]{2,})|localhost)(?:(?:[-a-zA-Z\d:%_+.~#!?&//=@();]*)(?:[,](?![\s]))*)*)/g);
-
     const isDisplayed = React.useCallback(() => {
         if (displayed) {
             displayed();
@@ -142,16 +132,8 @@ const Message = ({
             const image = `data:${message.contentType};base64,${message.content}`
             setParsedContent(<img className="img-responsive" src={image} />);
         } else if (message.contentType === 'text/plain') {
-            const linkfiedContent = linkifyUrls(preHtmlEntities(message.content), {
-                customUrlRegexp,
-                attributes: {
-                    target: '_blank',
-                    rel: 'noopener noreferrer'
-                }
-            })
-
             setParsedContent(
-                <pre>{parse(postHtmlEntities(linkfiedContent))}</pre>
+                <pre>{linkify(message.content)}</pre>
             );
         } else if (message.contentType === 'text/pgp-public-key') {
             setParsedContent(

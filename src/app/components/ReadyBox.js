@@ -13,9 +13,33 @@ const FooterBox = require('./FooterBox');
 const URIInput = require('./URIInput');
 const config = require('../config');
 const utils = require('../utils');
+const { AddressbookContext } = require('../AddressbookProvider');
 
+
+function uniqueMixedArray(arr, objectFilterSet = new Set()) {
+    const seen = new Set(); // voor strings
+    const result = [];
+
+    for (const item of arr) {
+        if (typeof item === 'string') {
+            if (!seen.has(item) && !objectFilterSet.has(item)) {
+                seen.add(item);
+                result.push(item);
+            }
+        } else {
+            if (!seen.has(item)) {
+                seen.add(item);
+                result.push(item);
+            }
+        }
+    }
+
+    return result;
+}
 
 class ReadyBox extends React.Component {
+    static contextType = AddressbookContext;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -141,11 +165,23 @@ class ReadyBox extends React.Component {
             'sticky': this.state.sticky
         });
 
-        // Join URIs from local and server history for input
-        let history = this.props.history.concat(
-            this.props.serverHistory.map(e => e.remoteParty)
-        );
-        history = [...new Set(history)];
+        const getUniqueContacts = (contactsMap) => {
+            const allContacts = [];
+            for (const list of contactsMap?.values() || []) {
+                allContacts.push(...list);
+            }
+            return Array.from(new Set(allContacts));
+        };
+
+        const combinedHistory = [
+            ...this.props.history,
+            ...this.props.serverHistory.map(e => e.remoteParty),
+            ...getUniqueContacts(this.context.addressbook?.contacts)
+        ];
+
+        const contactObjectSet = new Set(getUniqueContacts(this.context.addressbook?.contacts));
+
+        const history = uniqueMixedArray(combinedHistory, contactObjectSet);
 
         return (
             <div>

@@ -27,20 +27,75 @@ class URIInput extends React.Component {
         this.autoComplete = autocomplete('#uri-input', { hint: false }, [
             {
                 source: (query, cb) => {
-                    let data = this.props.data.filter((item) => {
-                        return item.startsWith(query);
+                    const lowerQuery = query.toLowerCase();
+                    const resultsMap = new Map(); // key = uri
+                    this.props.data.forEach(item => {
+                        if (typeof item === 'string') {
+                            if (item.toLowerCase().startsWith(lowerQuery)) {
+                                resultsMap.set(item, {
+                                    original: item,
+                                    matchedUri: item
+                                });
+                            }
+                            return;
+                        }
+
+                        const name = item?.name ?? '';
+                        const uris = item?.uris ?? [];
+
+                        for (let uriObj of uris) {
+                            const uri = uriObj?.uri;
+                            if (uri?.toLowerCase().startsWith(lowerQuery)) {
+                                resultsMap.set(uri, {
+                                    original: item,
+                                    matchedUri: uri
+                                });
+                            }
+                        }
+                        const lowerName = name?.toLowerCase() ?? '';
+                        const lowerDefaultUri = item?.defaultUri?.uri?.toLowerCase() ?? '';
+
+                        if (
+                            lowerName.includes(lowerQuery) &&
+                                lowerName !== lowerDefaultUri
+                        ) {
+                            for (let uriObj of uris) {
+                                const uri = uriObj?.uri;
+                                if (uri) {
+                                    resultsMap.set(uri, {
+                                        original: item,
+                                        matchedUri: uri
+                                    });
+                                }
+                            }
+                        }
                     });
-                    cb(data);
+
+                    cb(Array.from(resultsMap.values()).slice(0,10));
                 },
-                displayKey: String,
+
+                displayKey: (item) => {
+                    return item.matchedUri;
+                },
+
                 templates: {
-                    suggestion: (suggestion) => {
-                        return suggestion;
+                    suggestion: (item) => {
+                        if (typeof item.original === 'string') {
+                            return `<span class="uri">${item.original}</span>`;
+                        }
+
+                        const uri = item.matchedUri;
+                        const name = item.original?.name ?? '';
+                        if (name === uri) {
+                          return `<span class="uri">${uri}</span>`;
+                        }
+                        return `<span class="uri">${uri}</span><span class="name">${name ? ` (${name})` : ''}</span>`;
                     }
                 }
             }
-        ]).on('autocomplete:selected', (event, suggestion, dataset) => {
-            this.setValue(suggestion);
+        ])
+        .on('autocomplete:selected', (event, suggestion) => {
+            this.setValue(suggestion.matchedUri);
         });
 
         if (this.props.autoFocus) {

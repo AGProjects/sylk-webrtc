@@ -293,28 +293,30 @@ const Chat = (props) => {
             if (!newMessages[key]) {
                 newMessages[key] = [];
             }
-            metadataPromises.push(
-                new Promise(resolve => {
-                    const existing = messagesRef.current[key]?.find(m => m.id === message.id);
-                    if (existing) {
-                        newMessages[key].push(existing);
-                        resolve();
-                    } else {
-                        enrichWithMetadata(message).then(enriched => {
-                            newMessages[key].push(enriched);
-                            resolve();
-                        });
-                    }
-                })
-            );
+            if (!componentJustMounted.current) {
+                newMessages[key].push(message);
+            } else {
+                metadataPromises.push(
+                    enrichWithMetadata(message).then(enriched => {
+                        newMessages[key].push(enriched);
+                    })
+                );
+            }
         };
-        Promise.all(metadataPromises).then(() => {
+        if (!componentJustMounted.current) {
             for (let contact of Object.keys(newMessages)) {
                 newMessages[contact].sort((a, b) => a.timestamp - b.timestamp);
             }
             setMessages(newMessages);
-            setShow(true);
-        });
+        } else {
+            Promise.all(metadataPromises).then(() => {
+                for (let contact of Object.keys(newMessages)) {
+                    newMessages[contact].sort((a, b) => a.timestamp - b.timestamp);
+                }
+                setMessages(newMessages);
+            });
+        }
+        setShow(true);
 
         props.account.on('incomingMessage', incomingMessage);
         props.account.on('messageStateChanged', messageStateChanged);

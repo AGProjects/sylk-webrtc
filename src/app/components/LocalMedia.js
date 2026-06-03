@@ -1,11 +1,11 @@
 'use strict';
 
-const React      = require('react');
-const PropTypes  = require('prop-types');
-const sylkrtc    = require('sylkrtc');
+const React = require('react');
+const PropTypes = require('prop-types');
+const sylkrtc = require('sylkrtc');
 const { default: clsx } = require('clsx');
 
-const CallOverlay      = require('./CallOverlay');
+const CallOverlay = require('./CallOverlay');
 
 
 class LocalMedia extends React.Component {
@@ -21,7 +21,7 @@ class LocalMedia extends React.Component {
 
     componentDidMount() {
         this.localVideo.current.addEventListener('playing', this.localVideoElementPlaying);
-        sylkrtc.utils.attachMediaStream(this.props.localMedia, this.localVideo.current, {disableContextMenu: true, muted: true});
+        sylkrtc.utils.attachMediaStream(this.props.localMedia, this.localVideo.current, { disableContextMenu: true, muted: true });
     }
 
     componentWillUnmount() {
@@ -40,18 +40,18 @@ class LocalMedia extends React.Component {
 
     render() {
         const localVideoClasses = clsx({
-            'large'    : true,
-            'animated' : true,
-            'fadeIn'   : true,
-            'mirror'   : !this.props.generatedVideoTrack
+            'large': true,
+            'animated': true,
+            'fadeIn': true,
+            'mirror': !this.props.generatedVideoTrack
         });
 
         return (
             <div className="video-container">
                 <CallOverlay
-                    show = {true}
+                    show={true}
                     remoteIdentity = {this.props.remoteIdentity}
-                    call = {null}
+                    call={null}
                 />
                 <video className={localVideoClasses} id="localVideo" ref={this.localVideo} autoPlay muted />
                 <div className="call-buttons">
@@ -63,11 +63,11 @@ class LocalMedia extends React.Component {
 }
 
 LocalMedia.propTypes = {
-    hangupCall          : PropTypes.func,
-    localMedia          : PropTypes.object.isRequired,
-    mediaPlaying        : PropTypes.func.isRequired,
-    remoteIdentity      : PropTypes.string,
-    generatedVideoTrack : PropTypes.bool
+    hangupCall: PropTypes.func,
+    localMedia: PropTypes.object.isRequired,
+    mediaPlaying: PropTypes.func.isRequired,
+    contact: PropTypes.object,
+    generatedVideoTrack: PropTypes.bool
 };
 
 

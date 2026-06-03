@@ -1,12 +1,12 @@
 'use strict';
 
-const React             = require('react');
-const PropTypes         = require('prop-types');
-const ReactBootstrap    = require('react-bootstrap');
-const Tooltip           = ReactBootstrap.Tooltip;
-const OverlayTrigger    = ReactBootstrap.OverlayTrigger;
-const sylkrtc           = require('sylkrtc');
-const hark              = require('hark');
+const React = require('react');
+const PropTypes = require('prop-types');
+const ReactBootstrap = require('react-bootstrap');
+const Tooltip = ReactBootstrap.Tooltip;
+const OverlayTrigger = ReactBootstrap.OverlayTrigger;
+const sylkrtc = require('sylkrtc');
+const hark = require('hark');
 const { default: clsx } = require('clsx');
 
 const CallQuality = require('./CallQuality');
@@ -68,12 +68,12 @@ class ConferenceParticipant extends React.Component {
         const streams = this.props.participant.streams;
         if (streams[0].getAudioTracks().length > 0) {
             const track = streams[0].getAudioTracks()[0];
-            if(this.state.audioMuted) {
+            if (this.state.audioMuted) {
                 track.enabled = true;
-                this.setState({audioMuted: false});
+                this.setState({ audioMuted: false });
             } else {
                 track.enabled = false;
-                this.setState({audioMuted: true});
+                this.setState({ audioMuted: true });
             }
         }
     }
@@ -83,33 +83,33 @@ class ConferenceParticipant extends React.Component {
         if (streams.length > 0) {
             sylkrtc.utils.attachMediaStream(streams[0], this.videoElement.current);
             const el = this.props.audioManager.createAudio(this.props.participant.id)
-            sylkrtc.utils.attachMediaStream(streams[0], el, {muted: true});
+            sylkrtc.utils.attachMediaStream(streams[0], el, { muted: true });
 
             if (this.props.pauseVideo) {
                 this.props.participant.pauseVideo();
             }
-            this.setState({hasVideo: streams[0].getVideoTracks().length > 0});
+            this.setState({ hasVideo: streams[0].getVideoTracks().length > 0 });
             const options = {
                 interval: 150,
                 play: false
             };
             this.speechEvents = hark(streams[0], options);
             this.speechEvents.on('speaking', () => {
-                this.setState({active: true});
+                this.setState({ active: true });
             });
             this.speechEvents.on('stopped_speaking', () => {
-                this.setState({active: false});
+                this.setState({ active: false });
             });
         }
     }
 
     showOverlay() {
-        this.setState({overlayVisible: true});
+        this.setState({ overlayVisible: true });
     }
 
     hideOverlay() {
         if (!this.state.audioMuted) {
-            this.setState({overlayVisible: false});
+            this.setState({ overlayVisible: false });
         }
     }
 
@@ -119,8 +119,8 @@ class ConferenceParticipant extends React.Component {
         );
 
         const classes = clsx({
-            'poster' : !this.state.hasVideo,
-            'conference-active' : this.state.active,
+            'poster': !this.state.hasVideo,
+            'conference-active': this.state.active,
             'hide': !this.state.hasVideo
         });
 
@@ -128,16 +128,16 @@ class ConferenceParticipant extends React.Component {
 
         if (this.state.overlayVisible) {
             const muteButtonIcons = clsx({
-                'fa'                    : true,
-                'fa-microphone'         : !this.state.audioMuted,
-                'fa-microphone-slash'   : this.state.audioMuted
+                'fa': true,
+                'fa-microphone': !this.state.audioMuted,
+                'fa-microphone-slash': this.state.audioMuted
             });
 
             const muteButtonClasses = clsx({
-                'btn'         : true,
-                'btn-round'   : true,
-                'btn-default' : !this.state.audioMuted,
-                'btn-warning' : this.state.audioMuted
+                'btn': true,
+                'btn-round': true,
+                'btn-default': !this.state.audioMuted,
+                'btn-warning': this.state.audioMuted
             });
 
             muteButton = (

@@ -244,7 +244,7 @@ class Call extends React.Component {
             'fa-2x': true,
             'fa-microphone': !this.state.audioMuted,
             'fa-microphone-slash': this.state.audioMuted,
-             [this.props.classes.muted]: this.state.audioMuted
+            [this.props.classes.muted]: this.state.audioMuted
 
         });
 

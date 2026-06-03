@@ -3,7 +3,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const { default: clsx } = require('clsx');
-const { DateTime }      = require('luxon');
+const { DateTime } = require('luxon');
 const { default: TransitionGroup } = require('react-transition-group/TransitionGroup');
 const { default: CSSTransition } = require('react-transition-group/CSSTransition');
 
@@ -88,9 +88,9 @@ class CallOverlay extends React.Component {
 
                 callDetail = (
                     <span>
-                    <i className="fa fa-clock-o"></i>{' '}
-                    <Timer startTime={this.props.call._startTime} />{' '}
-                    {this.props.callQuality}
+                        <i className="fa fa-clock-o"></i>{' '}
+                        <Timer startTime={this.props.call._startTime} />{' '}
+                        {this.props.callQuality}
                     </span>
                 );
             } else {
@@ -133,12 +133,12 @@ class CallOverlay extends React.Component {
                         classNames="videoheader"
                         timeout={{ enter: 300, exit: 300 }}
                     >
-                        <Navbar inverse={true} fixedTop={true} fluid={true} style={{borderBottom: '3px solid #4cae4c'}}>
+                        <Navbar inverse={true} fixedTop={true} fluid={true} style={{ borderBottom: '3px solid #4cae4c' }}>
                             <Navbar.Header>
-                                <div style={{float: 'left', margin: '0 auto 0 15px'}}>
+                                <div style={{ float: 'left', margin: '0 auto 0 15px' }}>
                                     <UserIcon identity={remoteIdentity} active={false} small={true} isConference={isConference}/>
                                 </div>
-                                <Navbar.Brand style={{color: '#f0f0f0', padding: '15px'}}>
+                                <Navbar.Brand style={{ color: '#f0f0f0', padding: '15px' }}>
                                     <strong>{type}:</strong> {this.props.remoteIdentity} - {callDetail}
                                 </Navbar.Brand>
                             </Navbar.Header>

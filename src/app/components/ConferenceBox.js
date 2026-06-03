@@ -907,7 +907,7 @@ class ConferenceBox extends React.Component {
         }
         const video = this.largeVideo.current;
         if (video !== null) {
-              video.pause();
+            video.pause();
         }
         this.props.hangup();
     }

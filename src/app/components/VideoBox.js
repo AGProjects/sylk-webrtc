@@ -122,7 +122,7 @@ class VideoBox extends React.Component {
             promise.then(_ => {
                 this.setState({ localVideoShow: true });    // eslint-disable-line react/no-did-mount-set-state
                 const localStream = this.props.call.getLocalStreams()[0];
-                this.setState({audioMuted: !localStream.getAudioTracks()[0].enabled});
+                this.setState({ audioMuted: !localStream.getAudioTracks()[0].enabled });
                 // Autoplay started!
             }).catch(error => {
                 // Autoplay was prevented.
@@ -145,7 +145,7 @@ class VideoBox extends React.Component {
         const stream = this.props.remoteAudio.current.srcObject;
         if (!stream || stream.id !== this.props.call.getRemoteStreams()[0].id) {
             DEBUG('Attaching audio');
-            sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.props.remoteAudio.current, {disableContextMenu: true });
+            sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.props.remoteAudio.current, { disableContextMenu: true });
         }
         this.props.call.statistics.on('stats', this.statistics);
         document.addEventListener('keydown', this.onKeyDown);
@@ -451,7 +451,6 @@ class VideoBox extends React.Component {
         if (this.props.call == null) {
             return (<div></div>);
         }
-
         const localVideoClasses = clsx({
             'video-thumbnail': true,
             'mirror': !this.props.call.sharingScreen && !this.props.generatedVideoTrack,

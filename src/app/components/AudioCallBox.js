@@ -124,7 +124,7 @@ class AudioCallBox extends React.Component {
             this.props.call.statistics.on('stats', this.statistics);
             this.props.call.account.on('incomingMessage', this.incomingMessage);
             const localStream = this.props.call.getLocalStreams()[0];
-            this.setState({audioMuted: !localStream.getAudioTracks()[0].enabled});
+            this.setState({ audioMuted: !localStream.getAudioTracks()[0].enabled });
         } else {
             this.props.mediaPlaying();
         }

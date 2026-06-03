@@ -44,12 +44,14 @@ const ImportModal = require('./components/ImportModal');
 const NewDeviceModal = require('./components/NewDeviceModal');
 const LogoutModal = require('./components/LogoutModal');
 const ParticipantAudioManager = require('./components/ParticipantAudioManager');
+const AddressBookProvider = require('./AddressbookProvider').default;
 const ConfigProvider = require('./ConfigProvider').default;
 
 const utils = require('./utils');
 const config = require('./config');
 const storage = require('./storage');
 const messageStorage = require('./messageStorage');
+const addressbookStorage = require('./addressbookStorage');
 const keyStorage = require('./keyStorage');
 const cacheStorage = require('./cacheStorage');
 const history = require('./history');
@@ -190,6 +192,7 @@ class Blink extends React.Component {
             'chatWrapper',
             'saveConferenceState',
             'getConferenceState',
+            'updateAddressbook',
             'onConfigReady'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
@@ -230,6 +233,7 @@ class Blink extends React.Component {
 
         this.remoteAudio = React.createRef();
         this.audioManager = React.createRef();
+        this.addressbookRef = React.createRef();
 
         if (window.location.hash.startsWith('#!/')) {
             this.redirectTo = window.location.hash.replace('#!', '');
@@ -403,6 +407,7 @@ class Blink extends React.Component {
                     messageStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
                     keyStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
                     cacheStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
+                    addressbookStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
 
                     let privateKey, publicKey = '';
 
@@ -420,6 +425,11 @@ class Blink extends React.Component {
                             privateKey = pgpKeys.privateKey;
                             publicKey = pgpKeys.publicKey;
                             this.enableEncryption(publicKey, privateKey, true);
+                        }
+                    });
+                    addressbookStorage.get('addressbook').then((addressbook) => {
+                        if (addressbook) {
+                            this.state.connection.addressbook.load(addressbook);
                         }
                     });
                     this.router.current.navigate('/ready')
@@ -509,6 +519,7 @@ class Blink extends React.Component {
             messageStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
             keyStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
             cacheStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
+            addressbookStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
 
             let { privateKey, publicKey, revocationCertificate } = '';
 
@@ -1496,6 +1507,17 @@ class Blink extends React.Component {
         }
     }
 
+    updateAddressbook() {
+        for (const uri of Object.keys(this.state.oldMessages)) {
+            if (!this.addressbookRef.current?.addressbook.contacts.has(uri)) {
+                const contact = this.addressbookRef.current?.lookup(uri);
+                this.addressbookRef.current?.add(contact)
+                    .then(() => DEBUG('Message contact added to addressbook: %O', contact))
+                    .catch((err) => DEBUG('Message contact not added to adddressbook %O', contact, err));
+            }
+        }
+    }
+
     loadMessages() {
         this.setState({ messagesLoading: true })
         messageStorage.loadLastMessages().then((cache) => {
@@ -1527,6 +1549,33 @@ class Blink extends React.Component {
 
         storage.set(`lastMessageId-${this.state.accountId}`, message.id);
         messageStorage.add(message);
+
+        if (this.addressbookRef.current?.addressbook.contacts.has(message.sender.uri)) {
+            const contacts = this.addressbookRef.current?.addressbook.contacts.get(message.sender.uri)
+            for (let contact of contacts) {
+                if (
+                    message.sender.displayName !== null &&
+                    contact.name === message.sender.uri
+                ) {
+                    const updatedContact = {
+                        ...contact,
+                        name: message.sender.displayName,
+                        identity: {
+                            ...contact.identity,
+                            displayName: message.sender.displayName
+                        }
+                    };
+
+                    this.addressbookRef.current?.updateContact(updatedContact);
+                }
+            }
+        } else {
+            const contact = this.addressbookRef.current?.lookup(message.sender);
+            if (this.state.contactCache.has(message.sender.uri)) {
+                contact.name = this.state.contactCache.get(message.sender.uri);
+            }
+            this.addressbookRef.current?.add(contact);
+        }
 
         if (message.sender.displayName !== null
             && (!this.state.contactCache.has(message.sender.uri)
@@ -1925,11 +1974,21 @@ class Blink extends React.Component {
         this.setState({ oldMessages: oldMessages });
     }
 
-    removeConversation(contact) {
+    removeConversation(contact, deleteFromServer = false) {
+        if (typeof contact !== 'string') {
+            for (let uri of contact.uris) {
+                this.removeConversation(uri.uri, deleteFromServer)
+            }
+            return;
+        }
+
         messageStorage.remove(contact)
         cacheStorage.removeAll(contact)
         let oldMessages = cloneDeep(this.state.oldMessages);
         delete oldMessages[contact];
+        if (deleteFromServer) {
+            this.state.account.removeConversation(contact);
+        }
         if (this.lastMessageFocus === contact) {
             this.lastMessageFocus = '';
         }
@@ -2227,26 +2286,34 @@ class Blink extends React.Component {
                 <ParticipantAudioManager ref={this.audioManager} />
                 {screenSharingModal}
                 <ConfigProvider domain={this.state.domain} onConfigReady={this.onConfigReady}>
-                    <TransitionGroup>
-                        {incomingCallModal}
-                    </TransitionGroup>
-                    {incomingWindow}
+                    <AddressBookProvider
+                        connection={this.state.connection}
+                        contactCache={this.state.contactCache}
+                        account={this.state.account} ref={this.addressbookRef}
+                        onContactRemoved={this.removeConversation}
+                        onAddressbookReady={this.updateAddressbook}
+                    >
+                        <TransitionGroup>
+                            {incomingCallModal}
+                        </TransitionGroup>
+                        {incomingWindow}
 
-                    <Locations hash={this.shouldUseHashRouting} ref={this.router} onBeforeNavigation={this.checkRoute}>
-                        <Location path="/" handler={this.main} />
-                        <Location path="/login" handler={this.login} />
-                        <Location path="/logout" handler={this.logout} />
-                        <Location path="/ready" handler={this.ready} />
-                        <Location path="/call" handler={this.call} />
-                        <Location path="/call/:targetUri" urlPatternOptions={{ segmentValueCharset: 'a-zA-Z0-9-_ \.@' }} handler={this.callByUri} />
-                        <Location path="/call-complete" handler={this.callComplete} />
-                        <Location path="/chat" handler={this.chat} />
-                        <Location path="/conference" handler={this.conference} />
-                        <Location path="/conference/:targetUri" urlPatternOptions={{ segmentValueCharset: 'a-zA-Z0-9-_~ %\.@' }} handler={this.conferenceByUri} />
-                        <Location path="/not-supported" handler={this.notSupported} />
-                        <Location path="/preview" handler={this.preview} />
-                        <NotFound handler={this.notFound} />
-                    </Locations>
+                        <Locations hash={this.shouldUseHashRouting} ref={this.router} onBeforeNavigation={this.checkRoute}>
+                            <Location path="/" handler={this.main} />
+                            <Location path="/login" handler={this.login} />
+                            <Location path="/logout" handler={this.logout} />
+                            <Location path="/ready" handler={this.ready} />
+                            <Location path="/call" handler={this.call} />
+                            <Location path="/call/:targetUri" urlPatternOptions={{ segmentValueCharset: 'a-zA-Z0-9-_ \.@' }} handler={this.callByUri} />
+                            <Location path="/call-complete" handler={this.callComplete} />
+                            <Location path="/chat" handler={this.chat} />
+                            <Location path="/conference" handler={this.conference} />
+                            <Location path="/conference/:targetUri" urlPatternOptions={{ segmentValueCharset: 'a-zA-Z0-9-_~ %\.@' }} handler={this.conferenceByUri} />
+                            <Location path="/not-supported" handler={this.notSupported} />
+                            <Location path="/preview" handler={this.preview} />
+                            <NotFound handler={this.notFound} />
+                        </Locations>
+                    </AddressBookProvider>
                 </ConfigProvider>
             </div>
         );
@@ -2274,15 +2341,7 @@ class Blink extends React.Component {
     chatWrapper(embed = false, hideCallButtons = false) {
         const removeChat = (contact) => {
             // DEBUG("REMOVE %s", contact);
-            messageStorage.remove(contact);
-            cacheStorage.removeAll(contact);
-            let oldMessages = cloneDeep(this.state.oldMessages);
-            delete oldMessages[contact];
-            this.state.account.removeConversation(contact);
-            if (this.lastMessageFocus === contact) {
-                this.lastMessageFocus = '';
-            }
-            this.setState({ oldMessages: oldMessages });
+            this.removeConversation(contact, true);
         };
 
         const loadMoreMessages = (key) => {
@@ -2656,6 +2715,12 @@ class Blink extends React.Component {
                 DEBUG('Clearing message storage for: %s', this.state.accountId);
                 await Promise.all([messageStorage.dropInstance().then(() => {
                     messageStorage.close();
+                    DEBUG('Closing message storage: %s', this.state.accountId);
+                    this.setState({ oldMessages: {} });
+                })]);
+                DEBUG('Clearing addressbook storage storage for: %s', this.state.accountId);
+                await Promise.all([addressbookStorage.dropInstance().then(() => {
+                    addressbookStorage.close();
                     DEBUG('Closing storage: %s', this.state.accountId);
                     this.setState({ oldMessages: {} });
                 })]);
@@ -2663,6 +2728,7 @@ class Blink extends React.Component {
                 storage.remove(`lastMessageId-${this.state.accountId}`);
             } else {
                 messageStorage.close();
+                addressbookStorage.close();
             }
             if (this.state.account !== null) {
                 try {
@@ -2684,6 +2750,7 @@ class Blink extends React.Component {
             if (this.state.connection.state !== 'ready') {
                 this.state.connection.close();
             }
+            this.addressbookRef.current?.reset();
             this.isRetry = false;
             this.failureReason = null;
             this.setState(

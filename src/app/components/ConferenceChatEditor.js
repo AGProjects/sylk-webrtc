@@ -364,7 +364,7 @@ const ConferenceChatEditor = (props) => {
                     <div className="editor-wrapper">
                         <div className="editor-inner-wrapper">
                             <div className="pre-editor" style={{ visibility: name.length !== 0 ? 'hidden' : 'visible' }}>
-                                Type a {isCaptionEditor ? "caption" : "message"}
+                                Type a {isCaptionEditor ? 'caption' : 'message'}
                             </div>
                             <div className="editor"
                                 contentEditable="true"

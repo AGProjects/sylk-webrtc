@@ -5,6 +5,7 @@ const PropTypes = require('prop-types');
 const assert = require('assert');
 const debug = require('debug');
 
+const { AddressbookContext } = require('../AddressbookProvider');
 const AudioCallBox = require('./AudioCallBox');
 const LocalMedia = require('./LocalMedia');
 const VideoBox = require('./VideoBox');
@@ -14,9 +15,10 @@ const DEBUG = debug('blinkrtc:Call');
 
 
 class Call extends React.Component {
+    static contextType = AddressbookContext;
+
     constructor(props) {
         super(props);
-
         if (this.props.localMedia.getVideoTracks().length === 0) {
             DEBUG('Will send audio only');
             this.state = { audioOnly: true };
@@ -110,24 +112,23 @@ class Call extends React.Component {
 
     render() {
         let box;
-        let remoteIdentity;
-
+        let contact;
         let inlineChat = this.props.inlineChat;
         if (this.props.currentCall !== null) {
-            remoteIdentity = this.props.currentCall.remoteIdentity.displayName || this.props.currentCall.remoteIdentity.uri;
+            contact = this.context.lookup(this.props.currentCall.remoteIdentity);
             const domain = this.props.currentCall.remoteIdentity.uri.substring(this.props.currentCall.remoteIdentity.uri.indexOf('@') + 1);
             if (domain.startsWith('guest.')) {
                 inlineChat = (function() { })();
             }
         } else {
-            remoteIdentity = this.props.targetUri;
+            contact = this.context.lookup(this.props.targetUri);
         }
 
         if (this.props.localMedia !== null) {
             if (this.state.audioOnly) {
                 box = (
                     <AudioCallBox
-                        remoteIdentity={remoteIdentity}
+                        contact={contact}
                         hangupCall={this.hangupCall}
                         call={this.props.currentCall}
                         mediaPlaying={this.mediaPlaying}
@@ -147,6 +148,7 @@ class Call extends React.Component {
                 ) {
                     box = (
                         <VideoBox
+                            contact={contact}
                             call={this.props.currentCall}
                             localMedia={this.props.localMedia}
                             shareScreen={this.props.shareScreen}
@@ -165,7 +167,7 @@ class Call extends React.Component {
                 } else {
                     box = (
                         <LocalMedia
-                            remoteIdentity={remoteIdentity}
+                            contact={contact}
                             localMedia={this.props.localMedia}
                             mediaPlaying={this.mediaPlaying}
                             hangupCall={this.hangupCall}

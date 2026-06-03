@@ -6,6 +6,7 @@ const PropTypes      = require('prop-types');
 const ReactBootstrap = require('react-bootstrap');
 const Popover        = ReactBootstrap.Popover;
 const OverlayTrigger = ReactBootstrap.OverlayTrigger;
+const { useAddressbook } = require('../AddressbookProvider');
 
 const UserIcon       = require('./UserIcon');
 
@@ -17,6 +18,7 @@ const IncomingCallModal = (props) => {
             document.removeEventListener('keyup', onKeyUp);
         });
     });
+    const { lookup } = useAddressbook();
 
     const onKeyUp = (event) => {
         switch (event.which) {
@@ -67,7 +69,7 @@ const IncomingCallModal = (props) => {
         {buttonText.shift()}
     </li>);
 
-    const remoteIdentityLine = props.call.remoteIdentity.displayName || props.call.remoteIdentity.uri;
+    const contact = lookup(props.call.remoteIdentity)
 
     const tooltip = (
         <Popover id="popover-trigger-hover-focus">
@@ -86,9 +88,9 @@ const IncomingCallModal = (props) => {
                 <div className="loading">
                     <div className="loading-inner">
                         <OverlayTrigger placement="top" overlay={tooltip}>
-                            <UserIcon identity={props.call.remoteIdentity} large={true} />
+                            <UserIcon identity={contact.identity} large={true} />
                         </OverlayTrigger>
-                        <h1>{remoteIdentityLine}</h1>
+                        <h1>{contact.name}</h1>
                         <h4>is calling with {callType}</h4>
                         <br />
                         {props.compact ? '' : spacers}

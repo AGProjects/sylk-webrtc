@@ -9,10 +9,14 @@ const ConferenceBox = require('./ConferenceBox');
 const LocalMedia = require('./LocalMedia');
 const config = require('../config');
 
+const { AddressbookContext } = require('../AddressbookProvider');
+
 const DEBUG = debug('blinkrtc:Conference');
 
 
 class Conference extends React.Component {
+    static contextType = AddressbookContext;
+
     constructor(props) {
         super(props);
 
@@ -57,7 +61,12 @@ class Conference extends React.Component {
 
     render() {
         let box;
-
+        let contact;
+        if (this.props.currentCall !== null) {
+            contact = this.context.lookup(this.props.currentCall.remoteIdentity);
+        } else {
+            contact = this.context.lookup(this.props.targetUri);
+        }
         if (this.props.localMedia !== null) {
             if (this.props.currentCall != null && this.props.currentCall.state === 'established') {
                 box = (
@@ -83,7 +92,7 @@ class Conference extends React.Component {
             } else {
                 box = (
                     <LocalMedia
-                        remoteIdentity = {this.props.targetUri.split('@')[0]}
+                        contact={contact}
                         localMedia={this.props.localMedia}
                         mediaPlaying={this.mediaPlaying}
                         hangupCall={this.hangup}

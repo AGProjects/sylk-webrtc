@@ -5,6 +5,8 @@ const PropTypes = require('prop-types');
 const assert = require('assert');
 const debug = require('debug');
 
+const { AddressbookContext } = require('../../AddressbookProvider');
+
 const CallOverlay = require('../CallOverlay');
 const CallQuality = require('../CallQuality');
 const config = require('../../config');
@@ -53,6 +55,8 @@ const styleSheet = (theme) => ({
     }
 });
 class Call extends React.Component {
+    static contextType = AddressbookContext;
+
     constructor(props) {
         super(props);
 
@@ -223,18 +227,18 @@ class Call extends React.Component {
 
     render() {
         let box;
-        let remoteIdentity;
+        let contact;
         let isConference = false;
 
         const callQuality = (<CallQuality audioData={this.state.audioGraphData} />);
         if (this.props.currentCall !== null) {
-            remoteIdentity = this.props.currentCall.remoteIdentity.displayName || this.props.currentCall.remoteIdentity.uri;
+            contact = this.context.lookup(this.props.currentCall.remoteIdentity);
             const domain = this.props.currentCall.remoteIdentity.uri.substring(this.props.currentCall.remoteIdentity.uri.indexOf('@') + 1);
             if (domain.startsWith('guest.')) {
                 inlineChat = (function() { })();
             }
         } else {
-            remoteIdentity = this.props.targetUri;
+            contact = this.context.lookup(this.props.targetUri);
         }
 
         let buttons = [];
@@ -315,7 +319,7 @@ class Call extends React.Component {
         box = [
             <CallOverlay
                 show={true}
-                remoteIdentity={remoteIdentity}
+                contact={contact}
                 call={this.props.currentCall}
                 onTop={true}
                 disableHide={true}

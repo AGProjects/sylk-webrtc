@@ -680,7 +680,7 @@ class VideoBox extends React.Component {
                         <div className="video-container" onMouseMove={this.showCallOverlay}>
                             <CallOverlay
                                 show={this.state.callOverlayVisible}
-                                remoteIdentity={this.props.call.remoteIdentity.displayName || this.props.call.remoteIdentity.uri}
+                                contact={this.props.contact}
                                 call={this.props.call}
                                 buttons={topButtons}
                                 onTop={this.state.showChat}
@@ -748,7 +748,8 @@ VideoBox.propTypes = {
     toggleChatInCall: PropTypes.func,
     inlineChat: PropTypes.object,
     propagateKeyPress: PropTypes.bool,
-    remoteAudio: PropTypes.object
+    remoteAudio: PropTypes.object,
+    contact: PropTypes.object
 };
 
 ReactMixin(VideoBox.prototype, FullscreenMixin);

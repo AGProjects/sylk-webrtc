@@ -50,7 +50,7 @@ class LocalMedia extends React.Component {
             <div className="video-container">
                 <CallOverlay
                     show={true}
-                    remoteIdentity = {this.props.remoteIdentity}
+                    contact={this.props.contact}
                     call={null}
                 />
                 <video className={localVideoClasses} id="localVideo" ref={this.localVideo} autoPlay muted />

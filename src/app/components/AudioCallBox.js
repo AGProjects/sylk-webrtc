@@ -393,13 +393,6 @@ class AudioCallBox extends React.Component {
             'fa-upload': true
         });
 
-        let remoteIdentity;
-
-        if (this.props.call !== null) {
-            remoteIdentity = this.props.call.remoteIdentity;
-        } else {
-            remoteIdentity = { uri: this.props.remoteIdentity };
-        }
 
         const unreadMessages = this.props.unreadMessages && (this.props.unreadMessages.total - this.props.unreadMessages.call) || 0;
         const unreadCallMessages = this.props.unreadMessages && this.props.unreadMessages.call || 0;
@@ -442,7 +435,7 @@ class AudioCallBox extends React.Component {
                         }
                         <CallOverlay
                             show={true}
-                            remoteIdentity={this.props.remoteIdentity}
+                            contact={this.props.contact}
                             call={this.props.call}
                             onTop={this.state.showChat}
                             disableHide={this.state.showChat || this.state.showInlineChat}
@@ -450,7 +443,7 @@ class AudioCallBox extends React.Component {
                             buttons={topButtons}
                         />
                         <div className="call-user-icon">
-                            <UserIcon identity={remoteIdentity} large={true} active={this.state.active} />
+                            <UserIcon identity={this.props.contact.identity} large={true} active={this.state.active} />
                         </div>
                         <div className="call-buttons">
                             {!this.state.showChat &&
@@ -541,7 +534,7 @@ AudioCallBox.propTypes = {
     escalateToConference: PropTypes.func,
     hangupCall: PropTypes.func,
     mediaPlaying: PropTypes.func,
-    remoteIdentity: PropTypes.string,
+    contact: PropTypes.object,
     notificationCenter: PropTypes.func,
     toggleChatInCall: PropTypes.func,
     inlineChat: PropTypes.object,

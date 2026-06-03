@@ -9,6 +9,7 @@ const { makeStyles } = require('@material-ui/core/styles');
 const { Card, CardActions, CardContent } = require('@material-ui/core');
 const { Typography, IconButton: Button } = require('@material-ui/core');
 const UserIcon = require('./UserIcon');
+const { useAddressbook } = require('../AddressbookProvider');
 
 
 const styles = makeStyles({
@@ -48,10 +49,8 @@ const styles = makeStyles({
 
 const HistoryCard = (props) => {
     const classes = styles(props);
-    const identity = {
-        displayName: props.historyItem.displayName,
-        uri: props.historyItem.remoteParty || props.historyItem
-    }
+    const { lookup } = useAddressbook();
+    const contact = lookup(props.historyItem.remoteParty || props.historyItem)
 
     const directionIcon = clsx({
         'fa': true,
@@ -63,7 +62,7 @@ const HistoryCard = (props) => {
     const startVideoCall = (e) => {
         e.stopPropagation();
         if (props.noConnection === false) {
-            props.setTargetUri(identity.uri);
+            props.setTargetUri(props.historyItem.remoteParty);
             // We need to wait for targetURI
             setImmediate(() => {
                 props.startVideoCall(e);
@@ -73,7 +72,7 @@ const HistoryCard = (props) => {
 
     const startAudioCall = (e) => {
         e.stopPropagation();
-        props.setTargetUri(identity.uri);
+        props.setTargetUri(props.historyItem.remoteParty);
         // We need to wait for targetURI
         setImmediate(() => {
             props.startAudioCall(e);
@@ -82,7 +81,7 @@ const HistoryCard = (props) => {
 
     const startChat = (e) => {
         e.stopPropagation();
-        props.setTargetUri(identity.uri);
+        props.setTargetUri(props.historyItem.remoteParty);
         // We need to wait for targetURI
         setImmediate(() => {
             props.startChat(e);
@@ -94,7 +93,7 @@ const HistoryCard = (props) => {
         duration = 'missed';
     }
 
-    const name = identity.displayName || identity.uri;
+    const name = contact.name
 
     const date = DateTime.fromFormat(
         `${props.historyItem.startTime} ${props.historyItem.timezone}`,
@@ -104,7 +103,7 @@ const HistoryCard = (props) => {
     return (
         <Card
             className={classes.card}
-            onClick={() => { props.setTargetUri(identity.uri) }}
+            onClick={() => { props.setTargetUri(contact.identity.uri) }}
             onDoubleClick={startVideoCall}
         >
             <div className={classes.column}>
@@ -127,7 +126,7 @@ const HistoryCard = (props) => {
                 </CardActions>
             </div>
             <div className={classes.icon}>
-                <UserIcon identity={identity} card />
+                <UserIcon identity={contact.identity} card />
             </div>
         </Card>
     );

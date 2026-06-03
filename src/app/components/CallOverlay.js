@@ -113,17 +113,19 @@ class CallOverlay extends React.Component {
                 'call-top-buttons': true
             });
 
-            let remoteIdentity;
             let type = 'Call with';
+            let name = '';
 
-            if (this.props.call !== null) {
-                if (this.props.call.remoteIdentity.uri.endsWith(`@${config.defaultConferenceDomain}`)) {
-                    type = 'Conference';
-                    isConference = true;
-                }
-                remoteIdentity = this.props.call.remoteIdentity;
+            const uri = this.props.call !== null
+                ? this.props.call.remoteIdentity.uri
+                : this.props.contact.identity.uri;
+
+            if (uri.endsWith(`@${config.defaultConferenceDomain}`)) {
+                type = 'Conference';
+                isConference = true;
+                name = this.props.contact.name.split('@')[0];
             } else {
-                remoteIdentity = { uri: this.props.remoteIdentity };
+                name = this.props.contact.name;
             }
 
             if (this.props.alternativeLayout) {
@@ -136,10 +138,10 @@ class CallOverlay extends React.Component {
                         <Navbar inverse={true} fixedTop={true} fluid={true} style={{ borderBottom: '3px solid #4cae4c' }}>
                             <Navbar.Header>
                                 <div style={{ float: 'left', margin: '0 auto 0 15px' }}>
-                                    <UserIcon identity={remoteIdentity} active={false} small={true} isConference={isConference}/>
+                                    <UserIcon identity={this.props.contact.identity} active={false} small={true} isConference={isConference} />
                                 </div>
                                 <Navbar.Brand style={{ color: '#f0f0f0', padding: '15px' }}>
-                                    <strong>{type}:</strong> {this.props.remoteIdentity} - {callDetail}
+                                    <strong>{type}:</strong> {name} - {callDetail}
                                 </Navbar.Brand>
                             </Navbar.Header>
                             {this.props.buttons &&
@@ -164,7 +166,7 @@ class CallOverlay extends React.Component {
                                         {this.props.buttons.top.left}
                                     </div>
                                 }
-                                <p className="lead"><strong>Call with</strong> {this.props.remoteIdentity}</p>
+                                <p className="lead"><strong>{type}:</strong> {name}</p>
                                 <p className="lead">{callDetail}</p>
                                 {this.props.buttons && this.props.buttons.top && this.props.buttons.top.right &&
                                     <div className={rightButtonClasses}>
@@ -197,7 +199,7 @@ class CallOverlay extends React.Component {
 
 CallOverlay.propTypes = {
     show: PropTypes.bool.isRequired,
-    remoteIdentity: PropTypes.string.isRequired,
+    contact: PropTypes.object.isRequired,
     call: PropTypes.object,
     callQuality: PropTypes.object,
     onTop: PropTypes.bool,

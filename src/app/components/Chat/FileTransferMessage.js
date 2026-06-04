@@ -39,7 +39,8 @@ const CustomContextMenu = require('../CustomContextMenu');
 const UserIcon = require('../UserIcon');
 
 const fileTransferUtils = require('../../fileTransferUtils');
-const {isNodeEmitter} = require('../../utils');
+const { isNodeEmitter, linkify } = require('../../utils');
+
 
 
 function isElectron() {
@@ -50,6 +51,7 @@ function isElectron() {
     }
     return false;
 }
+
 const styleSheet = makeStyles((theme) => ({
     chipSmall: {
         height: 18,
@@ -109,7 +111,9 @@ const FileTransferMessage = ({
     enableMenu,
     account,
     showModal,
-    downloadFiles
+    downloadFiles,
+    fromSelf,
+    editMessage
 }) => {
     const classes = styleSheet();
     const [state, setState] = useState(message.state);
@@ -195,12 +199,12 @@ const FileTransferMessage = ({
                 >
                     <Paper variant="outlined">
                         <Grid container spacing={2}>
-                            <Grid item>
+                            <Grid item style={{ flex: '0 0 auto' }}>
                                 <FileIcon className={classes.fixFont} style={{ height: '100%', margin: '0 auto', fontSize: 45 }} />
                             </Grid>
-                            <Grid style={{ display: 'flex', alignItems: 'center' }} item>
-                                <div>
-                                    <Typography className={classes.fixFont} style={{ fontSize: 16, fontWeight: 300 }} variant="subtitle1">
+                            <Grid style={{ display: 'flex', alignItems: 'center', flex: 1 }} item zeroMinWidth>
+                                <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>
+                                    <Typography className={classes.fixFont} style={{ fontSize: 16, fontWeight: 300 }} variant="subtitle1" noWrap>
                                         {fileData.filename.replace('.asc', '').replace(/_/g, ' ')}
                                         {error &&
                                             <ErrorOutlineIcon className={classes.warningIcon} titleAccess={error.toString()} />
@@ -361,6 +365,12 @@ const FileTransferMessage = ({
         downloadFiles(fileData);
     }
 
+    const _editMessage = () => {
+        if (typeof editMessage === 'function') {
+            editMessage();
+        }
+    }
+
     const generateMenu = () => {
         if (!message) {
             return;
@@ -378,6 +388,11 @@ const FileTransferMessage = ({
                     onClose={handleClose}
                     keepMounted={false}
                 >
+                    {fromSelf &&
+                        <MenuItem className={classes.item} onClick={() => { _editMessage(); handleClose() }}>
+                            Edit Message
+                        </MenuItem>
+                    }
                     {!isElectron() &&
                         <MenuItem className={classes.item} onClick={() => { fileTransferUtils.openInNewTab(account, fileData); handleClose() }}>
                             Open in new tab
@@ -447,6 +462,8 @@ const FileTransferMessage = ({
         'status': message.type === 'status'
     });
 
+    const label = message.metadata?.find(m => m.action === 'label');
+
     if (cont || message.type === 'status') {
         return (
             <div ref={ref}>
@@ -474,6 +491,7 @@ const FileTransferMessage = ({
                         {!hidden &&
                             parsedContent
                         }
+                        {label && <p>{linkify(label.value)}</p>}
                     </Media.Body>
                     <Media.Right style={{ minWidth: 55 }}>
                         <span className="pull-right" style={{ paddingRight: '15px', whiteSpace: 'nowrap' }}>
@@ -488,7 +506,6 @@ const FileTransferMessage = ({
             </div>
         );
     }
-
     return (
         <div ref={ref}>
             <Media className={theme} onContextMenu={handleContextMenu}>
@@ -524,8 +541,9 @@ const FileTransferMessage = ({
                         </div>
                     }
                     {!hidden &&
-                        <div style={{ maxWidth: 'calc(100% - 55px)' }}>
+                        <div style={{ minWidth: 'calc(100% - 55px', maxWidth: 'calc(100% - 55px)', width: 0 }}>
                             {parsedContent}
+                            {label && <p>{linkify(label.value)}</p>}
                         </div>
                     }
                 </Media.Body>
@@ -547,7 +565,9 @@ FileTransferMessage.propTypes = {
     enableMenu: PropTypes.bool,
     account: PropTypes.object.isRequired,
     showModal: PropTypes.func,
-    downloadFiles: PropTypes.func
+    editMessage: PropTypes.func,
+    downloadFiles: PropTypes.func,
+    fromSelf: PropTypes.bool
 };
 
 

@@ -23,6 +23,7 @@ const { useInView } = require('react-intersection-observer');
 
 const CustomContextMenu = require('../CustomContextMenu');
 const UserIcon = require('../UserIcon');
+const ReplyMessage = require('./ReplyMessage').default;
 
 const { isNodeEmitter, linkify, customUrlRegexp } = require('../../utils');
 
@@ -70,7 +71,8 @@ const Message = ({
     editMessage,
     imdnStates,
     enableMenu,
-    fromSelf
+    fromSelf,
+    reply
 }) => {
     const classes = styleSheet();
     const [state, setState] = useState('');
@@ -298,6 +300,9 @@ const Message = ({
                         <Media.Left className="timestamp-continued"><span>{time}</span></Media.Left>
                     }
                     <Media.Body className="vertical-center">
+                        {reply?.snapshot &&
+                            <ReplyMessage message={reply.snapshot} continues={true} />
+                        }
                         {parsedContent}
                     </Media.Body>
                     <Media.Right>
@@ -351,7 +356,12 @@ const Message = ({
                             {statusIcon()}
                         </span>
                     </Media.Heading>
-                    {parsedContent}
+                    <div style={{ paddingRight: '15px' }}>
+                        {reply?.snapshot &&
+                            <ReplyMessage message={reply.snapshot} />
+                        }
+                        {parsedContent}
+                    </div>
                 </Media.Body>
             </Media>
         </div>
@@ -369,7 +379,8 @@ Message.propTypes = {
     imdnStates: PropTypes.bool,
     enableMenu: PropTypes.bool,
     editMessage: PropTypes.func,
-    fromSelf: PropTypes.bool
+    fromSelf: PropTypes.bool,
+    reply: PropTypes.object
 };
 
 

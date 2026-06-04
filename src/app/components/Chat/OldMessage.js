@@ -14,6 +14,8 @@ const {
     Lock: LockIcon
 } = require('@material-ui/icons');
 
+const { linkify, customUrlRegexp } = require('../../utils');
+
 
 const styleSheet = makeStyles((theme) => ({
     chipSmall: {
@@ -37,17 +39,12 @@ const Message = ({
     const classes = styleSheet();
     const [parsedContent, setParsedContent] = useState();
 
-    const preHtmlEntities = (str) => {
-        return String(str).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    };
-
-    const postHtmlEntities = (str) => {
-        return String(str).replace(/(?!&amp;|&lt;|&gt;|&quot;)&/g, '&amp;');
-    };
-
-    const customUrlRegexp = () => (/((?:https?(?::\/\/))(?:www\.)?(?:[a-zA-Z\d-_.]+(?:(?:\.|@)[a-zA-Z\d]{2,})|localhost)(?:(?:[-a-zA-Z\d:%_+.~#!?&//=@();]*)(?:[,](?![\s]))*)*)/g);
-
     useEffect(() => {
+        if (message.contentType === 'application/sylk-file-transfer') {
+            const metadata = message.metadata?.find(m => m.action === 'label');
+            setParsedContent(linkify(metadata?.value || ''));
+            return;
+        }
         if (message.contentType === 'text/html') {
             setParsedContent(parse(message.content.trim(), {
                 replace: (domNode) => {
@@ -57,14 +54,14 @@ const Message = ({
                     }
                     if (domNode.type === 'text') {
                         if (!domNode.parent || (domNode.parent.type === 'tag' && domNode.parent.name !== 'a')) {
-                            let url = linkifyUrls(preHtmlEntities(domNode.data), {
+                            let url = linkifyUrls(domNode.data, {
                                 customUrlRegexp,
                                 attributes: {
                                     target: '_blank',
                                     rel: 'noopener noreferrer'
                                 }
                             });
-                            return (<span>{parse(postHtmlEntities(url))}</span>);
+                            return <span dangerouslySetInnerHTML={{ __html: url }} />;
                         }
                     }
                 }
@@ -73,17 +70,7 @@ const Message = ({
             const image = `data:${message.contentType};base64,${message.content}`
             setParsedContent(<img className="img-responsive" src={image} />);
         } else if (message.contentType === 'text/plain') {
-            const linkfiedContent = linkifyUrls(preHtmlEntities(message.content), {
-                customUrlRegexp,
-                attributes: {
-                    target: '_blank',
-                    rel: 'noopener noreferrer'
-                }
-            })
-
-            setParsedContent(
-                <pre>{parse(postHtmlEntities(linkfiedContent))}</pre>
-            );
+            setParsedContent(<pre>{linkify(message.content)}</pre>);
         } else if (message.contentType === 'text/pgp-public-key') {
             setParsedContent(
                 <Chip
@@ -96,7 +83,7 @@ const Message = ({
                 />
             );
         }
-    }, [message, classes]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [message, classes])
 
     return (
         <div className="vertical-center" style={{ paddingLeft: '2px', textOverflow: 'ellipsis', marginRight: '10px', overflow: 'hidden' }}>

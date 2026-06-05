@@ -231,6 +231,16 @@ const ContactList = (props) => {
             }
         }
 
+        for (const contact of (props.newContacts || [])) {
+            if (!contactMap.has(contact.defaultUri.uri)) {
+                contactMap.set(contact.defaultUri.uri, {
+                    ...contact,
+                    message: null,
+                    _isNew: true
+                });
+            }
+        }
+
         const result = Array.from(contactMap.values()).filter(c =>
             c.name.toLowerCase().includes(filterLower) ||
             c.uris?.some(u => u.uri.toLowerCase().includes(filterLower))
@@ -238,11 +248,15 @@ const ContactList = (props) => {
 
         result.sort((a, b) => a.name.localeCompare(b.name))
         result.sort(
-            (a, b) => (b.message?.timestamp || 0) - (a.message?.timestamp || 0)
+            (a, b) => {
+                if (a._isNew) return -1;
+                if (b._isNew) return 1;
+                return (b.message?.timestamp || 0) - (a.message?.timestamp || 0)
+            }
         );
         return result;
 
-    }, [addressbook.contacts, props.messages, props.filter, lookup]);
+    }, [addressbook.contacts, props.messages, props.filter, props.newContacts, lookup]);
 
     const unreadMessages = React.useMemo(() => {
         const tnumbers = {}

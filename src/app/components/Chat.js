@@ -123,6 +123,7 @@ const Chat = (props) => {
     const [showVoiceMessageRecordModal, setVoiceMessageRecordModal] = useState(false);
     const [showInfoPanel, setShowInfoPanel] = useState(false);
     const [editMessage, setEditMessage] = useState('');
+    const [newContacts, setNewContacts] = useState([]);
     const { domain } = useConfig();
     const selectedContactRef = useRef(selectedContact);
     const messagesRef = useRef(messages);
@@ -449,6 +450,7 @@ const Chat = (props) => {
         if (isFirstMessage) {
             actions.add(selectedContact);
             props.sendPublicKey(selectedContact.defaultUri.uri);
+            setNewContacts(prev => prev.filter(c => c.id !== selectedContact.id));
         }
 
         let message = props.account.sendMessage(selectedContact.defaultUri.uri, content, type);
@@ -476,7 +478,13 @@ const Chat = (props) => {
     const startChat = () => {
         if (input.current.value !== '') {
             const target = utils.normalizeUri(input.current.value, defaultDomain);
-            setSelectedContact(lookup(target))
+            const contact = lookup(target);
+            setSelectedContact(contact);
+
+            setNewContacts(prev =>
+                prev.some(c => c.id === contact.id) ? prev : [contact, ...prev]
+            );
+
             DEBUG('Starting new chat to: %s', target);
             let oldMessages = cloneDeep(messages);
             if (!oldMessages[target]) {
@@ -779,6 +787,7 @@ const Chat = (props) => {
                             downloadFiles={handleDownload}
                             uploadFiles={(...args) => fileTransferUtils.upload(props, ...args)}
                             selectAudio={selectAudio}
+                            newContacts={newContacts}
                         />
                     </ConferenceDrawer>
                 </div>

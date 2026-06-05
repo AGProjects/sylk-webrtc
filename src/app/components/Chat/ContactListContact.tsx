@@ -118,7 +118,10 @@ const ContactListContact = ({
                                             color: contact.message && (contact.message.state === 'error' || contact.message.state === 'failed') && '#a94442'
                                         }}
                                     >
-                                        {contact.message && parseContent(contact.message, contact)}
+                                        {contact._isNew
+                                            ? <em style={{ color: '#888' }}>(Draft)</em>
+                                                : contact.message && parseContent(contact.message, contact)
+                                        }
                                     </Typography>
                                 </Grid>
                                 {contact.id !== selectedContact?.id &&

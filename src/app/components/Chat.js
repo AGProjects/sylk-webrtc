@@ -478,6 +478,32 @@ const Chat = (props) => {
 
     const handleMessage = (content, type) => {
         if (editMessage) {
+            setFocus(editMessage.id);
+            setTimeout(() => { setFocus('') }, 750);
+
+            if (editMessage.contentType === 'application/sylk-file-transfer') {
+                const metadata = editMessage.metadata?.find(m => m.action === 'label');
+                if (metadata?.value !== content) {
+                    fileTransferUtils.sendMetadata(props.account, editMessage.id, selectedContact.defaultUri.uri, content, () => {
+                        if (isNodeEmitter(editMessage)) {
+                            const oldMessages = cloneDeep(messagesRef.current);
+                            const key = editMessage.receiver;
+                            const idx = oldMessages[key]?.findIndex(m => m.id === editMessage.id);
+                            if (idx !== -1) {
+                                const metaIdx = oldMessages[key][idx].metadata?.findIndex(m => m.action === 'label') ?? -1;
+                                if (metaIdx !== -1) {
+                                    oldMessages[key][idx].metadata[metaIdx].value = content;
+                                } else {
+                                    oldMessages[key][idx].metadata = [...(oldMessages[key][idx].metadata || []), { action: 'label', value: content }];
+                                }
+                                setMessages(oldMessages);
+                            }
+                        }
+                    });
+                }
+                setEditMessage();
+                return;
+            }
             if (editMessage.content !== content) {
                 props.account.sendMessage(selectedContact.defaultUri.uri, content, editMessage.contentType, { timestamp: editMessage.timestamp }, () => {
                     props.removeMessage(editMessage);

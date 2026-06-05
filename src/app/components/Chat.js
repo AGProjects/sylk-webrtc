@@ -6,7 +6,7 @@ const debug = require('debug');
 const PropTypes = require('prop-types');
 const cloneDeep = require('lodash/cloneDeep');
 const { makeStyles } = require('@material-ui/core/styles');
-const { CircularProgress, Toolbar, Divider, Typography } = require('@material-ui/core');
+const { CircularProgress, Toolbar, Divider, Typography, Grid } = require('@material-ui/core');
 const { IconButton, useMediaQuery } = require('@material-ui/core');
 
 const { default: clsx } = require('clsx');
@@ -662,21 +662,20 @@ const Chat = (props) => {
                                     </React.Fragment>
                                     :
                                     <React.Fragment>
-                                        <div style={{ display: 'flex', flex: '1' }}>
-                                            <div style={{ flex: '1' }}>
+                                        <Grid container alignItems="center">
+                                            <Grid item xs={4} style={{ display: 'flex', alignItems: 'center' }}>
                                                 <button type="button" className="close" style={{ float: 'left', marginRight: '4px' }} onClick={togglePanel}>
                                                     <span aria-hidden="true"><i className={chevronIcon} /></span>
                                                     <span className="sr-only">Back</span>
                                                 </button>
-                                                <Typography onClick={togglePanel} className={classes.title} variant="h6" noWrap>Back</Typography>
-                                            </div>
-                                            <div style={{ flex: '1 1 auto' }}>
+                                                <Typography onClick={togglePanel} className={classes.title} component="span" noWrap>Back</Typography>
+                                            </Grid>
+                                            <Grid item xs={4} style={{ display: 'flex', justifyContent: 'center' }}>
                                                 <Typography className={classes.centerTitle} variant="h6" noWrap>
                                                     Info
                                                 </Typography>
-                                            </div>
-                                            <div style={{ flex: '1 0 auto' }}></div>
-                                        </div>
+                                            </Grid>
+                                        </Grid>
                                     </React.Fragment>
                                 }
                                 <Divider absolute />

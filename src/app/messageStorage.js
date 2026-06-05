@@ -100,7 +100,7 @@ function migrateMetadataMessages() {
         })).then(() => {
             mainStorage.setItem('metadata_migrated', true);
             DEBUG('Metadata migration done');
-        }).catch(() => {
+        }).catch((err) => {
             DEBUG('Migration error: %o', err);
         });
     });

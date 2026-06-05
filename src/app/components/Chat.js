@@ -188,6 +188,9 @@ const Chat = (props) => {
                 DEBUG('Setting selectedContact from lookup: %s -> %o', props.focusOn, contact);
                 return contact;
             });
+            setNewContacts(prev =>
+                prev.some(c => c.id === contact.id) ? prev : [contact, ...prev]
+            );
         }
     }, [props.focusOn, lookup]);
 

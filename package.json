@@ -13,6 +13,7 @@
     "@futureportal/parcel-transformer-package-version": "^1.0.0",
     "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.3",
+    "@material-ui/lab": "^4.0.0-alpha.61",
     "@parcel/transformer-sass": "2.10.3",
     "@types/react": "16",
     "@types/react-dom": "16",

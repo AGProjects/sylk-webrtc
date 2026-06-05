@@ -41,7 +41,7 @@ const ConfigProvider = ({ children, domain = config.defaultDomain, onConfigReady
         };
 
         lookup();
-    }, [domain]);
+    }, [domain, onConfigReady]);
 
     return (
         <ConfigContext.Provider value={cfg}>

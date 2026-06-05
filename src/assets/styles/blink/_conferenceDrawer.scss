@@ -77,9 +77,9 @@
         }
 
         .media {
-            padding-top: 4px;
+            padding-top: 12px;
             padding-bottom: 4px;
-            margin-top: 8px;
+            //margin-top: 8px;
 
             &:hover {
                 overflow: visible;
@@ -195,6 +195,23 @@
         position: relative;
         width: 100%;
         overflow: hidden;
+    }
+
+
+    .MuiIconButton-colorPrimary {
+        color: $bootstrap-primary;
+
+        &:hover {
+            background-color: rgba(51, 122, 183, 0.08);
+        }
+
+        &:active {
+            background-color: rgba(51, 122, 183, 0.16);
+        }
+
+        &.Mui-disabled {
+            color: #9bbcd6;
+        }
     }
 
     .old-message {

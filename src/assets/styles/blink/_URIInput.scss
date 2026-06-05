@@ -20,13 +20,36 @@ div {
 
                 .aa-suggestion {
                     padding: 5px 4px;
-                    color: $gray;
-                    text-align: left;
                     cursor: pointer;
+                    display: flex;
+                    flex-wrap: nowrap;
+                    align-items: baseline;
+                    user-select: none;      // voorkomt dat individuele spans apart geselecteerd worden
+                    text-align: left;
+
+                    .uri {
+                        font-weight: 600;
+                        color: $gray;
+                        margin-right: 4px;
+                        flex-shrink: 0;
+                        line-height: 1.5;     // zorg dat het gelijk staat met de naam
+                    }
+
+                    .name {
+                        color: $lighter-gray;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap !important;
+                        flex-shrink: 1;
+                        line-height: 1.5;     // gelijk aan URI
+                    }
 
                     &.aa-cursor {
-                        color: darken($gray, 5%);
                         background-color: $bootstrap-link-hover-bg;
+
+                        .uri {
+                            color: darken($gray, 5%);
+                        }
                     }
                 }
             }

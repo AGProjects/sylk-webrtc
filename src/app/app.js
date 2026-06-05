@@ -2407,7 +2407,6 @@ class Blink extends React.Component {
                 contactCache={this.state.contactCache}
                 oldMessages={this.state.oldMessages}
                 startCall={this.startChatCall}
-                messageStorage={messageStorage}
                 propagateKeyPress={this.togglePropagateKeyPress}
                 focusOn={lastMessageFocus}
                 removeChat={removeChat}

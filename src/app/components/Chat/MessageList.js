@@ -4,6 +4,7 @@ const React = require('react');
 const useEffect = React.useEffect;
 const useRef = React.useRef;
 const useState = React.useState;
+const useCallback = React.useCallback;
 const debug = require('debug');
 const PropTypes = require('prop-types');
 
@@ -19,7 +20,7 @@ const FileTransferMessage = require('./FileTransferMessage');
 const ImagePreviewModal = require('./ImagePreviewModal')
 const Message = require('./Message');
 
-const { useHasChanged } = require('../../hooks');
+const { useHasChanged, usePrevious } = require('../../hooks');
 const fileTransferUtils = require('../../fileTransferUtils');
 
 const DEBUG = debug('blinkrtc:MessageList');
@@ -54,14 +55,14 @@ const MessageList = ({
     hasMore,
     displayed,
     loadMoreMessages,
-    contactCache,
     removeMessage,
     editMessage,
     account,
     uploadFiles,
     downloadFiles,
     embed,
-    storageLoadEmpty
+    storageLoadEmpty,
+    selectedContact
 }) => {
     const [entries, setEntries] = useState([])
     const [display, setDisplay] = useState(false);
@@ -74,13 +75,14 @@ const MessageList = ({
     const messagesRef = useRef(null);
     const messagesEndRef = useRef(null);
     const messagesBefore = useRef(null);
+    const prevSelectedContact = usePrevious(selectedContact);
     const prevMessagesChanged = useHasChanged(messages);
 
-    const { ref, inView, entry } = useInView({
+    const { ref, inView } = useInView({
         threshold: 0
     });
 
-    const scrollToBottom = React.useCallback(() => {
+    const scrollToBottom = useCallback(() => {
         if (loading) {
             const scrollPosition = messagesRef.current.scrollHeight - messagesBefore.current[0];
             messagesRef.current.scrollTop = scrollPosition;
@@ -90,16 +92,42 @@ const MessageList = ({
 
         if (display !== true && messagesEndRef.current !== null) {
             messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
-        } else {
+        } else if (messagesEndRef.current !== null) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
         }
     }, [focus, loading, display]);
 
+    const loadMore = useCallback(() => {
+        DEBUG('Attempting to load more messages');
+        setLoading(true);
+        messagesBefore.current = [messagesRef.current.scrollHeight, messagesRef.current.scrollTop];
+        setTimeout(() => {
+            loadMoreMessages();
+        }, 150);
+    }, [loadMoreMessages]);
 
-    useEffect(scrollToBottom, [scroll]);
+    const getImage = useCallback((message) => {
+            fileTransferUtils.getAndReadFile(account, message).then(([imageData, filename]) => {
+                setImage(imageData)
+                message.filename = filename;
+                setMessage(message)
+                setShowModal(true)
+            })
+        },[account]);
+
+    const sendDisplayed = useCallback((message) => {
+        if (message.state == 'received'
+            && message.dispositionState !== 'displayed'
+            && message.dispositionNotification.indexOf('display') !== -1
+        ) {
+            displayed(message.sender.uri, message.id, message.timestamp, 'displayed')
+        }
+    }, [displayed]);
 
     useEffect(() => {
-        if (!prevMessagesChanged && !focus) {
+        const selectedContactChanged = prevSelectedContact?.identity !== selectedContact.identity;
+
+        if (!prevMessagesChanged && !focus && !selectedContactChanged) {
             return;
         }
         DEBUG('Entries changed or focus, updating entries');
@@ -108,32 +136,15 @@ const MessageList = ({
         let prevMessage = null;
         let timestamp = null;
 
-        const getImage = (message) => {
-            fileTransferUtils.getAndReadFile(account, message).then(([imageData, filename]) => {
-                setImage(imageData)
-                message.filename = filename;
-                setMessage(message)
-                setShowModal(true)
-            })
-        }
-
-        const sendDisplayed = (message) => {
-            if (message.state == 'received'
-                && message.dispositionState !== 'displayed'
-                && message.dispositionNotification.indexOf('display') !== -1
-            ) {
-                displayed(message.sender.uri, message.id, message.timestamp, 'displayed')
-            }
-        };
 
         const entries = messages.filter((message) => {
             if (message.contentType === 'text/pgp-public-key-imported') {
                 return false;
             }
-            return !message.content.startsWith('?OTRv');
+            return !message.content?.startsWith('?OTRv');
         }).map((message) => {
             let continues = false;
-            if (prevMessage !== null && prevMessage.sender.uri == message.sender.uri) {
+            if (prevMessage !== null && prevMessage.sender.uri === message.sender.uri) {
                 continues = true;
             }
             if (prevMessage === null || formatTime(prevMessage) !== formatTime(message)) {
@@ -143,6 +154,9 @@ const MessageList = ({
                 timestamp = null;
             }
             prevMessage = message;
+
+            const reply = message.metadata?.find(m => m.action === 'reply');
+
             const messageComponents = {
                 default: Message,
                 fileTransfer: FileTransferMessage
@@ -152,12 +166,12 @@ const MessageList = ({
             if (message.contentType == ('application/sylk-file-transfer')) {
                 MessageComponent = messageComponents['fileTransfer']
                 extraProps = {
-                    account: account,
                     showModal: () => getImage(message),
-                    downloadFiles: downloadFiles
+                    downloadFiles: downloadFiles,
+                    account: account
                 }
-
             }
+
             return (
                 <CSSTransition
                     key={message.id}
@@ -172,12 +186,13 @@ const MessageList = ({
                             message={message}
                             cont={continues}
                             scroll={scrollToBottom}
-                            contactCache={contactCache}
                             removeMessage={() => removeMessage(message)}
                             editMessage={() => editMessage(message)}
                             imdnStates
                             enableMenu
                             fromSelf={account.id === message.sender.uri}
+                            identity={account.id === message.sender.uri ? { ...account.displayName, uri: account.id } : selectedContact.identity}
+                            reply={reply}
                             {...extraProps}
                         />
                     </React.Fragment>
@@ -190,7 +205,7 @@ const MessageList = ({
         return () => {
             ignore = true;
         }
-    }, [messages, focus, displayed, scrollToBottom, contactCache, removeMessage, account, downloadFiles]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [messages, focus, displayed, scrollToBottom, removeMessage, account, downloadFiles, selectedContact]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         const canLoadMore = () => {
@@ -238,14 +253,6 @@ const MessageList = ({
         }
     }, [storageLoadEmpty, inView, loading, more, messages, hasMore]);
 
-    const loadMore = React.useCallback(() => {
-        DEBUG('Attempting to load more messages');
-        setLoading(true);
-        messagesBefore.current = [messagesRef.current.scrollHeight, messagesRef.current.scrollTop];
-        setTimeout(() => {
-            loadMoreMessages();
-        }, 150);
-    }, [loadMoreMessages]);
 
     return (
         <div
@@ -257,7 +264,6 @@ const MessageList = ({
                 show={showModal}
                 close={() => setShowModal(false)}
                 image={image}
-                contactCache={contactCache}
                 message={message}
                 openInNewTab={(...args) => fileTransferUtils.openInNewTab(account, ...args)}
                 download={downloadFiles}
@@ -285,20 +291,19 @@ const MessageList = ({
 };
 
 MessageList.propTypes = {
-    scroll: PropTypes.bool,
     messages: PropTypes.array.isRequired,
     focus: PropTypes.string,
     loadMoreMessages: PropTypes.func.isRequired,
     removeMessage: PropTypes.func.isRequired,
     hasMore: PropTypes.func.isRequired,
     displayed: PropTypes.func.isRequired,
-    contactCache: PropTypes.object,
     account: PropTypes.object.isRequired,
     uploadFiles: PropTypes.func,
     downloadFiles: PropTypes.func.isRequired,
     embed: PropTypes.bool,
     storageLoadEmpty: PropTypes.bool,
-    editMessage: PropTypes.func
+    editMessage: PropTypes.func,
+    selectedContact: PropTypes.oneOfType([PropTypes.object, PropTypes.string])
 };
 
 

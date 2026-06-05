@@ -19,7 +19,8 @@ const { Close, GetApp, MoreHoriz } = require('@material-ui/icons');
 
 const UserIcon = require('../UserIcon');
 const { Tooltip } = require('../../MaterialUIAsBootstrap')
-
+const { useAddressbook } = require('../../AddressbookProvider');
+const { linkify } = require('../../utils');
 
 function isElectron() {
     if (typeof window.process !== 'undefined') {
@@ -131,14 +132,7 @@ const ImagePreviewModal = (props) => {
     const [showLayers, setShowLayers] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);
 
-    const parsedJsonContent = () => {
-        try {
-            return JSON.parse(props.message.content);
-        }
-        catch (e) {
-            return {}
-        }
-    };
+    const { lookup } = useAddressbook();
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -148,30 +142,17 @@ const ImagePreviewModal = (props) => {
         setAnchorEl(null);
     };
 
-    const getDisplayName = (uri) => {
-        if (props.contactCache !== undefined && props.contactCache.has(uri)) {
-            return { uri: uri, displayName: props.contactCache.get(uri) };
-        }
-        return { uri: uri };
-    };
+    const contact = props.message && props.message.sender && lookup(props.message.sender.uri);
 
-    const sender = props.message.sender ? props.message.sender.displayName || props.message.sender.uri : '';
+    const userIcon = props.message && props.message.sender
+        ? <UserIcon identity={contact.identity} />
+        : '';
 
-    const userIcon = () => {
-        if (props.message && props.message.sender) {
-            return <UserIcon identity={getDisplayName(props.message.sender.uri)} />
-        }
-        return ''
-    }
+    const title = props.message && props.message.sender
+        ? contact.name
+        : null;
 
-    const getTitle = () => {
-        return (
-            <React.Fragment>
-                {props.message && props.message.sender &&
-                    getDisplayName(props.message.sender.uri).displayName || sender}
-            </React.Fragment >
-        )
-    }
+    const metadata = props.message.metadata?.find(m => m.action === 'label');
 
     return (
         <Dialog
@@ -190,10 +171,10 @@ const ImagePreviewModal = (props) => {
                     <img className={classes.image} src={props.image} />
                     <div style={{ visibility: `${showLayers ? 'visible' : 'hidden'}` }}>
                         <ImageItemBar
-                            title={getTitle()}
+                            title={title}
                             subtitle={props.message.filename}
                             position="top"
-                            actionIcon={userIcon()}
+                            actionIcon={userIcon}
                             actionPosition="left"
                         />
                         <DialogTitle id="dialog-title" className={classes.fixHeader} >
@@ -201,12 +182,13 @@ const ImagePreviewModal = (props) => {
                                 <Close classes={{ root: classes.iconSize }} />
                             </IconButton>
                         </DialogTitle>
-                        <ImageItemBar title=""
+                        <ImageItemBar
+                            title={linkify(metadata?.value || '')}
                             position="bottom"
                             actionIcon={
                                 <React.Fragment>
                                     <Tooltip title="Download">
-                                        <IconButton aria-label="close" className={classes.bottomButton} onClick={() => { props.download(props.message.json); props.close }}>
+                                        <IconButton aria-label="close" className={classes.bottomButton} onClick={() => { props.download(props.message.json); props.close(); }}>
                                             <GetApp classes={{ root: classes.iconSize }} />
                                         </IconButton>
                                     </Tooltip>
@@ -265,8 +247,7 @@ ImagePreviewModal.propTypes = {
     message: PropTypes.object,
     openInNewTab: PropTypes.func.isRequired,
     removeMessage: PropTypes.func.isRequired,
-    download: PropTypes.func.isRequired,
-    contactCache: PropTypes.object
+    download: PropTypes.func.isRequired
 };
 
 

@@ -42,9 +42,10 @@ const { Tabs, Tab } = require('../../MaterialUIAsBootstrap');
 const { usePrevious, useResize, useHasChanged } = require('../../hooks');
 const fileTransferUtils = require('../../fileTransferUtils');
 const messageStorage = require('../../messageStorage');
+const { useAddressbook } = require('../../AddressbookProvider');
+
 
 const DEBUG = debug('blinkrtc:InfoPanel');
-
 
 const formatTime = (fileDate) => {
     const date = DateTime.fromJSDate(fileDate);
@@ -152,15 +153,16 @@ const styleSheet = makeStyles((theme) => ({
 
 const InfoPanel = ({
     startMessages,
-    contactCache,
     removeMessage,
     account,
     uploadFiles,
     downloadFiles,
-    selectedUri,
-    selectAudio
+    selectedContact,
+    selectAudio,
 }) => {
     const classes = styleSheet();
+
+    const { addressbook, actions, lookup } = useAddressbook();
 
     const [images, setImages] = useState(null)
     const [voiceMessages, setVoiceMessages] = useState(null)
@@ -180,7 +182,6 @@ const InfoPanel = ({
         threshold: 0
     });
 
-    //const prevMessages = usePrevious(messages);
     const prevMessagesChanged = useHasChanged(messages);
     const oldImages = usePrevious(images || []);
     const oldVoiceMessages = usePrevious(voiceMessages || []);
@@ -201,20 +202,13 @@ const InfoPanel = ({
         })
     }
 
-    const getDisplayName = (uri) => {
-        if (contactCache.has(uri)) {
-            return { uri: uri, displayName: contactCache.get(uri) };
-        }
-        return { uri: uri };
+    const getContact = (message) => {
+        const contactUri = message.state === 'received' ? message.sender.uri : message.receiver;
+        const contact = lookup(contactUri);
+
+        return contact?.name || contact?.identity?.displayName || contactUri;
     };
 
-    const getContact = (message) => {
-        let contact = message.receiver;
-        if (message.state === 'received') {
-            contact = message.sender.uri;
-        }
-        return getDisplayName(contact).displayName || contact;
-    }
     const getFilename = (json) => {
         return json.filename.replace('.asc', '').replace(/_/g, ' ');
     }
@@ -282,7 +276,7 @@ const InfoPanel = ({
                         <ImageList rowHeight={calculateHeight} gap={2} cols={matches ? 3 : 4} >
                             {
                                 sortedFiles[key].map((entry) => (
-                                    <ImageListItem key={entry.filename} cols={1} onClick={() => getImage(entry.message)}>
+                                    <ImageListItem key={`img-${entry.message.id}-${entry.filename}`} cols={1} onClick={() => getImage(entry.message)}>
                                         <img src={entry.image} />
                                     </ImageListItem>
                                 ))
@@ -297,7 +291,7 @@ const InfoPanel = ({
                         <ImageList rowHeight={calculateHeight} gap={2} cols={matches ? 3 : 4} >
                             {
                                 sortedFiles[key].map((entry) => (
-                                    <ImageListItem key={entry.filename} cols={1} onClick={() => getImage(entry.message)}>
+                                    <ImageListItem key={`${entry.message.id}-${entry.filename}`} cols={1} onClick={() => getImage(entry.message)}>
                                         <img src={entry.image} />
                                     </ImageListItem>
                                 ))
@@ -324,7 +318,7 @@ const InfoPanel = ({
                                     sortedFiles[key].map((message) => (
                                         <ListItem key={`vm-${message.id}`}>
                                             <ListItemIcon>
-                                                <IconButton component="span" onClick={() => selectAudio(message.id)} classes={{ root: classes.root }}><PlayArrowRounded style={{ fontSize: '3rem' }} /></IconButton>
+                                                <IconButton component="span" onClick={() => selectAudio(message)} classes={{ root: classes.root }}><PlayArrowRounded style={{ fontSize: '3rem' }} /></IconButton>
                                             </ListItemIcon>
                                             <ListItemText classes={{ primary: classes.item, secondary: classes.secondary }} primary={formatTime(message.json.timestamp)} secondary={getContact(message)} />
                                         </ListItem>
@@ -344,7 +338,7 @@ const InfoPanel = ({
                                     sortedFiles[key].map((message) => (
                                         <ListItem key={`vm-${message.id}`} >
                                             <ListItemIcon>
-                                                <IconButton component="span" onClick={() => selectAudio(message.id)} classes={{ root: classes.root }}><PlayArrowRounded style={{ fontSize: '3rem' }} /></IconButton>
+                                                <IconButton component="span" onClick={() => selectAudio(message)} classes={{ root: classes.root }}><PlayArrowRounded style={{ fontSize: '3rem' }} /></IconButton>
                                             </ListItemIcon>
                                             <ListItemText classes={{ primary: classes.item, secondary: classes.secondary }} primary={formatTime(message.json.timestamp)} secondary={getContact(message)} />
                                         </ListItem>
@@ -362,17 +356,16 @@ const InfoPanel = ({
         DEBUG('Attempting to load more messages');
         setLoading(true);
         setMore(false);
-        messageStorage.loadMoreFiles(selectedUri).then(loadedMessages => {
+        messageStorage.loadMoreFiles(selectedContact.defaultUri.uri).then(loadedMessages => {
             if (loadedMessages) {
                 setMessages([...loadedMessages, ...messages]);
             }
             busy.current = false;
         });
-    }, [messages, selectedUri]);
+    }, [messages, selectedContact]);
 
     useEffect(() => {
         if (!prevMessagesChanged) {
-            //if (JSON.stringify(prevMessages) === JSON.stringify(messages)) {
             return;
         }
         DEBUG('Entries changed, updating entries');
@@ -404,7 +397,7 @@ const InfoPanel = ({
 
         if (newVoiceMessages.length === 0 && newFiles.length === 0 && cacheResults.length === 0) {
             DEBUG('No messages, checking for more');
-            messageStorage.hasMoreFiles(selectedUri).then((value) => {
+            messageStorage.hasMoreFiles(selectedContact.defaultUri.uri).then((value) => {
                 setMore(value);
                 if (!value) {
                     setNoFilesFound(!value);
@@ -429,21 +422,28 @@ const InfoPanel = ({
         return () => {
             ignore = true;
         }
-    }, [messages, removeMessage, account, selectedUri]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [messages, removeMessage, account, selectedContact]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
     useEffect(() => {
         return () => {
-            messageStorage.revertFiles(selectedUri);
+            messageStorage.revertFiles(selectedContact.defaultUri.uri);
         }
-    }, [selectedUri])
+    }, [selectedContact])
 
     const busy = useRef(false);
+    const activeRef = useRef(true);
 
     useEffect(() => {
+        return () => {
+            activeRef.current = false;
+        };
+    }, []);
+    useEffect(() => {
+        let timer;
         const canLoadMore = () => {
             DEBUG('Checking if more can be loaded');
-            messageStorage.hasMoreFiles(selectedUri).then((value) => {
+            messageStorage.hasMoreFiles(selectedContact.defaultUri.uri).then((value) => {
                 setMore(value);
             });
         };
@@ -456,7 +456,10 @@ const InfoPanel = ({
         }
         if (load && display !== true) {
             canLoadMore();
-            setTimeout(() => {
+            timer = setTimeout(() => {
+                if (!activeRef.current) {
+                    return
+                }
                 setDisplay(true);
             }, 150);
         }
@@ -476,7 +479,6 @@ const InfoPanel = ({
         }
     }, [inView, loadMore]);
 
-
     return (
         <div
             className="drawer-chat"
@@ -494,19 +496,18 @@ const InfoPanel = ({
                 show={showModal}
                 close={() => setShowModal(false)}
                 image={image}
-                contactCache={contactCache}
                 message={message}
                 openInNewTab={(...args) => fileTransferUtils.openInNewTab(account, ...args)}
                 download={downloadFiles}
                 removeMessage={removeMessage}
             />
             <DragAndDrop title="Drop files to share them" handleDrop={uploadFiles} marginTop={'100px'} style={{ height: '100%', flexDirection: 'column', overflowX: 'hidden' }} useFlex>
-                <UserIcon identity={getDisplayName(selectedUri)} active={false} large={true} />
+                <UserIcon identity={selectedContact.identity} active={false} large={true} />
                 <Typography className={classes.center} variant="h3" noWrap>
-                    {getDisplayName(selectedUri).displayName || selectedUri}
+                    {selectedContact.name}
                 </Typography>
                 <Typography className={classes.center1} variant="h4" noWrap>
-                    {getDisplayName(selectedUri).displayName && <span className={classes.toolbarName}>({selectedUri})</span>}
+                    {selectedContact.defaultUri.uri && <span className={classes.toolbarName}>({selectedContact.defaultUri.uri})</span>}
                 </Typography>
                 {display &&
                     <React.Fragment>
@@ -553,7 +554,7 @@ const InfoPanel = ({
                 {!display &&
                     <Box p={0} style={{ flex: 1 }}>
                         {noFilesFound &&
-                            <Typography className={classes.center1} variant="h5" noWrap>
+                            <Typography className={classes.center} variant="h5" noWrap>
                                 No shared media, files and voice messages.
                             </Typography>
                         }
@@ -572,13 +573,12 @@ const InfoPanel = ({
 
 InfoPanel.propTypes = {
     startMessages: PropTypes.array,
-    contactCache: PropTypes.object,
     removeMessage: PropTypes.func.isRequired,
     account: PropTypes.object.isRequired,
     uploadFiles: PropTypes.func,
     downloadFiles: PropTypes.func,
-    selectedUri: PropTypes.string,
-    selectAudio: PropTypes.func
+    selectedContact: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    selectAudio: PropTypes.func,
 };
 
 

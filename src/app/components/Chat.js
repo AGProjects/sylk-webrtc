@@ -17,14 +17,20 @@ const MessageList = require('./Chat/MessageList');
 const InfoPanel = require('./Chat/InfoPanel');
 const ConferenceChatEditor = require('./ConferenceChatEditor');
 const VoiceMessageRecorderModal = require('./Chat/VoiceMessageRecorderModal');
-
-const { useConfig } = require('../ConfigProvider')
-const utils = require('../utils');
-const fileTransferUtils = require('../fileTransferUtils');
 const ToolbarAudioPlayer = require('./Chat/ToolbarAudioPlayer');
 
+const FileUploadModal = require('./FileUploadModal').default;
+const ContactDeleteModal = require('./ContactDeleteModal').default;
+
+const fileTransferUtils = require('../fileTransferUtils');
+const messageStorage = require('../messageStorage');
+const utils = require('../utils');
+
+const { useAddressbook } = require('../AddressbookProvider');
+const { useConfig } = require('../ConfigProvider')
+
+
 const DEBUG = debug('blinkrtc:Chat');
-const messageStorage = require("../messageStorage");
 
 const { isNodeEmitter } = require('../utils');
 
@@ -103,28 +109,31 @@ const Chat = (props) => {
     const classes = styleSheet(props);
     const [messages, _setMessages] = useState({});
     const [filter, setFilter] = useState('');
-    const [unread, setUnread] = useState('');
+    const [calcUnread, setCalcUnread] = useState('');
+
+    const { addressbook, actions, lookup, onError } = useAddressbook();
 
     const [show, setShow] = useState(false);
     const [focus, setFocus] = useState('');
-    const [selectedUri, _setSelectedUri] = useState('');
-    const [selectedAudioUri, setSelectedAudioUri] = useState('');
-    const [selectedAudioId, setSelectedAudioId] = useState('');
+    const [upload, setUpload] = useState(null);
+    const [selectedContact, _setSelectedContact] = useState(null);
+    const [deleteContact, setDeleteContact] = useState(null);
+
+    const [selectedAudioMessage, setSelectedAudioMessage] = useState(null);
     const [showVoiceMessageRecordModal, setVoiceMessageRecordModal] = useState(false);
     const [showInfoPanel, setShowInfoPanel] = useState(false);
     const [editMessage, setEditMessage] = useState('');
     const { domain } = useConfig();
-    const selectedUriRef = useRef(selectedUri);
+    const selectedContactRef = useRef(selectedContact);
     const messagesRef = useRef(messages);
-    const contactCache = useRef(props.contactCache);
     const anchorEl = useRef(null);
     const input = useRef();
 
     let propagateFocus = false;
 
-    const setSelectedUri = uri => {
-        selectedUriRef.current = uri
-        _setSelectedUri(uri);
+    const setSelectedContact = uri => {
+        selectedContactRef.current = uri
+        _setSelectedContact(uri);
         setShowInfoPanel(false);
     }
 
@@ -136,25 +145,48 @@ const Chat = (props) => {
     const componentJustMounted = useRef(true);
 
     let timer = null
-    useEffect(() => {
-        setSelectedUri(props.focusOn);
-    }, [props.focusOn]);
 
     useEffect(() => {
-        const addContact = () => {
-            if (props.focusOn) {
-                let oldMessages = Object.assign({}, messagesRef.current);
-                if (!oldMessages[props.focusOn]) {
-                    oldMessages[props.focusOn] = [];
-                    setMessages(oldMessages);
+        if (!props.focusOn || props.focusOn === '') return;
+
+        if (typeof props.focusOn === 'object') {
+            setSelectedContact(prev => {
+                if (prev === props.focusOn) {
+                    DEBUG('focusOn object unchanged, skipping update: %o', props.focusOn);
+                    return prev;
                 }
+                DEBUG('Setting selectedContact to object: %o', props.focusOn);
+                return props.focusOn;
+            });
+        } else {
+            const contact = lookup(props.focusOn);
+            setSelectedContact(prev => {
+                if (prev === contact) {
+                    DEBUG('focusOn contact unchanged, skipping update: %s', props.focusOn);
+                    return prev;
+                }
+                DEBUG('Setting selectedContact from lookup: %s -> %o', props.focusOn, contact);
+                return contact;
+            });
+        }
+    }, [props.focusOn, lookup]);
+
+    useEffect(() => {
+        if (selectedContact) {
+            const updated = [...addressbook.contacts.values()]
+                .flat()
+                .find(c => c.id === selectedContact.id);
+            if (updated) {
+                _setSelectedContact(updated);
+                selectedContactRef.current = updated;
+            } else {
+                //DEBUG("REMOVED CONTACT?")
+                //props.removeChat(selectedContactRef.current);
+                _setSelectedContact(null);
+                selectedContactRef.current = null;
             }
         }
-
-        if (show) {
-            addContact();
-        }
-    }, [show, props.focusOn])
+    }, [addressbook]);
 
     const isElectron = navigator.userAgent.includes('Electron');
 
@@ -233,7 +265,7 @@ const Chat = (props) => {
             enrichWithMetadata(message).then(enriched => {
                 oldMessages[key].push(enriched);
                 oldMessages[key].sort((a, b) => a.timestamp - b.timestamp);
-                if (selectedUriRef.current === message.sender.uri) {
+                if (selectedContactRef.current?.uris?.[0]?.uri === message.sender.uri) {
                     DEBUG('We have this contact selected');
                 }
                 setMessages(oldMessages);
@@ -272,12 +304,13 @@ const Chat = (props) => {
         };
 
         const removeConversation = (account) => {
-            if (selectedUriRef.current == account) {
-                setSelectedUri('');
+            if (selectedContactRef.current == account) {
+                setSelectedContact('');
             }
         };
 
         const newMessages = cloneDeep(props.oldMessages);
+
         const metadataPromises = [];
         for (let message of props.account.messages) {
             if (message.contentType === 'application/sylk-message-metadata') {
@@ -303,6 +336,7 @@ const Chat = (props) => {
                 );
             }
         };
+
         if (!componentJustMounted.current) {
             for (let contact of Object.keys(newMessages)) {
                 newMessages[contact].sort((a, b) => a.timestamp - b.timestamp);
@@ -328,30 +362,21 @@ const Chat = (props) => {
         return () => {
             DEBUG('Running leave hook');
             setShow(false);
-            props.account.removeListener('incomingMessage', incomingMessage);
-            props.account.removeListener('messageStateChanged', messageStateChanged);
-            props.account.removeListener('outgoingMessage', outgoingMessage);
-            props.account.removeListener('removeMessage', removeMessage);
-            props.account.removeListener('removeConversation', removeConversation);
+            if (props.account !== null) {
+                props.account.removeListener('incomingMessage', incomingMessage);
+                props.account.removeListener('messageStateChanged', messageStateChanged);
+                props.account.removeListener('outgoingMessage', outgoingMessage);
+                props.account.removeListener('removeMessage', removeMessage);
+                props.account.removeListener('removeConversation', removeConversation);
+            }
         }
     }, [props.account, props.oldMessages, isElectron]);
 
 
-    const loadMessages = (uri, id) => {
-        // Remove entries with 0 messages from contact list
-        if (contactMessages.length === 0) {
-            const oldMessages = cloneDeep(messagesRef.current);
-            delete oldMessages[selectedUri];
-            setMessages(oldMessages);
-        }
-
-        if (uri !== selectedAudioUri && !selectedAudioUri) {
-            setSelectedAudioUri(uri);
-        }
-
-        if (uri !== selectedUri) {
-            setSelectedUri(uri);
-            props.lastContactSelected(uri);
+    const loadMessages = (contact, id) => {
+        if (contact !== selectedContact) {
+            setSelectedContact(contact);
+            props.lastContactSelected(contact);
             if (id) {
                 DEBUG('Focus message: %s', id);
                 setFocus(id);
@@ -366,7 +391,7 @@ const Chat = (props) => {
     };
 
     const loadMoreMessages = () => {
-        return props.loadMoreMessages(selectedUri);
+        return props.loadMoreMessages(selectedContact.defaultUri.uri);
     };
 
     const toggleChatEditorFocus = () => {
@@ -387,8 +412,19 @@ const Chat = (props) => {
         setShowInfoPanel(!showInfoPanel)
     }
 
-    const contactMessages = messages[selectedUri] ? [...messages[selectedUri]] : [];
-    const contactAudioMessages = messages[selectedAudioUri] ? [...messages[selectedAudioUri]] : [];
+
+    const contactAudioMessages = React.useMemo(() => {
+        if (!selectedAudioMessage) return [];
+        const contactUri = selectedAudioMessage.state === 'received' ? selectedAudioMessage.sender.uri : selectedAudioMessage.receiver;
+        const contact = lookup(contactUri);
+
+        const uniqueUris = [...new Set(contact?.uris?.map(u => u.uri))];
+        const allMsgs = uniqueUris.flatMap(uri => messages[uri] || []);
+        const filtered = allMsgs.filter(msg => !msg.content.startsWith('?OTRv'));
+        filtered.sort((a, b) => a.timestamp - b.timestamp);
+
+        return filtered;
+    }, [messages, selectedAudioMessage, lookup])
 
     const handleFiles = (e) => {
         DEBUG('Selected files %o', e.target.files);
@@ -399,22 +435,24 @@ const Chat = (props) => {
     const handleMessage = (content, type) => {
         if (editMessage) {
             if (editMessage.content !== content) {
-                props.account.sendMessage(selectedUri, content, editMessage.contentType, { timestamp: editMessage.timestamp }, () => {
+                props.account.sendMessage(selectedContact.defaultUri.uri, content, editMessage.contentType, { timestamp: editMessage.timestamp }, () => {
                     props.removeMessage(editMessage);
                 });
             }
+
             setEditMessage();
             return;
         }
 
-        const isFirstMessage = !messages[selectedUri] || messages[selectedUri].length === 0;
+        const isFirstMessage = !messages[selectedContact.uris[0].uri] || messages[selectedContact.uris[0].uri].length === 0;
 
         if (isFirstMessage) {
-            props.sendPublicKey(selectedUri);
+            actions.add(selectedContact);
+            props.sendPublicKey(selectedContact.defaultUri.uri);
         }
 
-        let message = props.account.sendMessage(selectedUri, content, type);
-        setMessages({ ...messages, [selectedUri]: [...contactMessages, message] });
+        let message = props.account.sendMessage(selectedContact.defaultUri.uri, content, type);
+        setMessages({ ...messages, [selectedContact.defaultUri.uri]: [...contactMessages, message] });
     };
 
     const handleDownload = (...args) => {
@@ -438,7 +476,7 @@ const Chat = (props) => {
     const startChat = () => {
         if (input.current.value !== '') {
             const target = utils.normalizeUri(input.current.value, defaultDomain);
-            setSelectedUri(target);
+            setSelectedContact(lookup(target))
             DEBUG('Starting new chat to: %s', target);
             let oldMessages = cloneDeep(messages);
             if (!oldMessages[target]) {
@@ -450,27 +488,13 @@ const Chat = (props) => {
         }
     };
 
-    const selectAudio = (id) => {
-        setSelectedAudioUri(selectedUri);
-        setSelectedAudioId(id);
-    }
-
-    const selectContactAudio = (id, uri) => {
-        setSelectedAudioUri(uri);
-        setSelectedAudioId(id);
+    const selectAudio = (message) => {
+        setSelectedAudioMessage(message);
     }
 
     const resetSelectedAudio = () => {
-        setSelectedAudioId('');
-        setSelectedAudioUri('');
+        setSelectedAudioMessage(null);
     }
-
-    const getDisplayName = (uri) => {
-        if (props.contactCache.has(uri)) {
-            return { uri: uri, displayName: props.contactCache.get(uri) };
-        }
-        return { uri: uri };
-    };
 
     const matches = useMediaQuery('(max-width:959.95px)');
 
@@ -502,10 +526,10 @@ const Chat = (props) => {
                 }
             }
             if (sendMark) {
-                if (unread === uri) {
-                    setUnread()
+                if (calcUnread === uri) {
+                    setCalcUnread()
                 } else {
-                    setUnread(uri)
+                    setCalcUnread(uri)
                 }
                 props.account.markConversationRead(uri);
                 timer = null;
@@ -513,15 +537,36 @@ const Chat = (props) => {
         }, 500);
     };
 
+    const contactMessages = React.useMemo(() => {
+        if (!selectedContact) {
+            return [];
+        }
+
+        const uniqueUris = [...new Set(selectedContact?.uris?.map(u => u.uri))];
+        const allMsgs = uniqueUris.flatMap(uri => messages[uri] || []);
+        const filtered = allMsgs.filter(msg => !msg.content.startsWith('?OTRv'));
+
+        filtered.sort((a, b) => a.timestamp - b.timestamp);
+
+        return filtered;
+    }, [messages, selectedContact]);
+
+    const hasMore = React.useCallback(
+        () => {
+            if (!selectedContact?.defaultUri?.uri) return false;
+            return messageStorage.hasMore(selectedContact.defaultUri.uri);
+        },
+        [selectedContact]
+    );
+
     const messagePane = (
         <React.Fragment key="pane">
             <MessageList
                 loadMoreMessages={loadMoreMessages}
                 messages={contactMessages}
                 focus={focus}
-                key={selectedUri}
-                hasMore={() => props.messageStorage.hasMore(selectedUri)}
-                contactCache={contactCache.current}
+                key={selectedContact?.defaultUri?.uri || selectedContact}
+                hasMore={hasMore}
                 displayed={messageDisplayed}
                 removeMessage={(message) => props.removeMessage(message)}
                 editMessage={(message) => handleMessageEdit(message)}
@@ -531,6 +576,7 @@ const Chat = (props) => {
                 downloadFiles={handleDownload}
                 embed={props.embed}
                 storageLoadEmpty={props.storageLoadEmpty}
+                selectedContact={selectedContact}
             />
             <ConferenceChatEditor
                 onSubmit={handleMessage}
@@ -548,40 +594,36 @@ const Chat = (props) => {
         </React.Fragment>
     );
 
-    const infoPane = (
-        <React.Fragment key="infopane">
-            <InfoPanel
-                key={selectedUri}
-                startMessages={contactMessages}
-                contactCache={contactCache.current}
-                removeMessage={(message) => props.removeMessage(message)}
-                account={props.account}
-                uploadFiles={(...args) => fileTransferUtils.upload(props, ...args, selectedUri)}
-                downloadFiles={handleDownload}
-                selectedUri={selectedUri}
-                selectAudio={selectAudio}
-            />
-        </React.Fragment>
+    const infoPane = selectedContact && (
+        <InfoPanel
+            key={selectedContact.id}
+            startMessages={contactMessages}
+            removeMessage={props.removeMessage}
+            account={props.account}
+            uploadFiles={(files) => setUpload({ files: [...files], uri: selectedContact?.defaultUri?.uri })}
+            downloadFiles={handleDownload}
+            selectedContact={selectedContact}
+            selectAudio={selectAudio}
+            notificationCenter={props.notificationCenter}
+        />
     );
 
     return (
         <React.Fragment>
             {!props.embed &&
                 <div className="chat">
-                    {selectedAudioId !== '' &&
-                        <div style={{ top: selectedUri ? '115px' : '66px' }} className={classes.audioToolbar}>
+                    {selectedAudioMessage &&
+                        <div style={{ top: selectedContact ? '115px' : '66px' }} className={classes.audioToolbar}>
                             <ToolbarAudioPlayer
                                 account={props.account}
                                 messages={contactAudioMessages}
-                                contactCache={contactCache.current}
-                                selectedAudioUri={selectedAudioUri}
-                                selectedAudioId={selectedAudioId}
+                                message={selectedAudioMessage}
                                 close={resetSelectedAudio}
                             />
                         </div>
                     }
                     <ConferenceDrawer
-                        show={show && !showInfoPanel && (!matches || selectedUri !== '')}
+                        show={show && !showInfoPanel && (!matches || selectedContact !== '')}
                         size="full"
                         anchor="right"
                         close={() => setShow(false)}
@@ -591,10 +633,10 @@ const Chat = (props) => {
                         slideProps={{ direction: 'right', unmountOnExit: false }}
                     >
 
-                        {selectedUri &&
+                        {selectedContact &&
                             <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px', paddingLeft: '10px', paddingRight: '10px' }}>
                                 {matches &&
-                                    <button type="button" className="close" onClick={() => setSelectedUri('')}>
+                                    <button type="button" className="close" onClick={() => setSelectedContact('')}>
                                         <span aria-hidden="true"><i className={chevronIcon} /></span>
                                         <span className="sr-only">Close</span>
                                     </button>
@@ -608,25 +650,25 @@ const Chat = (props) => {
                                     :
                                     <React.Fragment>
                                         <div style={{ flex: 0 }} onClick={togglePanel}>
-                                            <UserIcon identity={getDisplayName(selectedUri)} active={false} small={true} />
+                                            <UserIcon identity={selectedContact.identity} active={false} small={true} />
                                         </div>
                                         <div onClick={togglePanel} style={{ flex: '1', display: 'flex', alignItems: 'center' }}>
                                             <Typography className={classes.title} variant="h6" noWrap>
-                                                {getDisplayName(selectedUri).displayName || selectedUri}
-                                                {getDisplayName(selectedUri).displayName && <span className={classes.toolbarName}>({selectedUri})</span>}
+                                                {selectedContact.name}
+                                                {selectedContact.name && selectedContact.name !== selectedContact.defaultUri.uri && <span className={classes.toolbarName}>({selectedContact.defaultUri.uri})</span>}
                                             </Typography>
                                         </div>
                                         {props.hideCallButtons === false && [
-                                            <IconButton key="callButton" className="fa fa-phone" disabled={props.noConnection} onClick={() => props.startCall(selectedUri, { video: false })} />,
-                                            <IconButton key="videoCallButton" className="fa fa-video-camera" disabled={props.noConnection} onClick={() => props.startCall(selectedUri)} />
+                                            <IconButton key="callButton" className="fa fa-phone" disabled={props.noConnection} onClick={() => props.startCall(selectedContact.defaultUri.uri, { video: false })} />,
+                                            <IconButton key="videoCallButton" className="fa fa-video-camera" disabled={props.noConnection} onClick={() => props.startCall(selectedContact.defaultUri.uri)} />
                                         ]}
                                     </React.Fragment>
                                 }
                                 <Divider absolute />
                             </Toolbar>
                         }
-                        {selectedAudioId !== '' && <div className={classes.spacer35} />}
-                        {selectedUri !== ''
+                        {selectedAudioMessage && <div className={classes.spacer35} />}
+                        {selectedContact
                             ?
                             <React.Fragment>
                                 {
@@ -645,14 +687,14 @@ const Chat = (props) => {
                         }
                     </ConferenceDrawer>
                     <ConferenceDrawer
-                        show={show && showInfoPanel && (!matches || selectedUri !== '')}
+                        show={show && showInfoPanel && (!matches || selectedContact !== '')}
                         size="full"
                         anchor="right"
                         close={() => setShow(false)}
                         position="full"
                         showClose={false}
                     >
-                        {selectedUri &&
+                        {selectedContact &&
                             <Toolbar className={classes.toolbar} style={{ backgroundColor: '#fff', marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px', paddingLeft: '10px', paddingRight: '10px' }}>
                                 {props.isLoadingMessages === true
                                     ?
@@ -681,9 +723,9 @@ const Chat = (props) => {
                                 <Divider absolute />
                             </Toolbar>
                         }
-                        {selectedAudioId !== '' && <div className={classes.spacer35} />}
+                        {selectedAudioMessage && <div className={classes.spacer35} />}
                         <div className={classes.spacer15} />
-                        {selectedUri !== ''
+                        {selectedContact
                             ?
                             <React.Fragment>
                                 {
@@ -702,14 +744,14 @@ const Chat = (props) => {
                         }
                     </ConferenceDrawer>
                     <ConferenceDrawer
-                        show={show && (selectedUri === '' && matches) || !matches}
+                        show={show && (selectedContact === '' && matches) || !matches}
                         anchor="left"
                         showClose={false}
                         close={() => { }}
                         size="normalWide"
                         noBackgroundColor
                     >
-                        {selectedAudioId !== '' && matches && <div className={classes.spacer50} />}
+                        {selectedAudioMessage !== '' && matches && <div className={classes.spacer50} />}
                         <Toolbar className={classes.toolbar} style={{ margin: '-15px -15px 0' }}>
                             <input
                                 type="text"
@@ -726,22 +768,22 @@ const Chat = (props) => {
                             messages={messages}
                             loadMessages={loadMessages}
                             startChat={startChat}
-                            selectedUri={selectedUri}
-                            contactCache={contactCache.current}
+                            selectedContact={selectedContact}
                             filter={filter}
                             defaultDomain={defaultDomain}
                             removeChat={(contact) => {
                                 props.removeChat(contact);
-                                setSelectedUri('');
+                                setSelectedContact('');
                             }}
-                            unread={unread}
+                            calcUnread={calcUnread}
                             downloadFiles={handleDownload}
                             uploadFiles={(...args) => fileTransferUtils.upload(props, ...args)}
-                            selectAudio={selectContactAudio}
+                            selectAudio={selectAudio}
                         />
                     </ConferenceDrawer>
                 </div>
             }
+
             {props.embed && props.isLoadingMessages == true &&
                 <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
                     <React.Fragment>
@@ -751,14 +793,15 @@ const Chat = (props) => {
                     <Divider absolute />
                 </Toolbar>
             }
+
             {props.embed && [messagePane]}
             {showVoiceMessageRecordModal &&
                 <VoiceMessageRecorderModal
                     show={showVoiceMessageRecordModal}
                     close={toggleRecordVoiceMessage}
-                    contact={selectedUri}
+                    contact={selectedContact}
                     anchorElement={anchorEl.current}
-                    sendAudioMessage={(...args) => fileTransferUtils.upload(props, ...args, selectedUri)}
+                    sendAudioMessage={(...args) => fileTransferUtils.upload(props, ...args, selectedContact)}
                 />
             }
         </React.Fragment>
@@ -767,10 +810,8 @@ const Chat = (props) => {
 
 Chat.propTypes = {
     account: PropTypes.object.isRequired,
-    contactCache: PropTypes.object.isRequired,
-    focusOn: PropTypes.string.isRequired,
+    focusOn: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
     loadMoreMessages: PropTypes.func.isRequired,
-    messageStorage: PropTypes.object.isRequired,
     oldMessages: PropTypes.object.isRequired,
     propagateKeyPress: PropTypes.func.isRequired,
     removeChat: PropTypes.func.isRequired,

@@ -6,6 +6,7 @@ const {
     useState,
     useRef
 } = React;
+const { default: clsx } = require('clsx');
 const debug = require('debug');
 const PropTypes = require('prop-types');
 const xss = require('xss');
@@ -39,6 +40,8 @@ const UserIcon = require('../UserIcon');
 const CustomContextMenu = require('../CustomContextMenu');
 const DragAndDrop = require('../DragAndDrop');
 const ContactListContact = require('./ContactListContact').default;
+
+const { useAddressbook } = require('../../AddressbookProvider');
 
 const DEBUG = debug('blinkrtc:ContactList');
 
@@ -156,68 +159,96 @@ const styleSheet = makeStyles((theme) => ({
 
 const ContactList = (props) => {
     const classes = styleSheet(props);
-    const [filteredMessages, setFilteredMessages] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
     const contactRef = useRef(null);
+    const anchorElRef = useRef(null);
+    const { addressbook, actions, lookup } = useAddressbook();
 
-    useEffect(() => {
-        if (props.filter !== '') {
-            setFilteredMessages(
-                [].concat.apply(
-                    [],
-                    Object.values(props.messages)
-                ).filter(contact =>
-                    contact.content.indexOf(props.filter) !== -1 && contact.contentType !== 'text/pgp-public-key'
-                )
-            );
-        } else {
-            setFilteredMessages([]);
-        }
-    }, [props.filter, props.messages]);
+    const filteredMessages = props.filter ?
+        Object.values(props.messages)
+            .flat()
+            .filter(contact =>
+                contact.content.indexOf(props.filter) !== -1 && contact.contentType !== 'text/pgp-public-key'
+            )
+            .map(message => {
+                let uri = message.state === 'received' ? message.sender.uri : message.receiver;
+                return {
+                    ...message,
+                    uri: uri,
+                    contact: lookup(uri)
+                }
+            })
+        :
+        [];
 
-
-    const getDisplayName = React.useCallback((uri) => {
-        if (props.contactCache.has(uri)) {
-            return { uri: uri, displayName: props.contactCache.get(uri) };
-        }
-        return { uri: uri };
-    }, [props.contactCache]);
+    const handleSetAnchorEl = (virtualEl) => {
+        anchorElRef.current = virtualEl;
+        setAnchorEl(() => anchorElRef.current);
+    };
 
     const contacts = React.useMemo(() => {
-        const OrderedKeys = [];
-        let newItem = null;
-        Object.keys(props.messages).filter(name => {
-            let identity = getDisplayName(name);
-            return (identity.displayName && identity.displayName.toLowerCase().indexOf(props.filter.toLowerCase()) !== -1)
-                || name.indexOf(props.filter) !== -1
-        }).forEach(key => {
-            if (props.messages[key] && props.messages[key].length) {
-                let lastItem = props.messages[key][props.messages[key].length - 1]
-                if (lastItem.content.startsWith('?OTRv')) {
-                    for (let i = 2; i <= props.messages[key].length; i++) {
-                        lastItem = props.messages[key][props.messages[key].length - i]
-                        if (lastItem.content.startsWith('?OTRv')) {
-                            break;
-                        }
+        const filterLower = props.filter.toLowerCase();
+
+        const contactMap = new Map();
+
+        for (const contactList of addressbook.contacts.values()) {
+            for (const contact of contactList) {
+                if (!contactMap.has(contact)) {
+                    contactMap.set(contact, {
+                        ...contact,
+                        message: null
+                    });
+                }
+            }
+        }
+
+        for (const [uri, msgs] of Object.entries(props.messages)) {
+            if (!msgs?.length) continue;
+
+            let candidate = msgs[msgs.length - 1];
+
+            if (candidate.content.startsWith('?OTRv')) {
+                for (let i = 2; i <= msgs.length; i++) {
+                    candidate = msgs[msgs.length - i];
+                    if (!candidate.content.startsWith('?OTRv')) break;
+                }
+            }
+
+            const contactsForUri = addressbook.contacts.get(uri);
+            if (contactsForUri?.length) {
+                for (const contact of contactsForUri) {
+                    const enriched = contactMap.get(contact);
+                    if (
+                        !enriched.message ||
+                        candidate.timestamp > enriched.message.timestamp
+                    ) {
+                        enriched.message = candidate;
                     }
                 }
-                OrderedKeys.push(Object.assign({ message: lastItem }, getDisplayName(key)));
             } else {
-                newItem = key;
+                let contact = lookup(uri);
+                contactMap.set(uri, { ...contact, message: candidate });
             }
-        });
-        OrderedKeys.sort((a, b) => b.message.timestamp - a.message.timestamp);
-        if (newItem !== null) {
-            OrderedKeys.unshift({ uri: newItem });
         }
-        return OrderedKeys;
-    }, [props.messages, props.filter, getDisplayName]);
 
-    const numbers = React.useMemo(() => {
+        const result = Array.from(contactMap.values()).filter(c =>
+            c.name.toLowerCase().includes(filterLower) ||
+            c.uris?.some(u => u.uri.toLowerCase().includes(filterLower))
+        );
+
+        result.sort((a, b) => a.name.localeCompare(b.name))
+        result.sort(
+            (a, b) => (b.message?.timestamp || 0) - (a.message?.timestamp || 0)
+        );
+        return result;
+
+    }, [addressbook.contacts, props.messages, props.filter, lookup]);
+
+    const unreadMessages = React.useMemo(() => {
         const tnumbers = {}
-        for (let key of Object.keys(props.messages)) {
+        for (const [key, messages] of Object.entries(props.messages)) {
             let counter = 0;
-            for (let message of props.messages[key]) {
+            for (let message of messages) {
                 if (message.state === 'received'
                     && message.dispositionState !== 'displayed'
                     && message.dispositionNotification.indexOf('display') !== -1
@@ -230,7 +261,7 @@ const ContactList = (props) => {
         }
         return tnumbers
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.messages, props.unread]);
+    }, [props.messages, props.calcUnread]);
 
     const statusIcon = (message) => {
         const state = message.state;
@@ -285,7 +316,7 @@ const ContactList = (props) => {
                         size="small"
                         icon={<GraphicEqRounded />}
                         label="Voice Message"
-                        onClick={(event) => { event.stopPropagation(); event.preventDefault(); props.selectAudio(message.id, contact.uri) }}
+                        onClick={(event) => { event.stopPropagation(); event.preventDefault(); props.selectAudio(message) }}
                     />
                 );
             }
@@ -324,8 +355,9 @@ const ContactList = (props) => {
         );
     }
 
-    const switchChat = (uri, id) => {
-        props.loadMessages(uri, id);
+    const switchChat = (contact, id) => {
+        DEBUG(contact)
+        props.loadMessages(contact, id);
     };
 
     const handleClose = () => {
@@ -349,7 +381,7 @@ const ContactList = (props) => {
             }
             {props.filter && contacts.length !== 0 &&
                 <React.Fragment>
-                    <ListSubheader className={classes.subheader}>Chats</ListSubheader>
+                    <ListSubheader key="chatHeader" className={classes.subheader}>Chats</ListSubheader>
                     <Divider component="li" key="divider" variant="inset" />
                 </React.Fragment>
             }
@@ -358,32 +390,35 @@ const ContactList = (props) => {
                 anchorEl={anchorEl}
                 onClose={handleClose}
                 keepMounted
+                key="menu"
             >
                 <MenuItem className={classes.item} onClick={() => { props.removeChat(contactRef.current); handleClose() }}>
                     Remove Chat
                 </MenuItem>
             </CustomContextMenu>
-            {contacts.map(contact => (
-                <ContactListContact
-                    key={contact.uri}
-                    contact={contact}
-                    selectedUri={props.selectedUri}
-                    numbers={numbers}
-                    filter={props.filter}
-                    switchChat={switchChat}
-                    uploadFiles={props.uploadFiles}
-                    classes={classes}
-                    getHighlightedText={getHighlightedText}
-                    parseContent={parseContent}
-                    formatTime={formatTime}
-                    statusIcon={statusIcon}
-                    contactRef={contactRef}
-                    setAnchorEl={setAnchorEl}
-                />
-            ))}
+            {contacts.map(contact => {
+                return (
+                    <ContactListContact
+                        key={contact.id}
+                        contact={contact}
+                        selectedContact={props.selectedContact}
+                        unreadMessages={unreadMessages}
+                        filter={props.filter}
+                        switchChat={switchChat}
+                        uploadFiles={props.uploadFiles}
+                        classes={classes}
+                        getHighlightedText={getHighlightedText}
+                        parseContent={parseContent}
+                        formatTime={formatTime}
+                        statusIcon={statusIcon}
+                        contactRef={contactRef}
+                        setAnchorEl={handleSetAnchorEl}
+                    />
+                )
+            })}
             {props.filter && filteredMessages.length !== 0 &&
                 <React.Fragment>
-                    <ListSubheader className={classes.subheader}>Messages</ListSubheader>
+                    <ListSubheader key="messageHeader" className={classes.subheader}>Messages</ListSubheader>
                     <Divider component="li" key="divider" />
                     {filteredMessages.map(message => (
                         [
@@ -391,11 +426,7 @@ const ContactList = (props) => {
                                 className={classes.listItem} alignItems="flex-start"
                                 key={message.id}
                                 onClick={() => {
-                                    let group = message.receiver;
-                                    if (message.state === 'received') {
-                                        group = message.sender.uri;
-                                    }
-                                    switchChat(group, message.id)
+                                    switchChat(message.contact, message.id)
                                 }}
                                 disableGutters
                             >
@@ -410,16 +441,7 @@ const ContactList = (props) => {
                                                         className={classes.header}
                                                         style={{ flexGrow: 1 }}
                                                     >
-                                                        {message.state === 'received'
-                                                            ? (
-                                                                getDisplayName(message.sender.uri, props.contactCache).displayName
-                                                                || getDisplayName(message.sender.uri, props.contactCache).uri
-                                                            )
-                                                            : (
-                                                                getDisplayName(message.receiver, props.contactCache).displayName
-                                                                || getDisplayName(message.receiver, props.contactCache).uri
-                                                            )
-                                                        }
+                                                        {message.contact?.name || message.uri}
                                                     </Typography>
                                                 </Grid>
                                                 <Grid item className={classes.grid}>
@@ -431,7 +453,7 @@ const ContactList = (props) => {
                                             </Grid>
                                         </React.Fragment>
                                     }
-                                    secondary={message && getHighlightedText(parseContent(message, message.state === 'received' ? message.sender.uri : message.receiver.uri), props.filter)}
+                                    secondary={message && getHighlightedText(parseContent(message, message.uri), props.filter)}
                                 />
                             </ListItem>,
                             <Divider component="li" key={`divider_${message.id}`} />
@@ -445,15 +467,14 @@ const ContactList = (props) => {
 
 ContactList.propTypes = {
     messages: PropTypes.object.isRequired,
-    contactCache: PropTypes.object.isRequired,
     loadMessages: PropTypes.func.isRequired,
     startChat: PropTypes.func.isRequired,
     removeChat: PropTypes.func.isRequired,
     defaultDomain: PropTypes.string.isRequired,
     filter: PropTypes.string,
-    selectedUri: PropTypes.string,
+    selectedContact: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     selectAudio: PropTypes.func.isRequired,
-    unread: PropTypes.string,
+    calcUnread: PropTypes.string,
     downloadFiles: PropTypes.func,
     uploadFiles: PropTypes.func.isRequired
 };

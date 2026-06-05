@@ -8,31 +8,35 @@ import {
     Avatar,
     Divider
 } from '@material-ui/core';
-import DragAndDrop from '../DragAndDrop';
-import UserIcon from '../UserIcon';
-import {Contact} from '../../types/Contact';
 
+import DragAndDropJS from '../DragAndDrop';
+import UserIcon from '../UserIcon';
+
+import { Contact } from '../../types/Contact';
+
+
+const DragAndDrop = DragAndDropJS as any;
 
 interface ContactListContactProps {
     contact: Contact;
-    selectedUri: string;
-    numbers: Record<string, number>;
+    selectedContact: Contact | null;
+    unreadMessages: Record<string, number>;
     filter: string;
-    switchChat: (uri: string) => void;
+    switchChat: (contact: Contact) => void;
     uploadFiles: (files: File[], uri: string) => void;
     classes: Record<string, string>;
     getHighlightedText: (text: string, filter: string) => React.ReactNode;
     parseContent: (msg: any, contact: Contact) => string;
     formatTime: (msg: any) => string;
     statusIcon: (msg: any) => React.ReactNode;
-    contactRef: React.MutableRefObject<string | null>;
+    contactRef: React.MutableRefObject<Contact | null>;
     setAnchorEl: (el: any) => void;
 }
 
-const ContactListContact: React.FC<ContactListContactProps> = ({
+const ContactListContact = ({
     contact,
-    selectedUri,
-    numbers,
+    selectedContact,
+    unreadMessages,
     filter,
     switchChat,
     uploadFiles,
@@ -40,23 +44,25 @@ const ContactListContact: React.FC<ContactListContactProps> = ({
     getHighlightedText,
     parseContent,
     formatTime,
-    statusIcon,contactRef,setAnchorEl
-}) => {
+    statusIcon,
+    contactRef,
+    setAnchorEl
+}: ContactListContactProps) => {
     return (
         <>
             <ListItem
-                className={selectedUri == contact.uri ? classes.selected : classes.listItem}
+                className={contact.id == selectedContact?.id ? classes.selected : classes.listItem}
                 alignItems="flex-start"
-                onClick={() => switchChat(contact.uri)}
+                onClick={() => switchChat(contact)}
                 onContextMenu={(e) => {
                     e.preventDefault();
-                    contactRef.current = contact.uri;
+                    contactRef.current = contact;
 
                     const { clientX, clientY } = e;
 
                     const virtualEl = {
                         clientWidth: 0,
-                        clientHeigth: 0,
+                        clientHeight: 0,
                         getBoundingClientRect: () => ({
                             width: 0,
                             height: 0,
@@ -74,10 +80,10 @@ const ContactListContact: React.FC<ContactListContactProps> = ({
                     title="Drop files to share them"
                     small
                     useFlex
-                    handleDrop={(files) => uploadFiles(files, contact.uri)}
+                    handleDrop={(files) => uploadFiles(files, contact.defaultUri.uri)}
                 >
                     <ListItemAvatar style={{ minWidth: 60, marginTop: 0 }}>
-                        <UserIcon identity={contact} active={false} chatContact />
+                        <UserIcon identity={contact.identity} active={false} chatContact />
                     </ListItemAvatar>
                     <ListItemText
                         disableTypography
@@ -89,7 +95,7 @@ const ContactListContact: React.FC<ContactListContactProps> = ({
                                         className={classes.header}
                                         style={{ flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}
                                     >
-                                        {getHighlightedText(contact.displayName || contact.uri, filter)}
+                                        {getHighlightedText(contact.name || contact.defaultUri.uri, filter)}
                                     </Typography>
                                 </Grid>
                                 <Grid item className={classes.grid}>
@@ -115,7 +121,8 @@ const ContactListContact: React.FC<ContactListContactProps> = ({
                                         {contact.message && parseContent(contact.message, contact)}
                                     </Typography>
                                 </Grid>
-                                {selectedUri !== contact.uri && numbers[contact.uri] !== 0 && (
+                                {contact.id !== selectedContact?.id &&
+                                    contact.uris.some(uri => unreadMessages[uri.uri] > 0) && (
                                         <Grid component="span" item>
                                             <Avatar
                                                 component="span"
@@ -125,19 +132,24 @@ const ContactListContact: React.FC<ContactListContactProps> = ({
                                                     height: 20
                                                 }}
                                             >
-                                                {numbers[contact.uri]}
+                                                {
+                                                    contact.uris.reduce(
+                                                        (total, uri) => total + (unreadMessages[uri.uri] || 0),
+                                                        0
+                                                    )
+                                                }
                                             </Avatar>
                                         </Grid>
-                                )}
+                                    )}
                             </Grid>
                         }
                     />
                 </DragAndDrop>
             </ListItem>
             <Divider
-                style={selectedUri === contact.uri ? { background: 'transparent' } : {}}
+                style={contact.id == selectedContact?.id ? { background: 'transparent' } : {}}
                 component="li"
-                key={`divider_${contact.uri}`}
+                key={`divider_${contact.id}`}
             />
         </>
     );

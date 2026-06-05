@@ -25,6 +25,8 @@ const { usePrevious, useHasChanged } = require('../../hooks');
 const messageStorage = require('../../messageStorage');
 const fileTransferUtils = require('../../fileTransferUtils');
 
+const { useAddressbook } = require('../../AddressbookProvider');
+
 const DEBUG = debug('blinkrtc:ToolbarAudioPlayer');
 
 
@@ -81,36 +83,37 @@ const ToolbarAudioPlayer = (props) => {
     const classes = stylesheet(props);
     const [messages, setMessages] = useState([]);
     const [audioMessages, setAudioMessages] = useState(null)
-    const [currentTrack, setTrackIndex] = useState(null)
+    const [currentTrack, setTrackIndex] = useState(0)
 
     const prevMessagesChanged = useHasChanged(props.messages);
     const oldAudioMessages = usePrevious(audioMessages);
     const player = useRef();
 
-    const getDisplayName = React.useCallback((uri) => {
-        if (props.contactCache.has(uri)) {
-            return { uri: uri, displayName: props.contactCache.get(uri) };
-        }
-        return { uri: uri };
-    }, [props.contactCache]);
+    const { lookup } = useAddressbook();
+
+    const contactUri = React.useMemo(() => {
+        if (!props.message) return;
+        return props.message.state === 'received' ? props.message.sender.uri : props.message.receiver;
+    }, [props.message]);
 
     useEffect(() => {
-        messageStorage.revertFiles(props.selectedAudioUri);
-    }, [props.selectedAudioUri])
+        messageStorage.revertFiles(contactUri);
+    }, [contactUri])
 
     useEffect(() => {
         let ignore = false;
-        DEBUG('Attempting to load all messages');
+        DEBUG('Attempting to load all audio files for %s', contactUri);
 
-        const loadMore = () => messageStorage.loadMoreFiles(props.selectedAudioUri).then(loadedMessages => {
-            DEBUG('Load more files');
+        const loadMore = () => messageStorage.loadMoreFiles(contactUri).then(loadedMessages => {
+            DEBUG('Loading more files');
             allMessages = [...loadedMessages, ...allMessages];
             canLoadMore();
         });
 
         const canLoadMore = () => {
             DEBUG('Check if more files can be loaded');
-            messageStorage.hasMoreFiles(props.selectedAudioUri).then((value) => {
+
+            messageStorage.hasMoreFiles(contactUri).then((value) => {
                 if (!value) {
                     if (!ignore) {
                         setMessages(allMessages);
@@ -121,18 +124,16 @@ const ToolbarAudioPlayer = (props) => {
             });
         };
 
-
         if (!prevMessagesChanged) {
             return;
         }
-
         let allMessages = [...props.messages];
         canLoadMore();
 
         return () => {
             ignore = true;
         }
-    }, [props.messages, props.selectedAudioUri]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [props.messages, contactUri]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         let ignore = false;
@@ -140,14 +141,15 @@ const ToolbarAudioPlayer = (props) => {
         let newAudioMessages = [];
         messages.filter((message) => {
             return message.contentType === 'application/sylk-file-transfer' && message.json.filetype;
-        }).reverse().map((message) => {
+        }).reverse().forEach((message) => {
             let file = message.json;
             if (file.filename.startsWith('sylk-audio-recording')) {
                 newAudioMessages.push(
                     fileTransferUtils.getAndReadFile(props.account, message)
                         .then(([data, filename]) => {
+                            const contact = lookup(message.sender.uri);
                             return {
-                                data: data, filename: filename, id: message.id, contact: message.sender.uri
+                                data: data, filename: filename, id: message.id, contact: contact
                             }
                         }).catch(error => {
                             return Promise.reject();
@@ -159,7 +161,9 @@ const ToolbarAudioPlayer = (props) => {
         Promise.allSettled(newAudioMessages).then(results => {
             let newData = results.filter(result => result.status === 'fulfilled').map(result => result.value)
             if (!ignore) {
-                if (JSON.stringify(newData) !== JSON.stringify(oldAudioMessages)) {
+                const newIds = newData.map(d => d.id).join(',');
+                const oldIds = (oldAudioMessages || []).map(d => d.id).join(',');
+                if (newIds !== oldIds) {
                     setAudioMessages(newData);
                 }
             }
@@ -171,21 +175,15 @@ const ToolbarAudioPlayer = (props) => {
 
 
     useEffect(() => {
-        let ignore = false;
         if (!audioMessages) {
             return
         }
 
-        if (!ignore) {
-            let index = audioMessages.findIndex(data => data.id === props.selectedAudioId);
-            if (index >= 0) {
-                setTrackIndex(index);
-            }
+        let index = audioMessages.findIndex(data => data.id === props.message.id);
+        if (index >= 0) {
+            setTrackIndex(index);
         }
-        return () => {
-            ignore = true;
-        }
-    }, [audioMessages, props.selectedAudioId, props.selectedAudioUri])
+    }, [audioMessages, props.message])
 
     const handleClickNext = () => {
         setTrackIndex((currentTrack) =>
@@ -235,7 +233,7 @@ const ToolbarAudioPlayer = (props) => {
 
     const playerText = (
         <div className={classes.playerText}>
-            {audioLoaded && (getDisplayName(audioMessages[currentTrack].contact).displayName || audioMessages[currentTrack].contact)}<br />
+            {audioLoaded && audioMessages[currentTrack].contact.name}<br />
             <span className={classes.playerTextSecondary}>Voice Message</span>
         </div>
     )
@@ -291,9 +289,7 @@ ToolbarAudioPlayer.propTypes = {
     messages: PropTypes.array.isRequired,
     account: PropTypes.object.isRequired,
     close: PropTypes.func.isRequired,
-    contactCache: PropTypes.object.isRequired,
-    selectedAudioUri: PropTypes.string,
-    selectedAudioId: PropTypes.string
+    message: PropTypes.object,
 };
 
 module.exports = ToolbarAudioPlayer;

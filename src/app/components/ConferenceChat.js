@@ -30,7 +30,7 @@ const ConferenceChat = (props) => {
             }
             prevMessage = message;
             return (
-                <Message key={idx} message={message} cont={continues} scroll={scrollToBottom} />
+                <Message key={idx} message={message} cont={continues} scroll={scrollToBottom} identity={message.sender}/>
             )
         });
         setEntries(entries);

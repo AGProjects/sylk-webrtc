@@ -66,12 +66,12 @@ const Message = ({
     cont,
     displayed,
     focus,
-    contactCache,
     removeMessage,
     editMessage,
     imdnStates,
     enableMenu,
     fromSelf,
+    identity,
     reply
 }) => {
     const classes = styleSheet();
@@ -80,7 +80,6 @@ const Message = ({
     const messageRef = useRef(null);
     const [anchorEl, setAnchorEl] = useState(null);
 
-    const sender = message.sender.displayName || message.sender.uri;
     const time = DateTime.fromJSDate(message.timestamp).toFormat('HH:mm');
     const { ref, inView, entry } = useInView({
         threshold: 0
@@ -212,13 +211,6 @@ const Message = ({
         }
     };
 
-    const getDisplayName = (uri) => {
-        if (contactCache !== undefined && contactCache.has(uri)) {
-            return { uri: uri, displayName: contactCache.get(uri) };
-        }
-        return { uri: uri };
-    };
-
     const handleContextMenu = (e) => {
         if (!enableMenu) {
             return
@@ -345,11 +337,11 @@ const Message = ({
                 }
                 <div ref={messageRef} />
                 <Media.Left>
-                    <UserIcon identity={getDisplayName(message.sender.uri)} />
+                    <UserIcon identity={identity} />
                 </Media.Left>
                 <Media.Body className="vertical-center">
                     <Media.Heading>
-                        {getDisplayName(message.sender.uri).displayName || sender}&nbsp;
+                        {identity.displayName || identity.uri}&nbsp;
                         <span>{time}</span>
                         <span className="pull-right" style={{ paddingRight: '15px' }}>
                             {message.isSecure && <LockIcon className={classes.lockIcon} />}
@@ -375,11 +367,11 @@ Message.propTypes = {
     cont: PropTypes.bool,
     displayed: PropTypes.func,
     focus: PropTypes.bool,
-    contactCache: PropTypes.object,
     imdnStates: PropTypes.bool,
     enableMenu: PropTypes.bool,
     editMessage: PropTypes.func,
     fromSelf: PropTypes.bool,
+    identity: PropTypes.object.isRequired,
     reply: PropTypes.object
 };
 

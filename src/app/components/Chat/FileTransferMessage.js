@@ -105,13 +105,13 @@ const FileTransferMessage = ({
     cont,
     displayed,
     focus,
-    contactCache,
     removeMessage,
     imdnStates,
     enableMenu,
     account,
     showModal,
     downloadFiles,
+    identity,
     fromSelf,
     editMessage
 }) => {
@@ -312,13 +312,6 @@ const FileTransferMessage = ({
         }
     }, [inView, isDisplayed]);
 
-    const getDisplayName = (uri) => {
-        if (contactCache !== undefined && contactCache.has(uri)) {
-            return { uri: uri, displayName: contactCache.get(uri) };
-        }
-        return { uri: uri };
-    };
-
     const handleContextMenu = (e) => {
         if (!enableMenu) {
             return
@@ -514,11 +507,11 @@ const FileTransferMessage = ({
                 }
                 <div ref={messageRef} />
                 <Media.Left>
-                    <UserIcon identity={getDisplayName(message.sender.uri)} />
+                    <UserIcon identity={identity} />
                 </Media.Left>
                 <Media.Body className="vertical-center">
                     <Media.Heading>
-                        {getDisplayName(message.sender.uri).displayName || sender}&nbsp;
+                        {identity.displayName || identity.uri}&nbsp;
                         <span>{time}</span>
                         <span className="pull-right" style={{ paddingRight: '15px' }}>
                             {message.isSecure && <LockIcon className={classes.lockIcon} />}
@@ -560,7 +553,6 @@ FileTransferMessage.propTypes = {
     cont: PropTypes.bool,
     displayed: PropTypes.func,
     focus: PropTypes.bool,
-    contactCache: PropTypes.object,
     imdnStates: PropTypes.bool,
     enableMenu: PropTypes.bool,
     account: PropTypes.object.isRequired,

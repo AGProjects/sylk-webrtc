@@ -47,6 +47,7 @@ class DragAndDrop extends React.Component {
 
     componentDidMount() {
         let div = this.dropRef.current;
+        if (!div) return;
         div.addEventListener('dragenter', this.handleDragIn);
         div.addEventListener('dragleave', this.handleDragOut);
         div.addEventListener('dragover', this.handleDrag);
@@ -55,7 +56,8 @@ class DragAndDrop extends React.Component {
     }
 
     componentWillUnmount() {
-        let div = this.dropRef.current
+        let div = this.dropRef.current;
+        if (!div) return;
         div.removeEventListener('dragenter', this.handleDragIn);
         div.removeEventListener('dragleave', this.handleDragOut);
         div.removeEventListener('dragover', this.handleDrag);

@@ -102,7 +102,23 @@ const styleSheet = makeStyles((theme) => ({
             width: '100%',
             margin: 0
         }
+    },
+    infoToolbarButton: {
+        display: 'flex',            // makes content a flex row
+        alignItems: 'center',       // vertically centers text
+        justifyContent: 'center',
+        padding: '0 8px',           // remove default button padding
+        height: '36px',             // match typical MUI IconButton height
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        fontSize: 16,
+        lineHeight: 1,
+        '&:hover': {
+            textDecoration: 'none' // removes underline on hover
+        }
     }
+
 }));
 
 const Chat = (props) => {
@@ -122,13 +138,16 @@ const Chat = (props) => {
     const [selectedAudioMessage, setSelectedAudioMessage] = useState(null);
     const [showVoiceMessageRecordModal, setVoiceMessageRecordModal] = useState(false);
     const [showInfoPanel, setShowInfoPanel] = useState(false);
+    const [editContact, setEditContact] = useState(false);
     const [editMessage, setEditMessage] = useState('');
+    const [contactHasError, setContactHasError] = useState(false);
     const [newContacts, setNewContacts] = useState([]);
     const { domain } = useConfig();
     const selectedContactRef = useRef(selectedContact);
     const messagesRef = useRef(messages);
     const anchorEl = useRef(null);
     const input = useRef();
+    const saveContactRef = useRef(null);
 
     let propagateFocus = false;
 
@@ -171,6 +190,16 @@ const Chat = (props) => {
             });
         }
     }, [props.focusOn, lookup]);
+
+    useEffect(() => {
+        const unsubscribe = onError((err) => {
+            if (err.action === 'delete' && !showInfoPanel) {
+                setDeleteContact(null);
+                notificationCenter().postDeleteContactFailed(err);
+            }
+        });
+        return unsubscribe;
+    }, [showInfoPanel, onError]);
 
     useEffect(() => {
         if (selectedContact) {
@@ -410,9 +439,20 @@ const Chat = (props) => {
     }
 
     const togglePanel = () => {
-        setShowInfoPanel(!showInfoPanel)
+        setShowInfoPanel(!showInfoPanel);
+        setEditContact(false);
+        setContactHasError(false);
     }
 
+    const toggleEditContact = () => {
+        if (editContact) {
+            saveContactRef.current?.save().then(result => {
+                setEditContact(result);
+            })
+        } else {
+            setEditContact(!editContact)
+        }
+    }
 
     const contactAudioMessages = React.useMemo(() => {
         if (!selectedAudioMessage) return [];
@@ -596,7 +636,7 @@ const Chat = (props) => {
                 enableVoiceMessage={true}
                 toggleRecordVoiceMessage={toggleRecordVoiceMessage}
                 editMessage={editMessage}
-                cancelEdit={() => { setEditMessage(''); }}
+                cancelEdit={() => { setFocus(''); setEditMessage(''); }}
                 multiline
             />
         </React.Fragment>
@@ -612,9 +652,24 @@ const Chat = (props) => {
             downloadFiles={handleDownload}
             selectedContact={selectedContact}
             selectAudio={selectAudio}
+            saveContactRef={saveContactRef}
+            editContact={editContact}
+            setEdit={setEditContact}
+            onContactError={setContactHasError}
             notificationCenter={props.notificationCenter}
         />
     );
+
+    const onConfirm = () => {
+        actions.delete(deleteContact).
+            then(() => {
+                setDeleteContact(null);
+            })
+            .catch((err) => {
+                notificationCenter().postDeleteContactFailed({ error: err });
+                setDeleteContact(null);
+            })
+    };
 
     return (
         <React.Fragment>
@@ -725,6 +780,9 @@ const Chat = (props) => {
                                                     Info
                                                 </Typography>
                                             </Grid>
+                                            <Grid item xs={4} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                                                <button className={clsx('btn', 'btn-link', classes.infoToolbarButton)} disabled={contactHasError} onClick={toggleEditContact}>{editContact ? 'Done' : 'Edit'}</button>
+                                            </Grid>
                                         </Grid>
                                     </React.Fragment>
                                 }
@@ -783,10 +841,16 @@ const Chat = (props) => {
                                 props.removeChat(contact);
                                 setSelectedContact('');
                             }}
+                            deleteContact={setDeleteContact}
                             calcUnread={calcUnread}
                             downloadFiles={handleDownload}
                             uploadFiles={(...args) => fileTransferUtils.upload(props, ...args)}
                             selectAudio={selectAudio}
+                            editContact={(contact) => {
+                                setSelectedContact(contact);
+                                setShowInfoPanel(true);
+                                setEditContact(true);
+                            }}
                             newContacts={newContacts}
                         />
                     </ConferenceDrawer>
@@ -804,6 +868,13 @@ const Chat = (props) => {
             }
 
             {props.embed && [messagePane]}
+
+            <ContactDeleteModal
+                show={deleteContact !== null}
+                close={() => { setDeleteContact(null); }}
+                contact={deleteContact}
+                onConfirm={onConfirm}
+            />
             {showVoiceMessageRecordModal &&
                 <VoiceMessageRecorderModal
                     show={showVoiceMessageRecordModal}

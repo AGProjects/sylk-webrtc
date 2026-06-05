@@ -151,6 +151,9 @@ const styleSheet = makeStyles((theme) => ({
         color: '#333',
         minHeight: 0
     },
+    danger: {
+        color: '#d9534f'
+    },
     grid: {
         flexShrink: 0,
         marginLeft: 4
@@ -162,6 +165,7 @@ const ContactList = (props) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const contactRef = useRef(null);
     const anchorElRef = useRef(null);
+    const [subMenuAnchor, setSubMenuAnchor] = useState(null);
     const { addressbook, actions, lookup } = useAddressbook();
 
     const filteredMessages = props.filter ?
@@ -378,6 +382,22 @@ const ContactList = (props) => {
         setAnchorEl(null);
     };
 
+    const setDefaultUri = (event, uri) => {
+        event.preventDefault();
+        const updatedUris = (contactRef.current.uris ?? []).map(u => ({ ...u, default: u.id === uri.id }));
+
+        actions.update({
+            ...contactRef.current,
+            uris: updatedUris, defaultUri: uri
+        })
+            .then(() => {
+                // setSubMenuAnchor(null);
+            })
+            .catch((err) => {
+                DEBUG('Error updating default uri', err);
+            });
+    };
+
     return (<div className={classes.scrollable}>
         <List disablePadding>
             {props.filter && props.defaultDomain && Object.keys(props.messages).indexOf(props.filter) === -1 &&
@@ -406,8 +426,39 @@ const ContactList = (props) => {
                 keepMounted
                 key="menu"
             >
-                <MenuItem className={classes.item} onClick={() => { props.removeChat(contactRef.current); handleClose() }}>
+                <MenuItem className={classes.item} onClick={() => { props.editContact(contactRef.current); handleClose() }} onMouseEnter={() => setSubMenuAnchor(null)}>
+                    Edit Contact
+                </MenuItem>
+                {contactRef?.current?.uris.length > 1 &&
+                    <MenuItem className={classes.item}
+                        onClick={(e) => setSubMenuAnchor(e.currentTarget)}
+                        onMouseEnter={(e) => setSubMenuAnchor(e.currentTarget)}
+                        selected={Boolean(subMenuAnchor)}
+                    >
+                        Set Default Address
+                        <CustomContextMenu
+                            style={{ pointerEvents: 'none' }}
+                            anchorEl={subMenuAnchor}
+                            open={Boolean(subMenuAnchor)}
+                            onClose={() => setSubMenuAnchor(null)}
+                            placement="right-start"
+                            keepMounted
+                        >
+                            {contactRef.current.uris.map(uri => (
+                                <MenuItem className={classes.item} key={uri.id} onClick={(event) => { event.stopPropagation(); setSubMenuAnchor(null); handleClose(); setDefaultUri(event, uri) }}>
+                                    {uri.uri} {uri.id === contactRef.current.defaultUri.id && '(Default)'}
+                                </MenuItem>
+                            ))}
+                        </CustomContextMenu>
+
+                    </MenuItem>
+                }
+                <Divider />
+                <MenuItem className={classes.item} onClick={() => { props.removeChat(contactRef.current); handleClose() }} onMouseEnter={() => setSubMenuAnchor(null)}>
                     Remove Chat
+                </MenuItem>
+                <MenuItem className={clsx(classes.item, classes.danger)} onClick={() => { props.deleteContact(contactRef.current); handleClose() }} onMouseEnter={() => setSubMenuAnchor(null)}>
+                    Delete Contact
                 </MenuItem>
             </CustomContextMenu>
             {contacts.map(contact => {
@@ -490,7 +541,9 @@ ContactList.propTypes = {
     selectAudio: PropTypes.func.isRequired,
     calcUnread: PropTypes.string,
     downloadFiles: PropTypes.func,
-    uploadFiles: PropTypes.func.isRequired
+    uploadFiles: PropTypes.func.isRequired,
+    editContact: PropTypes.func.isRequired,
+    deleteContact: PropTypes.func.isRequired
 };
 
 

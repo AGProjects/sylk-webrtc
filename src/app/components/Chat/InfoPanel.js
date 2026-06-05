@@ -43,6 +43,7 @@ const { usePrevious, useResize, useHasChanged } = require('../../hooks');
 const fileTransferUtils = require('../../fileTransferUtils');
 const messageStorage = require('../../messageStorage');
 const { useAddressbook } = require('../../AddressbookProvider');
+const ContactDetails = require('./ContactDetails').default;
 
 
 const DEBUG = debug('blinkrtc:InfoPanel');
@@ -120,13 +121,6 @@ const styleSheet = makeStyles((theme) => ({
     center: {
         display: 'block',
         textAlign: 'center',
-        marginTop: '10px',
-        marginBottom: '4px',
-        fontFamily: 'inherit'
-    },
-    center1: {
-        display: 'block',
-        textAlign: 'center',
         marginTop: '4px',
         marginBottom: '20px',
         fontFamily: 'inherit'
@@ -159,6 +153,11 @@ const InfoPanel = ({
     downloadFiles,
     selectedContact,
     selectAudio,
+    editContact,
+    setEdit,
+    saveContactRef,
+    onContactError,
+    notificationCenter
 }) => {
     const classes = styleSheet();
 
@@ -503,13 +502,16 @@ const InfoPanel = ({
             />
             <DragAndDrop title="Drop files to share them" handleDrop={uploadFiles} marginTop={'100px'} style={{ height: '100%', flexDirection: 'column', overflowX: 'hidden' }} useFlex>
                 <UserIcon identity={selectedContact.identity} active={false} large={true} />
-                <Typography className={classes.center} variant="h3" noWrap>
-                    {selectedContact.name}
-                </Typography>
-                <Typography className={classes.center1} variant="h4" noWrap>
-                    {selectedContact.defaultUri.uri && <span className={classes.toolbarName}>({selectedContact.defaultUri.uri})</span>}
-                </Typography>
-                {display &&
+                <ContactDetails
+                    key={selectedContact.id}
+                    contact={selectedContact}
+                    editContact={editContact}
+                    setEdit={setEdit}
+                    ref={saveContactRef}
+                    onError={onContactError}
+                    notificationCenter={notificationCenter}
+                />
+                {display && !editContact &&
                     <React.Fragment>
                         <Paper elevation={0} style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
                             <Tabs
@@ -551,13 +553,17 @@ const InfoPanel = ({
                         }
                     </React.Fragment>
                 }
-                {!display &&
+                {!display && !editContact &&
                     <Box p={0} style={{ flex: 1 }}>
                         {noFilesFound &&
                             <Typography className={classes.center} variant="h5" noWrap>
                                 No shared media, files and voice messages.
                             </Typography>
                         }
+                    </Box>
+                }
+                {editContact &&
+                    <Box p={0} style={{ flex: 1 }}>
                     </Box>
                 }
             </DragAndDrop>
@@ -579,6 +585,11 @@ InfoPanel.propTypes = {
     downloadFiles: PropTypes.func,
     selectedContact: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     selectAudio: PropTypes.func,
+    editContact: PropTypes.bool,
+    notificationCenter: PropTypes.func.isRequired,
+    onContactError: PropTypes.func.isRequired,
+    setEdit: PropTypes.func.isRequired,
+    saveContactRef: PropTypes.object.isRequired
 };
 
 

@@ -26,41 +26,42 @@ const useMenuStyles = makeStyles({
     }
 });
 
-const CustomContentMenu = ({anchorEl, open, children, onClose, keepMounted}) => {
+const CustomContentMenu = ({ anchorEl, open, children, onClose, keepMounted, placement = "bottom-start" }) => {
     const menuClasses = useMenuStyles();
     const id = open ? 'faked-reference-popper' : undefined;
 
     return (
         <Popper
-            style={{zIndex: 1201}}
+            style={{ zIndex: 1201 }}
             id={id}
             open={open}
-            anchorEl={anchorEl || null }
+            anchorEl={anchorEl || null}
             transition
-            placement="bottom-start"
+            placement={placement}
             keepMounted={keepMounted}
         >
-        {({ TransitionProps }) => (
-          <ClickAwayListener mouseEvent="onMouseDown" onClickAway={onClose}>
-            <Fade {...TransitionProps}>
-              <Paper className={menuClasses.paper}>
-                <MenuList className={menuClasses.list} autoFocus>
-                    {children}
-                </MenuList>
-              </Paper>
-            </Fade>
-          </ClickAwayListener>
-        )}
-      </Popper>
-  );
+            {({ TransitionProps }) => (
+                <ClickAwayListener mouseEvent="onMouseDown" onClickAway={onClose}>
+                    <Fade {...TransitionProps}>
+                        <Paper className={menuClasses.paper}>
+                            <MenuList className={menuClasses.list} autoFocus>
+                                {children}
+                            </MenuList>
+                        </Paper>
+                    </Fade>
+                </ClickAwayListener>
+            )}
+        </Popper>
+    );
 }
 
 CustomContentMenu.propTypes = {
-    anchorEl    : PropTypes.object,
-    open        : PropTypes.bool.isRequired,
-    children    : PropTypes.node.isRequired,
-    onClose     : PropTypes.func.isRequired,
-    keepMounted : PropTypes.bool
+    anchorEl: PropTypes.object,
+    open: PropTypes.bool.isRequired,
+    children: PropTypes.node.isRequired,
+    onClose: PropTypes.func.isRequired,
+    keepMounted: PropTypes.bool,
+    placement: PropTypes.string
 };
 
 

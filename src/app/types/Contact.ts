@@ -23,4 +23,5 @@ export interface Contact {
     dialog?: any;
     presence?: any;
     attributes?: any;
+    _isNew?: boolean;
 }

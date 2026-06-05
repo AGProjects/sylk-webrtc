@@ -22,6 +22,7 @@ const DragAndDrop = require('./DragAndDrop');
 const SwitchDevicesMenu = require('./SwitchDevicesMenu');
 const EscalateConferenceModal = require('./EscalateConferenceModal');
 const Statistics = require('./Statistics');
+const { default: FileUploadModal } = require('./FileUploadModal');
 
 const fileTransferUtils = require('../fileTransferUtils');
 const utils = require('../utils');
@@ -81,6 +82,7 @@ class VideoBox extends React.Component {
             videoGraphData: data,
             audioGraphData: data,
             callQuality: new Array(30).fill({}),
+            upload: null,
             lastData: {}
         };
 
@@ -109,7 +111,8 @@ class VideoBox extends React.Component {
             'incomingMessage',
             'statistics',
             'handleFiles',
-            'handleDrop'
+            'handleDrop',
+            'uploadFiles'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -422,28 +425,37 @@ class VideoBox extends React.Component {
         }
     }
 
-    handleDrop(files) {
-        DEBUG('Dropped file %o', files);
+    uploadFiles(files, caption, uri) {
+        this.setState({ upload: null });
         fileTransferUtils.upload(
             {
                 notificationCenter: this.props.notificationCenter,
                 account: this.props.call.account
             },
             files,
-            this.props.call.remoteIdentity.uri
+            uri,
+            caption
         );
+    };
+
+    handleDrop(files) {
+        DEBUG('Dropped file %o', files);
+        this.setState({
+            upload: {
+                files: files,
+                uri: this.props.call.remoteIdentity.uri
+            }
+        });
     };
 
     handleFiles(e) {
         DEBUG('Selected files %o', e.target.files);
-        fileTransferUtils.upload(
-            {
-                notificationCenter: this.props.notificationCenter,
-                account: this.props.call.account
-            },
-            e.target.files,
-            this.props.call.remoteIdentity.uri
-        );
+        this.setState({
+            upload: {
+                files: [...e.target.files],
+                uri: this.props.call.remoteIdentity.uri
+            }
+        });
         e.target.value = '';
     }
 
@@ -658,6 +670,14 @@ class VideoBox extends React.Component {
 
         return (
             <React.Fragment>
+                <FileUploadModal
+                    show={this.state.upload !== null}
+                    close={() => {
+                        this.setState({ upload: null });
+                    }}
+                    upload={this.state.upload}
+                    onConfirm={this.uploadFiles}
+                />
                 <DragAndDrop title="Drop files to share them" handleDrop={this.handleDrop}>
                     <div className={callClasses}>
                         <SwitchDevicesMenu

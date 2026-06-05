@@ -83,28 +83,73 @@ const ConferenceChatEditor = (props) => {
         DEBUG('Paste detected');
         let found = false;
         let target = e.currentTarget;
-
-        e.clipboardData.types.forEach((type, i) => {
-            if (type.match(/image.*/) || e.clipboardData.items[i].type.match(/image.*/)) {
-                DEBUG('An image was pasted');
-                const file = e.clipboardData.items[i].getAsFile();
-                imageConversion.compressAccurately(file, { size: 200, scale: 0.5 }).then(res => {
-                    //The res in the promise is a compressed Blob type (which can be treated as a File type) file;
-                    reader.readAsBinaryString(res);
-                })
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    const binary = evt.target.result;
-                    setName(btoa(binary));
-                    setType(file.type);
-                    const image = `data:${file.type};base64,${btoa(binary)}`
-                    const imageTag = `<div class="file-box" onclick="window.getSelection().selectAllChildren(this)" style="background-image: url('${image}')" />${file.name}</div>`;
-                    target.innerHTML = imageTag;
-                    target.focus();
-                };
-                found = true;
+        const imageItems = [];
+        const fileItems = [];
+        for (const item of e.clipboardData.items) {
+            if (!isCaptionEditor && item.type.match(/image.*/)) {
+                imageItems.push(item);
+            } else if (item.kind === 'file') {
+                fileItems.push(item);
             }
-        });
+        }
+
+        if (fileItems.length > 0) {
+            const dt = new DataTransfer();
+            [...fileItems, ...imageItems].forEach((item) => dt.items.add(item.getAsFile()));
+            props.upload({ target: { files: dt.files } });
+            found = true;
+        } else if (imageItems.length > 0) {
+            DEBUG(`${imageItems.length} image(s) pasted`);
+            e.preventDefault();
+
+            const processImage = (item) =>
+                new Promise((resolve) => {
+                    const file = item.getAsFile();
+                    DEBUG(file);
+                    imageConversion.compress(file, { scale: 0.5 }).then((res) => {
+                        const reader = new FileReader();
+                        reader.onload = (evt) => {
+                            const base64 = btoa(
+                                new Uint8Array(evt.target.result)
+                                    .reduce((data, byte) => data + String.fromCharCode(byte), '')
+                            );
+                            const image = `data:${file.type};base64,${base64}`;
+                            const imageTag = `<div class="file-box" onclick="window.getSelection().selectAllChildren(this)" style="background-image: url('${image}')">${file.name}</div>`;
+                            resolve({ name: base64, type: file.type, tag: imageTag, size: res.size, file });
+                        };
+                        reader.readAsArrayBuffer(res);
+                    });
+                });
+
+            Promise.all(imageItems.map(processImage)).then((results) => {
+                const totalSize = results.reduce((sum, r) => sum + r.size, 0);
+
+                if (totalSize >= 12 * 1024) {
+                    const dt = new DataTransfer();
+                    results.forEach((r) => dt.items.add(r.file));
+                    props.upload({ target: { files: dt.files } });
+                    return;
+                }
+
+                setName(results.map((r) => r.name).join(','));
+                setType(results[results.length - 1].type);
+
+                const combinedHTML = results.map((r) => r.tag).join('');
+
+                const selection = document.getSelection();
+                if (target.innerHTML === '' || !selection.rangeCount) {
+                    target.innerHTML = combinedHTML;
+                } else {
+                    selection.deleteFromDocument();
+                    const template = document.createElement('template');
+                    template.innerHTML = combinedHTML;
+                    selection.getRangeAt(0).insertNode(template.content.cloneNode(true));
+                }
+                target.focus();
+            });
+
+            found = true;
+        }
 
         if (!found) {
             let data = e.clipboardData.getData('text/html');

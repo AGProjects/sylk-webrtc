@@ -17,6 +17,7 @@ const CallQuality = require('./CallQuality');
 const ConferenceDrawer = require('./ConferenceDrawer');
 const DragAndDrop = require('./DragAndDrop');
 const DTMFModal = require('./DTMFModal');
+const { default: FileUploadModal } = require('./FileUploadModal');
 const Statistics = require('./Statistics');
 const UserIcon = require('./UserIcon');
 const EscalateConferenceModal = require('./EscalateConferenceModal');
@@ -71,6 +72,7 @@ class AudioCallBox extends React.Component {
             showStatistics: false,
             showInlineChat: false,
             audioGraphData: data,
+            upload: null,
             lastData: {}
         };
         this.speechEvents = null;
@@ -94,7 +96,8 @@ class AudioCallBox extends React.Component {
             'incomingMessage',
             'statistics',
             'handleFiles',
-            'handleDrop'
+            'handleDrop',
+            'uploadFiles'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -316,28 +319,37 @@ class AudioCallBox extends React.Component {
         }
     }
 
-    handleDrop(files) {
-        DEBUG('Dropped file %o', files);
+    uploadFiles(files, caption, uri) {
+        this.setState({ upload: null });
         fileTransferUtils.upload(
             {
                 notificationCenter: this.props.notificationCenter,
                 account: this.props.call.account
             },
             files,
-            this.props.call.remoteIdentity.uri
+            uri,
+            caption
         );
+    };
+
+    handleDrop(files) {
+        DEBUG('Dropped file %o', files);
+        this.setState({
+            upload: {
+                files: files,
+                uri: this.props.call.remoteIdentity.uri
+            }
+        });
     };
 
     handleFiles(e) {
         DEBUG('Selected files %o', e.target.files);
-        fileTransferUtils.upload(
-            {
-                notificationCenter: this.props.notificationCenter,
-                account: this.props.call.account
-            },
-            e.target.files,
-            this.props.call.remoteIdentity.uri
-        );
+        this.setState({
+            upload: {
+                files: [...e.target.files],
+                uri: this.props.call.remoteIdentity.uri
+            }
+        });
         e.target.value = '';
     }
 
@@ -420,6 +432,14 @@ class AudioCallBox extends React.Component {
         }
         return (
             <React.Fragment>
+                <FileUploadModal
+                    show={this.state.upload !== null}
+                    close={() => {
+                        this.setState({ upload: null });
+                    }}
+                    upload={this.state.upload}
+                    onConfirm={this.uploadFiles}
+                />
                 <DragAndDrop title="Drop files to share them" handleDrop={this.handleDrop}>
                     <div className={callClasses}>
                         {this.props.call &&

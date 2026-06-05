@@ -472,7 +472,7 @@ const Chat = (props) => {
 
     const handleFiles = (e) => {
         DEBUG('Selected files %o', e.target.files);
-        fileTransferUtils.upload(props, e.target.files, selectedUri);
+        setUpload({ files: [...e.target.files], uri: selectedContact.defaultUri.uri })
         e.target.value = '';
     }
 
@@ -623,7 +623,7 @@ const Chat = (props) => {
                 editMessage={(message) => handleMessageEdit(message)}
                 isLoadingMessages={props.isLoadingMessages}
                 account={props.account}
-                uploadFiles={(...args) => fileTransferUtils.upload(props, ...args, selectedUri)}
+                uploadFiles={(files) => setUpload({ files: [...files], uri: selectedContact?.defaultUri?.uri })}
                 downloadFiles={handleDownload}
                 embed={props.embed}
                 storageLoadEmpty={props.storageLoadEmpty}
@@ -674,10 +674,26 @@ const Chat = (props) => {
             })
     };
 
+    const uploadFiles = (files, caption, uri) => {
+        setUpload(null);
+        fileTransferUtils.upload(props, files, uri, caption);
+    };
+
     return (
         <React.Fragment>
             {!props.embed &&
                 <div className="chat">
+                    {upload !== null &&
+                        <FileUploadModal
+                            show={upload !== null}
+                            contact={selectedContact}
+                            close={() => {
+                                setUpload(null);
+                            }}
+                            upload={upload}
+                            onConfirm={uploadFiles}
+                        />
+                    }
                     {selectedAudioMessage &&
                         <div style={{ top: selectedContact ? '115px' : '66px' }} className={classes.audioToolbar}>
                             <ToolbarAudioPlayer
@@ -847,7 +863,7 @@ const Chat = (props) => {
                             deleteContact={setDeleteContact}
                             calcUnread={calcUnread}
                             downloadFiles={handleDownload}
-                            uploadFiles={(...args) => fileTransferUtils.upload(props, ...args)}
+                            uploadFiles={(files, uri) => setUpload({ files: [...files], uri: uri })}
                             selectAudio={selectAudio}
                             editContact={(contact) => {
                                 setSelectedContact(contact);

@@ -208,18 +208,15 @@ const Chat = (props) => {
     }, [showInfoPanel, onError]);
 
     useEffect(() => {
-        if (selectedContact) {
+        if (selectedContactRef.current) {
             const updated = [...addressbook.contacts.values()]
                 .flat()
                 .find(c => c.id === selectedContact.id);
             if (updated) {
-                _setSelectedContact(updated);
-                selectedContactRef.current = updated;
+                setSelectedContact(updated);
             } else {
                 //DEBUG("REMOVED CONTACT?")
-                //props.removeChat(selectedContactRef.current);
-                _setSelectedContact(null);
-                selectedContactRef.current = null;
+                setSelectedContact(null);
             }
         }
     }, [addressbook]);

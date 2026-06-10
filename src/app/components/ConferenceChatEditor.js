@@ -267,6 +267,10 @@ const ConferenceChatEditor = (props) => {
                     setType('text/plain');
                     while (target.firstChild) target.removeChild(target.firstChild);
                     setName('');
+
+                    if (props.editMessage) {
+                        props.cancelEdit()
+                    }
                 }
                 break;
             case 13:

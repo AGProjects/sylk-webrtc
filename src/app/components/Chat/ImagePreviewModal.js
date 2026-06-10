@@ -73,7 +73,7 @@ const styleSheet = makeStyles((theme) => ({
     },
     paper: {
         overflow: 'hidden',
-        height: 'calc(100% - 64px)',
+        height: 'calc(100% - 128px)',
         background: 'transparent'
     },
     fixHeader: {

@@ -188,11 +188,14 @@ const Chat = (props) => {
                 DEBUG('Setting selectedContact from lookup: %s -> %o', props.focusOn, contact);
                 return contact;
             });
-            setNewContacts(prev =>
-                prev.some(c => c.id === contact.id) ? prev : [contact, ...prev]
-            );
+            const inAddressbook = addressbook.contacts.get(contact.defaultUri.uri)?.length > 0;
+            if (!inAddressbook) {
+                setNewContacts(prev =>
+                    prev.some(c => c.id === contact.id) ? prev : [contact, ...prev]
+                );
+            }
         }
-    }, [props.focusOn, lookup]);
+    }, [props.focusOn, addressbook.contacts, lookup]);
 
     useEffect(() => {
         const unsubscribe = onError((err) => {

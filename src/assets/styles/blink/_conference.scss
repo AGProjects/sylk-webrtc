@@ -48,6 +48,9 @@
     max-height: 114px;
 
     .participant-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: $video-thumbnail-width !important;
         height: $video-thumbnail-height !important;
         margin: 5px;
@@ -59,6 +62,11 @@
             border: 1px solid $white;
             border-radius: 10px;
         }
+
+    }
+
+    .carousel-item {
+        vertical-align: top;
     }
 
     .conference-active {
@@ -67,12 +75,13 @@
 
     .mute {
         position: absolute;
-        top: 25px;
+        top: 0px;
         z-index: 2;
         width: 87px;
 
         button {
-            transform: translateX(50%);
+            transform: translateX(100%);
+            margin: 6px;
         }
     }
 

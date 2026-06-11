@@ -14,7 +14,6 @@ const configOptions = {
     defaultConferenceDomain: 'videoconference.sip2sip.info',
     defaultGuestDomain: `guest.${defaultDomain}`,
     wsServer: 'wss://webrtc-gateway.sipthor.net:9999/webrtcgateway/ws',
-    //wsServer: 'wss://domain.sylk.link:10888/webrtcgateway/ws',
     fileSharingUrl: 'https://webrtc-gateway.sipthor.net:9999/webrtcgateway/filesharing',
     fileTransferUrl: 'https://webrtc-gateway.sipthor.net:9999/webrtcgateway/filetransfer',
     iceServers: [{ urls: 'stun:stun.sipthor.net:3478' }],
@@ -28,7 +27,7 @@ const configOptions = {
         sipBridge: 'conference.sip2sip.info'
     },
     showGuestCompleteScreen: true,
-    downloadUrl: 'https://sylkserver.com'
+    downloadUrl: 'https://ag-projects.com/endpoints'
 };
 
 const config = Object.assign({}, configOptions);

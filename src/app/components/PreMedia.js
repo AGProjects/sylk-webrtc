@@ -4,6 +4,9 @@ const React = require('react');
 const useRef = React.useRef;
 const useEffect = React.useEffect;
 const useState = React.useState;
+const useCallback = React.useCallback;
+
+const debug       = require('debug');
 const PropTypes  = require('prop-types');
 const { default: clsx } = require('clsx');
 
@@ -12,6 +15,8 @@ const { default: CSSTransition } = require('react-transition-group/CSSTransition
 const { makeStyles }    = require('@material-ui/core/styles');
 
 const sylkrtc               = require('sylkrtc');
+
+const DEBUG = debug('blinkrtc:Storage');
 
 
 const styleSheet = makeStyles({
@@ -38,35 +43,51 @@ const PreMedia = (props) => {
     const [init, setInit] = useState(false);
     const localVideo = useRef(null);
 
+    const localVideoElementPlaying = useCallback(() => {
+        localVideo.current.removeEventListener('canplay', localVideoElementPlaying);
+        localVideo.current.removeEventListener('playing', localVideoElementPlaying);
+        setShow(true);
+    }, []);
+
     useEffect(() => {
-        if (localVideo.current !== null && props.localMedia) {
+        const videoEl = localVideo.current;
+        if (videoEl !== null && props.localMedia) {
             if (props.localMedia.getVideoTracks().length !== 0) {
-                localVideo.current.addEventListener('playing', localVideoElementPlaying);
-                sylkrtc.utils.attachMediaStream(props.localMedia, localVideo.current, {disableContextMenu: true, muted: true});
+                videoEl.addEventListener('canplay', localVideoElementPlaying);
+                videoEl.addEventListener('playing', localVideoElementPlaying);
+
+                sylkrtc.utils.attachMediaStream(props.localMedia, videoEl, {disableContextMenu: false, muted: true});
+
+                const playOnGesture = () => {
+                    videoEl.play().catch(e => DEBUG('play failed:', e));
+                };
+
+                videoEl.play().catch(() => {
+                    DEBUG('autoplay blocked, waiting for gesture');
+                    document.addEventListener('click', playOnGesture, { once: true });
+                    document.addEventListener('touchend', playOnGesture, { once: true });
+                });
             }
         }
-        return (() => {
-            if (localVideo.current !== null) {
-                localVideo.current.removeEventListener('playing', localVideoElementPlaying); //eslint-disable-line react-hooks/exhaustive-deps
+        return () => {
+            if (videoEl !== null) {
+                videoEl.removeEventListener('canplay', localVideoElementPlaying);
+                videoEl.removeEventListener('playing', localVideoElementPlaying);
             }
-        })
-    }, [props.localMedia]);
+        };
+    }, [props.localMedia, localVideoElementPlaying]);
 
     useEffect(() => {
         if (localVideo.current !== null && props.hide) {
                 localVideo.current.removeEventListener('playing', localVideoElementPlaying);
                 setShow(false);
         }
-    }, [props.hide]);
+    }, [props.hide, localVideoElementPlaying]);
 
     const enter = () => {
         if (!init) {
             setInit(true);
         }
-    };
-
-    const localVideoElementPlaying = () => {
-        setShow(true);
     };
 
     const videoClasses = clsx({

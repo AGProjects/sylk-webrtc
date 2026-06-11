@@ -1035,8 +1035,8 @@ class Blink extends React.Component {
                 };
 
                 // TODO: remove this, workaround so at least safari works wehn joining a video conference
-            } else if ((nextRoute === '/conference' || this.state.mode === MODE_GUEST_CONFERENCE) && isSafari) {
-                constraints.video = false;
+            // } else if ((nextRoute === '/conference' || this.state.mode === MODE_GUEST_CONFERENCE) && isSafari) {
+            //     constraints.video = false;
             } else {
                 // ask for 720p video
                 constraints.video = {
@@ -1057,22 +1057,7 @@ class Blink extends React.Component {
         }, 750);
 
 
-        new Promise((resolve, reject) => {
-            if (isSafari) {
-                return navigator.mediaDevices.getUserMedia(constraints)
-                    .then((stream) => {
-                        sylkrtc.utils.closeMediaStream(stream);
-                        resolve();
-                    }).catch((error) => {
-                        DEBUG('Intial access failed: %o', error);
-                        resolve();
-                    });
-            }
-            resolve();
-        })
-            .then(() => {
-                return navigator.mediaDevices.enumerateDevices();
-            })
+        navigator.mediaDevices.enumerateDevices()
             .then((devices) => {
                 devices.forEach((device) => {
                     if ('video' in constraints && 'camera' in this.state.devices) {

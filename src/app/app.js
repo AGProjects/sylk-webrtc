@@ -246,7 +246,7 @@ class Blink extends React.Component {
             }
 
             if (/^\/conference\/?$/g.test(window.location.pathname)) {
-                this.redirectTo = `/conference/${utils.generateSillyName()}`;
+                this.redirectTo = `/conference/${utils.generateRandomNumber()}`;
             }
         }
     }
@@ -1323,7 +1323,7 @@ class Blink extends React.Component {
         this.setState({ currentCall: null, localMedia: null });
         this.participantsToInvite = participants;
         this.savedConferenceState = null;
-        const uri = `${utils.generateSillyName()}@${config.defaultConferenceDomain}`;
+        const uri = `${utils.generateRandomNumber()}@${config.defaultConferenceDomain}`;
         this.startConference(uri);
     }
 

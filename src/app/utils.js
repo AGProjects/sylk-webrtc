@@ -78,6 +78,13 @@ function generateSillyName() {
     return adjective + noun1 + noun2 + number;
 }
 
+function generateRandomNumber() {
+    const first = String(Math.floor(Math.random() * 9) + 1); // '1'–'9'
+    const rest = String(Math.floor(Math.random() * 100000)).padStart(5, '0');
+    const random6Str = first + rest;
+    return random6Str
+}
+
 function generateMaterialColor(text) {
     return MaterialColors.generateColor(text);
 }
@@ -206,6 +213,7 @@ function linkify(content) {
 exports.copyToClipboard = copyToClipboard;
 exports.normalizeUri = normalizeUri;
 exports.generateSillyName = generateSillyName;
+exports.generateRandomNumber = generateRandomNumber;
 exports.generateUniqueId = generateUniqueId;
 exports.uniqueId = uniqueId;
 exports.generateMaterialColor = generateMaterialColor;

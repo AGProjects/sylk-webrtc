@@ -23,6 +23,10 @@ const configOptions = {
         allowMuteAllParticipants: false,
         allowToggleHandsParticipants: false
     },
+    conference: {
+        pstnBridge: '+31208005160',
+        sipBridge: 'conference.sip2sip.info'
+    },
     showGuestCompleteScreen: true,
     downloadUrl: 'https://sylkserver.com'
 };

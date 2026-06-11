@@ -2085,13 +2085,20 @@ class Blink extends React.Component {
                 const known = [];
                 history = history.filter((elem) => {
                     if (known.indexOf(elem.remoteParty) <= -1) {
-                        if ((elem.media.indexOf('audio') > -1 || elem.media.indexOf('video') > -1) &&
-                            (elem.remoteParty !== this.state.account.id || elem.direction !== 'placed')) {
+                        // if ((elem.media.indexOf('audio') > -1 || elem.media.indexOf('video') > -1) &&
+                        if (elem.remoteParty !== this.state.account.id || elem.direction !== 'placed') {
                             known.push(elem.remoteParty);
                             return elem;
                         }
                     }
                 });
+                history = history.map(elem => ({
+                    ...elem,
+                    remoteParty: elem.remoteParty.replace(
+                        `@${config.conference.sipBridge}`,
+                        `@${config.defaultConferenceDomain}`
+                    )
+                }));
                 this.setState({ serverHistory: history });
             }
         }, (errorCode) => {

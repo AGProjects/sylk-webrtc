@@ -10,6 +10,7 @@ const { Card, CardActions, CardContent } = require('@material-ui/core');
 const { Typography, IconButton: Button } = require('@material-ui/core');
 const UserIcon = require('./UserIcon');
 const { useAddressbook } = require('../AddressbookProvider');
+const { useConfig } = require('../ConfigProvider')
 
 
 const styles = makeStyles({
@@ -51,6 +52,7 @@ const HistoryCard = (props) => {
     const classes = styles(props);
     const { lookup } = useAddressbook();
     const contact = lookup(props.historyItem.remoteParty || props.historyItem)
+    const { defaultConferenceDomain } = useConfig();
 
     const directionIcon = clsx({
         'fa': true,
@@ -93,7 +95,8 @@ const HistoryCard = (props) => {
         duration = 'missed';
     }
 
-    const name = contact.name
+    const isConference = contact.name.endsWith(`@${defaultConferenceDomain}`);
+    const name = isConference ? `Conference: ${contact.name.replace(`@${defaultConferenceDomain}`, '')}` : contact.name;
 
     const date = DateTime.fromFormat(
         `${props.historyItem.startTime} ${props.historyItem.timezone}`,
@@ -126,7 +129,7 @@ const HistoryCard = (props) => {
                 </CardActions>
             </div>
             <div className={classes.icon}>
-                <UserIcon identity={contact.identity} card />
+                <UserIcon identity={contact.identity} card isConference={isConference} />
             </div>
         </Card>
     );

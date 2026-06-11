@@ -75,7 +75,11 @@ const UserIcon = (props) => {
     }
 
     if (props.isConference) {
-        initials = <i className="fa fa-users fa-2x fa-fw"></i>;
+        if (props.card) {
+            initials = <i className="fa fa-users fa-fw"></i>;
+        } else {
+            initials = <i className="fa fa-users fa-2x fa-fw"></i>;
+        }
     }
 
     return (

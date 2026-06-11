@@ -2238,11 +2238,6 @@
     "@parcel/utils" "2.10.3"
     nullthrows "^1.1.1"
 
-"@rifflearning/attachmediastream@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@rifflearning/attachmediastream/-/attachmediastream-3.0.0.tgz#feda64471f71464d5ee4686bb5c7d0d6dc2e1f4f"
-  integrity sha512-PHMcF+/I8B9ao56RZKIV4nD+YMOSDIeyZx9TwJ+dZjxEaJeHJPMRT7hcLK3GjHhIyqfSLWp7Hc7JfByiA6+wRQ==
-
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
@@ -8021,13 +8016,6 @@ roarr@^2.15.3:
     semver-compare "^1.0.0"
     sprintf-js "^1.1.2"
 
-rtcpeerconnection-shim@^1.2.14:
-  version "1.2.15"
-  resolved "https://registry.yarnpkg.com/rtcpeerconnection-shim/-/rtcpeerconnection-shim-1.2.15.tgz#e7cc189a81b435324c4949aa3dfb51888684b243"
-  integrity sha512-C6DxhXt7bssQ1nHb154lqeL0SXz5Dx4RczXZu2Aa/L1NJFnEVDxFwCBo3fqtuljhHIGceg5JKBV4XJ0gW5JKyw==
-  dependencies:
-    sdp "^2.6.0"
-
 run-async@^2.4.0:
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/run-async/-/run-async-2.4.1.tgz#8440eccf99ea3e70bd409d49aab88e10c189a455"
@@ -8118,14 +8106,14 @@ screenfull@^5.2.0:
   integrity sha512-9BakfsO2aUQN2K9Fdbj87RJIEZ82Q9IGim7FqM5OsebfoFC6ZHXgDq/KvniuLTPdeM8wY2o6Dj3WQ7KeQCj3cA==
 
 sdp-transform@^2.14.1:
-  version "2.14.1"
-  resolved "https://registry.yarnpkg.com/sdp-transform/-/sdp-transform-2.14.1.tgz#2bb443583d478dee217df4caa284c46b870d5827"
-  integrity sha512-RjZyX3nVwJyCuTo5tGPx+PZWkDMCg7oOLpSlhjDdZfwUoNqG1mM8nyj31IGHyaPWXhjbP7cdK3qZ2bmkJ1GzRw==
+  version "2.15.0"
+  resolved "https://registry.yarnpkg.com/sdp-transform/-/sdp-transform-2.15.0.tgz#79d37a2481916f36a0534e07b32ceaa87f71df42"
+  integrity sha512-KrOH82c/W+GYQ0LHqtr3caRpM3ITglq3ljGUIb8LTki7ByacJZ9z+piSGiwZDsRyhQbYBOBJgr2k6X4BZXi3Kw==
 
-sdp@^2.6.0, sdp@^2.9.0:
-  version "2.12.0"
-  resolved "https://registry.yarnpkg.com/sdp/-/sdp-2.12.0.tgz#338a106af7560c86e4523f858349680350d53b22"
-  integrity sha512-jhXqQAQVM+8Xj5EjJGVweuEzgtGWb3tmEEpl3CLP3cStInSbVHSg0QWOGQzNq8pSID4JkpeV2mPqlMDLrm0/Vw==
+sdp@^3.2.0:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/sdp/-/sdp-3.2.2.tgz#fdef97433fd61d8950cac8987803a84b11fc0aba"
+  integrity sha512-xZocWwfyp4hkbN4hLWxMjmv2Q8aNa9MhmOZ7L9aCZPT+dZsgRr6wZRrSYE3HTdyk/2pZKPSgqI7ns7Een1xMSA==
 
 semver-compare@^1.0.0:
   version "1.0.0"
@@ -8713,10 +8701,9 @@ svgo@^2.4.0:
     stable "^0.1.8"
 
 sylkrtc@AGProjects/sylkrtc.js:
-  version "1.7.7"
-  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/ad5b4156a881308d6bc30d37cc1a42a97a1a95b5"
+  version "1.8.0"
+  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/14e7cec33ce0decaee24d403b1c5f8097aaad2a9"
   dependencies:
-    "@rifflearning/attachmediastream" "^3.0.0"
     blueimp-md5 "^2.19.0"
     bowser "^2.11.0"
     debug "^4.3.3"
@@ -8725,7 +8712,7 @@ sylkrtc@AGProjects/sylkrtc.js:
     regenerator-runtime "^0.13.9"
     sdp-transform "^2.14.1"
     uuid "^7.0.3"
-    webrtc-adapter "^6.4.8"
+    webrtc-adapter "^9.0.5"
     websocket "^1.0.34"
 
 symbol-observable@1.2.0:
@@ -9278,13 +9265,12 @@ weak-lru-cache@^1.2.2:
   resolved "https://registry.yarnpkg.com/weak-lru-cache/-/weak-lru-cache-1.2.2.tgz#fdbb6741f36bae9540d12f480ce8254060dccd19"
   integrity sha512-DEAoo25RfSYMuTGc9vPJzZcZullwIqRDSI9LOy+fkCJPi6hykCnfKaXTuPBDuXAUcqHXyOgFtHNp/kB2FjYHbw==
 
-webrtc-adapter@6.4.8, webrtc-adapter@^6.4.8:
-  version "6.4.8"
-  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-6.4.8.tgz#eeca3f0d5b40c0e629b865ef2a936a0b658274de"
-  integrity sha512-YM8yl545c/JhYcjGHgaCoA7jRK/KZuMwEDFeP2AcP0Auv5awEd+gZE0hXy9z7Ed3p9HvAXp8jdbe+4ESb1zxAw==
+webrtc-adapter@9.0.5, webrtc-adapter@^9.0.5:
+  version "9.0.5"
+  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-9.0.5.tgz#fb036c3db06e1a0d86c264da649e130187783b3f"
+  integrity sha512-U9vjByy/sK2OMXu5mmfuZFKTMIUQe34c0JXRO+oDrxJTsntdYT2iIFwYMOV7HhMTuktcZLGf2W1N/OcSf9ssWg==
   dependencies:
-    rtcpeerconnection-shim "^1.2.14"
-    sdp "^2.9.0"
+    sdp "^3.2.0"
 
 websocket@^1.0.34:
   version "1.0.34"

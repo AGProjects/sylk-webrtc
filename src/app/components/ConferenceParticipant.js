@@ -139,14 +139,15 @@ class ConferenceParticipant extends React.Component {
                 'btn-default': !this.state.audioMuted,
                 'btn-warning': this.state.audioMuted
             });
-
-            muteButton = (
-                <div className="mute">
-                    <button className={muteButtonClasses} onClick={this.onMuteAudioClicked} title="Mute remote audio locally">
-                        <i className={muteButtonIcons}></i>
-                    </button>
-                </div>
-            );
+            if (this.props.participant.type !== 'sip') {
+                muteButton = (
+                    <div className="mute">
+                        <button className={muteButtonClasses} onClick={this.onMuteAudioClicked} title="Mute remote audio locally">
+                            <i className={muteButtonIcons}></i>
+                        </button>
+                    </div>
+                );
+            }
         }
 
         return (

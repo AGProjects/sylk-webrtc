@@ -75,6 +75,9 @@ class ConferenceDrawerSpeakerSelection extends React.Component {
         participantsLeft.push(<MenuItem key="divider" divider />);
 
         this.props.participants.forEach((p, index) => {
+            if (p.type === 'sip') {
+                return;
+            }
             if (this.state.speakers[0] === p.id) {
                 participantsLeft.push(
                     <MenuItem key={index} eventKey={index} active={true}>

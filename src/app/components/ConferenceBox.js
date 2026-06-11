@@ -84,11 +84,14 @@ class ConferenceBox extends React.Component {
         super(props);
         const data = new Array(60).fill({});
 
+        const participants = props.call.participants.filter(
+            participant => participant.type !== 'bridge'
+        );
         this.state = {
             callOverlayVisible: true,
             audioMuted: false,
             videoMuted: this.shouldVideoMute(),
-            participants: props.call.participants.slice(),
+            participants: participants,
             showInviteModal: false,
             showMuteAudioParticipantsModal: false,
             showDrawer: false,
@@ -464,16 +467,26 @@ class ConferenceBox extends React.Component {
 
     onParticipantJoined(p) {
         DEBUG(`Participant joined: ${p.identity}`);
-        this.audioPlayerParticipantJoined.current.play();
+        if (p.type !== 'bridge') {
+            this.audioPlayerParticipantJoined.current.play();
+        }
         p.on('stateChanged', this.onParticipantStateChanged);
-        p.attach();
-        this.setState({
-            participants: this.state.participants.concat([p])
-        });
+        if (p.type !== 'sip') {
+            p.attach();
+        }
+        if (p.type !== 'bridge') {
+            this.setState({
+                participants: this.state.participants.concat([p])
+            });
+        }
         // this.changeResolution();
     }
 
     onParticipantLeft(p) {
+        if (p.type === 'bridge') {
+            DEBUG('Bridge left');
+            return
+        }
         DEBUG(`Participant left: ${p.identity}`);
         this.audioPlayerParticipantLeft.current.play();
         const participants = this.state.participants.slice();
@@ -485,7 +498,9 @@ class ConferenceBox extends React.Component {
             });
         }
         this.props.audioManager.removeAudio(p.id)
-        p.detach(true);
+        if (p.type !== 'sip') {
+            p.detach(true);
+        }
         // this.changeResolution();
     }
 

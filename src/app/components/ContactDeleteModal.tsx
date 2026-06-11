@@ -66,7 +66,7 @@ const ContactDeleteModal = ({ show, close, contact, onConfirm }: ContactDeleteMo
             <DialogContent dividers>
                 <DialogContentText id="dialog-description" component="div" className={clsx(classes.fixFont, classes.darkerText)}>
                     <>
-                        <p>This will delete <strong>all</strong> messages from and to the next address{contact?.uris.length > 1 && 'es'}:</p>
+                        <p>This will also delete <strong>all</strong> messages from and to the next address{contact?.uris.length > 1 && 'es'}:</p>
                         <ul>
                             {contact?.uris.map((uriObj, index) => (
                                 <li key={index}><strong>{uriObj.uri}</strong></li>

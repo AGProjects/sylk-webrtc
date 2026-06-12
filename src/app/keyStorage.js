@@ -23,7 +23,7 @@ function initialize(account, electronStore, electron = false) {
             });
         } else {
             store = new electronStorage(electronStore, {debug: DEBUG});
-            store.init(account, "keys");
+            store.init(account, 'keys');
         }
     }
 }

@@ -543,7 +543,8 @@ ContactList.propTypes = {
     downloadFiles: PropTypes.func,
     uploadFiles: PropTypes.func.isRequired,
     editContact: PropTypes.func.isRequired,
-    deleteContact: PropTypes.func.isRequired
+    deleteContact: PropTypes.func.isRequired,
+    newContacts: PropTypes.array.isRequired
 };
 
 

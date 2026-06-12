@@ -55,8 +55,8 @@ const BootstrapButton = withStyles((theme) => ({
     outlined: {
         border: `1px solid ${theme.palette.type === 'light' ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)'}`,
         '&$disabled': {
-            border: `1px solid ${theme.palette.action.disabledBackground}`,
-        },
+            border: `1px solid ${theme.palette.action.disabledBackground}`
+        }
     },
     outlinedPrimary: {
         color: theme.palette.primary.main,
@@ -66,9 +66,9 @@ const BootstrapButton = withStyles((theme) => ({
             backgroundColor: alpha(theme.palette.primary.main, theme.palette.action.hoverOpacity),
             // Reset on touch devices, it doesn't add specificity
             '@media (hover: none)': {
-                backgroundColor: 'transparent',
-            },
-        },
+                backgroundColor: 'transparent'
+            }
+        }
     },
     outlinedSecondary: {
         color: '#d9534f',
@@ -78,9 +78,9 @@ const BootstrapButton = withStyles((theme) => ({
             backgroundColor: alpha('#d9534f', theme.palette.action.hoverOpacity),
             // Reset on touch devices, it doesn't add specificity
             '@media (hover: none)': {
-                backgroundColor: 'transparent',
-            },
-        },
+                backgroundColor: 'transparent'
+            }
+        }
     },
     disabled: {
         border: '1px solid #fff',

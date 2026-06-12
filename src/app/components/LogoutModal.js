@@ -12,7 +12,7 @@ const {
     DialogContentText,
     DialogTitle,
     IconButton,
-    FormGroup, 
+    FormGroup,
     FormControlLabel } = require('@material-ui/core');
 const {
     Close: CloseIcon } = require('@material-ui/icons');

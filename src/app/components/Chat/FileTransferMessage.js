@@ -559,6 +559,7 @@ FileTransferMessage.propTypes = {
     showModal: PropTypes.func,
     editMessage: PropTypes.func,
     downloadFiles: PropTypes.func,
+    identity: PropTypes.object.isRequired,
     fromSelf: PropTypes.bool
 };
 

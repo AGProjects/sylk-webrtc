@@ -195,10 +195,10 @@ function addMetadata(message) {
             const entries = existing || [];
             const idx = entries.findIndex(m => m.action === message.json.action);
             if (idx !== -1) {
-                DEBUG("Metadata updated");
+                DEBUG('Metadata updated');
                 entries[idx] = enrichedMeta; // replace existing
             } else {
-                DEBUG("Metadata stored");
+                DEBUG('Metadata stored');
                 entries.push(enrichedMeta); // new action type
             }
             return metadataStore.setItem(messageId, entries);
@@ -214,10 +214,10 @@ function addMetadata(message) {
                 parsed.metadata = parsed.metadata || [];
                 const idx = parsed.metadata.findIndex(m => m.action === message.json.action);
                 if (idx !== -1) {
-                    DEBUG("Message metadata updated");
+                    DEBUG('Message metadata updated');
                     parsed.metadata[idx] = enrichedMeta;
                 } else {
-                    DEBUG("Message metadata added");
+                    DEBUG('Message metadata added');
                     parsed.metadata.push(enrichedMeta);
                 }
                 return JSON.stringify(parsed);
@@ -419,7 +419,7 @@ function _fixFileMessages(messages) {
                 },
                 get isExpired() {
                     return json.until && new Date(json.until) < new Date();
-                },
+                }
             }
         }
         if (fixedMessage.metadata) {

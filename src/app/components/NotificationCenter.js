@@ -271,7 +271,7 @@ class NotificationCenter extends React.Component {
             autoDismiss: 0,
             level: 'info',
             position: 'br',
-            onRemove: cb,
+            onRemove: cb
         });
     }
 

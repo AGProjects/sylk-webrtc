@@ -211,7 +211,7 @@ const Chat = (props) => {
         if (selectedContactRef.current) {
             const updated = [...addressbook.contacts.values()]
                 .flat()
-                .find(c => c.id === selectedContact.id);
+                .find(c => c.id === selectedContactRef.current.id);
             if (updated) {
                 setSelectedContact(updated);
             } else {

@@ -26,7 +26,7 @@ const useMenuStyles = makeStyles({
     }
 });
 
-const CustomContentMenu = ({ anchorEl, open, children, onClose, keepMounted, placement = "bottom-start" }) => {
+const CustomContentMenu = ({ anchorEl, open, children, onClose, keepMounted, placement = 'bottom-start' }) => {
     const menuClasses = useMenuStyles();
     const id = open ? 'faked-reference-popper' : undefined;
 

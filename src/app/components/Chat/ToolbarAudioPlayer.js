@@ -289,7 +289,7 @@ ToolbarAudioPlayer.propTypes = {
     messages: PropTypes.array.isRequired,
     account: PropTypes.object.isRequired,
     close: PropTypes.func.isRequired,
-    message: PropTypes.object,
+    message: PropTypes.object
 };
 
 module.exports = ToolbarAudioPlayer;

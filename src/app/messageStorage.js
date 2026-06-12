@@ -33,8 +33,8 @@ function _parseDates(key, value) {
 }
 
 
-function migrateMetadataMessages() {
-    return mainStorage.get('metadata_migrated').then(value => {
+function migrateMetadataMessages(account) {
+    return mainStorage.get(`metadata_migrated-${account}`).then(value => {
         if (value === true) {
             DEBUG('Metadata migration already done');
             return true;
@@ -98,7 +98,7 @@ function migrateMetadataMessages() {
                 });
             }));
         })).then(() => {
-            mainStorage.setItem('metadata_migrated', true);
+            mainStorage.set(`metadata_migrated-${account}` , true);
             DEBUG('Metadata migration done');
         }).catch((err) => {
             DEBUG('Migration error: %o', err);
@@ -125,9 +125,9 @@ function initialize(account, electronStore, electron = false) {
             store = new electronStorage(electronStore, { debug: DEBUG });
             store.init(account, 'messages');
             metadataStore = new electronStorage(electronStore, { debug: DEBUG });
-            metadataStore.init(account, "metadata");
+            metadataStore.init(account, 'metadata');
         }
-        migrateMetadataMessages();
+        migrateMetadataMessages(account);
     }
 }
 

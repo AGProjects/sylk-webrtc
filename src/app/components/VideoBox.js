@@ -439,7 +439,7 @@ class VideoBox extends React.Component {
     };
 
     handleDrop(files) {
-        DEBUG('Dropped file %o', files);
+        DEBUG('Dropped file %o', [...files]);
         this.setState({
             upload: {
                 files: files,
@@ -670,14 +670,16 @@ class VideoBox extends React.Component {
 
         return (
             <React.Fragment>
-                <FileUploadModal
-                    show={this.state.upload !== null}
-                    close={() => {
-                        this.setState({ upload: null });
-                    }}
-                    upload={this.state.upload}
-                    onConfirm={this.uploadFiles}
-                />
+                {this.state.upload &&
+                    <FileUploadModal
+                        show={this.state.upload !== null}
+                        close={() => {
+                            this.setState({ upload: null });
+                        }}
+                        upload={this.state.upload}
+                        onConfirm={this.uploadFiles}
+                    />
+                }
                 <DragAndDrop title="Drop files to share them" handleDrop={this.handleDrop}>
                     <div className={callClasses}>
                         <SwitchDevicesMenu

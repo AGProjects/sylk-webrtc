@@ -213,10 +213,11 @@ const Chat = (props) => {
                 .flat()
                 .find(c => c.id === selectedContactRef.current.id);
             if (updated) {
-                setSelectedContact(updated);
+                _setSelectedContact(updated);
+                selectedContactRef.current = updated;
             } else {
-                //DEBUG("REMOVED CONTACT?")
-                setSelectedContact(null);
+                _setSelectedContact(null);
+                selectedContactRef.current = null;
             }
         }
     }, [addressbook]);

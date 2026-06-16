@@ -429,7 +429,7 @@ class Blink extends React.Component {
                     });
                     addressbookStorage.get('addressbook').then((addressbook) => {
                         if (addressbook) {
-                            this.state.connection.addressbook.load(addressbook);
+                            this.state.connection.addressbook.load(this.state.accountId, addressbook);
                         }
                     });
                     this.router.current.navigate('/ready')

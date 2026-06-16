@@ -1757,6 +1757,16 @@ class Blink extends React.Component {
         }
         this.unreadTimer = setTimeout(() => {
             let counter = 0;
+            const counts = {
+                storage: {},
+                account: {},
+                call: {}
+            };
+
+            function increment(group, type) {
+                counts[group][type] = (counts[group][type] || 0) + 1;
+            }
+
             for (let key of Object.keys(messages)) {
                 for (let message of messages[key]) {
                     if (message.state === 'received'
@@ -1764,6 +1774,7 @@ class Blink extends React.Component {
                         && message.dispositionNotification.indexOf('display') !== -1
                         && !message.content.startsWith('?OTRv')
                     ) {
+                        increment('storage', message.contentType);
                         counter++;
                     }
                 }
@@ -1772,8 +1783,10 @@ class Blink extends React.Component {
                 if (message.state === 'received'
                     && message.dispositionState !== 'displayed'
                     && message.dispositionNotification.indexOf('display') !== -1
+                    && !message.contentType !== 'application/sylk-message-metadata'
                     && !message.content.startsWith('?OTRv')
                 ) {
+                    increment('account', message.contentType);
                     counter++;
                 }
             }
@@ -1787,6 +1800,7 @@ class Blink extends React.Component {
                             && !message.content.startsWith('?OTRv')
                             && message.sender.uri === this.state.currentCall.remoteIdentity.uri
                         ) {
+                            increment('call', message.contentType);
                             callCounter++;
                         }
                     }
@@ -1796,8 +1810,10 @@ class Blink extends React.Component {
                         && message.dispositionState !== 'displayed'
                         && message.dispositionNotification.indexOf('display') !== -1
                         && !message.content.startsWith('?OTRv')
+                        && !message.contentType !== 'application/sylk-message-metadata'
                         && message.sender.uri === this.state.currentCall.remoteIdentity.uri
                     ) {
+                        increment('call', message.contentType);
                         callCounter++;
                     }
                 }
@@ -1805,6 +1821,7 @@ class Blink extends React.Component {
             }
             this.setState({ unreadMessages: counter, unreadCallMessages: callCounter });
             DEBUG('There are %s unread messages', counter);
+            DEBUG('The types are %O', counts);
             if (this.shouldUseHashRouting) {
                 const ipcRenderer = window.require('electron').ipcRenderer;
                 counter = counter === 0 ? null : counter;

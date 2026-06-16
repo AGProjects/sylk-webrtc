@@ -18,7 +18,8 @@ const IncomingCallModal = (props) => {
             document.removeEventListener('keyup', onKeyUp);
         });
     });
-    const { lookup } = useAddressbook();
+    const { lookup: hookLookup } = useAddressbook() ?? {};
+    const lookup = props.lookup ?? hookLookup;
 
     const onKeyUp = (event) => {
         switch (event.which) {
@@ -107,7 +108,8 @@ IncomingCallModal.propTypes = {
     onAnswer : PropTypes.func.isRequired,
     onHangup : PropTypes.func.isRequired,
     autoFocus: PropTypes.bool.isRequired,
-    compact  : PropTypes.bool
+    compact  : PropTypes.bool,
+    lookup: PropTypes.func
 };
 
 

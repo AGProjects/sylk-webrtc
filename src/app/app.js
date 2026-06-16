@@ -2215,6 +2215,7 @@ class Blink extends React.Component {
                             onHangup={this.rejectCall}
                             autoFocus={this.state.propagateKeyPress === false}
                             compact={true}
+                            lookup={this.addressbookRef.current?.lookup}
                         />
                     </IncomingCallWindow>
                 );

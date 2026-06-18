@@ -208,7 +208,7 @@ const Chat = (props) => {
         const unsubscribe = onError((err) => {
             if (err.action === 'delete' && !showInfoPanel) {
                 setDeleteContact(null);
-                notificationCenter().postDeleteContactFailed(err);
+                props.notificationCenter().postDeleteContactFailed(err);
             }
         });
         return unsubscribe;
@@ -710,7 +710,7 @@ const Chat = (props) => {
                 setDeleteContact(null);
             })
             .catch((err) => {
-                notificationCenter().postDeleteContactFailed({ error: err });
+                props.notificationCenter().postDeleteContactFailed({ error: err });
                 setDeleteContact(null);
             })
     };

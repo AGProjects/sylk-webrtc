@@ -125,6 +125,7 @@ const MessageList = ({
     }, [displayed]);
 
     useEffect(() => {
+        if (!selectedContact) return;
         const selectedContactChanged = prevSelectedContact?.identity !== selectedContact.identity;
 
         if (!prevMessagesChanged && !focus && !selectedContactChanged) {

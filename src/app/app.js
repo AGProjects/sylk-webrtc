@@ -1979,7 +1979,9 @@ class Blink extends React.Component {
     removeConversation(contact, deleteFromServer = false) {
         if (typeof contact !== 'string') {
             for (let uri of contact.uris) {
-                this.removeConversation(uri.uri, deleteFromServer)
+                if (this.addressbookRef.current.addressbook.contacts.get(uri.uri)?.length == 1) {
+                    this.removeConversation(uri.uri, deleteFromServer)
+                }
             }
             return;
         }

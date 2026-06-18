@@ -10,6 +10,7 @@ import {
     DialogActions
 } from '@material-ui/core';
 import { Button } from '../MaterialUIAsBootstrap';
+import { useAddressbook } from '../AddressbookProvider';
 
 import { Contact } from '../types/Contact';
 
@@ -48,6 +49,11 @@ const styleSheet = makeStyles({
 const ContactDeleteModal = ({ show, close, contact, onConfirm }: ContactDeleteModelProps) => {
     const classes = styleSheet();
 
+    const { addressbook } = useAddressbook();
+
+    const deletedUris = (contact?.uris ?? []).filter(uri => addressbook.contacts.get(uri.uri)?.length === 1);
+    const retainedUris = (contact?.uris ?? []).filter(uri => addressbook.contacts.get(uri.uri)?.length !== 1);
+
     return (
         <Dialog
             open={show}
@@ -65,14 +71,26 @@ const ContactDeleteModal = ({ show, close, contact, onConfirm }: ContactDeleteMo
             <DialogTitle id="dialog-title" className={classes.bigger}>Delete {contact?.name}?</DialogTitle>
             <DialogContent dividers>
                 <DialogContentText id="dialog-description" component="div" className={clsx(classes.fixFont, classes.darkerText)}>
-                    <>
-                        <p>This will also delete <strong>all</strong> messages from and to the next address{contact?.uris.length > 1 && 'es'}:</p>
+                    {deletedUris.length > 0 &&
+                        <>
+                        <p>This will also delete <strong>all</strong> messages with the following address{deletedUris.length > 1 && 'es'}:</p>
                         <ul>
-                            {contact?.uris.map((uriObj, index) => (
+                            {deletedUris.map((uriObj, index) => (
                                 <li key={index}><strong>{uriObj.uri}</strong></li>
                             ))}
                         </ul>
-                    </>
+                        </>
+                    }
+                    {retainedUris.length > 0 &&
+                        <>
+                        <p>The messages with the following address{retainedUris.length > 1 && 'es'} will be <strong>not removed</strong> since they are present in other contacts:</p>
+                            <ul>
+                                {retainedUris.map((uriObj, index) => (
+                                    <li key={index}><strong>{uriObj.uri}</strong></li>
+                                ))}
+                            </ul>
+                        </>
+                    }
                 </DialogContentText>
             </DialogContent>
             <DialogActions>

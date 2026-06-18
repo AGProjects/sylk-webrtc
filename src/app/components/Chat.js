@@ -770,7 +770,7 @@ const Chat = (props) => {
                                         <div onClick={togglePanel} style={{ flex: '1', display: 'flex', alignItems: 'center' }}>
                                             <Typography className={classes.title} variant="h6" noWrap>
                                                 {selectedContact.name}
-                                                {selectedContact.name && selectedContact.name !== selectedContact.defaultUri.uri && <span className={classes.toolbarName}>({selectedContact.defaultUri.uri})</span>}
+                                                {selectedContact.name && selectedContact.name !== selectedContact.defaultUri.uri && <span className={classes.toolbarName}>&mdash; {selectedContact.defaultUri.uri}</span>}
                                             </Typography>
                                         </div>
                                         {props.hideCallButtons === false && [

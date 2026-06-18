@@ -89,7 +89,7 @@ const ContactDetailName = ({ contact, formContact, editContact, onChange, onSubm
             </Typography>
             <Typography className={classes.center1} variant="h4" noWrap>
                 {contact.name && contact.name !== contact.defaultUri?.uri &&
-                    <span>({contact.defaultUri?.uri})</span>
+                    <span>{contact.defaultUri?.uri}</span>
                 }
             </Typography>
         </>

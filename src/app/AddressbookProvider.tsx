@@ -142,7 +142,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
 
                 for (let uriObj of entry.uris || []) {
                     if (uriObj.type !== 'SIP') {
-                        continue;
+                        // continue;
                     }
                     const existing = contactMap.get(uriObj.uri) || [];
                     existing.push(entry);
@@ -184,7 +184,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
         const addressbookDataDeleted = useCallback(({ type, data }: { type: string, data: Contact }) => {
             if (type === 'contact') {
                 DEBUG('Contact was deleted, removing all data!!!')
-                onContactRemoved?.(data, true);
+//                onContactRemoved?.(data, true);
             }
         }, [onContactRemoved])
 
@@ -198,7 +198,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             connection.addressbook.on('dataLoaded', onDataLoaded);
             connection.addressbook.on('dataCacheLoaded', addressbookDataUpdated);
             connection.addressbook.on('dataUpdated', addressbookDataUpdated);
-            connection.addressbook.on('dataDeleted', addressbookDataDeleted);
+            connection.addressbook.on('dataDeleted', addressbookDataUpdated);
             connection.addressbook.on('dataUpdateFailed', addressbookUpdateFailed);
 
             return () => {
@@ -206,7 +206,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                 connection.addressbook.off('dataCacheLoaded', addressbookDataUpdated);
                 connection.addressbook.off('dataUpdated', addressbookDataUpdated);
                 connection.addressbook.off('dataUpdateFailed', addressbookUpdateFailed);
-                connection.addressbook.off('dataDeleted', addressbookDataDeleted);
+                connection.addressbook.off('dataDeleted', addressbookDataUpdated);
                 if (debounceTimer.current) clearTimeout(debounceTimer.current); // missing
             };
         }, [connection, addressbookDataLoaded, addressbookDataUpdated, addressbookUpdateFailed, addressbookDataDeleted]);

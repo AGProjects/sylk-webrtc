@@ -691,6 +691,12 @@ const Chat = (props) => {
     );
 
     const onConfirm = () => {
+        props.removeChat(deleteContact);
+        setDeleteContact(null);
+        if (deleteContact.id === selectedContact?.id) {
+            DEBUG("WE HAVE IT SELECTED")
+            setSelectedContact(null);
+        }
         actions.delete(deleteContact).
             then(() => {
                 setDeleteContact(null);

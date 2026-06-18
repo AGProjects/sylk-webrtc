@@ -4,7 +4,7 @@ const React = require('react');
 const { useEffect, useState, useRef } = React;
 const debug = require('debug');
 const PropTypes = require('prop-types');
-const cloneDeep = require('lodash/cloneDeep');
+const { cloneDeep, isEqual } = require('lodash');
 const { makeStyles } = require('@material-ui/core/styles');
 const { CircularProgress, Toolbar, Divider, Typography, Grid } = require('@material-ui/core');
 const { IconButton, useMediaQuery } = require('@material-ui/core');
@@ -170,6 +170,13 @@ const Chat = (props) => {
         if (!props.focusOn || props.focusOn === '') return;
 
         if (typeof props.focusOn === 'object') {
+            const stillExists = addressbook.contacts.get(props.focusOn.defaultUri?.uri)
+            ?.some(c => c.id === props.focusOn.id);
+            if (!stillExists) {
+                DEBUG('focusOn contact no longer in addressbook, skipping');
+                setSelectedContact(null);
+                return;
+            }
             setSelectedContact(prev => {
                 if (prev === props.focusOn) {
                     DEBUG('focusOn object unchanged, skipping update: %o', props.focusOn);
@@ -208,19 +215,20 @@ const Chat = (props) => {
     }, [showInfoPanel, onError]);
 
     useEffect(() => {
-        if (selectedContactRef.current) {
-            const updated = [...addressbook.contacts.values()]
-                .flat()
-                .find(c => c.id === selectedContactRef.current.id);
-            if (updated) {
+        if (!selectedContactRef.current) return;
+        const updated = [...addressbook.contacts.values()]
+        .flat()
+        .find(c => c.id === selectedContactRef.current.id);
+
+        DEBUG('addressbook effect, updated: %o', updated);
+        if (updated) {
+            if (!isEqual(updated, selectedContactRef.current)) {
                 _setSelectedContact(updated);
                 selectedContactRef.current = updated;
-            } else {
-                _setSelectedContact(null);
-                selectedContactRef.current = null;
+                DEBUG("UPDATED CONTACT?")
             }
         }
-    }, [addressbook]);
+    }, [addressbook.contacts]);
 
     const isElectron = navigator.userAgent.includes('Electron');
 

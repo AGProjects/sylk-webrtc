@@ -149,12 +149,14 @@ const Chat = (props) => {
     const input = useRef();
     const saveContactRef = useRef(null);
 
+    const { notificationCenter } = props;
+
     let propagateFocus = false;
 
     const setSelectedContact = uri => {
+        setShowInfoPanel(false);
         selectedContactRef.current = uri
         _setSelectedContact(uri);
-        setShowInfoPanel(false);
     }
 
     const setMessages = data => {
@@ -169,38 +171,18 @@ const Chat = (props) => {
     useEffect(() => {
         if (!props.focusOn || props.focusOn === '') return;
 
-        if (typeof props.focusOn === 'object') {
-            const stillExists = addressbook.contacts.get(props.focusOn.defaultUri?.uri)
-            ?.some(c => c.id === props.focusOn.id);
-            if (!stillExists) {
-                DEBUG('focusOn contact no longer in addressbook, skipping');
-                setSelectedContact(null);
-                return;
-            }
-            setSelectedContact(prev => {
-                if (prev === props.focusOn) {
-                    DEBUG('focusOn object unchanged, skipping update: %o', props.focusOn);
-                    return prev;
-                }
-                DEBUG('Setting selectedContact to object: %o', props.focusOn);
-                return props.focusOn;
-            });
+        const contact = lookup(props.focusOn);
+        if (selectedContactRef.current !== contact) {
+            DEBUG('Setting selectedContact from lookup: %s -> %o', props.focusOn, contact);
+            setSelectedContact(contact);
         } else {
-            const contact = lookup(props.focusOn);
-            setSelectedContact(prev => {
-                if (prev === contact) {
-                    DEBUG('focusOn contact unchanged, skipping update: %s', props.focusOn);
-                    return prev;
-                }
-                DEBUG('Setting selectedContact from lookup: %s -> %o', props.focusOn, contact);
-                return contact;
-            });
-            const inAddressbook = addressbook.contacts.get(contact.defaultUri.uri)?.length > 0;
-            if (!inAddressbook) {
-                setNewContacts(prev =>
-                    prev.some(c => c.id === contact.id) ? prev : [contact, ...prev]
-                );
-            }
+            DEBUG('focusOn contact unchanged, skipping update: %s', props.focusOn);
+        }
+        const inAddressbook = addressbook.contacts.get(contact.defaultUri.uri)?.length > 0;
+        if (!inAddressbook) {
+            setNewContacts(prev =>
+                prev.some(c => c.id === contact.id) ? prev : [{ ...contact, _isNew: true }, ...prev]
+            );
         }
     }, [props.focusOn, addressbook.contacts, lookup]);
 
@@ -208,11 +190,11 @@ const Chat = (props) => {
         const unsubscribe = onError((err) => {
             if (err.action === 'delete' && !showInfoPanel) {
                 setDeleteContact(null);
-                props.notificationCenter().postDeleteContactFailed(err);
+                notificationCenter().postDeleteContactFailed(err);
             }
         });
         return unsubscribe;
-    }, [showInfoPanel, onError]);
+    }, [showInfoPanel, onError, notificationCenter]);
 
     useEffect(() => {
         if (!selectedContactRef.current) return;
@@ -225,7 +207,6 @@ const Chat = (props) => {
             if (!isEqual(updated, selectedContactRef.current)) {
                 _setSelectedContact(updated);
                 selectedContactRef.current = updated;
-                DEBUG("UPDATED CONTACT?")
             }
         }
     }, [addressbook.contacts]);
@@ -418,7 +399,7 @@ const Chat = (props) => {
     const loadMessages = (contact, id) => {
         if (contact !== selectedContact) {
             setSelectedContact(contact);
-            props.lastContactSelected(contact);
+            props.lastContactSelected(contact.defaultUri.uri);
             if (id) {
                 DEBUG('Focus message: %s', id);
                 setFocus(id);
@@ -528,7 +509,9 @@ const Chat = (props) => {
         if (isFirstMessage) {
             actions.add(selectedContact);
             props.sendPublicKey(selectedContact.defaultUri.uri);
-            setNewContacts(prev => prev.filter(c => c.id !== selectedContact.id));
+            setNewContacts(prev => prev.filter(c =>
+                c.id !== selectedContact.id && c.defaultUri.uri !== selectedContact.defaultUri.uri
+                ));
         }
 
         let message = props.account.sendMessage(selectedContact.defaultUri.uri, content, type);
@@ -537,13 +520,13 @@ const Chat = (props) => {
 
     const handleDownload = (...args) => {
         let { filename } = args[0];
-        let notification = props.notificationCenter().postPreparingFileDownload(filename);
+        let notification = notificationCenter().postPreparingFileDownload(filename);
 
-        fileTransferUtils.download(props.account, ...args, notification, props.notificationCenter).then(() => {
-            props.notificationCenter().removeNotification(notification);
+        fileTransferUtils.download(props.account, ...args, notification, notificationCenter).then(() => {
+            notificationCenter().removeNotification(notification);
         }).catch(({ error, filename }) => {
-            props.notificationCenter().removeNotification(notification);
-            props.notificationCenter().postFileDownloadFailed(filename, error)
+            notificationCenter().removeNotification(notification);
+            notificationCenter().postFileDownloadFailed(filename, error)
         })
     };
 
@@ -556,21 +539,28 @@ const Chat = (props) => {
     const startChat = () => {
         if (input.current.value !== '') {
             const target = utils.normalizeUri(input.current.value, defaultDomain);
-            const contact = lookup(target);
+            const contact = { ...lookup(target), _isNew: true };
+            const contactsForUri = addressbook.contacts.get(target) ?? [];
             setSelectedContact(contact);
+            props.lastContactSelected(target);
+            if (contactsForUri.length === 0) {
+                setNewContacts(prev =>
+                    prev.some(c => c.id === contact.id) ? prev : [contact, ...prev]
+                );
+                DEBUG('Starting new chat to: %s', target);
+                let oldMessages = cloneDeep(messages);
+                if (!oldMessages[target]) {
+                    oldMessages[target] = [];
+                }
+                input.current.value = '';
+                setFilter('');
+                setMessages(oldMessages);
+            } else {
+                setFilter('');
+                input.current.value = '';
+                DEBUG('Starting chat to: %O', contact.name);
 
-            setNewContacts(prev =>
-                prev.some(c => c.id === contact.id) ? prev : [contact, ...prev]
-            );
-
-            DEBUG('Starting new chat to: %s', target);
-            let oldMessages = cloneDeep(messages);
-            if (!oldMessages[target]) {
-                oldMessages[target] = [];
             }
-            input.current.value = '';
-            setFilter('');
-            setMessages(oldMessages);
         }
     };
 
@@ -680,6 +670,15 @@ const Chat = (props) => {
         </React.Fragment>
     );
 
+    const removeChatWrapper = (contact) => {
+        if (contact._isNew) {
+            setNewContacts(prev => prev.filter(c => c.id !== contact.id));
+            setSelectedContact(null);
+            return;
+        }
+        props.removeChat(contact);
+    }
+
     const infoPane = selectedContact && (
         <InfoPanel
             key={selectedContact.id}
@@ -694,15 +693,21 @@ const Chat = (props) => {
             editContact={editContact}
             setEdit={setEditContact}
             onContactError={setContactHasError}
-            notificationCenter={props.notificationCenter}
+            notificationCenter={notificationCenter}
+            removeChat={removeChatWrapper}
         />
     );
 
     const onConfirm = () => {
+        if (deleteContact._isNew) {
+            setNewContacts(prev => prev.filter(c => c.id !== deleteContact.id));
+            setDeleteContact(null);
+            setSelectedContact(null);
+            return;
+        }
         props.removeChat(deleteContact);
         setDeleteContact(null);
         if (deleteContact.id === selectedContact?.id) {
-            DEBUG("WE HAVE IT SELECTED")
             setSelectedContact(null);
         }
         actions.delete(deleteContact).
@@ -710,7 +715,7 @@ const Chat = (props) => {
                 setDeleteContact(null);
             })
             .catch((err) => {
-                props.notificationCenter().postDeleteContactFailed({ error: err });
+                notificationCenter().postDeleteContactFailed({ error: err });
                 setDeleteContact(null);
             })
     };
@@ -950,7 +955,7 @@ const Chat = (props) => {
 
 Chat.propTypes = {
     account: PropTypes.object.isRequired,
-    focusOn: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
+    focusOn: PropTypes.string.isRequired,
     loadMoreMessages: PropTypes.func.isRequired,
     oldMessages: PropTypes.object.isRequired,
     propagateKeyPress: PropTypes.func.isRequired,

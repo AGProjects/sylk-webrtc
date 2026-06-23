@@ -52,8 +52,7 @@ const ContactDeleteModal = ({ show, close, contact, onConfirm }: ContactDeleteMo
     const { addressbook } = useAddressbook();
 
     const deletedUris = (contact?.uris ?? []).filter(uri => addressbook.contacts.get(uri.uri)?.length === 1);
-    const retainedUris = (contact?.uris ?? []).filter(uri => addressbook.contacts.get(uri.uri)?.length !== 1);
-
+    const retainedUris = (contact?.uris ?? []).filter(uri => addressbook.contacts.get(uri.uri)?.length > 1);
     return (
         <Dialog
             open={show}
@@ -71,6 +70,9 @@ const ContactDeleteModal = ({ show, close, contact, onConfirm }: ContactDeleteMo
             <DialogTitle id="dialog-title" className={classes.bigger}>Delete {contact?.name}?</DialogTitle>
             <DialogContent dividers>
                 <DialogContentText id="dialog-description" component="div" className={clsx(classes.fixFont, classes.darkerText)}>
+                    {contact?._isNew &&
+                        <p>This will delete all messages with <strong>{contact?.defaultUri?.uri}</strong>.</p>
+                    }
                     {deletedUris.length > 0 &&
                         <>
                         <p>This will also delete <strong>all</strong> messages with the following address{deletedUris.length > 1 && 'es'}:</p>

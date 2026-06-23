@@ -20,6 +20,7 @@ interface ContactDetailsProps {
     setEdit: (value: boolean) => void;
     onError: (hasError: boolean) => void;
     notificationCenter: any;
+    removeChat: any;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -43,8 +44,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 type AddressbookContext = ReturnType<typeof useAddressbook>;
 
 const ContactDetails = forwardRef<{ save: () => Promise<boolean> }, ContactDetailsProps>(
-    ({ contact, editContact, setEdit, onError, notificationCenter }, ref) => {
-
+    ({ contact, editContact, setEdit, onError, notificationCenter, removeChat}, ref) => {
         const initFormContact = (contact: Contact) => {
             const uris = [...(contact.uris ?? [])];
             if (!uris.length || uris[uris.length - 1].uri !== '') {
@@ -114,6 +114,12 @@ const ContactDetails = forwardRef<{ save: () => Promise<boolean> }, ContactDetai
         }, [contact, editContact]);
 
         const onConfirm = () => {
+            removeChat(contact, true);
+
+            if (contact._isNew) {
+                return;
+            }
+
             actions.delete(contact).
                 then(() => {
                     setShowDeleteModel(false);

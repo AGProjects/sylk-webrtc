@@ -157,7 +157,8 @@ const InfoPanel = ({
     setEdit,
     saveContactRef,
     onContactError,
-    notificationCenter
+    notificationCenter,
+    removeChat
 }) => {
     const classes = styleSheet();
 
@@ -510,6 +511,7 @@ const InfoPanel = ({
                     ref={saveContactRef}
                     onError={onContactError}
                     notificationCenter={notificationCenter}
+                    removeChat={removeChat}
                 />
                 {display && !editContact &&
                     <React.Fragment>
@@ -580,6 +582,7 @@ const InfoPanel = ({
 InfoPanel.propTypes = {
     startMessages: PropTypes.array,
     removeMessage: PropTypes.func.isRequired,
+    removeChat: PropTypes.func.isRequired,
     account: PropTypes.object.isRequired,
     uploadFiles: PropTypes.func,
     downloadFiles: PropTypes.func,

@@ -1783,7 +1783,7 @@ class Blink extends React.Component {
                 if (message.state === 'received'
                     && message.dispositionState !== 'displayed'
                     && message.dispositionNotification.indexOf('display') !== -1
-                    && !message.contentType !== 'application/sylk-message-metadata'
+                    && message.contentType !== 'application/sylk-message-metadata'
                     && !message.content.startsWith('?OTRv')
                 ) {
                     increment('account', message.contentType);
@@ -1810,7 +1810,7 @@ class Blink extends React.Component {
                         && message.dispositionState !== 'displayed'
                         && message.dispositionNotification.indexOf('display') !== -1
                         && !message.content.startsWith('?OTRv')
-                        && !message.contentType !== 'application/sylk-message-metadata'
+                        && message.contentType !== 'application/sylk-message-metadata'
                         && message.sender.uri === this.state.currentCall.remoteIdentity.uri
                     ) {
                         increment('call', message.contentType);

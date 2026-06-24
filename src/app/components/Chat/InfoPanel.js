@@ -405,11 +405,13 @@ const InfoPanel = ({
             });
             return;
         }
-        if (JSON.stringify(newFiles) !== JSON.stringify(oldFiles)) {
-            setFiles(newFiles);
-        }
-        if (JSON.stringify(newVoiceMessages) !== JSON.stringify(oldVoiceMessages)) {
-            setVoiceMessages(newVoiceMessages);
+        if (!ignore) {
+            if (JSON.stringify(newFiles) !== JSON.stringify(oldFiles)) {
+                setFiles(newFiles);
+            }
+            if (JSON.stringify(newVoiceMessages) !== JSON.stringify(oldVoiceMessages)) {
+                setVoiceMessages(newVoiceMessages);
+            }
         }
         Promise.allSettled(cacheResults).then(results => {
             let newData = results.filter(result => result.status === 'fulfilled').map(result => result.value);
@@ -424,6 +426,9 @@ const InfoPanel = ({
         }
     }, [messages, removeMessage, account, selectedContact]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        setMessages(startMessages);
+    }, [startMessages]);
 
     useEffect(() => {
         return () => {
@@ -439,6 +444,7 @@ const InfoPanel = ({
             activeRef.current = false;
         };
     }, []);
+
     useEffect(() => {
         let timer;
         const canLoadMore = () => {
@@ -486,8 +492,8 @@ const InfoPanel = ({
             style={{
                 margin: 0,
                 alignSelf: 'center',
-                overflow: 'hidden',
                 maxWidth: '806px',
+                overflow: 'visible',
                 flex: 1,
                 width: '100%'
             }}
@@ -501,7 +507,7 @@ const InfoPanel = ({
                 download={downloadFiles}
                 removeMessage={removeMessage}
             />
-            <DragAndDrop title="Drop files to share them" handleDrop={uploadFiles} marginTop={'100px'} style={{ height: '100%', flexDirection: 'column', overflowX: 'hidden' }} useFlex>
+            <DragAndDrop title="Drop files to share them" handleDrop={uploadFiles} marginTop={'100px'} style={{ height: '100%', flexDirection: 'column'}} useFlex>
                 <UserIcon identity={selectedContact.identity} active={false} large={true} />
                 <ContactDetails
                     key={selectedContact.id}
@@ -515,7 +521,17 @@ const InfoPanel = ({
                 />
                 {display && !editContact &&
                     <React.Fragment>
-                        <Paper elevation={0} style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
+                        <Paper
+                            elevation={0}
+                            style={{
+                                borderBottomLeftRadius: 0,
+                                borderBottomRightRadius: 0,
+                                position: 'sticky',
+                                top: 0,
+                                zIndex: 1000,
+                                background: '#fff'
+                            }}
+                        >
                             <Tabs
                                 value={value}
                                 indicatorColor="primary"
@@ -531,7 +547,7 @@ const InfoPanel = ({
                         </Paper>
                         {images &&
                             <TabPanel
-                                style={{ flex: 1, overflow: 'auto', overflowX: 'hidden' }}
+                                style={{ flex: 1}}
                                 value={value} index={0}
                             >
                                 {getImageList(images)}
@@ -539,7 +555,7 @@ const InfoPanel = ({
                         }
                         {files &&
                             <TabPanel
-                                style={{ flex: 1, overflow: 'auto' }}
+                                style={{ flex: 1 }}
                                 value={value} index={images ? 1 : 0}
                             >
                                 {getFileList(files)}
@@ -547,7 +563,7 @@ const InfoPanel = ({
                         }
                         {voiceMessages &&
                             <TabPanel
-                                style={{ flex: 1, overflow: 'auto' }}
+                                style={{ flex: 1 }}
                                 value={value} index={images && files ? 2 : (files || images) ? 1 : 0}
                             >
                                 {getAudioList(voiceMessages)}
@@ -570,7 +586,7 @@ const InfoPanel = ({
                 }
             </DragAndDrop>
             {
-                more === true &&
+                more === true && display === true &&
                 <div ref={ref}>
                     <CircularProgress style={{ color: '#888', margin: 'auto', display: 'block' }} />
                 </div>

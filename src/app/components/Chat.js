@@ -854,25 +854,29 @@ const Chat = (props) => {
                                 <Divider absolute />
                             </Toolbar>
                         }
-                        {selectedAudioMessage && <div className={classes.spacer35} />}
-                        <div className={classes.spacer15} />
-                        {selectedContact
-                            ?
-                            <React.Fragment>
-                                {
-                                    props.account?.pgp === null &&
-                                    <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
-                                        <Typography className={classes.title} variant="h6" noWrap>End to end encryption for messaging is not enabled</Typography>
-                                    </Toolbar>
+                        {selectedAudioMessage && <div className={classes.spacer50} />}
+                        <div style={{ overflowY: 'auto', overflowX: 'hidden', height: '100%', margin: '-15px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                                <div className={classes.spacer15} />
+                                {selectedContact
+                                    ?
+                                    <React.Fragment>
+                                        {
+                                            props.account?.pgp === null &&
+                                            <Toolbar className={classes.toolbar} style={{ marginLeft: '-15px', marginTop: '-15px', marginRight: '-15px' }}>
+                                                <Typography className={classes.title} variant="h6" noWrap>End to end encryption for messaging is not enabled</Typography>
+                                            </Toolbar>
+                                        }
+                                        {infoPane}
+                                    </React.Fragment>
+                                    :
+                                    <div style={{ justifyContent: 'center', alignItems: 'center', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                                        <div className="chat-image" />
+                                        <h1 className="cover-heading">No chat selected</h1>
+                                    </div>
                                 }
-                                {infoPane}
-                            </React.Fragment>
-                            :
-                            <div style={{ justifyContent: 'center', alignItems: 'center', display: 'flex', flexDirection: 'column', height: '100%' }}>
-                                <div className="chat-image" />
-                                <h1 className="cover-heading">No chat selected</h1>
                             </div>
-                        }
+                        </div>
                     </ConferenceDrawer>
                     <ConferenceDrawer
                         show={show && (selectedContact === '' && matches) || !matches}

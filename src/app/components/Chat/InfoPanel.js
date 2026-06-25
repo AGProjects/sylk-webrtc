@@ -447,6 +447,11 @@ const InfoPanel = ({
     }, [startMessages]);
 
     useEffect(() => {
+        messageStorage.hasFileTypes(selectedContact.defaultUri.uri).then(({ images, files, voice }) => {
+            if (images) setImages(prev => prev || []);
+            if (files) setFiles(prev => prev || []);
+            if (voice) setVoiceMessages(prev => prev || []);
+        });
         return () => {
             messageStorage.revertFiles(selectedContact.defaultUri.uri);
         }

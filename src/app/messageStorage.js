@@ -582,6 +582,32 @@ function hasMoreFiles(key) {
     });
 }
 
+function hasFileTypes(key) {
+    if (store === null) return Promise.resolve({ images: false, files: false, voice: false });
+
+    return store.getItem(key).then((messages) => {
+        if (!messages) return { images: false, files: false, voice: false };
+
+        let images = false, files = false, voice = false;
+        for (let message of messages) {
+            const parsed = JSON.parse(message, _parseDates);
+            if (parsed.contentType !== 'application/sylk-file-transfer') continue;
+            let json = {};
+            try { json = JSON.parse(parsed.content, _parseDates); } catch(e) { continue; }
+            if (!json.filetype) continue;
+            if (json.filename?.startsWith('sylk-audio-recording')) {
+                voice = true;
+            } else if (json.filetype.startsWith('image/') || json.filetype.startsWith('video/')) {
+                images = true;
+            } else {
+                files = true;
+            }
+            if (images && files && voice) break;
+        }
+        return { images, files, voice };
+    });
+}
+
 function updateIdMap() {
     return Queue.enqueue(() => new Promise((resolve) => {
         idsInStorage.clear();
@@ -625,6 +651,7 @@ exports.loadMoreFiles = loadMoreFiles;
 exports.removeMessage = removeMessage;
 exports.hasMore = hasMore;
 exports.hasMoreFiles = hasMoreFiles;
+exports.hasFileTypes = hasFileTypes;
 exports.revertFiles = revertFiles;
 exports.updateIdMap = updateIdMap;
 exports.getMetadata = getMetadata;

@@ -32,11 +32,13 @@ const {
     ErrorOutline: ErrorOutlineIcon,
     ArrowDropDown,
     ArrowRight,
-    DescriptionOutlined: FileIcon
+    DescriptionOutlined: FileIcon,
+    PlayArrowRounded
 } = require('@material-ui/icons');
 
 const CustomContextMenu = require('../CustomContextMenu');
 const UserIcon = require('../UserIcon');
+const VideoPlayer = require('./VideoPlayer').default;
 
 const fileTransferUtils = require('../../fileTransferUtils');
 const { isNodeEmitter, linkify } = require('../../utils');
@@ -145,7 +147,7 @@ const FileTransferMessage = ({
 
     useEffect(() => {
         let file = message.json
-        if (file.filetype && !file.filetype.startsWith('image/')) {
+        if (file.filetype && !file.filetype.startsWith('image/' && !file.filetype.startsWith('video/'))) {
             if (hidden) {
                 setHeader(
                     <Typography className={classes.fixFont} style={{ fontSize: 12, alignSelf: 'center' }} variant="body2">{file.filename.replace('.asc', '').replace(/_/g, ' ')}</Typography>
@@ -166,7 +168,6 @@ const FileTransferMessage = ({
                 setHeader(
                     <Typography className={classes.fixFont} style={{ fontSize: 12, alignSelf: 'center' }} variant="body2" color="textSecondary">{filetype}</Typography>
                 )
-
             }
         }
     }, [hidden, classes.fixFont, message])
@@ -250,6 +251,23 @@ const FileTransferMessage = ({
                             generateFileBlock(error);
                         }
                     })
+            } else if (fileData.filetype && fileData.filetype.startsWith('video/')) {
+                fileTransferUtils.generateThumbnail(account, message)
+                    .then(([image, filename, w, h, duration]) => {
+                        if (!ignore) {
+                            setHeader(
+                                <Typography className={classes.fixFont} style={{ display: 'flex', fontSize: 12, alignSelf: 'center' }} variant="body2" color="textSecondary">{filename.replace(/_/g, ' ')}
+                                </Typography>
+                            )
+                            setParsedContent(
+                                <VideoPlayer account={account} message={message} thumbnail={image} width={w} height={h} duration={duration} />
+                            );
+                        }
+                    }).catch(error => {
+                        if (!ignore) {
+                            generateFileBlock(error);
+                        }
+                    });
             } else if (fileData.filename.startsWith('sylk-audio-recording')) {
                 fileTransferUtils.getAndReadFile(account, message).then(([data, filename]) => {
                     if (!ignore) {

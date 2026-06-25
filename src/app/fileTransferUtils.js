@@ -6,6 +6,8 @@ const debug = require('debug');
 const config = require('./config');
 const utils = require('./utils');
 const cacheStorage = require('./cacheStorage');
+const isElectron = window.require !== undefined;
+const ipcRenderer = isElectron ? window.require('electron').ipcRenderer : null;
 
 const DEBUG = debug('blinkrtc:fileTransferUtils');
 
@@ -109,6 +111,27 @@ function _download(account, url, filename, filetype, onProgress = null) {
 function _downloadAndRead(account, url, filename, filetype, id, contact) {
     return _download(account, url, filename, filetype)
         .then(file => {
+            if (filetype.startsWith('video/') && ipcRenderer) {
+                return new Promise((resolve, reject) => {
+                    const fr = new FileReader();
+                    fr.onload = async () => {
+                        try {
+                            const filePath = await ipcRenderer.invoke('cache:saveFile', {
+                                id: id,
+                                data: fr.result,
+                                filetype: filetype
+                            });
+                            cacheStorage.add({ id: id, data: [filePath, file.file.name], contact: contact });
+                            resolve([filePath, file.file.name]);
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    fr.onerror = reject;
+                    fr.readAsDataURL(file.file);
+                });
+            }
+
             let fr = new FileReader();
             return new Promise((resolve, reject) => {
                 fr.onload = () => {
@@ -342,27 +365,51 @@ function generateThumbnail(account, message) {
                 DEBUG('Generating thumbnail from download: %s (%s)', filename, id);
                 return new Promise((resolve, reject) => {
                     let boundBox = [300, 300]
+                    const isVideo = filetype.startsWith('video/');
+                     if (isVideo) {
+                        const video = document.createElement('video');
+                        video.preload = 'metadata';
+                        video.muted = true;
 
-                    const img = document.createElement('img');
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const scaleRatio = Math.min(boundBox[0] / img.width, boundBox[1] / img.height, 1);
-                        const dpi = window.devicePixelRatio;
-                        const w = Math.floor(img.width * scaleRatio * dpi);
-                        const h = Math.floor(img.height * scaleRatio * dpi);
-                        canvas.width = w;
-                        canvas.height = h;
-                        ctx.drawImage(img, 0, 0, w, h)
-                        resolve([canvas.toDataURL(), filename, w / dpi, h / dpi]);
+                        video.onseeked = () => {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            const scaleRatio = Math.min(boundBox[0] / video.videoWidth, boundBox[1] / video.videoHeight, 1);
+                            const dpi = window.devicePixelRatio;
+                            const w = Math.floor(video.videoWidth * scaleRatio * dpi);
+                            const h = Math.floor(video.videoHeight * scaleRatio * dpi);
+                            canvas.width = w;
+                            canvas.height = h;
+                            ctx.drawImage(video, 0, 0, w, h);
+                            const duration = video.duration;
+                            resolve([canvas.toDataURL(), filename, w / dpi, h / dpi, duration]);
+                        };
+
+                        video.onerror = reject;
+                        video.onloadedmetadata = () => { video.currentTime = 1; };
+                        video.src = imageData;
+                    } else {
+                        const img = document.createElement('img');
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            const scaleRatio = Math.min(boundBox[0] / img.width, boundBox[1] / img.height, 1);
+                            const dpi = window.devicePixelRatio;
+                            const w = Math.floor(img.width * scaleRatio * dpi);
+                            const h = Math.floor(img.height * scaleRatio * dpi);
+                            canvas.width = w;
+                            canvas.height = h;
+                            ctx.drawImage(img, 0, 0, w, h)
+                            resolve([canvas.toDataURL(), filename, w / dpi, h / dpi]);
+                        }
+                        img.onerror = reject;
+                        img.src = imageData;
                     }
-                    img.onerror = reject;
-                    img.src = imageData;
                 });
-            }).then(([imageData, filename, w, h]) => {
-                cacheStorage.addThumbnail({ id: id, data: [imageData, filename, w, h], contact: contact })
-                imageCache[id] = [imageData, filename, w, h];
-                return [imageData, filename, w, h];
+            }).then(([imageData, filename, w, h, duration]) => {
+                cacheStorage.addThumbnail({ id: id, data: [imageData, filename, w, h, duration], contact: contact })
+                imageCache[id] = [imageData, filename, w, h, duration];
+                return [imageData, filename, w, h, duration];
             }).catch(error => {
                 const errorMsg = `Thumbnail generation failed for ${filename}: ${error.error}`;
                 DEBUG(errorMsg);

@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { Media } from 'react-bootstrap';
 import { Paper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { DescriptionOutlined as FileIcon, GraphicEq as AudioIcon } from '@material-ui/icons';
+import { DescriptionOutlined as FileIcon, GraphicEq as AudioIcon, Videocam } from '@material-ui/icons';
 import { resolveMime } from 'friendly-mimes';
 import { useAddressbook } from '../../AddressbookProvider';
 import fileTransferUtils from '../../fileTransferUtils';
@@ -101,7 +101,8 @@ const useStyles = makeStyles({
         display: 'inline-block',
         borderRadius: 7,
         overflow: 'hidden',
-        cursor: 'zoom-in'
+        cursor: 'zoom-in',
+        position: 'relative'
     },
     imageThumb: {
         width: '40px',
@@ -150,6 +151,14 @@ const useStyles = makeStyles({
         overflow: 'hidden',
         wordBreak: 'normal' as const,
         whiteSpace: 'nowrap' as const
+    },
+    videoIconOverlay: {
+        position: 'absolute',
+        bottom: 2,
+        right: 2,
+        color: 'white',
+        fontSize: '0.9rem',
+        filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.8))'
     }
 });
 
@@ -180,7 +189,22 @@ const ReplyMessage = ({ message, continues }: Props) => {
                             </div>
                         );
                     }).catch();
-
+            } else if (fileData.filetype && fileData.filetype.startsWith('video/')) {
+                fileTransferUtils.getThumbnail(message)
+                    .then(([image, filename, w, h]) => {
+                        if (!ignore) setParsedContent(
+                            <div className={classes.contentRow}>
+                                <Paper variant="outlined" className={classes.imagePaper}>
+                                    <img className={clsx('img-responsive', 'img-rounded', classes.imageThumb)} src={image} />
+                                    <Videocam className={classes.videoIconOverlay} />
+                                </Paper>
+                                <div>
+                                    <Media.Heading>{contact?.name}&nbsp;</Media.Heading>
+                                    <pre>{linkify(label?.value)}</pre>
+                                </div>
+                            </div>
+                    );
+                }).catch();
             } else {
                 let filetype = 'Unknown';
                 if (fileData.filetype) {

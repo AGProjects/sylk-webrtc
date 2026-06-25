@@ -93,6 +93,12 @@ const fileInfo = (fileData) => {
     return `${fileSize(fileData.filesize)} - ${filetype} - ${formatTime(fileData.timestamp)}`
 }
 
+const formatDuration = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+};
+
 const a11yProps = (index) => {
     return {
         id: `tab-${index}`,
@@ -278,6 +284,11 @@ const InfoPanel = ({
                                 sortedFiles[key].map((entry) => (
                                     <ImageListItem key={`img-${entry.message.id}-${entry.filename}`} cols={1} onClick={() => getImage(entry.message)}>
                                         <img src={entry.image} />
+                                        {entry.duration &&
+                                            <span style={{ position: 'absolute', bottom: 4, right: 4, background: 'rgba(0,0,0,0.6)', color: 'white', fontSize: 11, padding: '1px 4px', borderRadius: 3 }}>
+                                                {formatDuration(entry.duration)}
+                                            </span>
+                                        }
                                     </ImageListItem>
                                 ))
                             }
@@ -293,6 +304,11 @@ const InfoPanel = ({
                                 sortedFiles[key].map((entry) => (
                                     <ImageListItem key={`${entry.message.id}-${entry.filename}`} cols={1} onClick={() => getImage(entry.message)}>
                                         <img src={entry.image} />
+                                        {entry.duration &&
+                                            <span style={{ position: 'absolute', bottom: 4, right: 4, background: 'rgba(0,0,0,0.6)', color: 'white', fontSize: 11, padding: '1px 4px', borderRadius: 3 }}>
+                                                {formatDuration(entry.duration)}
+                                            </span>
+                                        }
                                     </ImageListItem>
                                 ))
                             }
@@ -379,11 +395,11 @@ const InfoPanel = ({
             return message.contentType === 'application/sylk-file-transfer' && message.json.filetype;
         }).reverse().map((message) => {
             let file = message.json;
-            if (file.filetype.startsWith('image/')) {
+            if (file.filetype.startsWith('image/') || file.filetype.startsWith('video/')) {
                 cacheResults.push(fileTransferUtils.generateThumbnail(account, message)
-                    .then(([image, filename, w, h]) => {
+                    .then(([image, filename, w, h, duration]) => {
                         return {
-                            image: image, filename: filename, width: w, height: h, message: message
+                            image: image, filename: filename, width: w, height: h, duration, message: message
                         }
                     }).catch(error => {
                         return Promise.reject()

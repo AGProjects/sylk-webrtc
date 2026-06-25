@@ -18,6 +18,7 @@ const {
 const { Close, GetApp, MoreHoriz } = require('@material-ui/icons');
 
 const UserIcon = require('../UserIcon');
+const fileTransferUtils = require('../../fileTransferUtils');
 const { Tooltip } = require('../../MaterialUIAsBootstrap')
 const { useAddressbook } = require('../../AddressbookProvider');
 const { linkify } = require('../../utils');
@@ -103,6 +104,11 @@ const styleSheet = makeStyles((theme) => ({
     bottomButton: {
         color: theme.palette.grey[500]
     },
+    rightButtonsTop: {
+        position: 'absolute',
+        right: theme.spacing(8),
+        top: theme.spacing(1)
+    },
     image: {
         objectFit: 'contain',
         minWidth: '100%',
@@ -130,9 +136,19 @@ const styleSheet = makeStyles((theme) => ({
 const ImagePreviewModal = (props) => {
     const classes = styleSheet();
     const [showLayers, setShowLayers] = useState(false);
-    const [anchorEl, setAnchorEl] = React.useState(null);
-
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [thumbnail, setThumbnail] = useState(null);
     const { lookup } = useAddressbook();
+
+    const isVideo = props.message?.json?.filetype?.startsWith('video/');
+
+    React.useEffect(() => {
+        if (isVideo && props.message?.id) {
+            fileTransferUtils.getThumbnail(props.message).then(([thumb]) => {
+                setThumbnail(thumb);
+            });
+        }
+    }, [props.message, isVideo]);
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -154,6 +170,54 @@ const ImagePreviewModal = (props) => {
 
     const metadata = props.message.metadata?.find(m => m.action === 'label');
 
+    const actionButtons = (
+        <React.Fragment>
+            <Tooltip title="Download">
+                <IconButton aria-label="close" className={classes.bottomButton} onClick={() => { props.download(props.message.json); props.close(); }}>
+                    <GetApp classes={{ root: classes.iconSize }} />
+                </IconButton>
+            </Tooltip>
+            <Tooltip title="More actions">
+                <IconButton aria-label="close" className={classes.bottomButton} onClick={handleClick}>
+                    <MoreHoriz classes={{ root: classes.iconSize }} />
+                </IconButton>
+            </Tooltip>
+            <Menu
+                id="simple-menu"
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+                getContentAnchorEl={null}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right'
+                }}
+                transformOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right'
+                }}
+            >
+                {!isElectron() &&
+                    <MenuItem className={classes.item} onClick={() => { props.openInNewTab(props.message.json); handleClose() }}>
+                        Open in new tab
+                    </MenuItem>
+                }
+                {!props.message.isSecure &&
+                    <MenuItem className={classes.item} onClick={() => { handleClose(); }}>
+                        Copy link to file
+                    </MenuItem>
+                }
+                {!props.message.isSecure && !isElectron() &&
+                    <Divider />
+                }
+                <MenuItem className={classes.itemRed} onClick={() => { props.removeMessage(props.message); handleClose(); props.close() }}>
+                    Delete file
+                </MenuItem>
+            </Menu>
+        </React.Fragment>
+    );
+
     return (
         <Dialog
             open={props.show}
@@ -166,9 +230,12 @@ const ImagePreviewModal = (props) => {
             classes={{ 'paper': classes.paper }}
         >
             <DialogContent onMouseEnter={() => setShowLayers(true)} onMouseLeave={() => setShowLayers(false)} className={classes.fixFont} style={{ padding: 0 }}>
-                <div className={classes.backgroundImage} style={{ background: `url("${props.image}") black 50%/cover` }}></div>
+                <div className={classes.backgroundImage} style={{ background: `url("${isVideo ? thumbnail : props.image}") black 50%/cover` }}></div>
                 <div className={classes.relativeContainer}>
-                    <img className={classes.image} src={props.image} />
+                    {isVideo
+                        ? <video className={classes.image} src={props.image} controls autoPlay controlsList="nodownload"/>
+                        : <img className={classes.image} src={props.image} />
+                    }
                     <div style={{ visibility: `${showLayers ? 'visible' : 'hidden'}` }}>
                         <ImageItemBar
                             title={title}
@@ -181,58 +248,17 @@ const ImagePreviewModal = (props) => {
                             <IconButton aria-label="close" className={classes.closeButton} onClick={props.close}>
                                 <Close classes={{ root: classes.iconSize }} />
                             </IconButton>
+                            <div className={classes.rightButtonsTop}>
+                                {isVideo && actionButtons}
+                            </div>
                         </DialogTitle>
+                        {!isVideo &&
                         <ImageItemBar
                             title={linkify(metadata?.value || '')}
                             position="bottom"
-                            actionIcon={
-                                <React.Fragment>
-                                    <Tooltip title="Download">
-                                        <IconButton aria-label="close" className={classes.bottomButton} onClick={() => { props.download(props.message.json); props.close(); }}>
-                                            <GetApp classes={{ root: classes.iconSize }} />
-                                        </IconButton>
-                                    </Tooltip>
-                                    <Tooltip title="More actions">
-                                        <IconButton aria-label="close" className={classes.bottomButton} onClick={handleClick}>
-                                            <MoreHoriz classes={{ root: classes.iconSize }} />
-                                        </IconButton>
-                                    </Tooltip>
-                                    <Menu
-                                        id="simple-menu"
-                                        anchorEl={anchorEl}
-                                        keepMounted
-                                        open={Boolean(anchorEl)}
-                                        onClose={handleClose}
-                                        getContentAnchorEl={null}
-                                        anchorOrigin={{
-                                            vertical: 'top',
-                                            horizontal: 'right'
-                                        }}
-                                        transformOrigin={{
-                                            vertical: 'bottom',
-                                            horizontal: 'right'
-                                        }}
-                                    >
-                                        {!isElectron() &&
-                                            <MenuItem className={classes.item} onClick={() => { props.openInNewTab(props.message.json); handleClose() }}>
-                                                Open in new tab
-                                            </MenuItem>
-                                        }
-                                        {!props.message.isSecure &&
-                                            <MenuItem className={classes.item} onClick={() => { handleClose(); }}>
-                                                Copy link to file
-                                            </MenuItem>
-                                        }
-                                        {!props.message.isSecure && !isElectron() &&
-                                            <Divider />
-                                        }
-                                        <MenuItem className={classes.itemRed} onClick={() => { props.removeMessage(props.message); handleClose(); props.close() }}>
-                                            Delete file
-                                        </MenuItem>
-                                    </Menu>
-                                </React.Fragment>
-                            }
+                            actionIcon={actionButtons}
                         />
+                        }
                     </div>
                 </div>
             </DialogContent>

@@ -33,7 +33,8 @@ const {
     DoneAll: DoneAllIcon,
     ErrorOutline: ErrorOutlineIcon,
     GetApp: DownloadIcon,
-    GraphicEqRounded
+    GraphicEqRounded,
+    Videocam
 } = require('@material-ui/icons');
 
 const UserIcon = require('../UserIcon');
@@ -335,6 +336,18 @@ const ContactList = (props) => {
                         icon={<GraphicEqRounded />}
                         label="Voice Message"
                         onClick={(event) => { event.stopPropagation(); event.preventDefault(); props.selectAudio(message) }}
+                    />
+                );
+            }
+            if (file.filetype.startsWith('video/')) {
+                return (
+                    <Chip
+                        component="span"
+                        classes={{ sizeSmall: classes.chipSmall, iconSmall: classes.iconSmall }}
+                        variant="outlined"
+                        size="small"
+                        icon={<Videocam />}
+                        label={file.filename.replace(/_/g, ' ').replace('.asc', '')}
                     />
                 );
             }

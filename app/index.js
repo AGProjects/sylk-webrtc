@@ -270,6 +270,30 @@ function createMainWindow() {
         mainWindow.webContents.send('storagePath', storage.getDataPath('userData'));
     });
 
+    ipc.handle('cache:saveFile', async (event, { id, data, filetype }) => {
+        const cacheDir = path.join(storage.getDataPath('userData'), 'mediaCache');
+        await fs.promises.mkdir(cacheDir, { recursive: true });
+        const filePath = path.join(cacheDir, id);
+        const buffer = Buffer.from(data.split(',')[1], 'base64');
+        await fs.promises.writeFile(filePath, buffer);
+        return filePath;
+    });
+
+    ipc.handle('cache:getFile', async (event, { id }) => {
+        const filePath = path.join(storage.getDataPath('userData'), 'mediaCache', id);
+        try {
+            await fs.promises.access(filePath);
+            return filePath;
+        } catch {
+            return null;
+        }
+    });
+
+    ipc.handle('cache:removeFile', async (event, { id }) => {
+        const filePath = path.join(storage.getDataPath('userData'), 'mediaCache', id);
+        await fs.promises.unlink(filePath).catch(() => {});
+    });
+
     // open links with default browser
     mainWindow.webContents.on('new-window', function(event, url) {
         event.preventDefault();

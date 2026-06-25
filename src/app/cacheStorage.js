@@ -13,6 +13,31 @@ let store = null;
 
 const idsInCache = new Set();
 
+class electronStorageWithFileCache extends electronStorage {
+    removeItem(key) {
+        return this._get(key).then(data => {
+            if (data && data.data && data.data[0] && !data.data[0].startsWith('data:')) {
+                this.ipcRenderer.invoke('cache:removeFile', { id: key });
+            }
+            return this._remove(key);
+        });
+    }
+
+    clear() {
+        return this.keys().then(keys => {
+            if (keys) {
+                for (const key of keys) {
+                    this._get(key).then(data => {
+                        if (data && data.data && data.data[0] && !data.data[0].startsWith('data:')) {
+                            this.ipcRenderer.invoke('cache:removeFile', { id: key });
+                        }
+                    });
+                }
+            }
+            return this._clear();
+        });
+    }
+}
 
 function initialize(account, electronStore, electron = false) {
     DEBUG('File cache store init');
@@ -24,7 +49,7 @@ function initialize(account, electronStore, electron = false) {
                 storeName: `cache_${account}`
             });
         } else {
-            store = new electronStorage(electronStore, {debug: DEBUG});
+            store = new electronStorageWithFileCache(electronStore, {debug: DEBUG});
             store.init(account, 'cache');
         }
         prime();

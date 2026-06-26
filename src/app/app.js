@@ -445,6 +445,10 @@ class Blink extends React.Component {
         }
         for (let message of this.retransmittedMessages.reverse()) {
             if (message.state === 'pending' || message.state === 'failed') {
+                if (!this.state.oldMessages[message.receiver]) {
+                    DEBUG('Skipping retransmit, conversation removed: %o', message.receiver);
+                    continue;
+                }
                 DEBUG('Try to remove: %o', message.id);
                 messageStorage.removeMessage(message).then(() => {
                     DEBUG('Message removed: %o', message.id);
@@ -791,6 +795,10 @@ class Blink extends React.Component {
                 let index = 0;
                 for (let message of messages.reverse()) {
                     if (message.state === 'pending' || message.state === 'failed') {
+                        if (!this.state.oldMessages[message.receiver]) {
+                            DEBUG('Skipping retransmit, conversation removed: %o', message.receiver);
+                            continue;
+                        }
                         index = index + 1;
                         pendingFailedMessages.push(message);
                     } else {
@@ -1986,6 +1994,7 @@ class Blink extends React.Component {
             return;
         }
 
+        this.retransmittedMessages = this.retransmittedMessages.filter(message => message.receiver !== 'contact');
         messageStorage.remove(contact)
         cacheStorage.removeAll(contact)
         let oldMessages = cloneDeep(this.state.oldMessages);

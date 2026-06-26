@@ -255,9 +255,13 @@ function add(message) {
         idsInStorage.set(message.id, message.state);
 
         return metadataStore.getItem(message.id).then(metadata => {
-            DEBUG('Old metadata found for message, appending metadata to message');
-            const plain = { ...message.toJSON(), metadata: metadata || [] };
-            messages.push(JSON.stringify(plain));
+            if (metadata) {
+                DEBUG('Old metadata found for message, appending metadata to message');
+                const plain = { ...message.toJSON(), metadata: metadata || [] };
+                messages.push(JSON.stringify(plain));
+            } else {
+                messages.push(JSON.stringify(message));
+            }
             set(contact, messages);
         });
     }));

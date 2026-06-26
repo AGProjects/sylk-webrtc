@@ -302,16 +302,17 @@ const Chat = (props) => {
         };
 
         const outgoingMessage = (message) => {
-            if (message.contentType !== 'text/pgp-private-key') {
-                const oldMessages = Object.assign({}, messagesRef.current);
-                if (!oldMessages[message.receiver]) {
-                    oldMessages[message.receiver] = [];
-                }
-                enrichWithMetadata(message).then(enriched => {
-                    oldMessages[message.receiver].push(enriched);
-                    setMessages(oldMessages);
-                });
+            if (message.contentType === 'text/pgp-private-key' || message.contentType === 'application/sylk-message-metadata') {
+                return;
             }
+            const oldMessages = Object.assign({}, messagesRef.current);
+            if (!oldMessages[message.receiver]) {
+                oldMessages[message.receiver] = [];
+            }
+            enrichWithMetadata(message).then(enriched => {
+                oldMessages[message.receiver].push(enriched);
+                setMessages(oldMessages);
+            });
         };
 
         const removeMessage = (message) => {

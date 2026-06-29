@@ -4,6 +4,7 @@ const Notification = electron.Notification
 const fs = require('fs');
 const openAboutWindow = require('about-window').default;
 const Badge = require('electron-windows-badge');
+const path = require('path');
 
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;

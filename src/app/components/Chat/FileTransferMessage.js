@@ -147,7 +147,7 @@ const FileTransferMessage = ({
 
     useEffect(() => {
         let file = message.json
-        if (file.filetype && !file.filetype.startsWith('image/' && !file.filetype.startsWith('video/'))) {
+        if (file.filetype && !file.filetype.startsWith('image/') && (!file.filetype.startsWith('video/') || file.filename.startsWith('sylk-audio-recording'))) {
             if (hidden) {
                 setHeader(
                     <Typography className={classes.fixFont} style={{ fontSize: 12, alignSelf: 'center' }} variant="body2">{file.filename.replace('.asc', '').replace(/_/g, ' ')}</Typography>
@@ -251,7 +251,7 @@ const FileTransferMessage = ({
                             generateFileBlock(error);
                         }
                     })
-            } else if (fileData.filetype && fileData.filetype.startsWith('video/')) {
+            } else if (fileData.filetype && fileData.filetype.startsWith('video/') && !fileData.filename.startsWith('sylk-audio-recording')) {
                 fileTransferUtils.generateThumbnail(account, message)
                     .then(([image, filename, w, h, duration]) => {
                         if (!ignore) {

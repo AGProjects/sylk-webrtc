@@ -2027,6 +2027,7 @@ class Blink extends React.Component {
         this._notificationCenter.postConferenceInvite(data.originator, data.room, () => {
             if (this.state.currentCall !== null) {
                 this.state.currentCall.removeListener('stateChanged', this.callStateChanged);
+                this.remoteAudio.current.srcObject = null;
                 this.state.currentCall.terminate();
                 this.setState({ currentCall: null, showIncomingModal: false, localMedia: null, generatedVideoTrack: false });
                 this.savedConferenceState = null;

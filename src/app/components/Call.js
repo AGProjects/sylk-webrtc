@@ -84,6 +84,9 @@ class Call extends React.Component {
     }
 
     startCall() {
+        if (this.props.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
+            return;
+        }
         assert(this.props.currentCall === null, 'currentCall is not null');
         let options = { pcConfig: { iceServers: config.iceServers } };
         options.localStream = this.props.localMedia;
@@ -92,6 +95,9 @@ class Call extends React.Component {
     }
 
     answerCall() {
+        if (this.props.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
+            return;
+        }
         assert(this.props.currentCall !== null, 'currentCall is null');
         let options = { pcConfig: { iceServers: config.iceServers } };
         options.localStream = this.props.localMedia;

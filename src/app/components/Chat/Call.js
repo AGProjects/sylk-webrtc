@@ -95,14 +95,14 @@ class Call extends React.Component {
     }
 
     componentDidMount() {
-        if (!this.state.audioOnly) {
-            sylkrtc.utils.attachMediaStream(this.props.currentCall.getLocalStreams()[0], this.localVideo.current, { disableContextMenu: true, muted: true });
-            const remoteStream = this.props.currentCall.getRemoteStreams()[0];
-            if (remoteStream) {
-                sylkrtc.utils.attachMediaStream(remoteStream, this.remoteVideo.current, { disableContextMenu: true, muted: true });
-            }
-        }
         if (this.props.currentCall != null) {
+            if (!this.state.audioOnly) {
+                sylkrtc.utils.attachMediaStream(this.props.currentCall.getLocalStreams()[0], this.localVideo.current, { disableContextMenu: true, muted: true });
+                const remoteStream = this.props.currentCall.getRemoteStreams()[0];
+                if (remoteStream) {
+                    sylkrtc.utils.attachMediaStream(remoteStream, this.remoteVideo.current, { disableContextMenu: true, muted: true });
+                }
+            }
             this.props.currentCall.statistics.on('stats', this.statistics);
             const localStream = this.props.currentCall?.getLocalStreams?.()[0];
             const audioTrack = localStream?.getAudioTracks?.()[0];
@@ -128,7 +128,9 @@ class Call extends React.Component {
     }
 
     componentWillUnmount() {
-        this.props.currentCall.statistics.removeListener('stats', this.statistics);
+        if (this.props.currentCall) {
+            this.props.currentCall.statistics.removeListener('stats', this.statistics);
+        }
     }
 
     statistics(stats) {
@@ -182,6 +184,9 @@ class Call extends React.Component {
     }
 
     startCall() {
+        if (this.props.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
+            return;
+        }
         assert(this.props.currentCall === null, 'currentCall is not null');
         let options = { pcConfig: { iceServers: config.iceServers } };
         options.localStream = this.props.localMedia;
@@ -191,6 +196,9 @@ class Call extends React.Component {
     }
 
     answerCall() {
+        if (this.props.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
+            return;
+        }
         assert(this.props.currentCall !== null, 'currentCall is null');
         let options = { pcConfig: { iceServers: config.iceServers } };
         options.localStream = this.props.localMedia;

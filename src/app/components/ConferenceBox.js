@@ -289,6 +289,14 @@ class ConferenceBox extends React.Component {
         document.removeEventListener('keydown', this.onKeyDown);
         this.props.call.statistics.removeListener('stats', this.statistics);
         this.props.call.account.removeListener('incomingMessage', this.incomingMessage);
+        this.props.call.off('participantJoined', this.onParticipantJoined);
+        this.props.call.off('participantLeft', this.onParticipantLeft);
+        this.props.call.off('roomConfigured', this.onConfigureRoom);
+        this.props.call.off('fileSharing', this.onFileSharing);
+        this.props.call.off('message', this.onMessage);
+        this.props.call.off('composingIndication', this.onComposing);
+        this.props.call.off('muteAudio', this.onMuteAudio);
+        this.props.call.off('raisedHands', this.onRaisedHands);
     }
 
     statistics(stats) {

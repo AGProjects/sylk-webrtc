@@ -321,6 +321,7 @@ class ConferenceBox extends React.Component {
 
             let packetLossRate = 0;
             let packetRate = 0;
+            let inboundVideoBitrate = 0;
 
             const audioDataInbound = audioData && audioData.inbound && audioData.inbound[0];
             if (audioDataInbound) {
@@ -338,6 +339,7 @@ class ConferenceBox extends React.Component {
             if (videoDataInbound) {
                 packetRate = videoDataInbound.packetRate;
                 packetLossRate = packetLossRate + videoDataInbound.packetLossRate;
+                inboundVideoBitrate = videoDataInbound.bitrate;
             }
 
             const videoDataOutbound = videoData && videoData.outbound && videoData.outbound[0];
@@ -345,9 +347,11 @@ class ConferenceBox extends React.Component {
                 packetRate = packetRate + videoDataOutbound.packetRate;
                 packetLossRate = packetLossRate + videoRemoteData.inbound[0].packetLossRate;
             }
+
             data.packetLossData = data.packetLossData.concat({
                 packetsLostInbound: packetLossRate,
                 packetRateInbound: packetRate,
+                inboundVideoBitrate: inboundVideoBitrate,
                 latency: 0
             });
 

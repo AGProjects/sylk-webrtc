@@ -35,7 +35,8 @@ class ConferenceMatrixParticipant extends React.Component {
         if (!props.isLocal) {
             props.participant.on('stateChanged', this.onParticipantStateChanged);
         }
-
+        this.emaBitrate = 0;
+        this.alpha = 0.4;
     }
 
     componentDidMount() {
@@ -63,6 +64,30 @@ class ConferenceMatrixParticipant extends React.Component {
         }
     }
 
+    componentDidUpdate() {
+        if (!this.props.stats?.packetLossData) return;
+        if (!this.props.participant) return;
+
+        const latest =
+            this.props.stats.packetLossData[
+            this.props.stats.packetLossData.length - 1
+        ];
+
+        const bitrate = latest?.inboundVideoBitrate;
+        const packets = latest?.packetRateInbound;
+
+        if (!Number.isFinite(bitrate)) return;
+        // EMA update
+        this.emaBitrate = this.alpha * bitrate + (1 - this.alpha) * this.emaBitrate;
+
+        const participants = this.props.participant._conference.participants.length - 1 ;
+        const hasVideo = this.emaBitrate > 100000 / Math.max(participants, 1) && packets > 5;
+
+        if (this.state.hasVideo !== hasVideo) {
+            this.setState({ hasVideo });
+        }
+
+    }
     onParticipantStateChanged(oldState, newState) {
         if (newState === 'established') {
             this.maybeAttachStream();

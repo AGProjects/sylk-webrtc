@@ -37,6 +37,8 @@ class ConferenceParticipant extends React.Component {
             this[name] = this[name].bind(this);
         });
 
+        this.emaBitrate = 0;
+        this.alpha = 0.4;
         props.participant.on('stateChanged', this.onParticipantStateChanged);
     }
 
@@ -54,6 +56,27 @@ class ConferenceParticipant extends React.Component {
         if (this.speechEvents !== null) {
             this.speechEvents.stop();
             this.speechEvents = null;
+        }
+    }
+
+    componentDidUpdate() {
+        if (!this.props.stats?.packetLossData) return;
+
+        const latest =
+            this.props.stats.packetLossData[
+            this.props.stats.packetLossData.length - 1
+        ];
+
+        const bitrate = latest?.inboundVideoBitrate;
+        const packets = latest?.packetRateInbound;
+
+        if (!Number.isFinite(bitrate)) return;
+
+        this.emaBitrate = this.alpha * bitrate + (1 - this.alpha) * this.emaBitrate;
+        const hasVideo = this.emaBitrate > 80000;
+
+        if (this.state.hasVideo !== hasVideo) {
+            this.setState({ hasVideo });
         }
     }
 

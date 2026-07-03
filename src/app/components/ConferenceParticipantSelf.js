@@ -51,6 +51,15 @@ class ConferenceParticipantSelf extends React.Component {
         }
     }
 
+    componentDidUpdate() {
+        if (this.props.stream.getVideoTracks().length > 0) {
+            const hasVideo = this.props.stream.getVideoTracks()[0].enabled;
+            if (hasVideo !== this.state.hasVideo) {
+                this.setState({hasVideo: hasVideo});
+            }
+        }
+    }
+
     attachSpeechEvents() {
         this.setState({hasVideo: this.props.stream.getVideoTracks().length > 0});
 

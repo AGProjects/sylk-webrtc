@@ -1358,6 +1358,12 @@ class Blink extends React.Component {
             return;
         }
         call.mediaTypes = mediaTypes;
+        if (call.remoteIdentity.uri.endsWith(`@${config.conference.sipBridge}`)) {
+            DEBUG('Drop call from conference');
+            call.terminate();
+            return;
+        }
+
         if (this.state.currentCall !== null) {
             // detect if we called ourselves
             if (this.state.currentCall.localIdentity.uri === call.remoteIdentity.uri) {

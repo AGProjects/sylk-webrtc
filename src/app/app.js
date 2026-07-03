@@ -2575,7 +2575,7 @@ class Blink extends React.Component {
         return (
             <CallCompleteBox
                 wasCall={this.state.mode === MODE_GUEST_CALL}
-                targetUri={this.state.targetUri}
+                targetUri={this.state.targetUri || this.state.previousTargetUri}
                 failureReason={this.failureReason}
                 retryHandler={this.handleRetry}
             />

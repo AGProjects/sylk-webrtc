@@ -119,6 +119,7 @@ class ConferenceBox extends React.Component {
             videoGraphData: data,
             audioGraphData: data,
             showStatistics: false,
+            showChatLayout: false,
             lastData: {}
         };
 
@@ -201,6 +202,7 @@ class ConferenceBox extends React.Component {
             'toggleAudioSwitchMenu',
             'toggleChatInCall',
             'toggleCall',
+            'toggleChatLayout',
             'showFiles',
             'setScroll',
             'preventOverlay',
@@ -722,7 +724,7 @@ class ConferenceBox extends React.Component {
 
     handleShareOverlayExited() {
         // re-arm the buttons and overlay timeout
-        if (!this.state.showDrawer && !this.state.showFiles && this.props.call.supportsVideo && !this.props.lowBandwidth) {
+        if (!this.state.showDrawer && !this.state.showFiles && this.props.call.supportsVideo && !this.props.lowBandwidth && !this.state.showChatLayout) {
             this.armOverlayTimer();
         }
         this.setState({ shareOverlayVisible: false });
@@ -942,6 +944,7 @@ class ConferenceBox extends React.Component {
             && !this.props.lowBandwidth
             && !this.state.showChat
             && !this.state.showInlineChat
+            && !this.state.showChatLayout
         ) {
             if (!this.state.callOverlayVisible) {
                 this.setState({ callOverlayVisible: true });
@@ -1067,6 +1070,11 @@ class ConferenceBox extends React.Component {
         clearTimeout(this.overlayTimer);
     }
 
+    toggleChatLayout() {
+        clearTimeout(this.overlayTimer);
+        this.setState({ callOverlayVisible: true, showFiles: false, showDrawer: false, showInlineChat: false, showChatLayout: !this.state.showChatLayout });
+    }
+
     render() {
         if (this.props.call === null) {
             return (<div></div>);
@@ -1074,7 +1082,7 @@ class ConferenceBox extends React.Component {
 
         let watermark;
 
-        let chatLayout = this.props.call.supportsVideo === false || this.props.lowBandwidth;
+        let chatLayout = this.props.call.supportsVideo === false || this.props.lowBandwidth || this.state.showChatLayout;
 
         const unreadMessages = (this.props.unreadMessages && this.props.unreadMessages.total) || 0;
 
@@ -1151,6 +1159,13 @@ class ConferenceBox extends React.Component {
         );
 
         const topButtons = [];
+        if (chatLayout && !this.props.lowBandwidth) {
+            topButtons.push(
+                <div className="btn-container" key="switchvideolayout">
+                    <button key="switch" type="button" title="Switch to video layout" className={commonButtonTopClasses} onClick={this.toggleChatLayout}> <i className="fa fa-exchange fa-2x"></i> </button>
+                </div>
+            );
+        }
         if (!this.state.showChat) {
             topButtons.push(
                 <button key="handButton" type="button" title="Raise Hand" className={commonButtonTopClasses} onClick={this.handleToggleHand}> <i className={handClasses}></i> </button>
@@ -1382,7 +1397,7 @@ class ConferenceBox extends React.Component {
                             raisedHand={raisedHand}
                             handleHandSelected={this.handleHandSelected}
                             disableHandToggle={disableHandToggle}
-                            pauseVideo={this.props.lowBandwidth}
+                            pauseVideo={this.props.lowBandwidth || this.state.showChatLayout}
                             stats={this.participantStats[p.id]}
                             audioManager={this.props.audioManager}
                         />
@@ -1399,7 +1414,7 @@ class ConferenceBox extends React.Component {
                                 raisedHand={this.state.raisedHands.indexOf(p)}
                                 handleHandSelected={this.handleHandSelected}
                                 disableHandToggle={disableHandToggle}
-                                pauseVideo={this.props.lowBandwidth}
+                                pauseVideo={this.props.lowBandwidth || this.state.showChatLayout}
                                 stats={this.participantStats[p.id]}
                                 audioManager={this.props.audioManager}
                             />
@@ -1437,7 +1452,7 @@ class ConferenceBox extends React.Component {
                             handleHandSelected={this.handleHandSelected}
                             disableHandToggle={disableHandToggle}
                             audioOnly={chatLayout}
-                            pauseVideo={this.props.lowBandwidth}
+                            pauseVideo={this.props.lowBandwidth || this.state.showChatLayout}
                             stats={this.participantStats[p.id]}
                             audioManager={this.props.audioManager}
                         />
@@ -1560,7 +1575,25 @@ class ConferenceBox extends React.Component {
                     size={(!chatLayout) ? (utils.isMobile.any() ? 'normal' : 'wide') : 'full'}
                     {...chatLayout && { position: this.state.showDrawer || this.state.showFiles ? 'middle' : 'right' }}
                     showClose={!chatLayout}
-                    {...this.state.isComposing && !chatLayout && { title: (<i className="fa fa-ellipsis-h fa-2x" />) }}
+                    title={
+                        !chatLayout ? (
+                            <span
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                }}
+                            >
+                                {this.state.isComposing && (
+                                    <i className="fa fa-ellipsis-h fa-2x" />
+                                )}
+
+                                <button type="button" className="close" title="Switch to chat layout" onClick={this.toggleChatLayout}>
+                                    <i className="fa fa-exchange" />
+                                </button>
+                            </span>
+                        ) : null
+                    }
                 >
                     {this.state.showFiles && !chatLayout &&
                         <ConferenceDrawerFiles

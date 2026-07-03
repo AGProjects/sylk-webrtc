@@ -108,7 +108,9 @@ class ReadyBox extends React.Component {
     handleAudioCall(event) {
         event.preventDefault();
         if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
-            this.props.startConference(this.state.targetUri);
+            this.props.startConference(this.state.targetUri, {
+                mediaConstraints: { audio: true, video: false }
+            });
         } else {
             this.props.startCall(this.getTargetUri(), { audio: true, video: false });
         }

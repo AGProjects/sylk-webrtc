@@ -123,9 +123,11 @@ const HistoryCard = (props) => {
                     <Button classes={{ root: classes.iconSmall }} disabled={props.noConnection} onClick={startVideoCall} title={`Video call to ${name}`}>
                         <i className="fa fa-video-camera"></i>
                     </Button>
-                    <Button classes={{ root: classes.iconSmall }} onClick={startChat} title={`Chat to ${name}`}>
-                        <i className="fa fa-comments"></i>
-                    </Button>
+                    {!isConference &&
+                        <Button classes={{ root: classes.iconSmall }} onClick={startChat} title={`Chat to ${name}`}>
+                            <i className="fa fa-comments"></i>
+                        </Button>
+                    }
                 </CardActions>
             </div>
             <div className={classes.icon}>

@@ -270,10 +270,13 @@ const MessageList = ({
                 download={downloadFiles}
                 removeMessage={removeMessage}
             />
-            {more === true &&
+            {more === true && loading === true &&
                 <div ref={ref}>
                     <CircularProgress style={{ color: '#888', margin: 'auto', display: 'block' }} />
                 </div>
+            }
+            {more === true && loading !== true &&
+                <div ref={ref} style={{ height: 1 }} />
             }
             {embed ?
                 entries

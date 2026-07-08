@@ -395,7 +395,7 @@ const InfoPanel = ({
             return message.contentType === 'application/sylk-file-transfer' && message.json.filetype;
         }).reverse().map((message) => {
             let file = message.json;
-            if (file.filetype.startsWith('image/') || file.filetype.startsWith('video/')) {
+            if (file.filetype.startsWith('image/') || (file.filetype.startsWith('video/') && !file.filename.startsWith('sylk-audio-recording'))) {
                 cacheResults.push(fileTransferUtils.generateThumbnail(account, message)
                     .then(([image, filename, w, h, duration]) => {
                         return {

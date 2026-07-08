@@ -1593,7 +1593,7 @@ class ConferenceBox extends React.Component {
                                 style={{
                                     display: 'inline-flex',
                                     alignItems: 'center',
-                                    gap: '8px',
+                                    gap: '8px'
                                 }}
                             >
                                 {this.state.isComposing && (

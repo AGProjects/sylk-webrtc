@@ -90,7 +90,7 @@ const LogoutModal = (props) => {
             disableEscapeKeyDown
         >
             <DialogTitle id="dialog-title" className={classes.bigger}>
-                Sign out of Sylk
+                Sign out of Blink
                 <IconButton aria-label="close" className={classes.closeButton} onClick={props.close}>
                     <CloseIcon />
                 </IconButton>

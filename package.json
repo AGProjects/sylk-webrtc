@@ -1,6 +1,6 @@
 {
-  "name": "Sylk",
-  "version": "3.8.0",
+  "name": "Blink",
+  "version": "4.0.0",
   "license": "AGPL-3.0-or-later",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead, electron 13.6.9",
@@ -30,7 +30,7 @@
     "digest-auth-request": "tijmenNL/digest-auth-request",
     "dotenv": "^8.6.0",
     "electron": "^13.6.9",
-    "electron-builder": "23.0.3",
+    "electron-builder": "26.15.3",
     "emoji-mart": "^3.0.0",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.22.1",
@@ -104,7 +104,7 @@
     "prebuild-dev": "npm run preserve && npm run lint:eslint",
     "build-dev": "parcel build ./src/index.html",
     "preelectron": "(rm -f .posthtmlrc && cp .posthtmlrc_electron .posthtmlrc) || cp .posthtmlrc_electron .posthtmlrc && npm run lint:eslint",
-    "electron": "parcel build ./src/index.html ./src/incomingWindow.html --dist-dir ./app/www/ --public-url ./ --no-source-maps",
+    "electron": "parcel build ./src/index.html ./src/incomingWindow.html --dist-dir ./app/www/ --public-url ./ --no-source-maps --no-cache",
     "lint:eslint": "eslint src/app",
     "lint:sass": "stylelint \"src/**/*.scss\"",
     "lint": "npm-run-all --parallel  lint:*"
@@ -121,7 +121,7 @@
   ],
   "build": {
     "appId": "com.agprojects.Sylk",
-    "productName": "Sylk",
+    "productName": "Blink Desktop",
     "afterSign": "./build/afterSignHook.js",
     "directories": {
       "output": "dist-electron"
@@ -132,6 +132,9 @@
         "url": "http://download.ag-projects.com/Sylk"
       }
     ],
+    "dmg": {
+      "title": "Install Blink Desktop"
+    },
     "mac": {
       "category": "public.app-category.video",
       "extendInfo": {
@@ -148,8 +151,7 @@
     "win": {
       "target": [
         "nsis"
-      ],
-      "signingHashAlgorithms": []
+      ]
     },
     "nsis": {
       "oneClick": true,
@@ -157,7 +159,7 @@
     },
     "linux": {
       "category": "Audio;Video;AudioVideo",
-      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "artifactName": "Blink-Desktop-${version}-${arch}.${ext}",
       "target": [
         "AppImage"
       ]

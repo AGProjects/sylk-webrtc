@@ -303,7 +303,7 @@ class NotificationCenter extends React.Component {
 
     postDeleteContactFailed(error) {
         this.refs.notificationSystem.addNotification({
-            title: `Failed to delete contact`,
+            title: 'Failed to delete contact',
             message: error.error,
             autoDismiss: 10,
             level: 'error',

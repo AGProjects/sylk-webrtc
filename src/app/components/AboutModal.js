@@ -10,11 +10,11 @@ const AboutModal = (props) => {
     return (
         <Modal show={props.show} onHide={props.close} aria-labelledby="cmodal-title-sm">
             <Modal.Header closeButton>
-                <Modal.Title id="cmodal-title-sm">About Sylk</Modal.Title>
+                <Modal.Title id="cmodal-title-sm">About Blink</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <p>
-                Sylk client is part of <a href="http://sylkserver.com" target="_blank" rel="noopener noreferrer">Sylk Suite</a>, a set of
+                Blink is part of <a href="http://sylkserver.com" target="_blank" rel="noopener noreferrer">Sylk Suite</a>, a set of
                 applications for real-time communications using SIP and WebRTC specifications
                 </p>
                 <br />

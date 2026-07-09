@@ -686,7 +686,7 @@ class Blink extends React.Component {
         const connection = sylkrtc.createConnection({
             server: config.wsServer,
             userAgent: {
-                name: `Sylk${this.shouldUseHashRouting ? 'App' : 'Web'}`,
+                name: `Blink ${this.shouldUseHashRouting ? 'Desktop' : 'Web'}`,
                 version: 'PACKAGE_VERSION'
             }
         });
@@ -2352,7 +2352,7 @@ class Blink extends React.Component {
             <span>
                 This application works in a browser that supports WebRTC (like recent versions
                 of <a href="https://www.google.com/chrome/browser/desktop/" target="_blank" rel="noopener noreferrer">Chrome</a> or <a href="https://www.mozilla.org/firefox/new/" target="_blank" rel="noopener noreferrer">Firefox</a>)
-                or in the standalone <a href="http://sylkserver.com/download/" target="_blank" rel="noopener noreferrer">Sylk application.</a>
+                or in the standalone <a href="http://sylkserver.com/download/" target="_blank" rel="noopener noreferrer">Blink Desktop application.</a>
             </span>
         );
         return (

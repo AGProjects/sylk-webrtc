@@ -19,6 +19,8 @@ const AboutModal = require('./AboutModal');
 const CallMeMaybeModal = require('./CallMeMaybeModal');
 
 
+const isElectron = navigator.userAgent.includes('Electron');
+
 const styleSheet = {
     root: {
         float: 'left',
@@ -181,7 +183,7 @@ class NavigationBar extends React.Component {
                 <Navbar.Header>
                     <div className="navbar-blink-logo pull-left"></div>
                     <Navbar.Brand>
-                        Sylk
+                        Blink
                     </Navbar.Brand>
                     <HtmlTooltip title={title}>
                         <p className="navbar-text hidden-xs">
@@ -212,9 +214,11 @@ class NavigationBar extends React.Component {
                             <strong><i className="fa fa-user"></i> {this.props.account.id}</strong>
                         </MenuItem>
                         <MenuItem divider />
-                        <MenuItem eventKey="about">
-                            <i className="fa fa-info-circle"></i> About Sylk
-                        </MenuItem>
+                        {!isElectron &&
+                            <MenuItem eventKey="about">
+                                <i className="fa fa-info-circle"></i> About Blink
+                            </MenuItem>
+                        }
                         <MenuItem eventKey="callMeMaybe">
                             <i className="fa fa-share"></i> Call me, maybe?
                         </MenuItem>

@@ -1,7 +1,7 @@
 {
   "name": "sylk-electron",
-  "version": "3.8.0",
-  "productName": "Sylk",
+  "version": "4.0.0",
+  "productName": "Blink Desktop",
   "description": "WebRTC client",
   "author": "AG Projects <support@ag-projects.com>",
   "license": "GPLv3",

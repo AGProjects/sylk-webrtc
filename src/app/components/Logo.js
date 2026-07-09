@@ -7,7 +7,7 @@ const Logo = () => {
     return (
         <div>
             <div className="blink-logo"></div>
-            <h1 className="cover-heading">Sylk</h1>
+            <h1 className="cover-heading">Blink</h1>
         </div>
     );
 }

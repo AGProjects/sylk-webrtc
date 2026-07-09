@@ -31,6 +31,9 @@ let updateWindow = null;
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
+// Keep old storage
+app.setPath('userData', path.join(app.getPath('appData'), 'Sylk'));
+
 autoUpdater.on('error', (error) => {
     if (updater != null) {
         if (progressBar != null) {
@@ -95,6 +98,7 @@ autoUpdater.on('update-downloaded', () => {
     });
 });
 
+
 // for platform specific tricks
 const isDarwin = process.platform === 'darwin';
 const isLinux = process.platform === 'linux';
@@ -115,7 +119,7 @@ const aboutOptions = {
 
 // Application menu
 const appMenu = Menu.buildFromTemplate([{
-    label: 'Sylk',
+    label: 'Blink',
     submenu: [
         { label: 'Check for updates...', click: (item, win, event) => { checkForUpdates(item, win, event); } },
         { label: 'About', click: () => { openAboutWindow(Object.assign({}, aboutOptions)); } },
@@ -154,7 +158,7 @@ function startDownload() {
         indeterminate: false,
         text: 'Downloading update...',
         detail: 'Downloading...',
-        title: 'Sylk Auto Updater',
+        title: 'Blink Auto Updater',
         browserWindow: {
             backgroundColor: '#eee'
         },
@@ -182,7 +186,7 @@ function startUpdateTimer() {
     }, 43200000);
     setTimeout(() => {
         autoUpdater.checkForUpdates();
-    }, 5000);
+    }, 10000);
 }
 
 function createUpdateDialog(info) {
@@ -191,8 +195,8 @@ function createUpdateDialog(info) {
         dialog.showMessageBox({
             type: 'info',
             title: 'Software Update',
-            message: 'A new version of Sylk is available!',
-            detail: `Sylk ${info.version} is now available\u2014you have ${autoUpdater.currentVersion}. Would you like to download it now?`,
+            message: 'A new version of Blink is available!',
+            detail: `Blink ${info.version} is now available\u2014you have ${autoUpdater.currentVersion}. Would you like to download it now?`,
             buttons: ['Yes', 'Remind me Later']
         }).then(({ response, checkboxChecked }) => {
             if (response === 0) {
@@ -215,7 +219,7 @@ function createMainWindow() {
         height: 600,
         minWidth: 1067,
         minHeight: 600,
-        title: 'Sylk',
+        title: 'Blink',
         backgroundColor: '#333',
         autoHideMenuBar: true,
         webPreferences: {

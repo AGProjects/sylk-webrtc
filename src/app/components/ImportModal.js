@@ -132,7 +132,7 @@ const ImportModal = (props) => {
                     ?
                         <React.Fragment>
                             <DialogContentText id="dialog-description" className={classes.fixFont}>
-                                Sylk uses end-to-end encryption for messaging for which it needs a private key.
+                                Blink uses end-to-end encryption for messaging for which it needs a private key.
                             </DialogContentText>
                             {reset === 0 &&
                                 <AuthCode

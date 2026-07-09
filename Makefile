@@ -17,19 +17,22 @@ deploy-test: dist-dev
 deploy-osx:
 	#rsync -avz --progress dist-electron/Sylk*.dmg dist-electron/Sylk*.zip dist-electron/latest-mac*yml -e 'ssh -A -J agp@de-node02.dns-hosting.info:22' agp@10.208.118.4:/var/www/download/Sylk/
 	#ssh -A -J agp@de-node02.dns-hosting.info:22 agp@10.208.118.4 ssh agp@node08.dns-hosting.info 'sudo /root/symlink-sylk.sh'
-	rsync -avz --progress dist-electron/Sylk*.dmg dist-electron/Sylk*.zip dist-electron/latest-mac*yml -e 'ssh -A -J agp@ca-node02.dns-hosting.info:22' agp@10.208.120.103:/var/www/download/Sylk/
+	#rsync -avz --progress dist-electron/Sylk*.dmg dist-electron/Sylk*.zip dist-electron/latest-mac*yml -e 'ssh -A -J agp@ca-node02.dns-hosting.info:22' agp@10.208.120.103:/var/www/download/Sylk/
+	rsync -avz --progress dist-electron/Blink*.dmg dist-electron/Blink*.zip dist-electron/latest-mac*yml -e 'ssh -A -J agp@ca-node02.dns-hosting.info:22' agp@10.208.120.103:/var/www/download/Sylk/
 	ssh -A -J agp@ca-node02.dns-hosting.info:22 agp@10.208.120.103 'sudo /root/symlink-sylk.sh'
 
 deploy-win:
 	#rsync -avz --progress dist-electron/Sylk*.exe dist-electron/latest.yml -e 'ssh -A -J agp@de-node02.dns-hosting.info:22' agp@10.208.118.4:/var/www/download/Sylk/
 	#ssh -A -J agp@de-node02.dns-hosting.info:22 agp@10.208.118.4 'sudo /root/symlink-sylk.sh'
-	rsync -avz --progress dist-electron/Sylk*.exe dist-electron/latest.yml -e 'ssh -A -J agp@ca-node02.dns-hosting.info:22' agp@10.208.120.103:/var/www/download/Sylk/
+	#rsync -avz --progress dist-electron/Sylk*.exe dist-electron/latest.yml -e 'ssh -A -J agp@ca-node02.dns-hosting.info:22' agp@10.208.120.103:/var/www/download/Sylk/
+	rsync -avz --progress dist-electron/Blink*.exe dist-electron/latest.yml -e 'ssh -A -J agp@ca-node02.dns-hosting.info:22' agp@10.208.120.103:/var/www/download/Sylk/
 	ssh -A -J agp@ca-node02.dns-hosting.info:22 agp@10.208.120.103 'sudo /root/symlink-sylk.sh'
 
 deploy-linux:
 	#rsync -avz --progress dist-electron/Sylk*.AppImage dist-electron/latest-linux*yml -e 'ssh -A -J agp@de-node02.dns-hosting.info:22' agp@10.208.118.4:/var/www/download/Sylk/
 	#ssh -A -J agp@de-node02.dns-hosting.info:22 agp@10.208.118.4 'sudo /root/symlink-sylk.sh'
-	rsync -avz --progress dist-electron/Sylk*.AppImage dist-electron/latest-linux*yml -e 'ssh -A -J agp@ca-node02.dns-hosting.info:22' agp@10.208.120.103:/var/www/download/Sylk/
+	#rsync -avz --progress dist-electron/Sylk*.AppImage dist-electron/latest-linux*yml -e 'ssh -A -J agp@ca-node02.dns-hosting.info:22' agp@10.208.120.103:/var/www/download/Sylk/
+	rsync -avz --progress dist-electron/Blink*.AppImage dist-electron/latest-linux*yml -e 'ssh -A -J agp@ca-node02.dns-hosting.info:22' agp@10.208.120.103:/var/www/download/Sylk/
 	ssh -A -J agp@ca-node02.dns-hosting.info:22 agp@10.208.120.103 'sudo /root/symlink-sylk.sh'
 
 dist:

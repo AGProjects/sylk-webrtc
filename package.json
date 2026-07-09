@@ -94,7 +94,7 @@
     "start": "electron ./app",
     "build-osx": "electron-builder --mac --universal",
     "build-win": "electron-builder --win --ia32 --x64",
-    "build-linux": "electron-builder --linux --ia32 --x64",
+    "build-linux": "electron-builder --linux --ia32 --x64 --arm64 --armv7l",
     "predev": "npm run preserve",
     "dev": "parcel ./src/index.html --https --cert ./test/tls/test.pem  --key ./test/tls/test.pem --port 3000 --hmr-port 3001",
     "preserve": "(rm -f .posthtmlrc && cp .posthtmlrc_no_electron .posthtmlrc) || cp .posthtmlrc_no_electron .posthtmlrc",
@@ -160,6 +160,14 @@
     "linux": {
       "category": "Audio;Video;AudioVideo",
       "artifactName": "Blink-Desktop-${version}-${arch}.${ext}",
+      "executableName": "blink-desktop",
+      "syncDesktopName": true,
+      "desktop": {
+        "entry": {
+          "Name": "Blink Desktop",
+          "Comment": "Chat, voice, video calling and conferencing"
+        }
+      },
       "target": [
         "AppImage"
       ]

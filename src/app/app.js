@@ -2757,54 +2757,60 @@ class Blink extends React.Component {
                 messageStorage.close();
                 addressbookStorage.close();
             }
-            if (this.state.account !== null) {
-                try {
-                    this.state.connection.removeAccount(this.state.account,
-                        (error) => {
-                            if (error) {
-                                DEBUG(error);
-                            }
-                        }
-                    );
-                } catch (error) {
-                    DEBUG(error);
-                }
-            }
+
             if (this.shouldUseHashRouting || removeData === true) {
                 DEBUG('Clearing password: %s', this.state.accountId);
                 await storage.set('account', { accountId: this.state.accountId, password: '' });
             }
-            if (this.state.connection.state !== 'ready') {
-                this.state.connection.close();
-            }
-            this.addressbookRef.current?.reset();
-            this.isRetry = false;
-            this.failureReason = null;
-            this.setState(
-                {
-                    registrationState: null,
-                    status: null,
-                    serverHistory: [],
-                    password: '',
-                    oldMessages: {},
-                    enableMessaging: false,
-                    accountId: '',
-                    unreadMessages: 0,
-                    unreadCallMessages: 0,
-                    history: [],
-                    contactCache: new Map()
-                },
-                () => {
-                    // needed to prevent complain from readybox and navbar.
-                    setImmediate(() => this.setState({ account: null }));
-                    this.loggingOut = false;
-                    if (config.showGuestCompleteScreen && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
-                        this.router.current.navigate('/call-complete');
-                    } else {
-                        this.router.current.navigate('/login');
+
+            this.setState({ registrationState: null }, () => {
+                if (config.showGuestCompleteScreen && (this.state.mode === MODE_GUEST_CALL || this.state.mode === MODE_GUEST_CONFERENCE)) {
+                    this.router.current.navigate('/call-complete');
+                } else {
+                    this.router.current.navigate('/login');
+                }
+
+                if (this.state.account !== null) {
+                    this.state.account.off('registrationStateChanged', this.registrationStateChanged);
+                    try {
+                        this.state.connection.removeAccount(this.state.account,
+                            (error) => {
+                                if (error) {
+                                    DEBUG(error);
+                                }
+                            }
+                        );
+                    } catch (error) {
+                        DEBUG(error);
                     }
                 }
-            );
+
+                if (this.state.connection.state !== 'ready') {
+                    this.state.connection.close();
+                }
+                this.addressbookRef.current?.reset();
+                this.isRetry = false;
+                this.failureReason = null;
+                this.setState(
+                    {
+                        account: null,
+                        status: null,
+                        serverHistory: [],
+                        password: '',
+                        oldMessages: {},
+                        enableMessaging: false,
+                        accountId: '',
+                        unreadMessages: 0,
+                        unreadCallMessages: 0,
+                        history: [],
+                        contactCache: new Map(),
+                        lastMessageFocus: ''
+                    },
+                    () => {
+                        this.loggingOut = false;
+                    }
+                );
+            });
         });
         return <div></div>;
     }

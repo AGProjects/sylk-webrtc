@@ -1591,7 +1591,7 @@ class Blink extends React.Component {
         const path = this.router.current.getPath();
         if (path !== '/chat') {
             if (this.state.currentCall === null) {
-                if (message.contentType !== 'application/sylk-message.metadata') {
+                if (message.contentType !== 'application/sylk-message-metadata') {
                     this._notificationCenter.postNewMessage(message, () => {
                         this.lastMessageFocus = message.sender.uri;
                         this.router.current.navigate('/chat');
@@ -1603,7 +1603,7 @@ class Blink extends React.Component {
             const remote = window.require('electron').remote;
             const currentWindow = remote.getCurrentWindow();
             if (!currentWindow.isFocused()) {
-                if (message.contentType !== 'application/sylk-message.metadata') {
+                if (message.contentType !== 'application/sylk-message-metadata') {
                     this._notificationCenter.postSystemNotification('New message',
                         {
                             body: `From ${message.sender.displayName || message.sender.uri}`,

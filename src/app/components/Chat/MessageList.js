@@ -19,6 +19,7 @@ const DragAndDrop = require('../DragAndDrop');
 const FileTransferMessage = require('./FileTransferMessage');
 const ImagePreviewModal = require('./ImagePreviewModal')
 const Message = require('./Message');
+const LocationMessage = require('./LocationMessage').default;
 
 const { useHasChanged, usePrevious } = require('../../hooks');
 const fileTransferUtils = require('../../fileTransferUtils');
@@ -160,7 +161,8 @@ const MessageList = ({
 
             const messageComponents = {
                 default: Message,
-                fileTransfer: FileTransferMessage
+                fileTransfer: FileTransferMessage,
+                location: LocationMessage
             };
             let MessageComponent = messageComponents['default'];
             let extraProps = {}
@@ -171,6 +173,8 @@ const MessageList = ({
                     downloadFiles: downloadFiles,
                     account: account
                 }
+            } else if (message.contentType === 'application/sylk-live-location') {
+                MessageComponent = messageComponents['location']
             }
 
             return (

@@ -236,6 +236,9 @@ function add(message) {
     }
 
     if (message.contentType === 'application/sylk-message-metadata') {
+        if (message.json && (message.json.action === 'location' || message.json.action === 'meeting_end')) {
+            return addLocationTick(message);
+        }
         DEBUG('Storing metadata message');
         return addMetadata(message);
     }
@@ -293,6 +296,107 @@ function removeMessage(message) {
             set(contact, messages);
         }
         return messages;
+    }));
+}
+
+
+function _locationTickFrom(json) {
+    const v = json.value || {};
+    if (typeof v.latitude !== 'number' || typeof v.longitude !== 'number') return null;
+    return {
+        latitude: v.latitude,
+        longitude: v.longitude,
+        accuracy: typeof v.accuracy === 'number' ? v.accuracy : null,
+        timestamp: v.timestamp ? new Date(v.timestamp)
+            : (json.timestamp ? new Date(json.timestamp) : new Date())
+    };
+}
+
+function addLocationTick(message) {
+    const json = message.json;
+    if (!json || !json.messageId) return Promise.resolve();
+    const originId = json.messageId;
+    const contact = message.state === 'received'
+        ? (message.sender && message.sender.uri)
+        : message.receiver;
+    if (!contact) return Promise.resolve();
+
+    return Queue.enqueue(() => get(contact).then((stored) => {
+        const messages = stored || [];
+        let idx = -1;
+        let bubble = null;
+        for (let i = 0; i < messages.length; i++) {
+            let parsed;
+            try {
+                parsed = JSON.parse(messages[i], _parseDates);
+            } catch (e) {
+                continue;
+            }
+            if (parsed.id === originId && parsed.contentType === 'application/sylk-live-location') {
+                idx = i;
+                bubble = parsed;
+                break;
+            }
+        }
+
+        if (json.action === 'meeting_end') {
+            if (bubble) {
+                bubble.locationEnded = true;
+                messages[idx] = JSON.stringify(bubble);
+                idsInStorage.set(originId, bubble.state);
+                return set(contact, messages);
+            }
+            return;
+        }
+
+        const tick = _locationTickFrom(json);
+        const expires = json.expires ? new Date(json.expires) : null;
+
+        if (bubble) {
+            const trail = Array.isArray(bubble.locationTrail) ? bubble.locationTrail : [];
+            if (tick) {
+                const tickTime = tick.timestamp.getTime();
+                const dup = trail.some(p => p
+                    && new Date(p.timestamp).getTime() === tickTime
+                    && Number(p.latitude) === tick.latitude
+                    && Number(p.longitude) === tick.longitude);
+                if (!dup) {
+                    trail.push(tick);
+                    trail.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                }
+            }
+            bubble.locationTrail = trail;
+            if (expires) bubble.locationExpires = expires;
+            bubble.locationEnded = false;
+            messages[idx] = JSON.stringify(bubble);
+            idsInStorage.set(originId, bubble.state);
+            return set(contact, messages);
+        }
+
+        const createdAt = json.timestamp ? new Date(json.timestamp)
+            : (tick ? tick.timestamp : new Date());
+        const newBubble = {
+            id: originId,
+            contentType: 'application/sylk-live-location',
+            content: '',
+            timestamp: createdAt,
+            state: message.state || 'received',
+            dispositionState: 'displayed',
+            dispositionNotification: [],
+            sender: {
+                uri: (message.sender && message.sender.uri) || contact,
+                displayName: (message.sender && message.sender.displayName) || null
+            },
+            receiver: message.receiver,
+            metadata: [],
+            type: 'normal',
+            locationTrail: tick ? [tick] : [],
+            locationExpires: expires,
+            locationEnded: false
+        };
+        messages.push(JSON.stringify(newBubble));
+        idsInStorage.set(originId, newBubble.state);
+        return set(contact, messages);
     }));
 }
 

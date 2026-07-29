@@ -313,6 +313,8 @@ const ContactList = (props) => {
             return content;
         } else if (contentType === 'text/plain') {
             return message.content;
+        } else if (contentType === 'application/sylk-live-location') {
+            return message.locationEnded ? 'Location sharing ended' : '📍 Live location';
         } else if (contentType === 'text/pgp-public-key') {
             return (
                 <Chip

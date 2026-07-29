@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Media } from 'react-bootstrap';
 import { DateTime } from 'luxon';
+import { Card } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import {
     LocationOn as LocationOnIcon,
@@ -45,7 +46,7 @@ const ATTRIBUTION = '© OpenStreetMap contributors';
 const MAX_ZOOM = 19;
 const DEFAULT_ZOOM = 16;
 
-const styleSheet = makeStyles(() => ({
+const styleSheet = makeStyles((theme) => ({
     '@keyframes livePulse': {
         '0%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0.6)' },
         '70%': { boxShadow: '0 0 0 6px rgba(76, 175, 80, 0)' },
@@ -56,14 +57,12 @@ const styleSheet = makeStyles(() => ({
         maxWidth: '100%',
         borderRadius: 10,
         overflow: 'hidden',
-        border: '1px solid #d9d9d9',
-        backgroundColor: '#fff',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
+        fontFamily: 'inherit'
     },
     map: {
         width: '100%',
         height: 380,
-        backgroundColor: '#e8eef3',
+        backgroundColor: theme.palette.action.hover,
         '& .leaflet-pane, & .leaflet-top, & .leaflet-bottom': {
             zIndex: 1
         }
@@ -83,7 +82,8 @@ const styleSheet = makeStyles(() => ({
     scrubCaption: {
         padding: '0 10px 6px',
         fontSize: 11,
-        color: '#888'
+        fontFamily: 'inherit',
+        color: theme.palette.text.secondary
     },
     scrubLiveBtn: {
         border: 'none',
@@ -91,6 +91,7 @@ const styleSheet = makeStyles(() => ({
         padding: 0,
         fontSize: 11,
         fontWeight: 600,
+        fontFamily: 'inherit',
         color: '#2f6fb3',
         cursor: 'pointer',
         whiteSpace: 'nowrap'
@@ -104,7 +105,7 @@ const styleSheet = makeStyles(() => ({
     coordText: {
         fontFamily: 'monospace',
         fontSize: 12,
-        color: '#444',
+        color: theme.palette.text.primary,
         userSelect: 'text',
         cursor: 'text'
     },
@@ -116,6 +117,7 @@ const styleSheet = makeStyles(() => ({
         background: 'none',
         padding: 0,
         fontSize: 12,
+        fontFamily: 'inherit',
         color: '#2f6fb3',
         cursor: 'pointer',
         whiteSpace: 'nowrap'
@@ -137,7 +139,8 @@ const styleSheet = makeStyles(() => ({
         flexGrow: 1,
         fontSize: 13,
         fontWeight: 600,
-        color: '#333',
+        fontFamily: 'inherit',
+        color: theme.palette.text.primary,
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis'
@@ -148,6 +151,7 @@ const styleSheet = makeStyles(() => ({
         gap: 5,
         fontSize: 11,
         fontWeight: 600,
+        fontFamily: 'inherit',
         color: '#2e7d32',
         textTransform: 'uppercase',
         letterSpacing: 0.4
@@ -162,7 +166,8 @@ const styleSheet = makeStyles(() => ({
     endedChip: {
         fontSize: 11,
         fontWeight: 600,
-        color: '#888',
+        fontFamily: 'inherit',
+        color: theme.palette.text.secondary,
         textTransform: 'uppercase',
         letterSpacing: 0.4
     },
@@ -170,9 +175,10 @@ const styleSheet = makeStyles(() => ({
         display: 'flex',
         alignItems: 'center',
         padding: '6px 10px',
-        borderTop: '1px solid #eee',
+        borderTop: `1px solid ${theme.palette.divider}`,
         fontSize: 12,
-        color: '#666',
+        fontFamily: 'inherit',
+        color: theme.palette.text.secondary,
         gap: 8
     },
     stat: {
@@ -185,6 +191,7 @@ const styleSheet = makeStyles(() => ({
         display: 'inline-flex',
         alignItems: 'center',
         gap: 3,
+        fontFamily: 'inherit',
         color: '#2f6fb3',
         cursor: 'pointer',
         whiteSpace: 'nowrap',
@@ -455,7 +462,7 @@ const LocationMessage = ({ message, cont, scroll, identity }: Props) => {
     const updateCount = trail.length;
 
     const card = (
-        <div className={classes.card}>
+        <Card variant="outlined" className={classes.card}>
             <div className={classes.header}>
                 <LocationOnIcon className={classes.headerIcon} />
                 <span className={classes.title}>{titleText}</span>
@@ -543,7 +550,7 @@ const LocationMessage = ({ message, cont, scroll, identity }: Props) => {
                     </span>
                 </div>
             )}
-        </div>
+        </Card>
     );
 
     const theme = cont ? 'text-left continued' : 'text-left';

@@ -44,6 +44,7 @@
     "image-conversion": "^2.1.1",
     "intersection-observer": "^0.12.0",
     "ipaddr.js": "^1.9.1",
+    "leaflet": "^1.9.4",
     "linkify-urls": "tijmenNL/linkify-urls#v2.2.1",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",

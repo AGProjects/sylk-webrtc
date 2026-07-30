@@ -82,7 +82,6 @@ const styleSheet = makeStyles((theme) => ({
     scrubCaption: {
         padding: '0 10px 6px',
         fontSize: 11,
-        fontFamily: 'inherit',
         color: theme.palette.text.secondary
     },
     scrubLiveBtn: {
@@ -139,7 +138,6 @@ const styleSheet = makeStyles((theme) => ({
         flexGrow: 1,
         fontSize: 13,
         fontWeight: 600,
-        fontFamily: 'inherit',
         color: theme.palette.text.primary,
         whiteSpace: 'nowrap',
         overflow: 'hidden',
@@ -151,7 +149,6 @@ const styleSheet = makeStyles((theme) => ({
         gap: 5,
         fontSize: 11,
         fontWeight: 600,
-        fontFamily: 'inherit',
         color: '#2e7d32',
         textTransform: 'uppercase',
         letterSpacing: 0.4
@@ -166,7 +163,6 @@ const styleSheet = makeStyles((theme) => ({
     endedChip: {
         fontSize: 11,
         fontWeight: 600,
-        fontFamily: 'inherit',
         color: theme.palette.text.secondary,
         textTransform: 'uppercase',
         letterSpacing: 0.4
@@ -177,7 +173,6 @@ const styleSheet = makeStyles((theme) => ({
         padding: '6px 10px',
         borderTop: `1px solid ${theme.palette.divider}`,
         fontSize: 12,
-        fontFamily: 'inherit',
         color: theme.palette.text.secondary,
         gap: 8
     },
@@ -191,7 +186,6 @@ const styleSheet = makeStyles((theme) => ({
         display: 'inline-flex',
         alignItems: 'center',
         gap: 3,
-        fontFamily: 'inherit',
         color: '#2f6fb3',
         cursor: 'pointer',
         whiteSpace: 'nowrap',

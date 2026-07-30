@@ -13,6 +13,12 @@ const DEBUG = debug('blinkrtc:MessageStorage');
 
 let store = null;
 let metadataStore = null;
+let locationStore = null;
+
+// Live-location trails live in their own store keyed by messageId (see
+// addLocationTick / getLocationTrail). Cap the retained points so an
+// hours-long share can not grow the record without bound.
+const LOCATION_TRAIL_MAX = 500;
 
 const lastIdLoaded = new Map();
 const lastFileIdLoaded = new Map();
@@ -121,11 +127,18 @@ function initialize(account, electronStore, electron = false) {
                 name: 'Sylk',
                 storeName: `metadata_${account}`
             });
+            locationStore = localforage.createInstance({
+                driver: localforage.INDEXEDDB,
+                name: 'Sylk',
+                storeName: `location_${account}`
+            });
         } else {
             store = new electronStorage(electronStore, { debug: DEBUG });
             store.init(account, 'messages');
             metadataStore = new electronStorage(electronStore, { debug: DEBUG });
             metadataStore.init(account, 'metadata');
+            locationStore = new electronStorage(electronStore, { debug: DEBUG });
+            locationStore.init(account, 'location');
         }
         migrateMetadataMessages(account);
     }
@@ -154,15 +167,16 @@ function remove(key) {
 
 function dropInstance() {
     if (store instanceof electronStorage) {
-        return Promise.all([store.clear(), metadataStore.clear()]);
+        return Promise.all([store.clear(), metadataStore.clear(), locationStore.clear()]);
     }
-    return Promise.all([store.dropInstance(), metadataStore.dropInstance()]);
+    return Promise.all([store.dropInstance(), metadataStore.dropInstance(), locationStore.dropInstance()]);
 }
 
 
 function close() {
     store = null;
     metadataStore = null;
+    locationStore = null;
     return;
 }
 
@@ -291,6 +305,9 @@ function removeMessage(message) {
                 if (storedMessage.contentType === 'application/sylk-file-transfer') {
                     metadataStore.removeItem(storedMessage.id);
                 }
+                if (storedMessage.contentType === 'application/sylk-live-location') {
+                    locationStore.removeItem(storedMessage.id);
+                }
                 return false;
             });
             set(contact, messages);
@@ -312,6 +329,32 @@ function _locationTickFrom(json) {
     };
 }
 
+function _appendTick(record, tick) {
+    const trail = Array.isArray(record.trail) ? record.trail : [];
+    if (tick) {
+        const tickTime = tick.timestamp.getTime();
+        const dup = trail.some(p => p
+            && new Date(p.timestamp).getTime() === tickTime
+            && Number(p.latitude) === tick.latitude
+            && Number(p.longitude) === tick.longitude);
+        if (!dup) {
+            trail.push(tick);
+            trail.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            if (trail.length > LOCATION_TRAIL_MAX) {
+                trail.splice(0, trail.length - LOCATION_TRAIL_MAX);
+            }
+        }
+    }
+    record.trail = trail;
+    return record;
+}
+
+// The trail/expiry/ended data for a live-location share is kept in its own
+// store keyed by the origin messageId, mirroring metadataStore. Only a small
+// stub (id, contentType, sender, receiver, timestamp, ...) is kept in the
+// per-contact conversation blob, so a per-second tick rewrites just the small
+// trail record instead of the whole conversation array. The trail is merged
+// back onto the stub at load time by _mergeLocationTrails().
 function addLocationTick(message) {
     const json = message.json;
     if (!json || !json.messageId) return Promise.resolve();
@@ -321,82 +364,85 @@ function addLocationTick(message) {
         : message.receiver;
     if (!contact) return Promise.resolve();
 
-    return Queue.enqueue(() => get(contact).then((stored) => {
-        const messages = stored || [];
-        let idx = -1;
-        let bubble = null;
-        for (let i = 0; i < messages.length; i++) {
-            let parsed;
-            try {
-                parsed = JSON.parse(messages[i], _parseDates);
-            } catch (e) {
-                continue;
-            }
-            if (parsed.id === originId && parsed.contentType === 'application/sylk-live-location') {
-                idx = i;
-                bubble = parsed;
-                break;
-            }
-        }
-
+    return Queue.enqueue(() => locationStore.getItem(originId).then((record) => {
         if (json.action === 'meeting_end') {
-            if (bubble) {
-                bubble.locationEnded = true;
-                messages[idx] = JSON.stringify(bubble);
-                idsInStorage.set(originId, bubble.state);
-                return set(contact, messages);
-            }
-            return;
+            if (!record) return; // no known share to end
+            record.ended = true;
+            return locationStore.setItem(originId, record);
         }
 
         const tick = _locationTickFrom(json);
         const expires = json.expires ? new Date(json.expires) : null;
 
-        if (bubble) {
-            const trail = Array.isArray(bubble.locationTrail) ? bubble.locationTrail : [];
-            if (tick) {
-                const tickTime = tick.timestamp.getTime();
-                const dup = trail.some(p => p
-                    && new Date(p.timestamp).getTime() === tickTime
-                    && Number(p.latitude) === tick.latitude
-                    && Number(p.longitude) === tick.longitude);
-                if (!dup) {
-                    trail.push(tick);
-                    trail.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-                }
-            }
-            bubble.locationTrail = trail;
-            if (expires) bubble.locationExpires = expires;
-            bubble.locationEnded = false;
-            messages[idx] = JSON.stringify(bubble);
-            idsInStorage.set(originId, bubble.state);
-            return set(contact, messages);
+        // Hot path: the share is already known, so only the (small) trail
+        // record is rewritten. The conversation blob is left untouched.
+        if (record) {
+            _appendTick(record, tick);
+            if (expires) record.expires = expires;
+            record.ended = false;
+            return locationStore.setItem(originId, record);
         }
 
-        const createdAt = json.timestamp ? new Date(json.timestamp)
-            : (tick ? tick.timestamp : new Date());
-        const newBubble = {
-            id: originId,
-            contentType: 'application/sylk-live-location',
-            content: '',
-            timestamp: createdAt,
-            state: message.state || 'received',
-            dispositionState: 'displayed',
-            dispositionNotification: [],
-            sender: {
-                uri: (message.sender && message.sender.uri) || contact,
-                displayName: (message.sender && message.sender.displayName) || null
-            },
-            receiver: message.receiver,
-            metadata: [],
-            type: 'normal',
-            locationTrail: tick ? [tick] : [],
-            locationExpires: expires,
-            locationEnded: false
-        };
-        messages.push(JSON.stringify(newBubble));
-        idsInStorage.set(originId, newBubble.state);
-        return set(contact, messages);
+        // First time we see this share: read the conversation once to create a
+        // lightweight stub. If a legacy bubble with an embedded trail is found
+        // (pre-split storage), lift its trail into the record and shrink the
+        // stored message down to a stub.
+        return get(contact).then((stored) => {
+            const messages = stored || [];
+            let idx = -1;
+            let found = null;
+            for (let i = 0; i < messages.length; i++) {
+                let parsed;
+                try {
+                    parsed = JSON.parse(messages[i], _parseDates);
+                } catch (e) {
+                    continue;
+                }
+                if (parsed.id === originId && parsed.contentType === 'application/sylk-live-location') {
+                    idx = i;
+                    found = parsed;
+                    break;
+                }
+            }
+
+            const rec = found ? {
+                trail: Array.isArray(found.locationTrail) ? found.locationTrail.slice() : [],
+                expires: found.locationExpires || null,
+                ended: Boolean(found.locationEnded)
+            } : { trail: [], expires: null, ended: false };
+
+            _appendTick(rec, tick);
+            if (expires) rec.expires = expires;
+            rec.ended = false;
+
+            const createdAt = (found && found.timestamp) ? found.timestamp
+                : (json.timestamp ? new Date(json.timestamp)
+                    : (tick ? tick.timestamp : new Date()));
+            const stub = {
+                id: originId,
+                contentType: 'application/sylk-live-location',
+                content: '',
+                timestamp: createdAt,
+                state: (found && found.state) || message.state || 'received',
+                dispositionState: (found && found.dispositionState) || 'displayed',
+                dispositionNotification: (found && found.dispositionNotification) || [],
+                sender: (found && found.sender) || {
+                    uri: (message.sender && message.sender.uri) || contact,
+                    displayName: (message.sender && message.sender.displayName) || null
+                },
+                receiver: (found && found.receiver) || message.receiver,
+                metadata: (found && found.metadata) || [],
+                type: (found && found.type) || 'normal'
+            };
+
+            if (idx !== -1) {
+                messages[idx] = JSON.stringify(stub);
+            } else {
+                messages.push(JSON.stringify(stub));
+            }
+            idsInStorage.set(originId, stub.state);
+            return Promise.all([locationStore.setItem(originId, rec), set(contact, messages)]);
+        });
     }));
 }
 
@@ -479,7 +525,7 @@ function loadLastMessages() {
             for (let key of keys) {
                 promises.push(store.getItem(key).then((messages) => {
                     if (messages) {
-                        lastMessages[key] = _fixFileMessages(messages.slice(-30))
+                        const fixed = _fixFileMessages(messages.slice(-30))
                             .filter(message => {
                                 if (message.contentType === 'application/sylk-file-transfer' && message.isExpired) {
                                     return cacheStorage.isCached(message.id)
@@ -487,14 +533,16 @@ function loadLastMessages() {
                                 return true;
                             });
 
-
-                        // lastMessages[key] = messages.map(message => JSON.parse(message, parseDates));
-                        if (lastMessages[key].length !== 0) {
-                            lastIdLoaded.set(key, lastMessages[key][0].id);
-                            lastFileIdLoaded.set(key, lastMessages[key][0].id);
-                        } else {
-                            delete lastMessages[key];
-                        }
+                        return _mergeLocationTrails(fixed).then(() => {
+                            lastMessages[key] = fixed;
+                            // lastMessages[key] = messages.map(message => JSON.parse(message, parseDates));
+                            if (lastMessages[key].length !== 0) {
+                                lastIdLoaded.set(key, lastMessages[key][0].id);
+                                lastFileIdLoaded.set(key, lastMessages[key][0].id);
+                            } else {
+                                delete lastMessages[key];
+                            }
+                        });
                     }
                 }))
             }
@@ -540,6 +588,38 @@ function _fixFileMessages(messages) {
         }
         return fixedMessage
     });
+}
+
+// Merge live-location trails (kept in locationStore) back onto their stubs.
+// Legacy bubbles that still carry an embedded trail are migrated into the
+// location store on first load and then read from there.
+function _mergeLocationTrails(messages) {
+    if (!messages || messages.length === 0) return Promise.resolve(messages);
+    const bubbles = messages.filter(m => m && m.contentType === 'application/sylk-live-location');
+    if (bubbles.length === 0) return Promise.resolve(messages);
+
+    return Promise.all(bubbles.map(bubble =>
+        locationStore.getItem(bubble.id).then(record => {
+            if (record) {
+                bubble.locationTrail = Array.isArray(record.trail) ? record.trail : [];
+                bubble.locationExpires = record.expires || null;
+                bubble.locationEnded = Boolean(record.ended);
+                return;
+            }
+            // Legacy bubble with an embedded trail: migrate it into the store.
+            const migrated = {
+                trail: Array.isArray(bubble.locationTrail) ? bubble.locationTrail : [],
+                expires: bubble.locationExpires || null,
+                ended: Boolean(bubble.locationEnded)
+            };
+            bubble.locationTrail = migrated.trail;
+            bubble.locationExpires = migrated.expires;
+            bubble.locationEnded = migrated.ended;
+            return locationStore.setItem(bubble.id, migrated);
+        }).catch(() => {
+            bubble.locationTrail = Array.isArray(bubble.locationTrail) ? bubble.locationTrail : [];
+        })
+    )).then(() => messages);
 }
 
 function loadMoreFiles(key) {
@@ -648,7 +728,7 @@ function loadMoreMessages(key) {
             if (lastMessages.length === 0) {
                 return
             }
-            return lastMessages
+            return _mergeLocationTrails(lastMessages).then(() => lastMessages);
         }
     }));
 }
@@ -738,6 +818,11 @@ function getMetadata(messageId) {
     return metadataStore.getItem(messageId);
 }
 
+function getLocationTrail(messageId) {
+    if (locationStore === null) return Promise.resolve(null);
+    return locationStore.getItem(messageId);
+}
+
 function fixMessage(message) {
     return _fixFileMessages([JSON.stringify(message)])[0];
 }
@@ -763,4 +848,5 @@ exports.hasFileTypes = hasFileTypes;
 exports.revertFiles = revertFiles;
 exports.updateIdMap = updateIdMap;
 exports.getMetadata = getMetadata;
+exports.getLocationTrail = getLocationTrail;
 exports.fixMessage = fixMessage;

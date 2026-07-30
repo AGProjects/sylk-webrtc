@@ -25,6 +25,7 @@ const ContactDeleteModal = require('./ContactDeleteModal').default;
 const fileTransferUtils = require('../fileTransferUtils');
 const messageStorage = require('../messageStorage');
 const utils = require('../utils');
+const { applyLocationEvent } = require('../locationTrail');
 
 const { useAddressbook } = require('../AddressbookProvider');
 const { useConfig } = require('../ConfigProvider')
@@ -247,46 +248,32 @@ const Chat = (props) => {
                 if (idx !== -1) { foundKey = key; foundIdx = idx; break; }
             }
 
-            if (json.action === 'meeting_end') {
-                if (foundKey !== null) {
-                    const arr = oldMessages[foundKey].slice();
-                    arr[foundIdx] = { ...arr[foundIdx], locationEnded: true };
-                    oldMessages[foundKey] = arr;
-                    setMessages(oldMessages);
-                }
-                return;
-            }
-
-            const v = json.value || {};
-            const hasCoords = typeof v.latitude === 'number' && typeof v.longitude === 'number';
-            const tick = hasCoords ? {
-                latitude: v.latitude,
-                longitude: v.longitude,
-                accuracy: typeof v.accuracy === 'number' ? v.accuracy : null,
-                timestamp: v.timestamp ? new Date(v.timestamp)
-                    : (json.timestamp ? new Date(json.timestamp) : new Date())
-            } : null;
-            const expires = json.expires ? new Date(json.expires) : null;
-
             if (foundKey !== null) {
                 const arr = oldMessages[foundKey].slice();
                 const prev = arr[foundIdx];
-                const trail = Array.isArray(prev.locationTrail) ? prev.locationTrail.slice() : [];
-                if (tick) trail.push(tick);
+                const state = applyLocationEvent({
+                    trail: Array.isArray(prev.locationTrail) ? prev.locationTrail.slice() : [],
+                    expires: prev.locationExpires || null,
+                    ended: Boolean(prev.locationEnded)
+                }, json);
                 arr[foundIdx] = {
                     ...prev,
-                    locationTrail: trail,
-                    locationExpires: expires || prev.locationExpires || null,
-                    locationEnded: false
+                    locationTrail: state.trail,
+                    locationExpires: state.expires,
+                    locationEnded: state.ended
                 };
                 oldMessages[foundKey] = arr;
                 setMessages(oldMessages);
                 return;
             }
 
+            // meeting_end for a share we have never seen: nothing to end.
+            if (json.action === 'meeting_end') return;
+
+            const state = applyLocationEvent({ trail: [], expires: null, ended: false }, json);
             const list = oldMessages[senderUri] ? oldMessages[senderUri].slice() : [];
             const createdAt = json.timestamp ? new Date(json.timestamp)
-                : (tick ? tick.timestamp : new Date());
+                : (state.trail.length ? state.trail[state.trail.length - 1].timestamp : new Date());
             list.push({
                 id: originId,
                 contentType: 'application/sylk-live-location',
@@ -299,9 +286,9 @@ const Chat = (props) => {
                 receiver: message.receiver,
                 metadata: [],
                 type: 'normal',
-                locationTrail: tick ? [tick] : [],
-                locationExpires: expires,
-                locationEnded: false
+                locationTrail: state.trail,
+                locationExpires: state.expires,
+                locationEnded: state.ended
             });
             list.sort((a, b) => a.timestamp - b.timestamp);
             oldMessages[senderUri] = list;

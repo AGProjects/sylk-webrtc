@@ -7,18 +7,17 @@ const debug = require('debug');
 
 const electronStorage = require('./electronStorage');
 const { Queue } = require('./utils');
+const { applyLocationEvent } = require('./locationTrail');
 
 
 const DEBUG = debug('blinkrtc:MessageStorage');
 
 let store = null;
 let metadataStore = null;
-let locationStore = null;
-
 // Live-location trails live in their own store keyed by messageId (see
-// addLocationTick / getLocationTrail). Cap the retained points so an
-// hours-long share can not grow the record without bound.
-const LOCATION_TRAIL_MAX = 500;
+// addLocationTick / getLocationTrail). The append/dedup/cap logic is shared
+// with the in-memory React path via ./locationTrail.
+let locationStore = null;
 
 const lastIdLoaded = new Map();
 const lastFileIdLoaded = new Map();
@@ -317,44 +316,13 @@ function removeMessage(message) {
 }
 
 
-function _locationTickFrom(json) {
-    const v = json.value || {};
-    if (typeof v.latitude !== 'number' || typeof v.longitude !== 'number') return null;
-    return {
-        latitude: v.latitude,
-        longitude: v.longitude,
-        accuracy: typeof v.accuracy === 'number' ? v.accuracy : null,
-        timestamp: v.timestamp ? new Date(v.timestamp)
-            : (json.timestamp ? new Date(json.timestamp) : new Date())
-    };
-}
-
-function _appendTick(record, tick) {
-    const trail = Array.isArray(record.trail) ? record.trail : [];
-    if (tick) {
-        const tickTime = tick.timestamp.getTime();
-        const dup = trail.some(p => p
-            && new Date(p.timestamp).getTime() === tickTime
-            && Number(p.latitude) === tick.latitude
-            && Number(p.longitude) === tick.longitude);
-        if (!dup) {
-            trail.push(tick);
-            trail.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            if (trail.length > LOCATION_TRAIL_MAX) {
-                trail.splice(0, trail.length - LOCATION_TRAIL_MAX);
-            }
-        }
-    }
-    record.trail = trail;
-    return record;
-}
-
 // The trail/expiry/ended data for a live-location share is kept in its own
 // store keyed by the origin messageId, mirroring metadataStore. Only a small
 // stub (id, contentType, sender, receiver, timestamp, ...) is kept in the
 // per-contact conversation blob, so a per-second tick rewrites just the small
 // trail record instead of the whole conversation array. The trail is merged
-// back onto the stub at load time by _mergeLocationTrails().
+// back onto the stub at load time by _mergeLocationTrails(). The append/dedup/
+// cap logic is shared with the React path through applyLocationEvent().
 function addLocationTick(message) {
     const json = message.json;
     if (!json || !json.messageId) return Promise.resolve();
@@ -365,21 +333,13 @@ function addLocationTick(message) {
     if (!contact) return Promise.resolve();
 
     return Queue.enqueue(() => locationStore.getItem(originId).then((record) => {
-        if (json.action === 'meeting_end') {
-            if (!record) return; // no known share to end
-            record.ended = true;
-            return locationStore.setItem(originId, record);
-        }
-
-        const tick = _locationTickFrom(json);
-        const expires = json.expires ? new Date(json.expires) : null;
+        // meeting_end for a share we have never seen: nothing to end.
+        if (json.action === 'meeting_end' && !record) return;
 
         // Hot path: the share is already known, so only the (small) trail
         // record is rewritten. The conversation blob is left untouched.
         if (record) {
-            _appendTick(record, tick);
-            if (expires) record.expires = expires;
-            record.ended = false;
+            applyLocationEvent(record, json);
             return locationStore.setItem(originId, record);
         }
 
@@ -405,19 +365,15 @@ function addLocationTick(message) {
                 }
             }
 
-            const rec = found ? {
+            const rec = applyLocationEvent(found ? {
                 trail: Array.isArray(found.locationTrail) ? found.locationTrail.slice() : [],
                 expires: found.locationExpires || null,
                 ended: Boolean(found.locationEnded)
-            } : { trail: [], expires: null, ended: false };
-
-            _appendTick(rec, tick);
-            if (expires) rec.expires = expires;
-            rec.ended = false;
+            } : { trail: [], expires: null, ended: false }, json);
 
             const createdAt = (found && found.timestamp) ? found.timestamp
                 : (json.timestamp ? new Date(json.timestamp)
-                    : (tick ? tick.timestamp : new Date()));
+                    : (rec.trail.length ? rec.trail[rec.trail.length - 1].timestamp : new Date()));
             const stub = {
                 id: originId,
                 contentType: 'application/sylk-live-location',

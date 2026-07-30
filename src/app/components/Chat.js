@@ -233,12 +233,13 @@ const Chat = (props) => {
 
         DEBUG('Loading messages');
 
-        const handleLocationMetadata = (message) => {
+        // `contact` is the conversation key: message.sender.uri for received
+        // shares, message.receiver for our own (outgoing) shares.
+        const handleLocationMetadata = (message, contact) => {
             const json = message.json;
             const originId = json.messageId;
-            if (!originId) return;
+            if (!originId || !contact) return;
 
-            const senderUri = message.sender.uri;
             const oldMessages = Object.assign({}, messagesRef.current);
 
             let foundKey = null;
@@ -271,7 +272,7 @@ const Chat = (props) => {
             if (json.action === 'meeting_end') return;
 
             const state = applyLocationEvent({ trail: [], expires: null, ended: false }, json);
-            const list = oldMessages[senderUri] ? oldMessages[senderUri].slice() : [];
+            const list = oldMessages[contact] ? oldMessages[contact].slice() : [];
             const createdAt = json.timestamp ? new Date(json.timestamp)
                 : (state.trail.length ? state.trail[state.trail.length - 1].timestamp : new Date());
             list.push({
@@ -282,7 +283,10 @@ const Chat = (props) => {
                 state: message.state || 'received',
                 dispositionState: 'displayed',
                 dispositionNotification: [],
-                sender: { uri: senderUri, displayName: message.sender.displayName || null },
+                sender: {
+                    uri: (message.sender && message.sender.uri) || contact,
+                    displayName: (message.sender && message.sender.displayName) || null
+                },
                 receiver: message.receiver,
                 metadata: [],
                 type: 'normal',
@@ -291,7 +295,7 @@ const Chat = (props) => {
                 locationEnded: state.ended
             });
             list.sort((a, b) => a.timestamp - b.timestamp);
-            oldMessages[senderUri] = list;
+            oldMessages[contact] = list;
             setMessages(oldMessages);
         };
 
@@ -305,7 +309,7 @@ const Chat = (props) => {
                 if (message.jsonError || !message.json || !message.json.messageId) return;
 
                 if (message.json.action === 'location' || message.json.action === 'meeting_end') {
-                    handleLocationMetadata(message);
+                    handleLocationMetadata(message, message.sender.uri);
                     return;
                 }
 
@@ -371,7 +375,17 @@ const Chat = (props) => {
         };
 
         const outgoingMessage = (message) => {
-            if (message.contentType === 'text/pgp-private-key' || message.contentType === 'application/sylk-message-metadata') {
+            if (message.contentType === 'application/sylk-message-metadata') {
+                if (message.jsonError || !message.json || !message.json.messageId) return;
+                // Own (mobile-shared) location ticks reach the desktop as
+                // outgoing metadata; route them the same way as incoming,
+                // keyed by the receiver instead of the sender.
+                if (message.json.action === 'location' || message.json.action === 'meeting_end') {
+                    handleLocationMetadata(message, message.receiver);
+                }
+                return;
+            }
+            if (message.contentType === 'text/pgp-private-key') {
                 return;
             }
             const oldMessages = Object.assign({}, messagesRef.current);

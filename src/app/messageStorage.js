@@ -344,9 +344,7 @@ function addLocationTick(message) {
         }
 
         // First time we see this share: read the conversation once to create a
-        // lightweight stub. If a legacy bubble with an embedded trail is found
-        // (pre-split storage), lift its trail into the record and shrink the
-        // stored message down to a stub.
+        // lightweight stub for it.
         return get(contact).then((stored) => {
             const messages = stored || [];
             let idx = -1;
@@ -365,11 +363,7 @@ function addLocationTick(message) {
                 }
             }
 
-            const rec = applyLocationEvent(found ? {
-                trail: Array.isArray(found.locationTrail) ? found.locationTrail.slice() : [],
-                expires: found.locationExpires || null,
-                ended: Boolean(found.locationEnded)
-            } : { trail: [], expires: null, ended: false }, json);
+            const rec = applyLocationEvent({ trail: [], expires: null, ended: false }, json);
 
             const createdAt = (found && found.timestamp) ? found.timestamp
                 : (json.timestamp ? new Date(json.timestamp)
@@ -489,8 +483,8 @@ function loadLastMessages() {
                                 return true;
                             });
 
-                        return _mergeLocationTrails(fixed).then(() => {
-                            lastMessages[key] = fixed;
+                        return _mergeLocationTrails(fixed).then((merged) => {
+                            lastMessages[key] = merged;
                             // lastMessages[key] = messages.map(message => JSON.parse(message, parseDates));
                             if (lastMessages[key].length !== 0) {
                                 lastIdLoaded.set(key, lastMessages[key][0].id);
@@ -547,35 +541,23 @@ function _fixFileMessages(messages) {
 }
 
 // Merge live-location trails (kept in locationStore) back onto their stubs.
-// Legacy bubbles that still carry an embedded trail are migrated into the
-// location store on first load and then read from there.
+// A live-location bubble with no record in the store is dropped from the view.
 function _mergeLocationTrails(messages) {
     if (!messages || messages.length === 0) return Promise.resolve(messages);
     const bubbles = messages.filter(m => m && m.contentType === 'application/sylk-live-location');
     if (bubbles.length === 0) return Promise.resolve(messages);
 
+    const drop = new Set();
     return Promise.all(bubbles.map(bubble =>
         locationStore.getItem(bubble.id).then(record => {
-            if (record) {
-                bubble.locationTrail = Array.isArray(record.trail) ? record.trail : [];
-                bubble.locationExpires = record.expires || null;
-                bubble.locationEnded = Boolean(record.ended);
-                return;
-            }
-            // Legacy bubble with an embedded trail: migrate it into the store.
-            const migrated = {
-                trail: Array.isArray(bubble.locationTrail) ? bubble.locationTrail : [],
-                expires: bubble.locationExpires || null,
-                ended: Boolean(bubble.locationEnded)
-            };
-            bubble.locationTrail = migrated.trail;
-            bubble.locationExpires = migrated.expires;
-            bubble.locationEnded = migrated.ended;
-            return locationStore.setItem(bubble.id, migrated);
-        }).catch(() => {
-            bubble.locationTrail = Array.isArray(bubble.locationTrail) ? bubble.locationTrail : [];
-        })
-    )).then(() => messages);
+            if (!record) { drop.add(bubble.id); return; }
+            bubble.locationTrail = Array.isArray(record.trail) ? record.trail : [];
+            bubble.locationExpires = record.expires || null;
+            bubble.locationEnded = Boolean(record.ended);
+        }).catch(() => { drop.add(bubble.id); })
+    )).then(() => messages.filter(m =>
+        m.contentType !== 'application/sylk-live-location' || !drop.has(m.id)
+    ));
 }
 
 function loadMoreFiles(key) {
@@ -684,7 +666,7 @@ function loadMoreMessages(key) {
             if (lastMessages.length === 0) {
                 return
             }
-            return _mergeLocationTrails(lastMessages).then(() => lastMessages);
+            return _mergeLocationTrails(lastMessages);
         }
     }));
 }

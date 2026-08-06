@@ -10,6 +10,7 @@ const AudioCallBox = require('./AudioCallBox');
 const LocalMedia = require('./LocalMedia');
 const VideoBox = require('./VideoBox');
 const config = require('../config');
+const { default: SwitchToVideoCallModel } = require('./SwitchToVideoCallModal');
 
 const DEBUG = debug('blinkrtc:Call');
 
@@ -21,20 +22,51 @@ class Call extends React.Component {
         super(props);
         if (this.props.localMedia.getVideoTracks().length === 0) {
             DEBUG('Will send audio only');
-            this.state = { audioOnly: true };
+            this.state = { audioOnly: true, showDialog: false };
         } else {
-            this.state = { audioOnly: false };
+            this.state = { audioOnly: false, showDialog: false };
         }
 
         // ES6 classes no longer autobind
         this.mediaPlaying = this.mediaPlaying.bind(this);
         this.callStateChanged = this.callStateChanged.bind(this);
         this.hangupCall = this.hangupCall.bind(this);
+        this.onMediaUpdated = this.onMediaUpdated.bind(this);
+        this.onUpdateRequest = this.onUpdateRequest.bind(this);
+        this.onUpdateFailed = this.onUpdateFailed.bind(this);
+        this.startVideoUpgrade = this.startVideoUpgrade.bind(this);
+        this.onConfirm = this.onConfirm.bind(this);
 
         // If current call is available on mount we must have incoming
         if (this.props.currentCall != null && this.props.currentCall.state !== 'established') {
             this.props.currentCall.on('stateChanged', this.callStateChanged);
         }
+        this._attachUpgradeHandlers(this.props.currentCall);
+    }
+
+    _attachUpgradeHandlers(call) {
+        if (call == null) {
+            return;
+        }
+        call.removeListener('mediaUpdated', this.onMediaUpdated);
+        call.removeListener('updateRequest', this.onUpdateRequest);
+        call.removeListener('updateFailed', this.onUpdateFailed);
+        call.on('mediaUpdated', this.onMediaUpdated);
+        call.on('updateRequest', this.onUpdateRequest);
+        call.on('updateFailed', this.onUpdateFailed);
+    }
+
+    _detachUpgradeHandlers(call) {
+        if (call == null) {
+            return;
+        }
+        call.removeListener('mediaUpdated', this.onMediaUpdated);
+        call.removeListener('updateRequest', this.onUpdateRequest);
+        call.removeListener('updateFailed', this.onUpdateFailed);
+    }
+
+    componentWillUnmount() {
+        this._detachUpgradeHandlers(this.props.currentCall);
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -45,6 +77,10 @@ class Call extends React.Component {
             } else {
                 prevProps.currentCall.removeListener('stateChanged', this.callStateChanged);
             }
+        }
+        if (prevProps.currentCall !== this.props.currentCall) {
+            this._detachUpgradeHandlers(prevProps.currentCall);
+            this._attachUpgradeHandlers(this.props.currentCall);
         }
     }
 
@@ -92,6 +128,7 @@ class Call extends React.Component {
         options.localStream = this.props.localMedia;
         let call = this.props.account.call(this.props.targetUri, options);
         call.on('stateChanged', this.callStateChanged);
+        this._attachUpgradeHandlers(call);
     }
 
     answerCall() {
@@ -102,6 +139,103 @@ class Call extends React.Component {
         let options = { pcConfig: { iceServers: config.iceServers } };
         options.localStream = this.props.localMedia;
         this.props.currentCall.answer(options);
+        this._attachUpgradeHandlers(this.props.currentCall);
+    }
+
+    onUpdateRequest(payload) {
+        const call = this.props.currentCall;
+        if (call == null || typeof call.answerUpdate !== 'function') {
+            return;
+        }
+        const remoteHasVideo = payload && payload.remoteMediaDirections &&
+            (payload.remoteMediaDirections.video || []).some(d => d && d !== 'inactive');
+
+        if (!remoteHasVideo) {
+            try { call.answerUpdate({}); } catch (e) { DEBUG('answerUpdate failed: %o', e); }
+            return;
+        }
+        // this.setState({showDialog: true});
+
+        navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+            .then((stream) => {
+                stream.getVideoTracks().forEach((t) => { t.enabled = false; });
+                try {
+                    call.answerUpdate({ localStream: stream });
+                    this.setState({ showDialog: true, audioOnly: false });
+                } catch (e) {
+                    DEBUG('answerUpdate threw: %o', e);
+                    stream.getTracks().forEach((t) => t.stop());
+                    try { call.answerUpdate({}); } catch (e2) { /* ignore */ }
+                }
+            })
+            .catch((error) => {
+                DEBUG('getUserMedia for upgrade failed: %o', error);
+                try { call.answerUpdate({}); } catch (e) { /* ignore */ }
+                this.setState({ audioOnly: false });
+            });
+    }
+
+    startVideoUpgrade() {
+        const call = this.props.currentCall;
+        if (call == null || typeof call.addVideo !== 'function') {
+            return;
+        }
+        navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+            .then((stream) => {
+                try {
+                    call.addVideo({ localStream: stream });
+                } catch (e) {
+                    DEBUG('addVideo threw: %o', e);
+                    stream.getTracks().forEach((t) => t.stop());
+                }
+            })
+            .catch((error) => {
+                DEBUG('getUserMedia for upgrade failed: %o', error);
+            });
+    }
+
+    onMediaUpdated(payload) {
+        DEBUG('mediaUpdated: %o', payload);
+        if (payload && (payload.hasRemoteVideo || payload.hasLocalVideo)) {
+            if (this.state.audioOnly) {
+                this.setState({ audioOnly: false });
+            } else {
+                this.forceUpdate();
+            }
+        }
+    }
+
+    onUpdateFailed(error) {
+        DEBUG('Video upgrade failed: %o', error);
+    }
+
+    onConfirm(stream) {
+        this.setState({ showDialog: false });
+        const call = this.props.currentCall;
+        if (call == null || typeof call.answerUpdate !== 'function') {
+            if (stream) {
+                stream.getTracks().forEach((t) => t.stop());
+            }
+            return;
+        }
+        if (!stream) {
+            return;
+        }
+
+        const existingVideoTrack = call.getLocalStreams()[0].getVideoTracks()[0];
+        const isSameDevice = existingVideoTrack.label === stream.getVideoTracks()[0].label;
+
+        if (isSameDevice) {
+            existingVideoTrack.enabled = true;
+            stream.getTracks().forEach((t) => t.stop());
+            this.forceUpdate();
+        } else {
+             const newTrack = stream.getVideoTracks()[0].clone();
+            call.replaceTrack(existingVideoTrack, newTrack, false, () => {
+                this.forceUpdate();
+            });
+            stream.getTracks().forEach((t) => t.stop());
+        }
     }
 
     hangupCall() {
@@ -138,6 +272,7 @@ class Call extends React.Component {
                         hangupCall={this.hangupCall}
                         call={this.props.currentCall}
                         mediaPlaying={this.mediaPlaying}
+                        startVideo={this.startVideoUpgrade}
                         escalateToConference={this.props.escalateToConference}
                         setDevice={this.props.setDevice}
                         toggleChatInCall={this.props.toggleChatInCall}
@@ -186,6 +321,14 @@ class Call extends React.Component {
         return (
             <div>
                 {box}
+                {this.state.showDialog &&
+                    <SwitchToVideoCallModel
+                        show={this.state.showDialog}
+                        close={() => { this.setState({showDialog: false})}}
+                        contact={contact}
+                        onConfirm={this.onConfirm}
+                    />
+                }
             </div>
         );
     }

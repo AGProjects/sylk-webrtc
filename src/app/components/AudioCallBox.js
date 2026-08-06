@@ -478,6 +478,11 @@ class AudioCallBox extends React.Component {
                             <button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}>
                                 <i className="fa fa-user-plus"></i>
                             </button>
+                            {this.props.call && this.props.startVideo &&
+                                <button key="startVideoButton" type="button" title="Start video" className={commonButtonClasses} onClick={this.props.startVideo}>
+                                    <i className="fa fa-video-camera"></i>
+                                </button>
+                            }
                             <div className="btn-container" key="audio">
                                 <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIconClasses}></i> </button>
                                 <button key="audiodevices" type="button" title="Select audio devices" className={menuButtonClasses} onClick={this.toggleAudioSwitchMenu}> <i className={menuButtonIcons}></i> </button>
@@ -558,6 +563,7 @@ AudioCallBox.propTypes = {
     escalateToConference: PropTypes.func,
     hangupCall: PropTypes.func,
     mediaPlaying: PropTypes.func,
+    startVideo: PropTypes.func,
     contact: PropTypes.object,
     notificationCenter: PropTypes.func,
     toggleChatInCall: PropTypes.func,

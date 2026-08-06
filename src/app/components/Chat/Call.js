@@ -9,6 +9,8 @@ const { AddressbookContext } = require('../../AddressbookProvider');
 
 const CallOverlay = require('../CallOverlay');
 const CallQuality = require('../CallQuality');
+const { default: SwitchToVideoCallModel } = require('../SwitchToVideoCallModal');
+
 const config = require('../../config');
 
 const sylkrtc = require('sylkrtc');
@@ -72,6 +74,7 @@ class Call extends React.Component {
             audioOnly: audioOnly,
             audioGraphData: data,
             audioMuted: false,
+            showDialog: false,
             lastData: {}
         };
 
@@ -82,6 +85,14 @@ class Call extends React.Component {
         this.statistics = this.statistics.bind(this);
         this.muteAudio = this.muteAudio.bind(this);
 
+        this.muteVideo = this.muteVideo.bind(this);
+        this.isVideoMuted = this.isVideoMuted.bind(this);
+
+        this.onUpdateRequest = this.onUpdateRequest.bind(this);
+        this.onMediaUpdated = this.onMediaUpdated.bind(this);
+        this.onUpdateFailed = this.onUpdateFailed.bind(this);
+        this.onConfirm = this.onConfirm.bind(this);
+
         this.localVideo = React.createRef();
         this.remoteVideo = React.createRef();
         // If current call is available on mount we must have incoming
@@ -89,20 +100,56 @@ class Call extends React.Component {
             this.props.currentCall.on('stateChanged', this.callStateChanged);
         }
 
+        this._attachUpgradeHandlers(this.props.currentCall);
+
         if (this.props.currentCall == null || this.props.currentCall.state == 'incoming') {
             this.mediaPlaying()
         }
     }
 
+    _attachUpgradeHandlers(call) {
+        if (call == null) {
+            return;
+        }
+        call.removeListener('mediaUpdated', this.onMediaUpdated);
+        call.removeListener('updateRequest', this.onUpdateRequest);
+        call.removeListener('updateFailed', this.onUpdateFailed);
+        call.on('mediaUpdated', this.onMediaUpdated);
+        call.on('updateRequest', this.onUpdateRequest);
+        call.on('updateFailed', this.onUpdateFailed);
+    }
+
+    _detachUpgradeHandlers(call) {
+        if (call == null) {
+            return;
+        }
+        call.removeListener('mediaUpdated', this.onMediaUpdated);
+        call.removeListener('updateRequest', this.onUpdateRequest);
+        call.removeListener('updateFailed', this.onUpdateFailed);
+    }
+
+    localVideoRef = (node) => {
+        this.localVideo.current = node;
+        if (node && this.props.currentCall) {
+            const stream = this.props.currentCall.getLocalStreams()[0];
+            if (stream) {
+                sylkrtc.utils.attachMediaStream(stream, node, { disableContextMenu: true, muted: true });
+            }
+        }
+    };
+
+    remoteVideoRef = (node) => {
+        this.remoteVideo.current = node;
+        if (node && this.props.currentCall) {
+            const stream = this.props.currentCall.getRemoteStreams()[0];
+            if (stream) {
+                sylkrtc.utils.attachMediaStream(stream, node, { disableContextMenu: true, muted: true });
+            }
+        }
+    };
+
     componentDidMount() {
         if (this.props.currentCall != null) {
-            if (!this.state.audioOnly) {
-                sylkrtc.utils.attachMediaStream(this.props.currentCall.getLocalStreams()[0], this.localVideo.current, { disableContextMenu: true, muted: true });
-                const remoteStream = this.props.currentCall.getRemoteStreams()[0];
-                if (remoteStream) {
-                    sylkrtc.utils.attachMediaStream(remoteStream, this.remoteVideo.current, { disableContextMenu: true, muted: true });
-                }
-            }
             this.props.currentCall.statistics.on('stats', this.statistics);
             const localStream = this.props.currentCall?.getLocalStreams?.()[0];
             const audioTrack = localStream?.getAudioTracks?.()[0];
@@ -125,11 +172,94 @@ class Call extends React.Component {
                 prevProps.currentCall.removeListener('stateChanged', this.callStateChanged);
             }
         }
+        if (prevProps.currentCall !== this.props.currentCall) {
+            this._detachUpgradeHandlers(prevProps.currentCall);
+            this._attachUpgradeHandlers(this.props.currentCall);
+        }
     }
 
     componentWillUnmount() {
         if (this.props.currentCall) {
             this.props.currentCall.statistics.removeListener('stats', this.statistics);
+        }
+        this._detachUpgradeHandlers(this.props.currentCall);
+    }
+
+
+    onUpdateRequest(payload) {
+        const call = this.props.currentCall;
+        if (call == null || typeof call.answerUpdate !== 'function') {
+            return;
+        }
+        const remoteHasVideo = payload && payload.remoteMediaDirections &&
+            (payload.remoteMediaDirections.video || []).some(d => d && d !== 'inactive');
+
+        if (!remoteHasVideo) {
+            try { call.answerUpdate({}); } catch (e) { DEBUG('answerUpdate failed: %o', e); }
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+            .then((stream) => {
+                stream.getVideoTracks().forEach((t) => { t.enabled = false; });
+                try {
+                    call.answerUpdate({ localStream: stream });
+                    this.setState({ showDialog: true, dialogReason: 'remote', audioOnly: false });
+                } catch (e) {
+                    DEBUG('answerUpdate threw: %o', e);
+                    stream.getTracks().forEach((t) => t.stop());
+                    try { call.answerUpdate({}); } catch (e2) { /* ignore */ }
+                }
+            })
+            .catch((error) => {
+                DEBUG('getUserMedia for upgrade failed: %o', error);
+                try { call.answerUpdate({}); } catch (e) { /* ignore */ }
+            });
+    }
+
+    onMediaUpdated(payload) {
+        DEBUG('mediaUpdated: %o', payload);
+        if (payload && (payload.hasRemoteVideo || payload.hasLocalVideo)) {
+            if (this.state.audioOnly) {
+                this.setState({ audioOnly: false });
+            } else {
+                this.forceUpdate();
+            }
+        }
+    }
+
+    onUpdateFailed(error) {
+        DEBUG('Video upgrade failed: %o', error);
+    }
+
+    onConfirm(stream) {
+        this.setState({ showDialog: false });
+        const call = this.props.currentCall;
+
+        if (call == null || typeof call.answerUpdate !== 'function') {
+            if (stream) {
+                stream.getTracks().forEach((t) => t.stop());
+            }
+            return;
+        }
+        if (!stream) {
+            return;
+        }
+
+        const existingVideoTrack = call.getLocalStreams()[0].getVideoTracks()[0];
+        const isSameDevice = existingVideoTrack.label === stream.getVideoTracks()[0].label;
+
+        if (isSameDevice) {
+            existingVideoTrack.enabled = true;
+            stream.getTracks().forEach((t) => t.stop());
+            this.setState({ videoStarted: true });
+        } else {
+            const newTrack = stream.getVideoTracks()[0].clone();
+            call.replaceTrack(existingVideoTrack, newTrack, false, () => {
+                this.forceUpdate();
+            });
+            stream.getTracks().forEach((t) => t.stop());
+            this.setState({ videoStarted: true });
         }
     }
 
@@ -221,8 +351,28 @@ class Call extends React.Component {
             localStream.getAudioTracks()[0].enabled = false;
             this.setState({ audioMuted: true });
         }
+    }
 
 
+    isVideoMuted() {
+        const stream = this.props.currentCall && this.props.currentCall.getLocalStreams()[0];
+        const track = stream && stream.getVideoTracks()[0];
+        return track ? !track.enabled : true;
+    }
+
+    muteVideo() {
+        const stream = this.props.currentCall.getLocalStreams()[0];
+        const track = stream && stream.getVideoTracks()[0];
+        if (!track) {
+            return;
+        }
+        if (!this.state.videoStarted) {
+            // First turn-on: preview + pick a camera, don't just flip it on blind
+            this.setState({ showDialog: true, dialogReason: 'local' });
+            return;
+        }
+        track.enabled = !track.enabled;
+        this.forceUpdate(); // track mutated directly, not via state
     }
 
     mediaPlaying() {
@@ -260,7 +410,16 @@ class Call extends React.Component {
 
         });
 
+
         if (this.props.currentCall !== null) {
+            const muteVideoIconClasses = clsx({
+                'fa': true,
+                'fa-2x': true,
+                'fa-video-camera': !this.isVideoMuted(),
+                'fa-video-camera-slash': this.isVideoMuted(),
+                [this.props.classes.muted]: this.isVideoMuted()
+            });
+
             buttons = [
                 <button
                     key="muteButton"
@@ -272,6 +431,16 @@ class Call extends React.Component {
                 >
                     <i className={muteButtonIconClasses}></i>
                 </button>,
+                !this.state.audioOnly &&
+                    <button
+                        key="muteVideoButton"
+                        className="btn btn-link btn-fw"
+                        type="button"
+                        onClick={() => { this.muteVideo(); }}
+                        title="Mute camera"
+                    >
+                        <i className={muteVideoIconClasses}></i>
+                    </button>,
                 <button
                     key="hangupButton"
                     className={'btn btn-link btn-fw ' + this.props.classes.hangupButton}
@@ -341,12 +510,27 @@ class Call extends React.Component {
         if (this.props.currentCall != null && !this.state.audioOnly && !isConference &&
             (this.props.currentCall.state === 'accepted' || this.props.currentCall.state === 'established')
         ) {
-            box.push(<video key="remotevideo" id="remoteVideo" className={this.props.classes.remoteVideo} poster="assets/images/transparent-1px.png" ref={this.remoteVideo} autoPlay />);
-            box.push(<video key="localvideo" id="localVideo" className={this.props.classes.localVideo} ref={this.localVideo} autoPlay />);
+            box.push(<video key="remotevideo" id="remoteVideo" className={this.props.classes.remoteVideo} poster="assets/images/transparent-1px.png" ref={this.remoteVideoRef} autoPlay />);
+            if (!this.state.audioOnly && !this.isVideoMuted()) {
+                box.push(<video key="localvideo" id="localVideo" className={this.props.classes.localVideo} ref={this.localVideoRef} autoPlay />);
+            }
         }
         return (
             <div>
                 {box}
+                {this.state.showDialog &&
+                    <SwitchToVideoCallModel
+                        show={this.state.showDialog}
+                        close={() => { this.setState({ showDialog: false }); }}
+                        contact={contact}
+                        onConfirm={this.onConfirm}
+                        promptText={
+                            this.state.dialogReason === 'remote'
+                                ? `${contact?.name} has enabled the camera.`
+                                : 'Turn on your camera?'
+                        }
+                    />
+                }
             </div>
         );
     }

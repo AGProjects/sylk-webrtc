@@ -68,7 +68,15 @@ class VideoBox extends React.Component {
         this.state = {
             callOverlayVisible: true,
             audioMuted: false,
-            videoMuted: false,
+            videoMuted: (() => {
+                try {
+                    const s = this.props.call.getLocalStreams()[0];
+                    const vt = s && s.getVideoTracks()[0];
+                    return vt ? !vt.enabled : false;
+                } catch (e) {
+                    return false;
+                }
+            })(),
             localVideoShow: false,
             remoteVideoShow: false,
             remoteSharesScreen: false,
@@ -116,6 +124,14 @@ class VideoBox extends React.Component {
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
+    }
+
+    componentDidUpdate() {
+        const s = this.props.call.getLocalStreams()[0];
+        const vt = s && s.getVideoTracks()[0];
+        if (vt && vt.enabled && this.state.videoMuted) {
+            this.setState({ videoMuted: false });
+        }
     }
 
     componentDidMount() {

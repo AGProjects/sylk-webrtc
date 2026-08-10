@@ -63,13 +63,7 @@ class Call extends React.Component {
         super(props);
 
         const data = new Array(60).fill({});
-        let audioOnly;
-        if (this.props.localMedia.getVideoTracks().length === 0) {
-            DEBUG('Will send audio only');
-            audioOnly = true;
-        } else {
-            audioOnly = false;
-        }
+        const audioOnly = this._deriveAudioOnly(this.props.currentCall);
         this.state = {
             audioOnly: audioOnly,
             audioGraphData: data,
@@ -105,6 +99,15 @@ class Call extends React.Component {
         if (this.props.currentCall == null || this.props.currentCall.state == 'incoming') {
             this.mediaPlaying()
         }
+    }
+
+    _deriveAudioOnly(call) {
+        if (call != null) {
+            const stream = call.getLocalStreams()[0];
+            const hasVideo = stream && stream.getVideoTracks().length > 0;
+            return !hasVideo;
+        }
+        return this.props.localMedia.getVideoTracks().length === 0;
     }
 
     _attachUpgradeHandlers(call) {
@@ -352,7 +355,6 @@ class Call extends React.Component {
             this.setState({ audioMuted: true });
         }
     }
-
 
     isVideoMuted() {
         const stream = this.props.currentCall && this.props.currentCall.getLocalStreams()[0];

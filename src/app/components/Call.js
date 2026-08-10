@@ -20,12 +20,7 @@ class Call extends React.Component {
 
     constructor(props) {
         super(props);
-        if (this.props.localMedia.getVideoTracks().length === 0) {
-            DEBUG('Will send audio only');
-            this.state = { audioOnly: true, showDialog: false };
-        } else {
-            this.state = { audioOnly: false, showDialog: false };
-        }
+        this.state = { audioOnly: this._deriveAudioOnly(this.props.currentCall), showDialog: false };
 
         // ES6 classes no longer autobind
         this.mediaPlaying = this.mediaPlaying.bind(this);
@@ -42,6 +37,15 @@ class Call extends React.Component {
             this.props.currentCall.on('stateChanged', this.callStateChanged);
         }
         this._attachUpgradeHandlers(this.props.currentCall);
+    }
+
+    _deriveAudioOnly(call) {
+        if (call != null) {
+            const stream = call.getLocalStreams()[0];
+            const hasVideo = stream && stream.getVideoTracks().length > 0;
+            return !hasVideo;
+        }
+        return this.props.localMedia.getVideoTracks().length === 0;
     }
 
     _attachUpgradeHandlers(call) {

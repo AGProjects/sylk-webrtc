@@ -1,0 +1,12 @@
+diff --git a/node_modules/sylkrtc/lib/account.js b/node_modules/sylkrtc/lib/account.js
+--- a/node_modules/sylkrtc/lib/account.js
++++ b/node_modules/sylkrtc/lib/account.js
+@@ -230,7 +230,7 @@
+                 return outgoingMessage;
+             }
+             let result = {};
+-            if (this._pgp !== null && contentType !== 'text/pgp-private-key' && contentType !== 'text/pgp-public-key') {
++            if (this._pgp !== null && !options.cleartext && contentType !== 'text/pgp-private-key' && contentType !== 'text/pgp-public-key') {
+                 result = await this._pgp.encryptMessage(uri, outgoingMessage);
+                 if (result.didEncrypt) {
+                     outgoingMessage._isSecure = true;

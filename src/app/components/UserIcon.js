@@ -12,7 +12,7 @@ const { default: clsx } = require('clsx');
 
 const styleSheet = makeStyles({
     root: {
-        transition: 'box-shadow 0.3s'
+        transition: 'box-shadow 0.15s ease-out'
     },
     drawerAvatar: {
         fontFamily: 'Helvetica Neue ,Helvetica, Arial, sans-serif',
@@ -50,8 +50,33 @@ const styleSheet = makeStyles({
     },
     shadowSmall: {
         boxShadow: '0 0 5px 2px #999'
+    },
+    '@keyframes speakingPulse': {
+        '0%': {
+            boxShadow: '0 0 0 0 rgba(var(--avatar-color), 0.7), 0 0 0 3px rgba(0, 0, 0, 0.25)'
+        },
+        '70%': {
+            boxShadow: '0 0 0 24px rgba(var(--avatar-color), 0), 0 0 0 3px rgba(0, 0, 0, 0.25)'
+        },
+        '100%': {
+            boxShadow: '0 0 0 0 rgba(var(--avatar-color), 0), 0 0 0 3px rgba(0, 0, 0, 0.25)'
+        }
+    },
+    speaking: {
+        animation: '$speakingPulse 1.4s ease-out infinite'
+    },
+    speakingSmall: {
+        animation: '$speakingPulse 1.4s ease-out infinite'
     }
 });
+
+function hexToRgbString(hex) {
+      const clean = hex.replace('#', '');
+      const r = parseInt(clean.substring(0, 2), 16);
+      const g = parseInt(clean.substring(2, 4), 16);
+      const b = parseInt(clean.substring(4, 6), 16);
+      return `${r}, ${g}, ${b}`;
+}
 
 const UserIcon = (props) => {
     const classes = styleSheet();
@@ -64,7 +89,7 @@ const UserIcon = (props) => {
         {[`${classes.card}`]: props.card},
         {[`${classes.chatContact}`]: props.chatContact},
         {[`${classes.large}`]: props.large},
-        {[`${classes.shadow}`]: props.active},
+        {[`${classes.speaking}`]: props.active},
         {[`${classes.shadowSmall}`]: props.active && props.small},
         {[`${classes.carousel}`]: props.carousel},
         {[`${classes.margin}`]: props.small}
@@ -83,7 +108,7 @@ const UserIcon = (props) => {
     }
 
     return (
-        <Avatar className={avatarClasses} style={{backgroundColor: color}}>
+        <Avatar className={avatarClasses} style={{backgroundColor: color, '--avatar-color': hexToRgbString(color)}}>
             {initials}
         </Avatar>
     );

@@ -66,8 +66,14 @@ class Call extends React.Component {
             audioOnly: audioOnly,
             audioGraphData: data,
             audioMuted: false,
-            lastData: {}
+            lastData: {},
+            hasVideo: true
         };
+
+        this.emaBitrate = 0;
+        this.alpha = 0.4;
+        this.videoWarmupTicks = 0;
+        this.lowVideoStreak = 0;
 
         // ES6 classes no longer autobind
         this.mediaPlaying = this.mediaPlaying.bind(this);
@@ -288,12 +294,50 @@ class Call extends React.Component {
             packetRateOutbound: audioPacketRateOutbound,
             packetRateInbound: audioPacketRateInbound
         };
+
+        const videoInbound = stats.data.video?.inbound[0];
+        const bitrate = videoInbound?.bitrate || 0;
+        const packets = videoInbound?.packetRate || 0;
+        const videoRemoteExists = stats.data.remote.video?.inbound[0];
+
+        if (bitrate > 0 && this.emaBitrate === 0) {
+            this.emaBitrate = bitrate;
+            this.videoWarmupTicks = 5;
+        } else {
+            this.emaBitrate = this.alpha * bitrate + (1 - this.alpha) * this.emaBitrate;
+        }
+
+        const meetsThreshold = videoRemoteExists === undefined
+            ? undefined
+            : (videoRemoteExists && this.emaBitrate > 5000 && packets > 15);
+
+        let hasVideo = this.state.hasVideo;
+        if (meetsThreshold === true) {
+            this.lowVideoStreak = 0;
+            this.videoWarmupTicks = 0;
+            hasVideo = true;
+        } else if (meetsThreshold === false) {
+            if (this.videoWarmupTicks > 0) {
+                this.videoWarmupTicks -= 1;
+            } else {
+                this.lowVideoStreak = (this.lowVideoStreak || 0) + 1;
+                if (this.lowVideoStreak >= 3) {
+                    hasVideo = false;
+                }
+            }
+        }
+
+        if (hasVideo !== this.state.hasVideo && !hasVideo) {
+            clearTimeout(this.overlayTimer);
+            this.setState({ callOverlayVisible: true });
+        }
         this.setState(state => {
             const audioGraphData = state.audioGraphData.concat(addData);
             audioGraphData.shift();
             return {
                 audioGraphData,
-                lastData: stats.data
+                lastData: stats.data,
+                hasVideo
             };
         });
     }
@@ -501,11 +545,14 @@ class Call extends React.Component {
         if (this.props.currentCall != null && !this.state.audioOnly && !isConference &&
             (this.props.currentCall.state === 'accepted' || this.props.currentCall.state === 'established')
         ) {
-            box.push(<video key="remotevideo" id="remoteVideo" className={this.props.classes.remoteVideo} poster="assets/images/transparent-1px.png" ref={this.remoteVideoRef} autoPlay />);
+            if (this.state.hasVideo) {
+                box.push(<video key="remotevideo" id="remoteVideo" className={this.props.classes.remoteVideo} poster="assets/images/transparent-1px.png" ref={this.remoteVideoRef} autoPlay />);
+            }
             if (!this.state.audioOnly && !this.isVideoMuted()) {
                 box.push(<video key="localvideo" id="localVideo" className={this.props.classes.localVideo} ref={this.localVideoRef} autoPlay />);
             }
         }
+
         return (
             <div>
                 {box}

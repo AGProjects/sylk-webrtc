@@ -22,6 +22,9 @@ const DragAndDrop = require('./DragAndDrop');
 const SwitchDevicesMenu = require('./SwitchDevicesMenu');
 const EscalateConferenceModal = require('./EscalateConferenceModal');
 const Statistics = require('./Statistics');
+const UserIcon = require('./UserIcon');
+
+const hark = require('hark');
 const { default: FileUploadModal } = require('./FileUploadModal');
 
 const fileTransferUtils = require('../fileTransferUtils');
@@ -91,19 +94,26 @@ class VideoBox extends React.Component {
             audioGraphData: data,
             callQuality: new Array(30).fill({}),
             upload: null,
-            lastData: {}
+            lastData: {},
+            hasVideo: true
         };
+        this.emaBitrate = 0;
+        this.alpha = 0.4;
+        this.videoWarmupTicks = 0;
+        this.lowVideoStreak = 0;
 
         this.overlayTimer = null;
         this.localVideo = React.createRef();
         this.remoteVideo = React.createRef();
         this._notificationCenter = null;
+        this.speechEvents = null;
 
         // ES6 classes no longer autobind
         [
             'showCallOverlay',
             'onKeyDown',
             'handleFullscreen',
+            'handleLocalVideoPlaying',
             'handleRemoteVideoPlaying',
             'handleRemoteResize',
             'muteAudio',
@@ -130,7 +140,7 @@ class VideoBox extends React.Component {
         const s = this.props.call.getLocalStreams()[0];
         const vt = s && s.getVideoTracks()[0];
         if (vt && vt.enabled && this.state.videoMuted) {
-            this.setState({ videoMuted: false });
+            this.setState({ videoMuted: false, localVideoShow: true });
         }
     }
 
@@ -139,7 +149,7 @@ class VideoBox extends React.Component {
         let promise = this.localVideo.current.play()
         if (promise !== undefined) {
             promise.then(_ => {
-                this.setState({ localVideoShow: true });    // eslint-disable-line react/no-did-mount-set-state
+                this.handleLocalVideoPlaying();
                 const localStream = this.props.call.getLocalStreams()[0];
                 this.setState({ audioMuted: !localStream.getAudioTracks()[0].enabled });
                 // Autoplay started!
@@ -148,9 +158,7 @@ class VideoBox extends React.Component {
                 // Show a "Play" button so that user can start playback.
             });
         } else {
-            this.localVideo.current.addEventListener('playing', () => {
-                this.setState({ localVideoShow: true });    // eslint-disable-line react/no-did-mount-set-state
-            });
+            this.localVideo.current.addEventListener('playing', this.handleLocalVideoPlaying);
         }
 
         if (this.props.notificationCenter) {
@@ -161,6 +169,17 @@ class VideoBox extends React.Component {
         this.props.call.account.on('incomingMessage', this.incomingMessage);
 
         sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.remoteVideo.current, { muted: true, disableContextMenu: true });
+        const options = {
+            interval: 225,
+            play: false
+        };
+        this.speechEvents = hark(this.props.call.getRemoteStreams()[0], options);
+        this.speechEvents.on('speaking', () => {
+            this.setState({ active: true });
+        });
+        this.speechEvents.on('stopped_speaking', () => {
+            this.setState({ active: false });
+        });
         const stream = this.props.remoteAudio.current.srcObject;
         if (!stream || stream.id !== this.props.call.getRemoteStreams()[0].id) {
             DEBUG('Attaching audio');
@@ -171,8 +190,16 @@ class VideoBox extends React.Component {
     }
 
     componentWillUnmount() {
+        if (this.remoteVideo.current) {
+            this.remoteVideo.current.onresize = null;
+        }
+        if (this.speechEvents !== null) {
+            this.speechEvents.stop();
+            this.speechEvents = null;
+        }
         clearTimeout(this.overlayTimer);
         this.remoteVideo.current.removeEventListener('playing', this.handleRemoteVideoPlaying);
+        this.localVideo.current.removeEventListener('playing', this.handleLocalVideoPlaying);
         this.exitFullscreen();
         document.removeEventListener('keydown', this.onKeyDown);
         this.props.call.account.removeListener('incomingMessage', this.incomingMessage);
@@ -259,6 +286,42 @@ class VideoBox extends React.Component {
                 packetRateInbound: videoPacketRateInbound
             }
         };
+
+        const bitrate = addData?.video?.incomingBitrate;
+        const packets = addData?.video?.packetRateInbound;
+
+        if (bitrate > 0 && this.emaBitrate === 0) {
+            this.emaBitrate = bitrate;
+            this.videoWarmupTicks = 5;
+        } else {
+            this.emaBitrate = this.alpha * bitrate + (1 - this.alpha) * this.emaBitrate;
+        }
+
+        const meetsThreshold = videoRemoteExists === undefined
+            ? undefined
+            : (videoRemoteExists && this.emaBitrate > 5000 && packets > 15);
+
+        let hasVideo = this.state.hasVideo;
+        if (meetsThreshold === true) {
+            this.lowVideoStreak = 0;
+            this.videoWarmupTicks = 0;
+            hasVideo = true;
+        } else if (meetsThreshold === false) {
+            if (this.videoWarmupTicks > 0) {
+                this.videoWarmupTicks -= 1;
+            } else {
+                this.lowVideoStreak = (this.lowVideoStreak || 0) + 1;
+                if (this.lowVideoStreak >= 3) {
+                    hasVideo = false;
+                }
+            }
+        }
+
+        if (hasVideo !== this.state.hasVideo && !hasVideo) {
+            clearTimeout(this.overlayTimer);
+            this.setState({ callOverlayVisible: true });
+        }
+        // DEBUG(this.emaBitrate, hasVideo, packets)
         this.setState(state => {
             const videoGraphData = state.videoGraphData.concat(addData.video);
             const audioGraphData = state.audioGraphData.concat(addData.audio);
@@ -267,7 +330,8 @@ class VideoBox extends React.Component {
             return {
                 videoGraphData,
                 audioGraphData,
-                lastData: stats.data
+                lastData: stats.data,
+                hasVideo
             };
         });
     }
@@ -275,6 +339,14 @@ class VideoBox extends React.Component {
     handleFullscreen(event) {
         event.preventDefault();
         this.toggleFullscreen(document.body);
+    }
+
+    handleLocalVideoPlaying() {
+        const localStream = this.props.call.getLocalStreams()[0];
+        const videoTrack = localStream && localStream.getVideoTracks()[0];
+        this.setState({
+            localVideoShow: videoTrack ? videoTrack.enabled : true
+        });
     }
 
     handleRemoteVideoPlaying() {
@@ -321,7 +393,7 @@ class VideoBox extends React.Component {
             if (this.state.videoMuted) {
                 DEBUG('Unmute camera');
                 track.enabled = true;
-                this.setState({ videoMuted: false });
+                this.setState({ videoMuted: false, localVideoShow: true });
             } else {
                 DEBUG('Mute camera');
                 track.enabled = false;
@@ -342,7 +414,9 @@ class VideoBox extends React.Component {
     armOverlayTimer() {
         clearTimeout(this.overlayTimer);
         this.overlayTimer = setTimeout(() => {
-            this.setState({ callOverlayVisible: false });
+            if (this.state.hasVideo) {
+                this.setState({ callOverlayVisible: false });
+            }
         }, 4000);
     }
 
@@ -352,7 +426,9 @@ class VideoBox extends React.Component {
                 if (!this.state.callOverlayVisible) {
                     this.setState({ callOverlayVisible: true });
                 }
-                this.armOverlayTimer();
+                if (this.state.hasVideo) {
+                    this.armOverlayTimer();
+                }
             }
         }
     }
@@ -494,7 +570,8 @@ class VideoBox extends React.Component {
             'animated': true,
             'fadeIn': this.state.remoteVideoShow,
             'large': true,
-            'fit': this.state.remoteSharesScreen
+            'fit': this.state.remoteSharesScreen,
+            'hide': !this.state.hasVideo
         });
 
         let callButtons;
@@ -715,6 +792,11 @@ class VideoBox extends React.Component {
                             direction="up"
                             audio
                         />
+                        {!this.state.hasVideo &&
+                            <div className="call-user-icon">
+                                <UserIcon identity={this.props.contact.identity} large={true} active={this.state.active} />
+                            </div>
+                        }
                         <div className="video-container" onMouseMove={this.showCallOverlay}>
                             <CallOverlay
                                 show={this.state.callOverlayVisible}

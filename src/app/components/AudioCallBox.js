@@ -73,6 +73,8 @@ class AudioCallBox extends React.Component {
             showInlineChat: false,
             audioGraphData: data,
             upload: null,
+            earlyMedia: false,
+            showExtraButtons: false,
             lastData: {}
         };
         this.speechEvents = null;
@@ -173,6 +175,8 @@ class AudioCallBox extends React.Component {
     callStateChanged(oldState, newState, data) {
         if (newState === 'established') {
             this.attachStream(this.props.call);
+        } else if (newState === 'early-media') {
+            this.setState({'earlyMedia': true})
         }
     }
 
@@ -221,6 +225,7 @@ class AudioCallBox extends React.Component {
             DEBUG('Attaching audio');
             sylkrtc.utils.attachMediaStream(remoteStream, this.props.remoteAudio.current);
         }
+        this.setState({ showExtraButtons: true });
         const options = {
             interval: 225,
             play: false
@@ -466,19 +471,22 @@ class AudioCallBox extends React.Component {
                             callQuality={callQuality}
                             buttons={topButtons}
                         />
+
                         <div className="call-user-icon">
                             <UserIcon identity={this.props.contact.identity} large={true} active={this.state.active} />
                         </div>
                         <div className="call-buttons">
-                            {!this.state.showChat &&
+                            {!this.state.showChat && this.state.showExtraButtons &&
                                 <button key="statisticsBtn" type="button" className={commonButtonClasses} onClick={this.toggleStatistics}>
                                     <NetworkCheckIcon />
                                 </button>
                             }
-                            <button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}>
-                                <i className="fa fa-user-plus"></i>
-                            </button>
-                            {this.props.call && this.props.startVideo &&
+                            {this.state.showExtraButtons &&
+                                <button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}>
+                                    <i className="fa fa-user-plus"></i>
+                                </button>
+                            }
+                            {this.props.call && this.props.startVideo && this.state.showExtraButtons &&
                                 <button key="startVideoButton" type="button" title="Start video" className={commonButtonClasses} onClick={this.props.startVideo}>
                                     <i className="fa fa-video-camera"></i>
                                 </button>
@@ -508,7 +516,7 @@ class AudioCallBox extends React.Component {
                                 </label>
                             </React.Fragment>
                             }
-                            <button key="dtmfButton" type="button" disabled={this.state.callDuration === null} className={commonButtonClasses} onClick={this.showDtmfModal}>
+                            <button key="dtmfButton" type="button" disabled={!this.state.earlyMedia && !this.state.showExtraButtons} className={commonButtonClasses} onClick={this.showDtmfModal}>
                                 <i className="fa fa-fax"></i>
                             </button>
                             <br />

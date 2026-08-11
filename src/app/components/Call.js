@@ -10,7 +10,6 @@ const AudioCallBox = require('./AudioCallBox');
 const LocalMedia = require('./LocalMedia');
 const VideoBox = require('./VideoBox');
 const config = require('../config');
-const { default: SwitchToVideoCallModel } = require('./SwitchToVideoCallModal');
 
 const DEBUG = debug('blinkrtc:Call');
 
@@ -20,7 +19,7 @@ class Call extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { audioOnly: this._deriveAudioOnly(this.props.currentCall), showDialog: false };
+        this.state = { audioOnly: this._deriveAudioOnly(this.props.currentCall) };
 
         // ES6 classes no longer autobind
         this.mediaPlaying = this.mediaPlaying.bind(this);
@@ -158,14 +157,13 @@ class Call extends React.Component {
             try { call.answerUpdate({}); } catch (e) { DEBUG('answerUpdate failed: %o', e); }
             return;
         }
-        // this.setState({showDialog: true});
 
         navigator.mediaDevices.getUserMedia({ audio: false, video: true })
             .then((stream) => {
                 stream.getVideoTracks().forEach((t) => { t.enabled = false; });
                 try {
                     call.answerUpdate({ localStream: stream });
-                    this.setState({ showDialog: true, audioOnly: false });
+                    this.setState({ audioOnly: false });
                 } catch (e) {
                     DEBUG('answerUpdate threw: %o', e);
                     stream.getTracks().forEach((t) => t.stop());
@@ -214,7 +212,6 @@ class Call extends React.Component {
     }
 
     onConfirm(stream) {
-        this.setState({ showDialog: false });
         const call = this.props.currentCall;
         if (call == null || typeof call.answerUpdate !== 'function') {
             if (stream) {
@@ -325,14 +322,6 @@ class Call extends React.Component {
         return (
             <div>
                 {box}
-                {this.state.showDialog &&
-                    <SwitchToVideoCallModel
-                        show={this.state.showDialog}
-                        close={() => { this.setState({showDialog: false})}}
-                        contact={contact}
-                        onConfirm={this.onConfirm}
-                    />
-                }
             </div>
         );
     }

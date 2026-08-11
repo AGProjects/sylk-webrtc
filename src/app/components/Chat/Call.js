@@ -9,7 +9,6 @@ const { AddressbookContext } = require('../../AddressbookProvider');
 
 const CallOverlay = require('../CallOverlay');
 const CallQuality = require('../CallQuality');
-const { default: SwitchToVideoCallModel } = require('../SwitchToVideoCallModal');
 
 const config = require('../../config');
 
@@ -67,7 +66,6 @@ class Call extends React.Component {
             audioOnly: audioOnly,
             audioGraphData: data,
             audioMuted: false,
-            showDialog: false,
             lastData: {}
         };
 
@@ -206,7 +204,7 @@ class Call extends React.Component {
                 stream.getVideoTracks().forEach((t) => { t.enabled = false; });
                 try {
                     call.answerUpdate({ localStream: stream });
-                    this.setState({ showDialog: true, dialogReason: 'remote', audioOnly: false });
+                    this.setState({ audioOnly: false });
                 } catch (e) {
                     DEBUG('answerUpdate threw: %o', e);
                     stream.getTracks().forEach((t) => t.stop());
@@ -235,7 +233,6 @@ class Call extends React.Component {
     }
 
     onConfirm(stream) {
-        this.setState({ showDialog: false });
         const call = this.props.currentCall;
 
         if (call == null || typeof call.answerUpdate !== 'function') {
@@ -254,14 +251,12 @@ class Call extends React.Component {
         if (isSameDevice) {
             existingVideoTrack.enabled = true;
             stream.getTracks().forEach((t) => t.stop());
-            this.setState({ videoStarted: true });
         } else {
             const newTrack = stream.getVideoTracks()[0].clone();
             call.replaceTrack(existingVideoTrack, newTrack, false, () => {
                 this.forceUpdate();
             });
             stream.getTracks().forEach((t) => t.stop());
-            this.setState({ videoStarted: true });
         }
     }
 
@@ -365,11 +360,6 @@ class Call extends React.Component {
         const stream = this.props.currentCall.getLocalStreams()[0];
         const track = stream && stream.getVideoTracks()[0];
         if (!track) {
-            return;
-        }
-        if (!this.state.videoStarted) {
-            // First turn-on: preview + pick a camera, don't just flip it on blind
-            this.setState({ showDialog: true, dialogReason: 'local' });
             return;
         }
         track.enabled = !track.enabled;
@@ -519,19 +509,6 @@ class Call extends React.Component {
         return (
             <div>
                 {box}
-                {this.state.showDialog &&
-                    <SwitchToVideoCallModel
-                        show={this.state.showDialog}
-                        close={() => { this.setState({ showDialog: false }); }}
-                        contact={contact}
-                        onConfirm={this.onConfirm}
-                        promptText={
-                            this.state.dialogReason === 'remote'
-                                ? `${contact?.name} has enabled the camera.`
-                                : 'Turn on your camera?'
-                        }
-                    />
-                }
             </div>
         );
     }

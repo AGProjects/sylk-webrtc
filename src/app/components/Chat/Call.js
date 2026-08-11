@@ -428,7 +428,7 @@ class Call extends React.Component {
                         className="btn btn-link btn-fw"
                         type="button"
                         onClick={() => { this.muteVideo(); }}
-                        title="Mute camera"
+                        title={this.isVideoMuted() ? 'Turn camera on' : 'Turn camera off'}
                     >
                         <i className={muteVideoIconClasses}></i>
                     </button>,

@@ -28,9 +28,8 @@ const styleSheet = (theme) => ({
         objectFit: 'cover',
         position: 'absolute',
         right: '25px',
-        bottom: '65px',
+        top: '65px',
         zIndex: 8888,
-        boxShadow: '5px 10px',
         borderRadius: '50%',
         boxShadow: theme.shadows[4]
     },
@@ -39,9 +38,9 @@ const styleSheet = (theme) => ({
         height: '50px',
         objectFit: 'cover',
         position: 'absolute',
-        right: '25px',
-        bottom: '165px',
-        zIndex: 8888,
+        right: '15px',
+        top: '75px',
+        zIndex: 8889,
         borderRadius: '50%',
         boxShadow: theme.shadows[2]
     },

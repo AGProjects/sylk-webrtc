@@ -123,8 +123,13 @@ const styleSheet = makeStyles((theme) => ({
         '&:hover': {
             textDecoration: 'none' // removes underline on hover
         }
+    },
+    item: {
+        fontSize: '14px',
+        fontFamily: 'inherit',
+        color: '#333',
+        minHeight: 0
     }
-
 }));
 
 const Chat = (props) => {
@@ -1047,7 +1052,7 @@ const Chat = (props) => {
                                                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                                                 transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                                             >
-                                                <MenuItem onClick={requestLocation}>Request location</MenuItem>
+                                                <MenuItem className={classes.item} onClick={requestLocation}>Request location</MenuItem>
                                             </Menu>
                                         ]}
                                     </React.Fragment>

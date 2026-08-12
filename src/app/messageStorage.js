@@ -307,7 +307,7 @@ function removeMessage(message) {
                 if (storedMessage.contentType === 'application/sylk-file-transfer') {
                     metadataStore.removeItem(storedMessage.id);
                 }
-                if (storedMessage.contentType === 'application/sylk-live-location') {
+                if (storedMessage.contentType === 'application/sylk-location-sharing') {
                     locationStore.removeItem(storedMessage.id);
                 }
                 return false;
@@ -371,7 +371,7 @@ function addLocationEvent(event, message, contact) {
                 } catch (e) {
                     continue;
                 }
-                if (parsed.id === originId && parsed.contentType === 'application/sylk-live-location') {
+                if (parsed.id === originId && parsed.contentType === 'application/sylk-location-sharing') {
                     idx = i;
                     found = parsed;
                     break;
@@ -386,7 +386,7 @@ function addLocationEvent(event, message, contact) {
                         : (rec.trail.length ? rec.trail[rec.trail.length - 1].timestamp : new Date())));
             const stub = {
                 id: originId,
-                contentType: 'application/sylk-live-location',
+                contentType: 'application/sylk-location-sharing',
                 content: '',
                 timestamp: createdAt,
                 mine: (found && typeof found.mine === 'boolean') ? found.mine
@@ -562,7 +562,7 @@ function _fixFileMessages(messages) {
 // A live-location bubble with no record in the store is dropped from the view.
 function _mergeLocationTrails(messages) {
     if (!messages || messages.length === 0) return Promise.resolve(messages);
-    const bubbles = messages.filter(m => m && m.contentType === 'application/sylk-live-location');
+    const bubbles = messages.filter(m => m && m.contentType === 'application/sylk-location-sharing');
     if (bubbles.length === 0) return Promise.resolve(messages);
 
     const drop = new Set();
@@ -581,7 +581,7 @@ function _mergeLocationTrails(messages) {
             bubble.locationRole = record.role || null;
         }).catch(() => { drop.add(bubble.id); })
     )).then(() => messages.filter(m =>
-        m.contentType !== 'application/sylk-live-location' || !drop.has(m.id)
+        m.contentType !== 'application/sylk-location-sharing' || !drop.has(m.id)
     ));
 }
 

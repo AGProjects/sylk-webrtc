@@ -2,10 +2,10 @@
 
 // Ingestion adapter for the `application/sylk-location-sharing` wire format
 // (mobile v1). A share is a CLEARTEXT lifecycle envelope with a single
-// PGP-encrypted `value` (the coordinates). sylkrtc does NOT decrypt this type
-// (the body is a JSON object, not a bare PGP block) and does NOT populate
-// `message.json` for it, so the desktop parses the envelope here and decrypts
-// only `value`.
+// PGP-encrypted `value` (the coordinates). sylkrtc decrypts `value` in the lib
+// (Account._handleEvent -> locationSharing.decryptInPlace) and populates
+// `message.json` with the parsed envelope (its `value` is the decrypted coords
+// as a JSON string), so this module only parses shapes — no decryption, no async.
 //
 // This module is pure translation: envelope -> a normalized event whose `json`
 // is fed to the existing location reducer (./locationTrail applyLocationEvent).
@@ -56,7 +56,6 @@ function splitLocationValue(plain) {
 // Translate a wire envelope into a normalized location event.
 //
 //   wire       : the parsed cleartext envelope (parseEnvelope output)
-//   opts.decrypt(armored) -> Promise<plaintextString>   (wraps account.pgp)
 //   opts.senderUri, opts.messageId, opts.messageTimestamp, opts.direction
 //
 // Returns:
@@ -67,7 +66,7 @@ function splitLocationValue(plain) {
 //             direction, messageId, metadataId, timestamp }
 //   }
 // or null if the envelope is unusable / a coord tick failed to decrypt.
-async function toLocationEvent(wire, opts = {}) {
+function toLocationEvent(wire, opts = {}) {
     if (!wire || typeof wire.action !== 'string') return null;
     const action = wire.action;
     const direction = opts.direction || 'incoming';

@@ -195,7 +195,7 @@ const Chat = (props) => {
         for (const [key, msgs] of Object.entries(current)) {
             if (!Array.isArray(msgs)) continue;
             for (const live of msgs) {
-                if (!live || live.contentType !== 'application/sylk-live-location') continue;
+                if (!live || live.contentType !== 'application/sylk-location-sharing') continue;
                 const list = rebuilt[key] ? rebuilt[key] : (rebuilt[key] = []);
                 const idx = list.findIndex(m => m.id === live.id);
                 if (idx === -1) {
@@ -328,7 +328,7 @@ const Chat = (props) => {
             let foundKey = null;
             let foundIdx = -1;
             for (const [key, msgs] of Object.entries(oldMessages)) {
-                const idx = msgs.findIndex(m => m.id === originId && m.contentType === 'application/sylk-live-location');
+                const idx = msgs.findIndex(m => m.id === originId && m.contentType === 'application/sylk-location-sharing');
                 if (idx !== -1) { foundKey = key; foundIdx = idx; break; }
             }
 
@@ -359,7 +359,7 @@ const Chat = (props) => {
                 : (state.trail.length ? state.trail[state.trail.length - 1].timestamp : new Date()));
             list.push(_writeBubbleState({
                 id: originId,
-                contentType: 'application/sylk-live-location',
+                contentType: 'application/sylk-location-sharing',
                 content: '',
                 timestamp: createdAt,
                 mine: event.direction === 'outgoing',
@@ -643,7 +643,7 @@ const Chat = (props) => {
 
         const uniqueUris = [...new Set(contact?.uris?.map(u => u.uri))];
         const allMsgs = uniqueUris.flatMap(uri => messages[uri] || []);
-        const filtered = allMsgs.filter(msg => !msg.content.startsWith('?OTRv') && msg.contentType !== 'application/sylk-live-location');
+        const filtered = allMsgs.filter(msg => !msg.content.startsWith('?OTRv') && msg.contentType !== 'application/sylk-location-sharing');
         filtered.sort((a, b) => a.timestamp - b.timestamp);
 
         return filtered;
@@ -853,7 +853,7 @@ const Chat = (props) => {
         const oldMessages = Object.assign({}, messagesRef.current);
         for (const [key, msgs] of Object.entries(oldMessages)) {
             if (!Array.isArray(msgs)) continue;
-            const idx = msgs.findIndex(m => m.id === sessionId && m.contentType === 'application/sylk-live-location');
+            const idx = msgs.findIndex(m => m.id === sessionId && m.contentType === 'application/sylk-location-sharing');
             if (idx !== -1) {
                 const arr = msgs.slice();
                 arr[idx] = Object.assign({}, arr[idx], { locationEnded: true, locationEndReason: 'ended' });

@@ -174,7 +174,7 @@ const MessageList = ({
                     downloadFiles: downloadFiles,
                     account: account
                 }
-            } else if (message.contentType === 'application/sylk-live-location') {
+            } else if (message.contentType === 'application/sylk-location-sharing') {
                 MessageComponent = messageComponents['location']
                 extraProps = {
                     onStopShare: () => stopLocationShare && stopLocationShare(message),

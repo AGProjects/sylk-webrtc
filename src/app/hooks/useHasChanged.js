@@ -9,7 +9,7 @@ const _lastPoint = (arr) => {
 
 const _sig = (m) => {
     let s = `${m.id}:${JSON.stringify(m.metadata ?? '')}`;
-    if (m.contentType === 'application/sylk-live-location') {
+    if (m.contentType === 'application/sylk-location-sharing') {
         const trail = m.locationTrail;
         const peer = m.locationPeerTrail;
         s += `|loc:${Array.isArray(trail) ? trail.length : 0}:${_lastPoint(trail)}`

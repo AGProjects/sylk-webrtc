@@ -223,7 +223,10 @@ const ContactList = (props) => {
             }
             if (!orderMsg) continue;
             const previewMsg = labelMsg || orderMsg;
-            const candidate = { ...previewMsg, timestamp: orderMsg.timestamp };
+            const previewData = typeof previewMsg.toJSON === 'function'
+                ? { ...previewMsg.toJSON(), json: previewMsg.json, jsonError: previewMsg.jsonError }
+                : previewMsg;
+            const candidate = { ...previewData, timestamp: orderMsg.timestamp };
 
             const contactsForUri = addressbook.contacts.get(uri);
             if (contactsForUri?.length) {

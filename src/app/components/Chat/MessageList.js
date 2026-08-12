@@ -63,7 +63,8 @@ const MessageList = ({
     downloadFiles,
     embed,
     storageLoadEmpty,
-    selectedContact
+    selectedContact,
+    stopLocationShare
 }) => {
     const [entries, setEntries] = useState([])
     const [display, setDisplay] = useState(false);
@@ -175,6 +176,11 @@ const MessageList = ({
                 }
             } else if (message.contentType === 'application/sylk-live-location') {
                 MessageComponent = messageComponents['location']
+                extraProps = {
+                    onStopShare: () => stopLocationShare && stopLocationShare(message),
+                    selfIdentity: { ...account.displayName, uri: account.id },
+                    peerIdentity: selectedContact?.identity
+                }
             }
 
             return (
@@ -311,7 +317,8 @@ MessageList.propTypes = {
     embed: PropTypes.bool,
     storageLoadEmpty: PropTypes.bool,
     editMessage: PropTypes.func,
-    selectedContact: PropTypes.oneOfType([PropTypes.object, PropTypes.string])
+    selectedContact: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    stopLocationShare: PropTypes.func
 };
 
 

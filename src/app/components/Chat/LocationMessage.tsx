@@ -5,6 +5,7 @@ import { Card } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import {
     LocationOn as LocationOnIcon,
+    LocationOff as LocationOffIcon,
     OpenInNew as OpenInNewIcon,
     FileCopyOutlined as FileCopyOutlinedIcon,
     Check as CheckIcon
@@ -27,10 +28,18 @@ interface TrailPoint {
 interface LocationBubbleMessage {
     id?: string;
     timestamp?: string | number | Date;
+    mine?: boolean;
     sender?: { uri?: string; displayName?: string | null };
     locationTrail?: TrailPoint[];
+    locationPeerTrail?: TrailPoint[];
+    locationStartTrail?: TrailPoint[];
+    locationPeerStartTrail?: TrailPoint[];
+    locationDestination?: { latitude: number; longitude: number } | null;
     locationExpires?: string | number | Date | null;
     locationEnded?: boolean;
+    locationEndReason?: string | null;
+    locationOneShot?: boolean;
+    locationRole?: string | null;
 }
 
 interface Props {
@@ -38,6 +47,9 @@ interface Props {
     cont?: boolean;
     scroll?: () => void;
     identity?: any;
+    onStopShare?: () => void;
+    selfIdentity?: any;
+    peerIdentity?: any;
 }
 
 const TILE_URL = 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png';
@@ -66,6 +78,24 @@ const styleSheet = makeStyles((theme) => ({
         '& .leaflet-pane, & .leaflet-top, & .leaflet-bottom': {
             zIndex: 1
         }
+    },
+    mapPlaceholder: {
+        width: '100%',
+        height: 380,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        backgroundColor: theme.palette.action.hover,
+        color: theme.palette.text.secondary,
+        fontSize: 13,
+        textAlign: 'center',
+        padding: '0 24px'
+    },
+    placeholderIcon: {
+        fontSize: 40,
+        opacity: 0.45
     },
     scrubRow: {
         display: 'flex',
@@ -193,11 +223,28 @@ const styleSheet = makeStyles((theme) => ({
     },
     mapsLinkIcon: {
         fontSize: 14
+    },
+    stopBtn: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+        border: 'none',
+        background: 'none',
+        padding: 0,
+        fontSize: 12,
+        fontWeight: 600,
+        fontFamily: 'inherit',
+        color: '#d9534f',
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        '&:hover': { textDecoration: 'underline' }
+    },
+    stopBtnIcon: {
+        fontSize: 15
     }
 }));
 
-function buildPinIcon(live: boolean): any {
-    const color = live ? '#c0392b' : '#7f8c8d';
+function buildColoredPin(color: string): any {
     const html =
         '<div style="transform:translate(-50%,-100%);">' +
             '<svg width="26" height="34" viewBox="0 0 26 34" xmlns="http://www.w3.org/2000/svg">' +
@@ -213,12 +260,94 @@ function buildPinIcon(live: boolean): any {
     });
 }
 
+function buildPinIcon(live: boolean): any {
+    return buildColoredPin(live ? '#c0392b' : '#7f8c8d');
+}
+const PEER_PIN_COLOR = '#2f6fb3';
+const DEST_PIN_COLOR = '#2e7d32';
+const OWNER_DOT_COLOR = '#e74c3c';
+const PEER_DOT_COLOR = '#2e86de';
+
+function initialsFromIdentity(identity: any): string {
+    const name = (identity && (identity.displayName || identity.uri)) || '';
+    const cleaned = String(name).trim();
+    if (!cleaned) return '';
+    if (cleaned.includes('@')) {
+        const local = cleaned.split('@')[0].replace(/^sips?:/i, '');
+        return (local.slice(0, 2) || '').toUpperCase();
+    }
+    const parts = cleaned.split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return '';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return ((parts[0][0] || '') + (parts[1][0] || '')).toUpperCase();
+}
+
+function buildPartyDotIcon(color: string, initials: string): any {
+    const html =
+        '<div style="transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;' +
+        'background:' + color + ';border:2px solid #fff;box-shadow:0 0 3px rgba(0,0,0,0.4);' +
+        'display:flex;align-items:center;justify-content:center;color:#fff;' +
+        'font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;line-height:1;">' +
+        (initials || '') + '</div>';
+    return (L as any).divIcon({ className: 'sylk-location-party', html, iconSize: [26, 26], iconAnchor: [0, 0] });
+}
+function buildPartyDot(center: any, color: string, initials: string): any {
+    return (L as any).marker(center, { icon: buildPartyDotIcon(color, initials), interactive: false });
+}
+
 function toLatLng(point: any): LatLng | null {
     if (!point) return null;
     const lat = Number(point.latitude);
     const lng = Number(point.longitude);
     if (!isFinite(lat) || !isFinite(lng)) return null;
     return [lat, lng];
+}
+
+function bearingDeg(a: LatLng, b: LatLng): number {
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    const toDeg = (r: number) => (r * 180) / Math.PI;
+    const lat1 = toRad(a[0]);
+    const lat2 = toRad(b[0]);
+    const dLng = toRad(b[1] - a[1]);
+    const y = Math.sin(dLng) * Math.cos(lat2);
+    const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+    return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+function buildArrowIcon(color: string, deg: number): any {
+    const html =
+        '<div style="transform:translate(-50%,-50%) rotate(' + deg + 'deg);">' +
+            '<svg width="14" height="14" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">' +
+                '<path d="M8 1 L14 14 L8 10.5 L2 14 Z" fill="' + color + '" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/>' +
+            '</svg>' +
+        '</div>';
+    return (L as any).divIcon({
+        className: 'sylk-track-arrow',
+        html: html,
+        iconSize: [14, 14],
+        iconAnchor: [0, 0]
+    });
+}
+
+const TARGET_ARROWS = 10;
+function renderTrackArrows(group: any, pts: LatLng[], color: string): void {
+    if (!group) return;
+    group.clearLayers();
+    const segs = pts.length - 1;
+    if (segs < 1) return;
+    const step = Math.max(1, Math.ceil(segs / TARGET_ARROWS));
+    for (let i = 0; i < segs; i += step) {
+        const a = pts[i];
+        const b = pts[i + 1];
+        if (!a || !b) continue;
+        if (a[0] === b[0] && a[1] === b[1]) continue;
+        const mid: LatLng = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+        (L as any).marker(mid, {
+            icon: buildArrowIcon(color, bearingDeg(a, b)),
+            interactive: false,
+            keyboard: false
+        }).addTo(group);
+    }
 }
 
 function formatCountdown(ms: number): string | null {
@@ -245,43 +374,79 @@ function formatAgo(ms: number): string {
     return `${h}h ago`;
 }
 
-const LocationMessage = ({ message, cont, scroll, identity }: Props) => {
+const LocationMessage = ({ message, cont, scroll, identity, onStopShare, selfIdentity, peerIdentity }: Props) => {
     const classes = styleSheet();
 
     const mapNodeRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<any>(null);
     const markerRef = useRef<any>(null);
+    const ownDotRef = useRef<any>(null);
     const scrubMarkerRef = useRef<any>(null);
     const trailRef = useRef<any>(null);
+    const arrowsRef = useRef<any>(null);
     const accuracyRef = useRef<any>(null);
+    const peerMarkerRef = useRef<any>(null);
+    const peerTrailRef = useRef<any>(null);
+    const peerArrowsRef = useRef<any>(null);
+    const destinationMarkerRef = useRef<any>(null);
     const resizeObserverRef = useRef<any>(null);
     const didFitRef = useRef<boolean>(false);
 
     const [now, setNow] = useState<number>(() => Date.now());
     const [scrubIndex, setScrubIndex] = useState<number | null>(null);
     const [copied, setCopied] = useState<boolean>(false);
+    const [justStopped, setJustStopped] = useState<boolean>(false);
 
     const trail: TrailPoint[] = Array.isArray(message.locationTrail) ? message.locationTrail : [];
-    const latest = trail.length > 0 ? trail[trail.length - 1] : null;
-    const latestLatLng = toLatLng(latest);
+    const peerTrail: TrailPoint[] = Array.isArray(message.locationPeerTrail) ? message.locationPeerTrail : [];
+    const startTrail: TrailPoint[] = Array.isArray(message.locationStartTrail) ? message.locationStartTrail : [];
+    const peerStartTrail: TrailPoint[] = Array.isArray(message.locationPeerStartTrail) ? message.locationPeerStartTrail : [];
+    const destinationLatLng = toLatLng(message.locationDestination || null);
+    const oneShot = Boolean(message.locationOneShot);
+    const isMeet = peerTrail.length > 0 || !!message.locationRole || destinationLatLng !== null;
+    const ownInitials = initialsFromIdentity(selfIdentity);
+    const peerInitials = initialsFromIdentity(peerIdentity || identity);
 
     const expiresAt = message.locationExpires ? new Date(message.locationExpires).getTime() : null;
     const remainingMs = expiresAt ? expiresAt - now : null;
     const expired = remainingMs !== null && remainingMs <= 0;
-    const ended = Boolean(message.locationEnded) || expired;
-    const live = !ended && latestLatLng !== null;
+    const endReason = message.locationEndReason || null;
+    const met = endReason === 'proximity';
+    const ended = Boolean(message.locationEnded) || expired || oneShot || met || justStopped;
+
+    const frozenStart = ended && met;
+    const ownTrack = (frozenStart && startTrail.length) ? startTrail : trail;
+    const peerTrack = (frozenStart && peerStartTrail.length) ? peerStartTrail : peerTrail;
+
+    const latest = ownTrack.length > 0 ? ownTrack[ownTrack.length - 1] : null;
+    const latestLatLng = toLatLng(latest);
+    const peerLatest = peerTrack.length > 0 ? peerTrack[peerTrack.length - 1] : null;
+    const peerLatLng = toLatLng(peerLatest);
+    const live = !ended && (latestLatLng !== null || peerLatLng !== null);
 
     const time = message.timestamp ? DateTime.fromJSDate(new Date(message.timestamp)).toFormat('HH:mm') : '';
 
-    const trailSignature = latestLatLng
-        ? `${trail.length}:${latestLatLng[0].toFixed(6)},${latestLatLng[1].toFixed(6)}`
-        : `${trail.length}:none`;
+    const ownSig = latestLatLng
+        ? `${ownTrack.length}:${latestLatLng[0].toFixed(6)},${latestLatLng[1].toFixed(6)}`
+        : `${ownTrack.length}:none`;
+    const peerSig = peerLatLng
+        ? `${peerTrack.length}:${peerLatLng[0].toFixed(6)},${peerLatLng[1].toFixed(6)}`
+        : `${peerTrack.length}:none`;
+    const destSig = destinationLatLng
+        ? `${destinationLatLng[0].toFixed(6)},${destinationLatLng[1].toFixed(6)}`
+        : 'none';
+    const trailSignature = `${ownSig}|${peerSig}|${destSig}|${frozenStart ? 'start' : 'live'}`;
 
     const validTrail = useMemo(
-        () => trail.filter(p => toLatLng(p) !== null),
+        () => ownTrack.filter(p => toLatLng(p) !== null),
         [trailSignature] // eslint-disable-line react-hooks/exhaustive-deps
     );
     const points: LatLng[] = useMemo(() => validTrail.map(toLatLng) as LatLng[], [validTrail]);
+    const validPeerTrail = useMemo(
+        () => peerTrack.filter(p => toLatLng(p) !== null),
+        [trailSignature] // eslint-disable-line react-hooks/exhaustive-deps
+    );
+    const peerPoints: LatLng[] = useMemo(() => validPeerTrail.map(toLatLng) as LatLng[], [validPeerTrail]);
     const pointCount = points.length;
     const atLive = scrubIndex === null || scrubIndex >= pointCount - 1;
     const selIndex = pointCount > 0
@@ -297,12 +462,37 @@ const LocationMessage = ({ message, cont, scroll, identity }: Props) => {
     }, [ended]);
 
     useEffect(() => {
+        return () => {
+            if (resizeObserverRef.current) {
+                resizeObserverRef.current.disconnect();
+                resizeObserverRef.current = null;
+            }
+            if (mapRef.current) {
+                mapRef.current.remove();
+                mapRef.current = null;
+            }
+            markerRef.current = null;
+            ownDotRef.current = null;
+            scrubMarkerRef.current = null;
+            trailRef.current = null;
+            arrowsRef.current = null;
+            accuracyRef.current = null;
+            peerMarkerRef.current = null;
+            peerTrailRef.current = null;
+            peerArrowsRef.current = null;
+            destinationMarkerRef.current = null;
+        };
+    }, []);
+
+    useEffect(() => {
         if (mapRef.current || mapNodeRef.current === null) return;
 
-        const center = latestLatLng || [0, 0];
+        const center = latestLatLng || peerLatLng || destinationLatLng;
+        if (!center) return;
+
         const map = (L as any).map(mapNodeRef.current, {
             center: center,
-            zoom: latestLatLng ? DEFAULT_ZOOM : 2,
+            zoom: DEFAULT_ZOOM,
             zoomControl: true,
             attributionControl: true,
             scrollWheelZoom: false,
@@ -317,8 +507,14 @@ const LocationMessage = ({ message, cont, scroll, identity }: Props) => {
         }).addTo(map);
 
         trailRef.current = (L as any).polyline([], { color: '#c0392b', weight: 3, opacity: 0.75 }).addTo(map);
+        arrowsRef.current = (L as any).layerGroup().addTo(map);
         accuracyRef.current = (L as any).circle(center, { radius: 0, color: '#c0392b', weight: 1, opacity: 0.3, fillOpacity: 0.08 }).addTo(map);
-        markerRef.current = (L as any).marker(center, { icon: buildPinIcon(true), interactive: false }).addTo(map);
+        peerTrailRef.current = (L as any).polyline([], { color: PEER_PIN_COLOR, weight: 3, opacity: 0.7 });
+        peerArrowsRef.current = (L as any).layerGroup();
+        peerMarkerRef.current = buildPartyDot(center, PEER_DOT_COLOR, peerInitials);
+        ownDotRef.current = buildPartyDot(center, OWNER_DOT_COLOR, ownInitials);
+        destinationMarkerRef.current = (L as any).marker(center, { icon: buildColoredPin(DEST_PIN_COLOR), interactive: false });
+        markerRef.current = (L as any).marker(center, { icon: buildPinIcon(true), interactive: false });
         scrubMarkerRef.current = (L as any).circleMarker(center, {
             radius: 8, color: '#ffffff', weight: 3, fillColor: '#2f6fb3', fillOpacity: 1
         });
@@ -340,38 +536,66 @@ const LocationMessage = ({ message, cont, scroll, identity }: Props) => {
         if (typeof scroll === 'function') {
             setTimeout(() => scroll(), 350);
         }
-
-        return () => {
-            if (resizeObserverRef.current) {
-                resizeObserverRef.current.disconnect();
-                resizeObserverRef.current = null;
-            }
-            if (mapRef.current) {
-                mapRef.current.remove();
-                mapRef.current = null;
-            }
-            markerRef.current = null;
-            scrubMarkerRef.current = null;
-            trailRef.current = null;
-            accuracyRef.current = null;
-        };
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [trailSignature]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         const map = mapRef.current;
-        if (!map || !latestLatLng) return;
+        const anchor = latestLatLng || peerLatLng || destinationLatLng;
+        if (!map || !anchor) return;
 
         if (trailRef.current) {
             trailRef.current.setLatLngs(points);
         }
-        if (markerRef.current) {
-            markerRef.current.setLatLng(latestLatLng);
-            markerRef.current.setIcon(buildPinIcon(live));
+        if (arrowsRef.current) {
+            renderTrackArrows(arrowsRef.current, points, '#c0392b');
+        }
+        {
+            const ownPin = markerRef.current;
+            const ownDot = ownDotRef.current;
+            if (latestLatLng) {
+                const active = isMeet ? ownDot : ownPin;
+                const inactive = isMeet ? ownPin : ownDot;
+                if (active) {
+                    active.setLatLng(latestLatLng);
+                    if (active.setIcon) active.setIcon(isMeet ? buildPartyDotIcon(OWNER_DOT_COLOR, ownInitials) : buildPinIcon(live));
+                    if (!map.hasLayer(active)) active.addTo(map);
+                }
+                if (inactive && map.hasLayer(inactive)) map.removeLayer(inactive);
+            } else {
+                if (ownPin && map.hasLayer(ownPin)) map.removeLayer(ownPin);
+                if (ownDot && map.hasLayer(ownDot)) map.removeLayer(ownDot);
+            }
         }
         if (accuracyRef.current) {
             const acc = latest && isFinite(Number(latest.accuracy)) ? Number(latest.accuracy) : 0;
-            accuracyRef.current.setLatLng(latestLatLng);
-            accuracyRef.current.setRadius(acc > 0 && acc < 2000 ? acc : 0);
+            accuracyRef.current.setLatLng(latestLatLng || anchor);
+            accuracyRef.current.setRadius(latestLatLng && acc > 0 && acc < 2000 ? acc : 0);
+        }
+
+        if (peerTrailRef.current) {
+            peerTrailRef.current.setLatLngs(peerPoints);
+            if (peerPoints.length > 1 && !map.hasLayer(peerTrailRef.current)) peerTrailRef.current.addTo(map);
+        }
+        if (peerArrowsRef.current) {
+            renderTrackArrows(peerArrowsRef.current, peerPoints, PEER_PIN_COLOR);
+            if (peerPoints.length > 1 && !map.hasLayer(peerArrowsRef.current)) peerArrowsRef.current.addTo(map);
+        }
+        if (peerMarkerRef.current) {
+            if (peerLatLng) {
+                peerMarkerRef.current.setLatLng(peerLatLng);
+                if (peerMarkerRef.current.setIcon) peerMarkerRef.current.setIcon(buildPartyDotIcon(PEER_DOT_COLOR, peerInitials));
+                if (!map.hasLayer(peerMarkerRef.current)) peerMarkerRef.current.addTo(map);
+            } else if (map.hasLayer(peerMarkerRef.current)) {
+                map.removeLayer(peerMarkerRef.current);
+            }
+        }
+        if (destinationMarkerRef.current) {
+            if (destinationLatLng) {
+                destinationMarkerRef.current.setLatLng(destinationLatLng);
+                if (!map.hasLayer(destinationMarkerRef.current)) destinationMarkerRef.current.addTo(map);
+            } else if (map.hasLayer(destinationMarkerRef.current)) {
+                map.removeLayer(destinationMarkerRef.current);
+            }
         }
 
         if (scrubMarkerRef.current) {
@@ -385,19 +609,23 @@ const LocationMessage = ({ message, cont, scroll, identity }: Props) => {
 
         map.invalidateSize();
 
+        const allPoints: LatLng[] = points.slice();
+        for (const p of peerPoints) allPoints.push(p);
+        if (destinationLatLng) allPoints.push(destinationLatLng);
+
         if (!atLive && selLatLng) {
             map.panTo(selLatLng, { animate: true });
-        } else if (points.length > 1) {
-            map.fitBounds((L as any).latLngBounds(points).pad(0.25), { maxZoom: DEFAULT_ZOOM, animate: didFitRef.current });
+        } else if (allPoints.length > 1) {
+            map.fitBounds((L as any).latLngBounds(allPoints).pad(0.25), { maxZoom: DEFAULT_ZOOM, animate: didFitRef.current });
         } else if (!didFitRef.current) {
-            map.setView(latestLatLng, DEFAULT_ZOOM);
+            map.setView(anchor, DEFAULT_ZOOM);
         } else {
-            map.panTo(latestLatLng, { animate: true });
+            map.panTo(anchor, { animate: true });
         }
         didFitRef.current = true;
     }, [trailSignature, live, scrubIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const activeLatLng = selLatLng || latestLatLng;
+    const activeLatLng = selLatLng || latestLatLng || peerLatLng || destinationLatLng;
 
     const openInMaps = () => {
         if (!activeLatLng) return;
@@ -435,19 +663,39 @@ const LocationMessage = ({ message, cont, scroll, identity }: Props) => {
         } catch (e) { /* */ }
     };
 
-    const senderName = (identity && (identity.displayName || identity.uri))
+    const mine = message.mine === true;
+    const senderName = mine ? 'You'
+        : ((identity && (identity.displayName || identity.uri))
         || (message.sender && (message.sender.displayName || message.sender.uri))
-        || 'Contact';
+        || 'Contact');
 
     let titleText: string;
-    if (expired) {
+    if (oneShot) {
+        titleText = 'Location point';
+    } else if (isMeet && met) {
+        titleText = 'Meet-up succeeded';
+    } else if (isMeet && !ended) {
+        titleText = mine ? 'Meet-up location sharing' : `Meeting up with ${senderName}`;
+    } else if (isMeet && ended) {
+        if (endReason === 'expired') {
+            titleText = 'Meet-up expired';
+        } else if (endReason === 'rejected') {
+            titleText = 'Meet-up rejected';
+        } else if (endReason === 'cancelled' || endReason === 'declined' || endReason === 'deleted') {
+            titleText = 'Meet-up cancelled';
+        } else {
+            titleText = 'Meet-up ended';
+        }
+    } else if (endReason === 'returned') {
+        titleText = `${senderName} returned`;
+    } else if (expired) {
         titleText = 'Location sharing ended';
-    } else if (message.locationEnded) {
-        titleText = 'Last known location';
-    } else if (latestLatLng) {
-        titleText = `${senderName} is sharing location`;
+    } else if (ended) {
+        titleText = 'Location sharing';
+    } else if (latestLatLng || peerLatLng) {
+        titleText = mine ? 'Sharing my location' : `${senderName} is sharing location`;
     } else {
-        titleText = 'Acquiring location…';
+        titleText = 'Location unavailable';
     }
 
     const countdown = remainingMs !== null && !expired ? formatCountdown(remainingMs) : null;
@@ -465,11 +713,20 @@ const LocationMessage = ({ message, cont, scroll, identity }: Props) => {
                         <span className={classes.liveDot} />
                         Live
                     </span>
-                ) : (
-                    <span className={classes.endedChip}>{expired ? 'Expired' : 'Ended'}</span>
+                ) : oneShot ? null : (
+                    <span className={classes.endedChip}>
+                        {met ? 'Met' : expired ? 'Expired' : 'Ended'}
+                    </span>
                 )}
             </div>
-            <div ref={mapNodeRef} className={classes.map} />
+            {(latestLatLng || peerLatLng || destinationLatLng) ? (
+                <div ref={mapNodeRef} className={classes.map} />
+            ) : (
+                <div className={classes.mapPlaceholder}>
+                    <LocationOffIcon className={classes.placeholderIcon} />
+                    <span>No location to display</span>
+                </div>
+            )}
             {pointCount > 1 && (
                 <>
                     <div className={classes.scrubRow}>
@@ -508,9 +765,16 @@ const LocationMessage = ({ message, cont, scroll, identity }: Props) => {
                 {live && countdown && (
                     <span className={classes.stat} title="Time until the share expires">⌛ {countdown}</span>
                 )}
-                <span className={classes.stat} title="Number of received position updates">
-                    {updateCount} update{updateCount === 1 ? '' : 's'}
-                </span>
+                {!oneShot && !isMeet && (
+                    <span className={classes.stat} title="Number of received position updates">
+                        {updateCount} update{updateCount === 1 ? '' : 's'}
+                    </span>
+                )}
+                {isMeet && (
+                    <span className={classes.stat} title="A meet-up location share">
+                        Meet-up
+                    </span>
+                )}
                 {updatedAgo && live && (
                     <span className={classes.stat}>· {updatedAgo}</span>
                 )}
@@ -518,6 +782,17 @@ const LocationMessage = ({ message, cont, scroll, identity }: Props) => {
                     <span className={classes.stat}>· ±{accuracy}m</span>
                 )}
                 <span className={classes.spacer} />
+                {mine && !ended && !oneShot && onStopShare && (latestLatLng || peerLatLng) && (
+                    <button
+                        type="button"
+                        className={classes.stopBtn}
+                        title="Stop sharing your live location"
+                        onClick={() => { setJustStopped(true); onStopShare(); }}
+                    >
+                        <LocationOffIcon className={classes.stopBtnIcon} />
+                        Stop sharing
+                    </button>
+                )}
             </div>
             {activeLatLng && (
                 <div className={classes.coordRow}>

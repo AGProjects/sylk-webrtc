@@ -1,15 +1,9 @@
 'use strict';
 
-// Shared live-location trail logic used by both the in-memory React state
-// (Chat.js handleLocationMetadata) and the persisted store
-// (messageStorage.js addLocationTick). Keeping a single implementation here
-// avoids the two paths drifting apart (e.g. only one of them deduping ticks).
 
 // Cap the retained points so an hours-long share can not grow without bound.
 const LOCATION_TRAIL_MAX = 500;
 
-// Build a trail point from a location metadata json payload, or null when the
-// payload carries no usable coordinates.
 function tickFromJson(json) {
     const v = (json && json.value) || {};
     if (typeof v.latitude !== 'number' || typeof v.longitude !== 'number') return null;
@@ -43,26 +37,70 @@ function appendTick(trail, tick) {
     return list;
 }
 
-// Apply a location metadata event to a { trail, expires, ended } state object,
-// creating the state when absent. Handles both 'location' ticks and
-// 'meeting_end'. Returns the (mutated) state.
-function applyLocationEvent(state, json) {
-    const next = state || { trail: [], expires: null, ended: false };
-    next.trail = Array.isArray(next.trail) ? next.trail : [];
+function emptyState() {
+    return {
+        trail: [], peerTrail: [], startTrail: [], peerStartTrail: [],
+        destination: null, expires: null,
+        ended: false, endReason: null, oneShot: false, role: null
+    };
+}
 
-    if (json && json.action === 'meeting_end') {
+function applyLocationEvent(state, json) {
+    const next = state || emptyState();
+    next.trail = Array.isArray(next.trail) ? next.trail : [];
+    next.peerTrail = Array.isArray(next.peerTrail) ? next.peerTrail : [];
+    next.startTrail = Array.isArray(next.startTrail) ? next.startTrail : [];
+    next.peerStartTrail = Array.isArray(next.peerStartTrail) ? next.peerStartTrail : [];
+
+    const kind = json && (json.kind || (json.action === 'meeting_end' ? 'end' : 'coords'));
+
+    if (kind === 'stop' || kind === 'end') {
         next.ended = true;
+        next.endReason = (json && json.reason) || 'ended';
+        return next;
+    }
+    if (kind === 'reject') {
+        next.ended = true;
+        next.endReason = 'rejected';
+        return next;
+    }
+    if (kind === 'request' || kind === 'accept') {
         return next;
     }
 
-    next.trail = appendTick(next.trail, tickFromJson(json));
+    const tick = tickFromJson(json);
+    if (json && json.oneShot) {
+        next.oneShot = true;
+        if (tick) next.trail = [tick];
+    } else if (json && json.meet) {
+        if (tick) {
+            if (json.direction === 'outgoing') {
+                next.trail = [tick];
+                if (next.startTrail.length === 0) next.startTrail = [tick];
+            } else {
+                next.peerTrail = [tick];
+                if (next.peerStartTrail.length === 0) next.peerStartTrail = [tick];
+            }
+        }
+        if (json.role) next.role = json.role;
+        if (json.destination
+            && typeof json.destination.latitude === 'number'
+            && typeof json.destination.longitude === 'number') {
+            next.destination = json.destination;
+        }
+    } else {
+        next.trail = appendTick(next.trail, tick);
+    }
+
     const expires = json && json.expires ? new Date(json.expires) : null;
     if (expires) next.expires = expires;
     next.ended = false;
+    next.endReason = null;
     return next;
 }
 
 exports.LOCATION_TRAIL_MAX = LOCATION_TRAIL_MAX;
 exports.tickFromJson = tickFromJson;
 exports.appendTick = appendTick;
+exports.emptyState = emptyState;
 exports.applyLocationEvent = applyLocationEvent;

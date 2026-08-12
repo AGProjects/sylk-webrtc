@@ -51,6 +51,7 @@ const utils = require('./utils');
 const config = require('./config');
 const storage = require('./storage');
 const messageStorage = require('./messageStorage');
+const locationSharing = require('./locationSharing');
 const addressbookStorage = require('./addressbookStorage');
 const keyStorage = require('./keyStorage');
 const cacheStorage = require('./cacheStorage');
@@ -264,6 +265,12 @@ class Blink extends React.Component {
             window.location.replace(this.redirectTo);
             return;
         }
+
+        messageStorage.setLocationDecryptor((armored, id) => {
+            const acc = this.state.account;
+            if (!acc) return Promise.resolve(null);
+            return locationSharing.decryptorFor(acc, id)(armored);
+        });
 
         history.load().then((entries) => {
             if (entries) {
@@ -1532,6 +1539,16 @@ class Blink extends React.Component {
         });
     }
 
+    _locationSharingNotifiable(message) {
+        const wire = locationSharing.parseEnvelope(message.content);
+        if (!wire) return false;
+        const NOTIFY = new Set([
+            'location_once', 'location_start', 'meeting_request', 'meeting_start',
+            'location_request', 'meeting_accept'
+        ]);
+        return NOTIFY.has(wire.action);
+    }
+
     incomingMessage(message) {
         DEBUG('Incoming Message from: %s', message.sender.uri);
         if (this.retransmittedMessages.findIndex(m => message.id === m.id) !== -1) {
@@ -1588,10 +1605,13 @@ class Blink extends React.Component {
             this.setState({ contactCache: oldContactCache })
             storage.set('contactCache', Array.from(oldContactCache));
         }
+        const notifiable = locationSharing.isLocationSharing(message.contentType)
+            ? this._locationSharingNotifiable(message)
+            : (message.contentType !== 'application/sylk-message-metadata');
         const path = this.router.current.getPath();
         if (path !== '/chat') {
             if (this.state.currentCall === null) {
-                if (message.contentType !== 'application/sylk-message-metadata') {
+                if (notifiable) {
                     this._notificationCenter.postNewMessage(message, () => {
                         this.lastMessageFocus = message.sender.uri;
                         this.router.current.navigate('/chat');
@@ -1603,7 +1623,7 @@ class Blink extends React.Component {
             const remote = window.require('electron').remote;
             const currentWindow = remote.getCurrentWindow();
             if (!currentWindow.isFocused()) {
-                if (message.contentType !== 'application/sylk-message-metadata') {
+                if (notifiable) {
                     this._notificationCenter.postSystemNotification('New message',
                         {
                             body: `From ${message.sender.displayName || message.sender.uri}`,
@@ -1798,6 +1818,7 @@ class Blink extends React.Component {
                     && message.dispositionState !== 'displayed'
                     && message.dispositionNotification.indexOf('display') !== -1
                     && message.contentType !== 'application/sylk-message-metadata'
+                    && !locationSharing.isLocationSharing(message.contentType)
                     && !message.content.startsWith('?OTRv')
                 ) {
                     increment('account', message.contentType);
@@ -1825,6 +1846,7 @@ class Blink extends React.Component {
                         && message.dispositionNotification.indexOf('display') !== -1
                         && !message.content.startsWith('?OTRv')
                         && message.contentType !== 'application/sylk-message-metadata'
+                        && !locationSharing.isLocationSharing(message.contentType)
                         && message.sender.uri === this.state.currentCall.remoteIdentity.uri
                     ) {
                         increment('call', message.contentType);

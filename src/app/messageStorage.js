@@ -8,16 +8,21 @@ const debug = require('debug');
 const electronStorage = require('./electronStorage');
 const { Queue } = require('./utils');
 const { applyLocationEvent } = require('./locationTrail');
+const locationSharing = require('./locationSharing');
 
 
 const DEBUG = debug('blinkrtc:MessageStorage');
 
 let store = null;
 let metadataStore = null;
-// Live-location trails live in their own store keyed by messageId (see
-// addLocationTick / getLocationTrail). The append/dedup/cap logic is shared
-// with the in-memory React path via ./locationTrail.
 let locationStore = null;
+
+let locationDecryptor = null;
+const endedLocationSessions = new Set();
+
+function setLocationDecryptor(fn) {
+    locationDecryptor = fn;
+}
 
 const lastIdLoaded = new Map();
 const lastFileIdLoaded = new Map();
@@ -248,10 +253,11 @@ function add(message) {
         contact = message.sender.uri;
     }
 
+    if (locationSharing.isLocationSharing(message.contentType)) {
+        return _ingestLocationSharing(message);
+    }
+
     if (message.contentType === 'application/sylk-message-metadata') {
-        if (message.json && (message.json.action === 'location' || message.json.action === 'meeting_end')) {
-            return addLocationTick(message);
-        }
         DEBUG('Storing metadata message');
         return addMetadata(message);
     }
@@ -316,26 +322,45 @@ function removeMessage(message) {
 }
 
 
-// The trail/expiry/ended data for a live-location share is kept in its own
-// store keyed by the origin messageId, mirroring metadataStore. Only a small
-// stub (id, contentType, sender, receiver, timestamp, ...) is kept in the
-// per-contact conversation blob, so a per-second tick rewrites just the small
-// trail record instead of the whole conversation array. The trail is merged
-// back onto the stub at load time by _mergeLocationTrails(). The append/dedup/
-// cap logic is shared with the React path through applyLocationEvent().
-function addLocationTick(message) {
-    const json = message.json;
-    if (!json || !json.messageId) return Promise.resolve();
-    const originId = json.messageId;
-    const contact = message.state === 'received'
-        ? (message.sender && message.sender.uri)
-        : message.receiver;
+function _ingestLocationSharing(message) {
+    const wire = locationSharing.parseEnvelope(message.content);
+    if (!wire) return Promise.resolve();
+    const received = message.state === 'received';
+    const contact = received ? (message.sender && message.sender.uri) : message.receiver;
     if (!contact) return Promise.resolve();
+    const decrypt = locationDecryptor
+        ? (armored) => locationDecryptor(armored, message.id)
+        : null;
+
+    return Promise.resolve(locationSharing.toLocationEvent(wire, {
+        decrypt,
+        senderUri: contact,
+        messageId: message.id,
+        messageTimestamp: message.timestamp,
+        direction: received ? 'incoming' : 'outgoing'
+    })).then((event) => {
+        if (!event) return;
+        return addLocationEvent(event, message, contact);
+    });
+}
+
+function addLocationEvent(event, message, contact) {
+    const originId = event.sessionId;
+    if (!originId || !contact) return Promise.resolve();
+    const json = event.json;
+
+    if (event.kind === 'stop' || event.kind === 'end' || event.kind === 'reject') {
+        endedLocationSessions.add(originId);
+        return Queue.enqueue(() => locationStore.getItem(originId).then((record) => {
+            if (!record) return;
+            applyLocationEvent(record, json);
+            return locationStore.setItem(originId, record);
+        }));
+    }
+    if (event.kind !== 'coords') return Promise.resolve();
+    if (endedLocationSessions.has(originId)) return Promise.resolve();
 
     return Queue.enqueue(() => locationStore.getItem(originId).then((record) => {
-        // meeting_end for a share we have never seen: nothing to end.
-        if (json.action === 'meeting_end' && !record) return;
-
         // Hot path: the share is already known, so only the (small) trail
         // record is rewritten. The conversation blob is left untouched.
         if (record) {
@@ -363,21 +388,24 @@ function addLocationTick(message) {
                 }
             }
 
-            const rec = applyLocationEvent({ trail: [], expires: null, ended: false }, json);
+            const rec = applyLocationEvent(null, json);
 
             const createdAt = (found && found.timestamp) ? found.timestamp
-                : (json.timestamp ? new Date(json.timestamp)
-                    : (rec.trail.length ? rec.trail[rec.trail.length - 1].timestamp : new Date()));
+                : (message && message.timestamp ? new Date(message.timestamp)
+                    : (json.timestamp ? new Date(json.timestamp)
+                        : (rec.trail.length ? rec.trail[rec.trail.length - 1].timestamp : new Date())));
             const stub = {
                 id: originId,
                 contentType: 'application/sylk-live-location',
                 content: '',
                 timestamp: createdAt,
+                mine: (found && typeof found.mine === 'boolean') ? found.mine
+                    : (event.direction === 'outgoing'),
                 state: (found && found.state) || message.state || 'received',
                 dispositionState: (found && found.dispositionState) || 'displayed',
                 dispositionNotification: (found && found.dispositionNotification) || [],
                 sender: (found && found.sender) || {
-                    uri: (message.sender && message.sender.uri) || contact,
+                    uri: event.uri || (message.sender && message.sender.uri) || contact,
                     displayName: (message.sender && message.sender.displayName) || null
                 },
                 receiver: (found && found.receiver) || message.receiver,
@@ -552,8 +580,15 @@ function _mergeLocationTrails(messages) {
         locationStore.getItem(bubble.id).then(record => {
             if (!record) { drop.add(bubble.id); return; }
             bubble.locationTrail = Array.isArray(record.trail) ? record.trail : [];
+            bubble.locationPeerTrail = Array.isArray(record.peerTrail) ? record.peerTrail : [];
+            bubble.locationStartTrail = Array.isArray(record.startTrail) ? record.startTrail : [];
+            bubble.locationPeerStartTrail = Array.isArray(record.peerStartTrail) ? record.peerStartTrail : [];
+            bubble.locationDestination = record.destination || null;
             bubble.locationExpires = record.expires || null;
             bubble.locationEnded = Boolean(record.ended);
+            bubble.locationEndReason = record.endReason || null;
+            bubble.locationOneShot = Boolean(record.oneShot);
+            bubble.locationRole = record.role || null;
         }).catch(() => { drop.add(bubble.id); })
     )).then(() => messages.filter(m =>
         m.contentType !== 'application/sylk-live-location' || !drop.has(m.id)
@@ -787,4 +822,5 @@ exports.revertFiles = revertFiles;
 exports.updateIdMap = updateIdMap;
 exports.getMetadata = getMetadata;
 exports.getLocationTrail = getLocationTrail;
+exports.setLocationDecryptor = setLocationDecryptor;
 exports.fixMessage = fixMessage;

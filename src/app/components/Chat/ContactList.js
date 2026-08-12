@@ -210,14 +210,20 @@ const ContactList = (props) => {
         for (const [uri, msgs] of Object.entries(props.messages)) {
             if (!msgs?.length) continue;
 
-            let candidate = msgs[msgs.length - 1];
-
-            if (candidate.content.startsWith('?OTRv')) {
-                for (let i = 2; i <= msgs.length; i++) {
-                    candidate = msgs[msgs.length - i];
-                    if (!candidate.content.startsWith('?OTRv')) break;
-                }
+            let orderMsg = null;
+            let labelMsg = null;
+            for (let i = 1; i <= msgs.length; i++) {
+                const m = msgs[msgs.length - i];
+                if (!m) continue;
+                if (typeof m.content === 'string' && m.content.startsWith('?OTRv')) continue;
+                if (!orderMsg) orderMsg = m;
+                if (m.contentType === 'application/sylk-live-location' && (m.locationEnded || m.locationOneShot)) continue;
+                labelMsg = m;
+                break;
             }
+            if (!orderMsg) continue;
+            const previewMsg = labelMsg || orderMsg;
+            const candidate = { ...previewMsg, timestamp: orderMsg.timestamp };
 
             const contactsForUri = addressbook.contacts.get(uri);
             if (contactsForUri?.length) {

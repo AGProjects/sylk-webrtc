@@ -4,6 +4,7 @@ const React = require('react');
 const { useEffect, useState, useRef } = React;
 const debug = require('debug');
 const PropTypes = require('prop-types');
+const { locationSharing: sylkLocationSharing } = require('sylkrtc');
 const { cloneDeep, isEqual } = require('lodash');
 const { makeStyles } = require('@material-ui/core/styles');
 const { CircularProgress, Toolbar, Divider, Typography, Grid } = require('@material-ui/core');
@@ -377,23 +378,21 @@ const Chat = (props) => {
 
         const ingestLocationSharing = (message, contact, direction) => {
             const _contact = (contact && typeof contact === 'object' && contact.uri) ? contact.uri : contact;
-            const wire = locationSharing.parseEnvelope(message.content);
-            if (!wire) { DEBUG('[location] ingest: no wire (%s)', direction); return; }
-            locationSharing.toLocationEvent(wire, {
-                decrypt: locationSharing.decryptorFor(props.account, message.id),
+            if (message.jsonError || !message.json) { DEBUG('[location] ingest: no json (%s)', direction); return; }
+            const wire = message.json;
+            const event = sylkLocationSharing.toLocationEvent(wire, {
                 senderUri: _contact,
                 messageId: message.id,
                 messageTimestamp: message.timestamp,
                 direction
-            }).then((event) => {
-                const _sid = (event && event.sessionId) || (wire && (wire.sessionId || wire.messageId)) || message.id;
-                DEBUG('[location] ingest %s contact=%s action=%s session=%s msg=%s event=%s',
-                    direction, _contact, wire && wire.action,
-                    _sid ? String(_sid).slice(0, 8) : '-',
-                    message.id || '-',
-                    !!event);
-                if (event) handleLocationEvent(event, _contact, message.id, message.timestamp);
-            }).catch((e) => { DEBUG('[location] ingest decrypt failed (%s): %s', direction, e && e.message); });
+            });
+            const _sid = (event && event.sessionId) || wire.sessionId || wire.messageId || message.id;
+            DEBUG('[location] ingest %s contact=%s action=%s session=%s msg=%s event=%s',
+                direction, _contact, wire.action,
+                _sid ? String(_sid).slice(0, 8) : '-',
+                message.id || '-',
+                !!event);
+            if (event) handleLocationEvent(event, _contact, message.id, message.timestamp);
         };
 
         const incomingMessage = (message) => {
@@ -402,7 +401,7 @@ const Chat = (props) => {
                 return;
             }
 
-            if (locationSharing.isLocationSharing(message.contentType)) {
+            if (sylkLocationSharing.isLocationSharing(message.contentType)) {
                 ingestLocationSharing(message, message.sender.uri, 'incoming');
                 return;
             }
@@ -475,7 +474,7 @@ const Chat = (props) => {
         };
 
         const outgoingMessage = (message) => {
-            if (locationSharing.isLocationSharing(message.contentType)) {
+            if (sylkLocationSharing.isLocationSharing(message.contentType)) {
                 ingestLocationSharing(message, message.receiver, 'outgoing');
                 return;
             }
@@ -519,7 +518,7 @@ const Chat = (props) => {
         const metadataPromises = [];
         for (let message of props.account.messages) {
             if (message.contentType === 'application/sylk-message-metadata'
-                || locationSharing.isLocationSharing(message.contentType)) {
+                || sylkLocationSharing.isLocationSharing(message.contentType)) {
                 continue;
             }
 

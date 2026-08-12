@@ -15,8 +15,6 @@
 // places — e.g. the inviter's coordinate origin ships as a value-bearing
 // `meeting_request`).
 
-const CONTENT_TYPE = 'application/sylk-location-sharing';
-
 // Wire actions that carry an encrypted `value` (coordinates).
 const COORD_ACTIONS = new Set([
     'location_once', 'location_start', 'location_update',
@@ -35,27 +33,13 @@ const SIGNAL_KIND = {
 const UPDATE_ACTIONS = new Set(['location_update', 'meeting_update']);
 const MEET_ACTIONS = new Set(['meeting_request', 'meeting_start', 'meeting_update']);
 
-function isLocationSharing(contentType) {
-    return contentType === CONTENT_TYPE;
-}
-
-// Parse the cleartext wire envelope. Returns the object or null on garbage.
-function parseEnvelope(rawContent) {
-    if (typeof rawContent !== 'string') {
-        return (rawContent && typeof rawContent === 'object') ? rawContent : null;
-    }
-    try {
-        const wire = JSON.parse(rawContent);
-        return (wire && typeof wire === 'object') ? wire : null;
-    } catch (e) {
-        return null;
-    }
-}
-
-// Split a decrypted `value` plaintext into { coords, destination }.
+// Split a `value` plaintext into { coords, destination }. The value arrives
+// already decrypted — sylkrtc decrypts it in the lib (see Account._handleEvent)
+// before this module ever sees the envelope, so there is no decryption
+// happening here, only parsing/shape-detection.
 // Bare coords: { latitude, longitude, ... }. Wrapped (meet w/ destination):
 // { value: { latitude, ... }, destination: { latitude, ... } }.
-function splitDecryptedValue(plain) {
+function splitLocationValue(plain) {
     let dec = null;
     try { dec = typeof plain === 'string' ? JSON.parse(plain) : plain; } catch (e) { return { coords: null, destination: null }; }
     if (dec && typeof dec.latitude === 'number') {
@@ -120,17 +104,9 @@ async function toLocationEvent(wire, opts = {}) {
     }
 
     if (!COORD_ACTIONS.has(action)) return null;
-    if (typeof wire.value !== 'string' || !opts.decrypt) return null;
+    if (typeof wire.value !== 'string') return null;
+    const { coords, destination } = splitLocationValue(wire.value);
 
-    let plain;
-    try {
-        plain = await opts.decrypt(wire.value);
-    } catch (e) {
-        return null;
-    }
-    if (plain == null) return null;
-
-    const { coords, destination } = splitDecryptedValue(plain);
     if (!coords || typeof coords.latitude !== 'number' || typeof coords.longitude !== 'number') {
         return null;
     }
@@ -158,26 +134,6 @@ async function toLocationEvent(wire, opts = {}) {
     };
 }
 
-// Build an opts.decrypt using a sylkrtc account's pgp worker. Returns a
-// function(armored) -> Promise<plaintext|null>. `account.pgp.decryptMessage`
-// takes { content, message_id } and resolves { content: <plaintext>, didDecrypt }.
-function decryptorFor(account, messageId) {
-    return function (armored) {
-        try {
-            const pgp = account && account.pgp;
-            if (!pgp || typeof pgp.decryptMessage !== 'function') return Promise.resolve(null);
-            return pgp.decryptMessage({ content: armored, 'message_id': messageId })
-                .then(res => (res && res.didDecrypt !== false) ? res.content : null)
-                .catch(() => null);
-        } catch (e) {
-            return Promise.resolve(null);
-        }
-    };
-}
 
-exports.CONTENT_TYPE = CONTENT_TYPE;
-exports.isLocationSharing = isLocationSharing;
-exports.parseEnvelope = parseEnvelope;
-exports.splitDecryptedValue = splitDecryptedValue;
+exports.splitLocationValue = splitDecryptedValue;
 exports.toLocationEvent = toLocationEvent;
-exports.decryptorFor = decryptorFor;

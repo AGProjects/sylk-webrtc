@@ -5,6 +5,8 @@ const cacheStorage = require('./cacheStorage');
 const mainStorage = require('./storage');
 const debug = require('debug');
 
+const { locationSharing: sylkLocationSharing } = require('sylkrtc');
+
 const electronStorage = require('./electronStorage');
 const { Queue } = require('./utils');
 const { applyLocationEvent } = require('./locationTrail');
@@ -17,12 +19,7 @@ let store = null;
 let metadataStore = null;
 let locationStore = null;
 
-let locationDecryptor = null;
 const endedLocationSessions = new Set();
-
-function setLocationDecryptor(fn) {
-    locationDecryptor = fn;
-}
 
 const lastIdLoaded = new Map();
 const lastFileIdLoaded = new Map();
@@ -253,7 +250,7 @@ function add(message) {
         contact = message.sender.uri;
     }
 
-    if (locationSharing.isLocationSharing(message.contentType)) {
+    if (sylkLocationSharing.isLocationSharing(message.contentType)) {
         return _ingestLocationSharing(message);
     }
 
@@ -323,25 +320,18 @@ function removeMessage(message) {
 
 
 function _ingestLocationSharing(message) {
-    const wire = locationSharing.parseEnvelope(message.content);
-    if (!wire) return Promise.resolve();
+    if (message.jsonError || !message.json) return Promise.resolve();
     const received = message.state === 'received';
     const contact = received ? (message.sender && message.sender.uri) : message.receiver;
     if (!contact) return Promise.resolve();
-    const decrypt = locationDecryptor
-        ? (armored) => locationDecryptor(armored, message.id)
-        : null;
-
-    return Promise.resolve(locationSharing.toLocationEvent(wire, {
-        decrypt,
+    const event = locationSharing.toLocationEvent(message.json, {
         senderUri: contact,
         messageId: message.id,
         messageTimestamp: message.timestamp,
         direction: received ? 'incoming' : 'outgoing'
-    })).then((event) => {
-        if (!event) return;
-        return addLocationEvent(event, message, contact);
     });
+    if (!event) return Promise.resolve();
+    return addLocationEvent(event, message, contact);
 }
 
 function addLocationEvent(event, message, contact) {
@@ -822,5 +812,4 @@ exports.revertFiles = revertFiles;
 exports.updateIdMap = updateIdMap;
 exports.getMetadata = getMetadata;
 exports.getLocationTrail = getLocationTrail;
-exports.setLocationDecryptor = setLocationDecryptor;
 exports.fixMessage = fixMessage;

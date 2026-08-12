@@ -10,6 +10,7 @@ const { default: TransitionGroup } = require('react-transition-group/TransitionG
 const { default: CSSTransition } = require('react-transition-group/CSSTransition');
 const adapter = require('webrtc-adapter');
 const sylkrtc = require('sylkrtc');
+const sylkLocationSharing = sylkrtc.locationSharing;
 const cloneDeep = require('lodash/cloneDeep');
 const debug = require('debug');
 const DigestAuthRequest = require('digest-auth-request');
@@ -265,12 +266,6 @@ class Blink extends React.Component {
             window.location.replace(this.redirectTo);
             return;
         }
-
-        messageStorage.setLocationDecryptor((armored, id) => {
-            const acc = this.state.account;
-            if (!acc) return Promise.resolve(null);
-            return locationSharing.decryptorFor(acc, id)(armored);
-        });
 
         history.load().then((entries) => {
             if (entries) {
@@ -1540,13 +1535,13 @@ class Blink extends React.Component {
     }
 
     _locationSharingNotifiable(message) {
-        const wire = locationSharing.parseEnvelope(message.content);
+        if (message.jsonError || !message.json) return false;
         if (!wire) return false;
         const NOTIFY = new Set([
             'location_once', 'location_start', 'meeting_request', 'meeting_start',
             'location_request', 'meeting_accept'
         ]);
-        return NOTIFY.has(wire.action);
+        return NOTIFY.has(message.json.action);
     }
 
     incomingMessage(message) {
@@ -1605,7 +1600,7 @@ class Blink extends React.Component {
             this.setState({ contactCache: oldContactCache })
             storage.set('contactCache', Array.from(oldContactCache));
         }
-        const notifiable = locationSharing.isLocationSharing(message.contentType)
+        const notifiable = sylkLocationSharing.isLocationSharing(message.contentType)
             ? this._locationSharingNotifiable(message)
             : (message.contentType !== 'application/sylk-message-metadata');
         const path = this.router.current.getPath();
@@ -1818,7 +1813,7 @@ class Blink extends React.Component {
                     && message.dispositionState !== 'displayed'
                     && message.dispositionNotification.indexOf('display') !== -1
                     && message.contentType !== 'application/sylk-message-metadata'
-                    && !locationSharing.isLocationSharing(message.contentType)
+                    && !sylkLocationSharing.isLocationSharing(message.contentType)
                     && !message.content.startsWith('?OTRv')
                 ) {
                     increment('account', message.contentType);
@@ -1846,7 +1841,7 @@ class Blink extends React.Component {
                         && message.dispositionNotification.indexOf('display') !== -1
                         && !message.content.startsWith('?OTRv')
                         && message.contentType !== 'application/sylk-message-metadata'
-                        && !locationSharing.isLocationSharing(message.contentType)
+                        && !sylkLocationSharing.isLocationSharing(message.contentType)
                         && message.sender.uri === this.state.currentCall.remoteIdentity.uri
                     ) {
                         increment('call', message.contentType);

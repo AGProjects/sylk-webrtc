@@ -385,7 +385,7 @@ const Chat = (props) => {
             const _contact = (contact && typeof contact === 'object' && contact.uri) ? contact.uri : contact;
             if (message.jsonError || !message.json) { DEBUG('[location] ingest: no json (%s)', direction); return; }
             const wire = message.json;
-            const event = sylkLocationSharing.toLocationEvent(wire, {
+            const event = locationSharing.toLocationEvent(wire, {
                 senderUri: _contact,
                 messageId: message.id,
                 messageTimestamp: message.timestamp,

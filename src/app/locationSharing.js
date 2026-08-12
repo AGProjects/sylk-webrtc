@@ -135,5 +135,5 @@ async function toLocationEvent(wire, opts = {}) {
 }
 
 
-exports.splitLocationValue = splitDecryptedValue;
+exports.splitLocationValue = splitLocationValue;
 exports.toLocationEvent = toLocationEvent;

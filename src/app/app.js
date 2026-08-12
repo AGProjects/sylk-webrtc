@@ -1536,7 +1536,6 @@ class Blink extends React.Component {
 
     _locationSharingNotifiable(message) {
         if (message.jsonError || !message.json) return false;
-        if (!wire) return false;
         const NOTIFY = new Set([
             'location_once', 'location_start', 'meeting_request', 'meeting_start',
             'location_request', 'meeting_accept'

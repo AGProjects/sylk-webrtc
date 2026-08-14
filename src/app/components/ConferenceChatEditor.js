@@ -8,7 +8,14 @@ const PropTypes = require('prop-types');
 const debug = require('debug');
 
 const imageConversion = require('image-conversion');
-const { IconButton } = require('@material-ui/core');
+const {
+    IconButton,
+    MenuItem,
+    MenuList,
+    ListItemIcon,
+    Menu,
+    Button
+} = require('@material-ui/core');
 const data = require('emoji-mart/data/apple.json');
 const Picker = require('emoji-mart/dist-modern/components/picker/nimble-picker').default;
 const computedStyleToInlineStyle = require('computed-style-to-inline-style');
@@ -16,7 +23,8 @@ const xss = require('xss');
 
 const {
     CancelOutlined: CloseIcon,
-    Create: CreateIcon
+    Create: CreateIcon,
+    Add
 } = require('@material-ui/icons');
 const OldMessage = require('./Chat/OldMessage');
 
@@ -31,6 +39,8 @@ const ConferenceChatEditor = (props) => {
 
     const editor = useRef(null);
     const typeRef = useRef('text/plain');
+
+    const [anchorEl, setAnchorEl] = useState(null);
 
     useEffect(() => {
         return () => clearTimeout(timer);
@@ -386,7 +396,8 @@ const ConferenceChatEditor = (props) => {
                                 /> : ''}
                         </div>
                     </div>
-                    {props.upload && [
+
+                    {props.upload &&
                         <input
                             style={{ display: 'none' }}
                             id="outlined-button-file"
@@ -394,12 +405,42 @@ const ConferenceChatEditor = (props) => {
                             type="file"
                             onChange={props.upload}
                             key="1"
-                        />,
-                        <label key="shareFiles" className="upload-button-label" htmlFor="outlined-button-file">
-                            <div className="upload-button">
-                                <i className="fa fa-plus fa-2x" />
-                            </div>
-                        </label>]
+                        />
+                    }
+                    {(props.upload || props.requestLocation) && [
+                        <Menu
+                            open={Boolean(anchorEl)}
+                            anchorEl={anchorEl}
+                            onClose={() => setAnchorEl(null)}
+                            key="menu"
+                            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                            transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                            getContentAnchorEl={null}
+                        >
+                            <MenuList>
+                                {props.upload &&
+                                    <MenuItem component="label" style={{fontSize: '14px'}} onClick={() => setAnchorEl(null)} htmlFor="outlined-button-file">
+                                        <ListItemIcon style={{minWidth: '18px', marginRight: '8px'}}><i className="fa fa-upload" style={{margin: 'auto', fontSize: '1.2em'}}/></ListItemIcon>
+                                        Share file
+                                    </MenuItem>
+                                }
+                                {props.requestLocation &&
+                                    <MenuItem style={{fontSize: '14px', fontFamily: 'inherit'}} onClick={() => {setAnchorEl(null); props.requestLocation(); }}>
+                                        <ListItemIcon style={{minWidth: '18px', marginRight: '8px'}}><i className="fa fa-map-marker" style={{margin: 'auto', fontSize: '1.2em'}}/></ListItemIcon>
+                                        Request location
+                                    </MenuItem>
+                                }
+                        </MenuList>
+                        </Menu>,
+                        <IconButton
+                            onClick={(e) => {setAnchorEl(e.currentTarget); }}
+                            disableFocusRipple={true}
+                            disableRipple={true}
+                            style={{ marginLeft: '10px', marginRight: '-6px', padding: '10px', fontSize: 'inherit' }}
+                        >
+                            <Add style={{ fontSize: '26px', margin: '-6px' }} />
+                        </IconButton>
+                    ]
                     }
                     {props.enableVoiceMessage &&
                         <div className="upload-button" onClick={toggleRecording}>
@@ -453,7 +494,8 @@ ConferenceChatEditor.propTypes = {
     toggleRecordVoiceMessage: PropTypes.func,
     editMessage: PropTypes.any,
     cancelEdit: PropTypes.func,
-    type: PropTypes.string
+    type: PropTypes.string,
+    requestLocation: PropTypes.func
 };
 
 

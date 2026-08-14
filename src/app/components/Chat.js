@@ -8,7 +8,7 @@ const { locationSharing: sylkLocationSharing } = require('sylkrtc');
 const { cloneDeep, isEqual } = require('lodash');
 const { makeStyles } = require('@material-ui/core/styles');
 const { CircularProgress, Toolbar, Divider, Typography, Grid } = require('@material-ui/core');
-const { IconButton, useMediaQuery, Menu, MenuItem } = require('@material-ui/core');
+const { IconButton, useMediaQuery } = require('@material-ui/core');
 const { v4: uuidv4 } = require('uuid');
 
 const { default: clsx } = require('clsx');
@@ -143,7 +143,6 @@ const Chat = (props) => {
     const [show, setShow] = useState(false);
     const [focus, setFocus] = useState('');
     const [upload, setUpload] = useState(null);
-    const [locMenuAnchor, setLocMenuAnchor] = useState(null);
     const [selectedContact, _setSelectedContact] = useState(null);
     const [deleteContact, setDeleteContact] = useState(null);
 
@@ -865,7 +864,6 @@ const Chat = (props) => {
     }, [props.account]);
 
     const requestLocation = () => {
-        setLocMenuAnchor(null);
         const uri = selectedContact?.defaultUri?.uri;
         if (!uri || !props.account) return;
         const requestId = uuidv4();
@@ -918,6 +916,7 @@ const Chat = (props) => {
                 toggleRecordVoiceMessage={toggleRecordVoiceMessage}
                 editMessage={editMessage}
                 cancelEdit={() => { setFocus(''); setEditMessage(''); }}
+                requestLocation={props.noConnection ? null : requestLocation}
                 multiline
             />
         </React.Fragment>
@@ -1042,18 +1041,6 @@ const Chat = (props) => {
                                         {props.hideCallButtons === false && [
                                             <IconButton key="callButton" className="fa fa-phone" disabled={props.noConnection} onClick={() => props.startCall(selectedContact.defaultUri.uri, { video: false })} />,
                                             <IconButton key="videoCallButton" className="fa fa-video-camera" disabled={props.noConnection} onClick={() => props.startCall(selectedContact.defaultUri.uri)} />,
-                                            <IconButton key="locationButton" className="fa fa-map-marker" disabled={props.noConnection} title="Location" onClick={(e) => setLocMenuAnchor(e.currentTarget)} />,
-                                            <Menu
-                                                key="locationMenu"
-                                                anchorEl={locMenuAnchor}
-                                                getContentAnchorEl={null}
-                                                open={Boolean(locMenuAnchor)}
-                                                onClose={() => setLocMenuAnchor(null)}
-                                                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                                                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                                            >
-                                                <MenuItem className={classes.item} onClick={requestLocation}>Request location</MenuItem>
-                                            </Menu>
                                         ]}
                                     </React.Fragment>
                                 }

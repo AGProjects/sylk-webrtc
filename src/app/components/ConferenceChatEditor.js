@@ -448,7 +448,7 @@ const ConferenceChatEditor = (props) => {
                         </div>
                     }
 
-                    <div className={`emoji-button ${props.upload && 'padding-fixed'}`} onClick={togglePicker}>
+                    <div className="emoji-button" onClick={togglePicker}>
                         <i className="fa fa-smile-o fa-2x" />
                     </div>
                     <div className="editor-wrapper">

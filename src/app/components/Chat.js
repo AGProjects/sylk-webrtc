@@ -175,42 +175,6 @@ const Chat = (props) => {
         _setMessages(data);
     }
 
-    const _preserveLiveLocations = (rebuilt) => {
-        const current = messagesRef.current || {};
-        const pointCount = (b) => (
-            (b && Array.isArray(b.locationTrail) ? b.locationTrail.length : 0)
-            + (b && Array.isArray(b.locationPeerTrail) ? b.locationPeerTrail.length : 0)
-        );
-        const carryEnded = (chosen, other) => {
-            if (other && other.locationEnded && !chosen.locationEnded) {
-                return {
-                    ...chosen,
-                    locationEnded: true,
-                    locationEndReason: other.locationEndReason || chosen.locationEndReason || 'ended'
-                };
-            }
-            return chosen;
-        };
-        for (const [key, msgs] of Object.entries(current)) {
-            if (!Array.isArray(msgs)) continue;
-            for (const live of msgs) {
-                if (!live || live.contentType !== 'application/sylk-location-sharing') continue;
-                const list = rebuilt[key] ? rebuilt[key] : (rebuilt[key] = []);
-                const idx = list.findIndex(m => m.id === live.id);
-                if (idx === -1) {
-                    list.push(live);
-                    continue;
-                }
-                const incoming = list[idx];
-                let chosen = pointCount(live) > pointCount(incoming) ? live : incoming;
-                chosen = carryEnded(chosen, incoming);
-                chosen = carryEnded(chosen, live);
-                list[idx] = chosen;
-            }
-        }
-        return rebuilt;
-    };
-
     const componentJustMounted = useRef(true);
 
     let timer = null
@@ -307,7 +271,7 @@ const Chat = (props) => {
             locationRole: state.role
         });
 
-        const handleLocationEvent = (event, contact, msgId, msgTs) => {
+        const foldLocationEvent = (messages, event, contact, msgId, msgTs) => {
             const originId = event && event.sessionId;
             if (!originId || !contact) return;
             const json = event.json;
@@ -322,40 +286,37 @@ const Chat = (props) => {
             }
             if (event.kind === 'coords' && endedLocationSessions.has(originId)) return;
 
-            const oldMessages = Object.assign({}, messagesRef.current);
-
             let foundKey = null;
             let foundIdx = -1;
-            for (const [key, msgs] of Object.entries(oldMessages)) {
+            for (const [key, msgs] of Object.entries(messages)) {
                 const idx = msgs.findIndex(m => m.id === originId && m.contentType === 'application/sylk-location-sharing');
                 if (idx !== -1) { foundKey = key; foundIdx = idx; break; }
             }
 
             if (foundKey !== null) {
-                const arr = oldMessages[foundKey].slice();
+                const arr = messages[foundKey].slice();
                 const prev = arr[foundIdx];
                 const prevState = _bubbleToState(prev);
                 const state = applyLocationEvent(prevState, json);
                 const _mine = (typeof prev.mine === 'boolean') ? prev.mine : (event.direction === 'outgoing');
                 arr[foundIdx] = Object.assign(_writeBubbleState(prev, state), { mine: _mine });
-                oldMessages[foundKey] = arr;
-                setMessages(oldMessages);
-                DEBUG('[location] handleLocationEvent UPDATE session %s msg=%s kind=%s dir=%s trail=%s peerTrail=%s',
+                messages[foundKey] = arr;
+                DEBUG('[location] fold UPDATE session %s msg=%s kind=%s dir=%s trail=%s peerTrail=%s',
                     String(originId).slice(0, 8), msgId || '-', event.kind, event.direction, state.trail.length, state.peerTrail.length);
                 return;
             }
 
             if (teardown) {
-                DEBUG('[location] handleLocationEvent TEARDOWN no bubble for session %s msg=%s kind=%s dir=%s',
+                DEBUG('[location] fold TEARDOWN no bubble for session %s msg=%s kind=%s dir=%s',
                     String(originId).slice(0, 8), msgId || '-', event.kind, event.direction);
                 return;
             }
 
             const state = applyLocationEvent(null, json);
-            const list = oldMessages[contact] ? oldMessages[contact].slice() : [];
+            const list = messages[contact] ? messages[contact].slice() : [];
             const createdAt = msgTs ? new Date(msgTs)
                 : (json.timestamp ? new Date(json.timestamp)
-                : (state.trail.length ? state.trail[state.trail.length - 1].timestamp : new Date()));
+                    : (state.trail.length ? state.trail[state.trail.length - 1].timestamp : new Date()));
             list.push(_writeBubbleState({
                 id: originId,
                 contentType: 'application/sylk-location-sharing',
@@ -374,29 +335,57 @@ const Chat = (props) => {
                 type: 'normal'
             }, state));
             list.sort((a, b) => a.timestamp - b.timestamp);
-            oldMessages[contact] = list;
-            setMessages(oldMessages);
-            DEBUG('[location] handleLocationEvent CREATE session %s msg=%s kind=%s dir=%s trail=%s',
+            messages[contact] = list;
+            DEBUG('[location] fold CREATE session %s msg=%s kind=%s dir=%s trail=%s',
                 String(originId).slice(0, 8), msgId || '-', event.kind, event.direction, state.trail.length);
         };
 
-        const ingestLocationSharing = (message, contact, direction) => {
-            const _contact = (contact && typeof contact === 'object' && contact.uri) ? contact.uri : contact;
-            if (message.jsonError || !message.json) { DEBUG('[location] ingest: no json (%s)', direction); return; }
-            const wire = message.json;
-            const event = locationSharing.toLocationEvent(wire, {
-                senderUri: _contact,
+        const handleLocationEvent = (event, contact, msgId, msgTs) => {
+            const oldMessages = Object.assign({}, messagesRef.current);
+            foldLocationEvent(oldMessages, event, contact, msgId, msgTs);
+            setMessages(oldMessages);
+        };
+
+        const deriveLocationEvent = (message, contact, direction) => {
+            if (message.jsonError || !message.json) {
+                DEBUG('[location] derive: no json (%s) msg=%s', direction, message.id || '-');
+                return null;
+            }
+            return locationSharing.toLocationEvent(message.json, {
+                senderUri: contact,
                 messageId: message.id,
                 messageTimestamp: message.timestamp,
                 direction
             });
-            const _sid = (event && event.sessionId) || wire.sessionId || wire.messageId || message.id;
+        };
+
+        const ingestLocationSharing = (message, contact, direction) => {
+            const _contact = (contact && typeof contact === 'object' && contact.uri) ? contact.uri : contact;
+            const event = deriveLocationEvent(message, _contact, direction);
+            const _sid = (event && event.sessionId) || message.json?.sessionId || message.json?.messageId || message.id;
             DEBUG('[location] ingest %s contact=%s action=%s session=%s msg=%s event=%s',
-                direction, _contact, wire.action,
+                direction, _contact, message.json?.action,
                 _sid ? String(_sid).slice(0, 8) : '-',
                 message.id || '-',
                 !!event);
             if (event) handleLocationEvent(event, _contact, message.id, message.timestamp);
+        };
+
+        const replayLocationHistory = (accountMessages, target) => {
+            const shareMessages = accountMessages
+            .filter(m => sylkLocationSharing.isLocationSharing(m.contentType))
+            .slice()
+            .sort((a, b) => a.timestamp - b.timestamp);
+
+            for (const message of shareMessages) {
+                const direction = message.state === 'received' ? 'incoming' : 'outgoing';
+                const contact = direction === 'incoming'
+                    ? (message.sender && message.sender.uri)
+                    : message.receiver;
+                if (!contact) continue;
+                const event = deriveLocationEvent(message, contact, direction);
+                if (event) foldLocationEvent(target, event, contact, message.id, message.timestamp);
+            }
         };
 
         const incomingMessage = (message) => {
@@ -546,7 +535,7 @@ const Chat = (props) => {
             }
         };
 
-        _preserveLiveLocations(newMessages);
+        replayLocationHistory(props.account.messages, newMessages);
 
         if (!componentJustMounted.current) {
             for (let contact of Object.keys(newMessages)) {

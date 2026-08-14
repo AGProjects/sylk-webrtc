@@ -217,7 +217,7 @@ const ContactList = (props) => {
                 if (!m) continue;
                 if (typeof m.content === 'string' && m.content.startsWith('?OTRv')) continue;
                 if (!orderMsg) orderMsg = m;
-                if (m.contentType === 'application/sylk-location-sharing' && (m.locationEnded || m.locationOneShot)) continue;
+                if (m.contentType === 'application/sylk-location-sharing' && m.locationEnded && !m.locationOneShot) continue;
                 labelMsg = m;
                 break;
             }
@@ -323,6 +323,7 @@ const ContactList = (props) => {
         } else if (contentType === 'text/plain') {
             return message.content;
         } else if (contentType === 'application/sylk-location-sharing') {
+            if (message.locationOneShot) return '📍 Location';
             return message.locationEnded ? 'Location sharing ended' : '📍 Live location';
         } else if (contentType === 'text/pgp-public-key') {
             return (

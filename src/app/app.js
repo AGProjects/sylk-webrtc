@@ -796,6 +796,7 @@ class Blink extends React.Component {
                 const messages = this.state.account.messages;
                 let index = 0;
                 for (let message of messages.reverse()) {
+                    if (sylkLocationSharing.isLocationSharing(message.contentType)) continue;
                     if (message.state === 'pending' || message.state === 'failed') {
                         if (!this.state.oldMessages[message.receiver]) {
                             DEBUG('Skipping retransmit, conversation removed: %o', message.receiver);
@@ -810,6 +811,7 @@ class Blink extends React.Component {
                 this.retransmittedMessages = pendingFailedMessages;
                 let counter = 0;
                 for (let message of this.state.account.messages) {
+                    if (sylkLocationSharing.isLocationSharing(message.contentType)) continue;
                     const senderUri = message.sender.uri;
                     const receiver = message.receiver;
                     let key = receiver;

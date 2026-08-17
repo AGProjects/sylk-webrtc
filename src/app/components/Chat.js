@@ -874,6 +874,63 @@ const Chat = (props) => {
         }
     };
 
+    const shareLocationOnce = async () => {
+        const uri = selectedContact?.defaultUri?.uri;
+        if (!uri || !props.account || !props.account.pgp) return;
+        try {
+            const coords = await locationSharing.getCurrentPosition();
+            const envelopeId = uuidv4();
+            const envelope = await sylkLocationSharing.buildEncryptedEnvelope(
+                'location_once', coords, props.account.pgp, uri, envelopeId
+            );
+            if (!envelope) {
+                DEBUG('[location] shareLocationOnce: encryption failed, not sending');
+                return;
+            }
+
+            const sentMessage = props.account.sendMessage(
+                uri, envelope, 'application/sylk-location-sharing',
+                { id: envelopeId, cleartext: true },
+                (error) => { if (error) DEBUG('[location] shareLocationOnce send error: %s', error); }
+            );
+
+            const bubble = {
+                id: envelopeId,
+                contentType: 'application/sylk-location-sharing',
+                content: '',
+                timestamp: sentMessage.timestamp,
+                mine: true,
+                state: 'sent',
+                dispositionState: 'displayed',
+                dispositionNotification: [],
+                sender: { uri: props.account.id, displayName: null },
+                receiver: uri,
+                metadata: [],
+                chunkIds: [],
+                type: 'normal',
+                locationTrail: [coords],
+                locationPeerTrail: [],
+                locationStartTrail: [],
+                locationPeerStartTrail: [],
+                locationDestination: null,
+                locationExpires: null,
+                locationEnded: false,
+                locationEndReason: null,
+                locationOneShot: true,
+                locationRole: null
+            };
+
+            const oldMessages = Object.assign({}, messagesRef.current);
+            const list = oldMessages[uri] ? oldMessages[uri].slice() : [];
+            list.push(bubble);
+            list.sort((a, b) => a.timestamp - b.timestamp);
+            oldMessages[uri] = list;
+            setMessages(oldMessages);
+        } catch (e) {
+            DEBUG('[location] shareLocationOnce failed: %s', e.message);
+        }
+    };
+
     const messagePane = (
         <React.Fragment key="pane">
             <MessageList
@@ -906,6 +963,7 @@ const Chat = (props) => {
                 editMessage={editMessage}
                 cancelEdit={() => { setFocus(''); setEditMessage(''); }}
                 requestLocation={props.noConnection ? null : requestLocation}
+                shareLocationOnce={props.noConnection ? null : shareLocationOnce}
                 multiline
             />
         </React.Fragment>

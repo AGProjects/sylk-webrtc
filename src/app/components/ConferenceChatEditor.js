@@ -407,7 +407,7 @@ const ConferenceChatEditor = (props) => {
                             key="1"
                         />
                     }
-                    {(props.upload || props.requestLocation) && [
+                    {(props.upload || props.requestLocation || props.shareLocationOnce) && [
                         <Menu
                             open={Boolean(anchorEl)}
                             anchorEl={anchorEl}
@@ -428,6 +428,12 @@ const ConferenceChatEditor = (props) => {
                                     <MenuItem style={{fontSize: '14px', fontFamily: 'inherit'}} onClick={() => {setAnchorEl(null); props.requestLocation(); }}>
                                         <ListItemIcon style={{minWidth: '18px', marginRight: '8px'}}><i className="fa fa-map-marker" style={{margin: 'auto', fontSize: '1.2em'}}/></ListItemIcon>
                                         Request location
+                                    </MenuItem>
+                                }
+                                {props.shareLocationOnce &&
+                                    <MenuItem style={{fontSize: '14px', fontFamily: 'inherit'}} onClick={() => {setAnchorEl(null); props.shareLocationOnce(); }}>
+                                        <ListItemIcon style={{minWidth: '18px', marginRight: '8px'}}><i className="fa fa-location-arrow" style={{margin: 'auto', fontSize: '1.2em'}}/></ListItemIcon>
+                                        Share my location
                                     </MenuItem>
                                 }
                         </MenuList>
@@ -495,7 +501,8 @@ ConferenceChatEditor.propTypes = {
     editMessage: PropTypes.any,
     cancelEdit: PropTypes.func,
     type: PropTypes.string,
-    requestLocation: PropTypes.func
+    requestLocation: PropTypes.func,
+    shareLocationOnce: PropTypes.func
 };
 
 

@@ -133,6 +133,25 @@ function toLocationEvent(wire, opts = {}) {
     };
 }
 
+function getCurrentPosition() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocation not supported'));
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (pos) => resolve({
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude,
+                accuracy: pos.coords.accuracy,
+                timestamp: pos.timestamp
+            }),
+            (err) => reject(err),
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    });
+}
 
+exports.getCurrentPosition = getCurrentPosition;
 exports.splitLocationValue = splitLocationValue;
 exports.toLocationEvent = toLocationEvent;

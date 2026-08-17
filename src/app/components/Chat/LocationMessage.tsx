@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
+import clsx from 'clsx';
 import { Media } from 'react-bootstrap';
 import { DateTime } from 'luxon';
-import { Card } from '@material-ui/core';
+import { Card, MenuItem } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import {
     LocationOn as LocationOnIcon,
@@ -13,8 +14,10 @@ import {
 import * as L from 'leaflet';
 
 import UserIcon from '../UserIcon';
+import CustomContextMenu from '../CustomContextMenu';
 
 require('leaflet/dist/leaflet.css');
+
 
 type LatLng = [number, number];
 
@@ -50,6 +53,7 @@ interface Props {
     onStopShare?: () => void;
     selfIdentity?: any;
     peerIdentity?: any;
+    removeMessage?: any;
 }
 
 const TILE_URL = 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png';
@@ -241,6 +245,15 @@ const styleSheet = makeStyles((theme) => ({
     },
     stopBtnIcon: {
         fontSize: 15
+    },
+    item: {
+        fontSize: '14px',
+        fontFamily: 'inherit',
+        color: '#333',
+        minHeight: 0
+    },
+    danger: {
+        color: '#d9534f'
     }
 }));
 
@@ -374,8 +387,10 @@ function formatAgo(ms: number): string {
     return `${h}h ago`;
 }
 
-const LocationMessage = ({ message, cont, scroll, identity, onStopShare, selfIdentity, peerIdentity }: Props) => {
+const LocationMessage = ({ message, cont, scroll, identity, onStopShare, selfIdentity, peerIdentity, removeMessage }: Props) => {
     const classes = styleSheet();
+
+    const [anchorEl, setAnchorEl] = useState(null);
 
     const mapNodeRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<any>(null);
@@ -824,9 +839,66 @@ const LocationMessage = ({ message, cont, scroll, identity, onStopShare, selfIde
 
     const theme = cont ? 'text-left continued' : 'text-left';
 
+    const handleContextMenu = (e) => {
+        e.preventDefault();
+        // return
+        const { clientX, clientY } = e;
+        const virtualElement = {
+            clientWidth: 0,
+            clientHeight: 0,
+            getBoundingClientRect: () => ({
+                width: 0,
+                height: 0,
+                top: clientY,
+                right: clientX,
+                bottom: clientY,
+                left: clientX
+            })
+        };
+        setAnchorEl(virtualElement);
+    }
+
+    const _removeMessage = () => {
+        if (typeof removeMessage === 'function') {
+            {mine && !ended && !oneShot && onStopShare && (latestLatLng || peerLatLng) &&
+                setJustStopped(true);
+                onStopShare();
+            }
+            removeMessage();
+        }
+    }
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const menu = (
+        <CustomContextMenu
+            open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            keepMounted={false}
+        >
+            {mine && !ended && !oneShot && onStopShare && (latestLatLng || peerLatLng) && (
+                <MenuItem
+                    className={clsx(classes.item, classes.danger)}
+                    title="Stop sharing your live location"
+                    onClick={() => { setJustStopped(true); onStopShare(); handleClose()}}
+                    style={{}}
+                >
+                    Stop sharing
+                </MenuItem>
+            )}
+            <MenuItem className={classes.item} onClick={() => { _removeMessage(); handleClose() }}>
+                Remove
+            </MenuItem>
+        </CustomContextMenu>
+    );
+
     if (cont) {
         return (
-            <Media className={theme}>
+            <Media className={theme} onContextMenu={handleContextMenu}>
+                {menu}
                 <Media.Left className="timestamp-continued"><span>{time}</span></Media.Left>
                 <Media.Body className="vertical-center">
                     {card}
@@ -836,7 +908,8 @@ const LocationMessage = ({ message, cont, scroll, identity, onStopShare, selfIde
     }
 
     return (
-        <Media className={theme}>
+        <Media className={theme} onContextMenu={handleContextMenu}>
+            {menu}
             <Media.Left>
                 <UserIcon identity={identity} />
             </Media.Left>

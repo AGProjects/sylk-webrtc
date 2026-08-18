@@ -436,13 +436,14 @@ const ConferenceChatEditor = (props) => {
                                         Share my location
                                     </MenuItem>
                                 }
-                        </MenuList>
+                            </MenuList>
                         </Menu>,
                         <IconButton
                             onClick={(e) => {setAnchorEl(e.currentTarget); }}
                             disableFocusRipple={true}
                             disableRipple={true}
                             style={{ marginLeft: '10px', marginRight: '-6px', padding: '10px', fontSize: 'inherit' }}
+                            key="plus_button"
                         >
                             <Add style={{ fontSize: '26px', margin: '-6px' }} />
                         </IconButton>

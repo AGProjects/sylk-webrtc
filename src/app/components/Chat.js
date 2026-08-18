@@ -951,7 +951,7 @@ const Chat = (props) => {
                     close={toggleRecordVoiceMessage}
                     contact={selectedContact}
                     anchorElement={anchorEl.current}
-                    sendAudioMessage={(...args) => fileTransferUtils.upload(props, ...args, selectedContact)}
+                    sendAudioMessage={(...args) => fileTransferUtils.upload(props, ...args, selectedContact.defaultUri.uri)}
                 />
             }
         </React.Fragment>

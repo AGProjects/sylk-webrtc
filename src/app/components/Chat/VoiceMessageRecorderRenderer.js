@@ -104,7 +104,9 @@ const useInterval = (callback, delay) => {
         }
     }, [delay, cancel]);
 
-    const stop = () => setCancel(true);
+    const stop = useCallback(() => {
+        setCancel(true);
+    }, []);
 
     return [stop]
 }
@@ -178,7 +180,6 @@ const VoiceMessageRecorderRenderer = (props) => {
         if (props.loadData) {
             setIsRecording(false)
             setCanPlay(true);
-            wavesurfer.loadBlob(props.loadData)
             stopTimer();
             const subscriptions = [
                 wavesurfer.on('play', () => setIsPlaying(true)),
@@ -186,6 +187,7 @@ const VoiceMessageRecorderRenderer = (props) => {
                 wavesurfer.on('decode', (duration) => { totalDuration = duration; setCurrentTime(duration) }),
                 wavesurfer.on('timeupdate', (currentTime) => setCurrentTime(totalDuration - currentTime))
             ]
+            wavesurfer.loadBlob(props.loadData)
             return () => {
                 subscriptions.forEach((unsub) => unsub())
             }

@@ -40,3 +40,9 @@ $video-watermark-image:     '../images/aglogo-white.svg';
 
 $video-thumbnail-width:     150px;
 $video-thumbnail-height:    100px;
+
+// Vertical space the (single row) call button bar takes at the bottom of the
+// video: the tallest button (.btn-round-big, 55px) plus its 4px margins, plus
+// the bar's 35px bottom padding, plus a little slack. Used to keep a remote
+// screen share above the bar instead of behind it — see .call-buttons.
+$call-buttons-height:       105px;

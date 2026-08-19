@@ -956,7 +956,22 @@ class Blink extends React.Component {
         }
     }
 
-    getLocalScreen(source) {
+    getLocalScreen(source, sourceInfo) {
+        // Everything below is against this call, not this.state.currentCall: the
+        // media request can resolve after the user hung up and started another
+        // call, and the screen must not land on that one.
+        const call = this.state.currentCall;
+        if (!call) {
+            DEBUG('No current call to share a screen with');
+            return;
+        }
+        // Remember WHAT is being shared: the remote-pointer overlay has to be
+        // drawn on the shared display, and cannot be placed at all for an
+        // application window (desktopCapturer gives no window geometry).
+        const sharedIsDisplay = utils.isDisplaySource(sourceInfo);
+        call._sharedDisplayId = sharedIsDisplay ? (sourceInfo.display_id || null) : null;
+        call._sharedIsWindow = !!sourceInfo && !sharedIsDisplay;
+
         let screenConstraints = {
             video: {
                 mozMediaSource: 'window',
@@ -982,7 +997,7 @@ class Blink extends React.Component {
             navigator.getDisplayMedia({
                 video: true
             }).then(screenStream => {
-                this.state.currentCall.startScreensharing(screenStream.getVideoTracks()[0]);
+                call.startScreensharing(screenStream.getVideoTracks()[0]);
                 screenStream.getVideoTracks()[0].addEventListener('ended', (ev) => {
                     DEBUG('Screensharing stream ended by user action');
                     this.switchScreensharing();
@@ -994,7 +1009,7 @@ class Blink extends React.Component {
             navigator.mediaDevices.getDisplayMedia({
                 video: true
             }).then(screenStream => {
-                this.state.currentCall.startScreensharing(screenStream.getVideoTracks()[0]);
+                call.startScreensharing(screenStream.getVideoTracks()[0]);
                 screenStream.getVideoTracks()[0].addEventListener('ended', (ev) => {
                     DEBUG('Screensharing stream ended by user action');
                     this.switchScreensharing();
@@ -1006,7 +1021,7 @@ class Blink extends React.Component {
             DEBUG('Modern Screensharing API not available using getUserMedia');
             navigator.mediaDevices.getUserMedia(screenConstraints)
                 .then((screenStream) => {
-                    this.state.currentCall.startScreensharing(screenStream.getVideoTracks()[0]);
+                    call.startScreensharing(screenStream.getVideoTracks()[0]);
                     if (this.shouldUseHashRouting) {
                         const ipcRenderer = window.require('electron').ipcRenderer;
                         ipcRenderer.send('minimize');

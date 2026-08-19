@@ -1,3 +1,8 @@
+// One row of round buttons pinned to the bottom of the video. A remote screen
+// share is sized against $call-buttons-height (see .screen-fit in _video.scss),
+// so keep the two in step: line-height 0 removes the baseline slack a line box
+// of mixed-height inline-blocks would otherwise add, which makes the height
+// exactly the tallest button's margin box plus this padding.
 .call-buttons {
     position: absolute;
     right: 0;
@@ -7,6 +12,21 @@
     padding-bottom: 35px;
     margin: auto;
     overflow: hidden;
+    line-height: 0;
+}
+
+// Remote-pointer feedback: where we clicked, once the peer confirms they drew
+// the marker on their shared screen.
+.pointer-ack-echo {
+    position: fixed;
+    z-index: 100000;
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    pointer-events: none;
+    background: rgba(76, 175, 80, .35);
+    border: 3px solid #4caf50;
+    border-radius: 50%;
 }
 
 .top-overlay {
@@ -105,6 +125,7 @@
         top: 0;
         right: 0;
         margin-top: 3.5px;
+
     }
 
     .margin-buttons {

@@ -13,6 +13,17 @@ function generateUniqueId() {
     return uniqueId;
 }
 
+// Is this Electron desktopCapturer source a whole display rather than a single
+// application window? Displays carry a display_id; windows report it as ''.
+// Some platforms leave it empty for displays too, hence the id check.
+function isDisplaySource(source) {
+    if (!source) {
+        return false;
+    }
+    return (source.display_id !== undefined && source.display_id !== null && source.display_id !== '')
+        || String(source.id).lastIndexOf('screen', 0) === 0;
+}
+
 function normalizeUri(uri, defaultDomain) {
     let targetUri = uri;
     let idx = targetUri.indexOf('@');
@@ -215,6 +226,7 @@ exports.normalizeUri = normalizeUri;
 exports.generateSillyName = generateSillyName;
 exports.generateRandomNumber = generateRandomNumber;
 exports.generateUniqueId = generateUniqueId;
+exports.isDisplaySource = isDisplaySource;
 exports.uniqueId = uniqueId;
 exports.generateMaterialColor = generateMaterialColor;
 exports.generateVideoTrack = generateVideoTrack;

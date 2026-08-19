@@ -10,6 +10,26 @@
     }
 }
 
+// Active/toggled round button (e.g. remote pointer on)
+.btn.btn-pointer-active {
+    &,
+    &:hover,
+    &:focus,
+    &:active {
+        color: $white !important;
+        background-color: #5cb85c !important;
+        border-color: #4cae4c !important;
+        opacity: 1 !important;
+    }
+}
+
+// The mouse-pointer glyph carries its whitespace on the right, so nudge it to
+// sit optically centred in a round button.
+.btn-round .fa-mouse-pointer {
+    position: relative;
+    left: 2px;
+}
+
 // Round Button
 
 %btn-round {

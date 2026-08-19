@@ -128,6 +128,14 @@ class CallOverlay extends React.Component {
                 name = this.props.contact.name;
             }
 
+            // While the peer's shared screen is on-screen, relabel the header:
+            // "Remote screen of Adam Lars" (no colon), instead of "Call with:".
+            let titleSep = ':';
+            if (this.props.remoteScreen) {
+                type = 'Remote screen of';
+                titleSep = '';
+            }
+
             if (this.props.alternativeLayout) {
                 header = (
                     <CSSTransition
@@ -141,7 +149,7 @@ class CallOverlay extends React.Component {
                                     <UserIcon identity={this.props.contact.identity} active={false} small={true} isConference={isConference} />
                                 </div>
                                 <Navbar.Brand style={{ color: '#f0f0f0', padding: '15px' }}>
-                                    <strong>{type}:</strong> {name} - {callDetail}
+                                    <strong>{type}{titleSep}</strong> {name} - {callDetail}
                                 </Navbar.Brand>
                             </Navbar.Header>
                             {this.props.buttons &&
@@ -166,7 +174,7 @@ class CallOverlay extends React.Component {
                                         {this.props.buttons.top.left}
                                     </div>
                                 }
-                                <p className="lead"><strong>{type}:</strong> {name}</p>
+                                <p className="lead"><strong>{type}{titleSep}</strong> {name}</p>
                                 <p className="lead">{callDetail}</p>
                                 {this.props.buttons && this.props.buttons.top && this.props.buttons.top.right &&
                                     <div className={rightButtonClasses}>
@@ -204,7 +212,8 @@ CallOverlay.propTypes = {
     callQuality: PropTypes.object,
     onTop: PropTypes.bool,
     buttons: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
-    alternativeLayout: PropTypes.bool
+    alternativeLayout: PropTypes.bool,
+    remoteScreen: PropTypes.bool
 };
 
 

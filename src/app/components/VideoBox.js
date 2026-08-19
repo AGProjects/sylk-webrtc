@@ -29,9 +29,9 @@ const { default: FileUploadModal } = require('./FileUploadModal');
 
 const fileTransferUtils = require('../fileTransferUtils');
 const utils = require('../utils');
+const RemotePointerSession = require('../RemotePointerSession');
 
 const DEBUG = debug('blinkrtc:Video');
-
 
 const styleSheet = {
     badge: {
@@ -83,6 +83,12 @@ class VideoBox extends React.Component {
             localVideoShow: false,
             remoteVideoShow: false,
             remoteSharesScreen: false,
+            // Remote-pointer feature (screen-share guidance). The protocol and
+            // the peer's state live in RemotePointerSession; these mirror it for
+            // rendering. `pointerMode` is ours alone: while on, clicking the
+            // remote screen sends a guide point.
+            pointerMode: false,
+            remotePeerSharing: false,
             showEscalateConferenceModal: false,
             switchAnchor: null,
             showSwitchMenu: false,
@@ -95,7 +101,15 @@ class VideoBox extends React.Component {
             callQuality: new Array(30).fill({}),
             upload: null,
             lastData: {},
-            hasVideo: true
+            hasVideo: true,
+            // Local echo of a click WE sent that the peer ACKed rendering.
+            ackEcho: null,
+            // The peer can render a marker right now (their app/tab is in front).
+            remoteInApp: true,
+            // The peer's share can be pointed at at all — false for a shared
+            // application window or tab, where nothing on their side can place a
+            // marker. Gates the pointer button so it never silently no-ops.
+            remotePointerCapable: true
         };
         this.emaBitrate = 0;
         this.alpha = 0.4;
@@ -103,10 +117,14 @@ class VideoBox extends React.Component {
         this.lowVideoStreak = 0;
 
         this.overlayTimer = null;
+        this.ackEchoTimer = null;
         this.localVideo = React.createRef();
         this.remoteVideo = React.createRef();
         this._notificationCenter = null;
         this.speechEvents = null;
+        // Remote-pointer protocol, created on mount (see componentDidMount).
+        this.pointerSession = null;
+        this.sharingScreen = false;
 
         // ES6 classes no longer autobind
         [
@@ -130,7 +148,11 @@ class VideoBox extends React.Component {
             'statistics',
             'handleFiles',
             'handleDrop',
-            'uploadFiles'
+            'uploadFiles',
+            'sendPointer',
+            'togglePointerMode',
+            'handlePointerSessionChange',
+            'handlePointerAck'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -141,6 +163,13 @@ class VideoBox extends React.Component {
         const vt = s && s.getVideoTracks()[0];
         if (vt && vt.enabled && this.state.videoMuted) {
             this.setState({ videoMuted: false, localVideoShow: true });
+        }
+        // Advertise screen-sharing start/stop to the peer so their pointer button
+        // appears/disappears (its arrival also proves we support the pointer).
+        const sharing = !!this.props.call.sharingScreen;
+        if (this.pointerSession && sharing !== this.sharingScreen) {
+            this.sharingScreen = sharing;
+            this.pointerSession.setLocalSharing(sharing);
         }
     }
 
@@ -167,6 +196,20 @@ class VideoBox extends React.Component {
 
         this.remoteVideo.current.addEventListener('playing', this.handleRemoteVideoPlaying);
         this.props.call.account.on('incomingMessage', this.incomingMessage);
+
+        // The pointer protocol runs on the in-dialog (call) message channel.
+        this.pointerSession = new RemotePointerSession(this.props.call);
+        this.pointerSession.on('changed', this.handlePointerSessionChange);
+        this.pointerSession.on('ack', this.handlePointerAck);
+        this.sharingScreen = !!this.props.call.sharingScreen;
+        if (this.sharingScreen) {
+            this.pointerSession.setLocalSharing(true);
+        }
+        // The session survives navigating away from this screen and back, so it
+        // may already know the peer is sharing.
+        if (this.pointerSession.remoteSharing) {
+            this.handlePointerSessionChange();
+        }
 
         sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.remoteVideo.current, { muted: true, disableContextMenu: true });
         const options = {
@@ -203,6 +246,11 @@ class VideoBox extends React.Component {
         this.exitFullscreen();
         document.removeEventListener('keydown', this.onKeyDown);
         this.props.call.account.removeListener('incomingMessage', this.incomingMessage);
+        clearTimeout(this.ackEchoTimer);
+        if (this.pointerSession) {
+            this.pointerSession.close();
+            this.pointerSession = null;
+        }
         this.props.call.statistics.removeListener('stats', this.statistics);
     }
 
@@ -311,7 +359,11 @@ class VideoBox extends React.Component {
                 this.videoWarmupTicks -= 1;
             } else {
                 this.lowVideoStreak = (this.lowVideoStreak || 0) + 1;
-                if (this.lowVideoStreak >= 3) {
+                // While the peer is SCREEN SHARING, a static screen sends a low,
+                // bursty bitrate that trips this threshold even though the share
+                // is fine. Don't hide the video / show the poster there — the
+                // detection is only meant to catch a dead camera stream.
+                if (this.lowVideoStreak >= 3 && !this.state.remotePeerSharing) {
                     hasVideo = false;
                 }
             }
@@ -360,12 +412,53 @@ class VideoBox extends React.Component {
     handleRemoteResize(event, target) {
         //DEBUG("%o", event);
         const resolutions = ['1280x720', '960x540', '640x480', '640x360', '480x270', '320x180'];
-        const videoResolution = event.target.videoWidth + 'x' + event.target.videoHeight;
+        const vw = event.target.videoWidth, vh = event.target.videoHeight;
+        this.pointerSession?.noteRemoteVideoSize(vw, vh);
+        const videoResolution = vw + 'x' + vh;
         if (resolutions.indexOf(videoResolution) === -1) {
             this.setState({ remoteSharesScreen: true });
         } else {
             this.setState({ remoteSharesScreen: false });
         }
+    }
+
+    // The peer's sharing / pointer capability changed (RemotePointerSession).
+    handlePointerSessionChange() {
+        const session = this.pointerSession;
+        const startedSharing = session.remoteSharing && !this.state.remotePeerSharing;
+        this.setState({
+            remotePeerSharing: session.remoteSharing,
+            remotePointerCapable: session.remoteCapable,
+            remoteInApp: session.remoteInApp,
+            // Losing the share or its pointability turns the pointer off; the
+            // peer merely stepping out of their app does not — pointing resumes
+            // by itself when they come back (the cursor says so meanwhile).
+            pointerMode: session.remoteSharing && session.remoteCapable && this.state.pointerMode,
+            // A share starting must not be hidden by a stale low-bitrate verdict
+            // from before it (see statistics()).
+            hasVideo: session.remoteSharing || this.state.hasVideo,
+            callOverlayVisible: session.remoteSharing || this.state.callOverlayVisible
+        });
+        if (startedSharing) {
+            this.lowVideoStreak = 0;
+            clearTimeout(this.overlayTimer);
+        }
+    }
+
+    // The peer confirmed rendering a point we sent: echo it where we clicked.
+    handlePointerAck(origin) {
+        this.setState({ ackEcho: { left: origin.clientX, top: origin.clientY } });
+        clearTimeout(this.ackEchoTimer);
+        this.ackEchoTimer = setTimeout(() => this.setState({ ackEcho: null }), 900);
+    }
+
+    togglePointerMode() {
+        this.setState({ pointerMode: !this.state.pointerMode });
+    }
+
+    sendPointer(event) {
+        if (!this.state.pointerMode) { return; }
+        this.pointerSession?.sendPoint(this.remoteVideo.current, event);
     }
 
     muteAudio(event) {
@@ -414,6 +507,9 @@ class VideoBox extends React.Component {
     armOverlayTimer() {
         clearTimeout(this.overlayTimer);
         this.overlayTimer = setTimeout(() => {
+            // While viewing the remote's shared screen keep the top bar (with the
+            // docked call controls) pinned — don't auto-hide it.
+            if (this.state.remotePeerSharing) { return; }
             if (this.state.hasVideo) {
                 this.setState({ callOverlayVisible: false });
             }
@@ -571,11 +667,24 @@ class VideoBox extends React.Component {
             'fadeIn': this.state.remoteVideoShow,
             'large': true,
             'fit': this.state.remoteSharesScreen,
+            // While viewing the peer's shared screen, inset the video between the
+            // title bar and the call buttons so the whole shared screen is
+            // visible and nothing floats on top of it.
+            'screen-fit': this.state.remotePeerSharing,
             'hide': !this.state.hasVideo
         });
 
         let callButtons;
         let watermark;
+
+        // With the pointer on, the remote video is a click target — unless the
+        // peer can't render a marker at the moment, which the cursor says too.
+        let pointerCursor;
+        if (this.state.pointerMode) {
+            pointerCursor = (this.state.remotePointerCapable && this.state.remoteInApp)
+                ? { cursor: 'crosshair' }
+                : { cursor: 'not-allowed' };
+        }
 
         const callQuality = (
             <CallQuality
@@ -670,20 +779,29 @@ class VideoBox extends React.Component {
                     </button>
                 );
             }
-            buttons.push(<button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}> <i className="fa fa-user-plus"></i> </button>);
-            buttons.push(
-                <div className="btn-container" key="video">
-                    <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>
-                    <button key="videodevices" type="button" title="Select cameras" className={menuButtonClasses} onClick={this.toggleSwitchMenu}> <i className={menuButtonIcons}></i> </button>
-                </div>
-            );
+            if (!this.state.remotePeerSharing) {
+                buttons.push(<button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}> <i className="fa fa-user-plus"></i> </button>);
+            }
+            if (!this.state.remotePeerSharing) {
+                buttons.push(
+                    <div className="btn-container" key="video">
+                        <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>
+                        <button key="videodevices" type="button" title="Select cameras" className={menuButtonClasses} onClick={this.toggleSwitchMenu}> <i className={menuButtonIcons}></i> </button>
+                    </div>
+                );
+            }
             buttons.push(
                 <div className="btn-container" key="audio">
                     <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>
                     <button key="audiodevices" type="button" title="Select audio devices" className={menuButtonClasses} onClick={this.toggleAudioSwitchMenu}> <i className={menuButtonIcons}></i> </button>
                 </div>
             );
-            buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen}><i className={screenSharingButtonIcons}></i></button>);
+            if (!this.state.remotePeerSharing) {
+                buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen}><i className={screenSharingButtonIcons}></i></button>);
+            }
+            if (this.state.remotePeerSharing && this.state.remotePointerCapable) {
+                buttons.push(<button key="pointer" type="button" title={this.state.pointerMode ? 'Pointer on — click the remote screen' : 'Point at the remote screen'} className={clsx(commonButtonClasses, { 'active': this.state.pointerMode, 'btn-pointer-active': this.state.pointerMode })} onClick={this.togglePointerMode}><i className="fa fa-mouse-pointer"></i></button>);
+            }
             if (this.isFullscreenSupported()) {
                 buttons.push(<button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
             }
@@ -708,7 +826,6 @@ class VideoBox extends React.Component {
                         </IconButton>
                     </label></React.Fragment>);
             }
-            buttons.push(<br key="break" />);
             buttons.push(<button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>);
 
             callButtons = (
@@ -763,6 +880,12 @@ class VideoBox extends React.Component {
 
         return (
             <React.Fragment>
+                {this.state.ackEcho &&
+                    <div
+                        className="pointer-ack-echo"
+                        style={{ left: this.state.ackEcho.left, top: this.state.ackEcho.top }}
+                    />
+                }
                 {this.state.upload &&
                     <FileUploadModal
                         show={this.state.upload !== null}
@@ -805,12 +928,13 @@ class VideoBox extends React.Component {
                                 buttons={topButtons}
                                 onTop={this.state.showChat}
                                 callQuality={callQuality}
+                                remoteScreen={this.state.remotePeerSharing}
                             />
                             <TransitionGroup>
                                 {watermark}
                             </TransitionGroup>
-                            <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref={this.remoteVideo} autoPlay />
-                            <video id="localVideo" className={localVideoClasses} ref={this.localVideo} autoPlay muted />
+                            <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref={this.remoteVideo} autoPlay onClick={this.sendPointer} style={pointerCursor} />
+                            <video id="localVideo" className={localVideoClasses} ref={this.localVideo} autoPlay muted style={this.state.remotePeerSharing ? { display: 'none' } : undefined} />
                             <TransitionGroup>
                                 {callButtons}
                             </TransitionGroup>

@@ -53,6 +53,21 @@
             background-color: $white-transparent;
             object-fit: contain !important;
         }
+
+        // Viewing the peer's shared screen: give the video the band between the
+        // title/drag bar and the call buttons, and letterbox the whole shared
+        // screen inside it. Nothing then covers the share — no clipping under
+        // the top bar, no buttons floating over it.
+        &.large.screen-fit {
+            position: absolute;
+            top: $navbar-height;
+            left: 0;
+            height: calc(100% - #{$navbar-height} - #{$call-buttons-height}) !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            object-fit: contain !important;
+            background-color: $black;
+        }
     }
 
     .watermark {

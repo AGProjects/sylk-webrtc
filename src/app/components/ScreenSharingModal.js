@@ -11,6 +11,8 @@ const Modal          = ReactBootstrap.Modal;
 const { makeStyles } = require('@material-ui/core/styles');
 const {Tabs, Tab, GridList, GridListTile, GridListTileBar } = require('@material-ui/core');
 
+const utils = require('../utils');
+
 
 const styleSheet = makeStyles({
     root: {
@@ -51,11 +53,13 @@ const ScreenSharingModal = (props) => {
         });
     });
 
-    const screens = sources.filter(source => source.display_id !== '' || source.id.lastIndexOf('screen', 0) === 0);
-    const windows = sources.filter(source => source.display_id === '' && source.id.lastIndexOf('screen', 0) !== 0);
+    const screens = sources.filter(utils.isDisplaySource);
+    const windows = sources.filter(source => !utils.isDisplaySource(source));
 
     const shareScreen = () => {
-        props.getLocalScreen(focus);
+        // Pass the source itself too: the remote-pointer overlay needs to know
+        // which display was picked, or whether this is an application window.
+        props.getLocalScreen(focus, sources.find((source) => source.id === focus) || null);
     };
 
     const getSources = () => {
@@ -63,8 +67,12 @@ const ScreenSharingModal = (props) => {
         desktopCapturer.getSources({ types: ['window', 'screen'], thumbnailSize: {width: 180, height: 180}})
         .then((newSources) => {
             if (sources.length === 0) {
-                const firstScreen = newSources.filter(source => source.display_id !== '' || source.id.lastIndexOf('screen', 0) === 0)[0];
-                setFocus(firstScreen.id);
+                // Prefer a whole display; fall back to whatever is on offer so a
+                // machine that reports no display never leaves the picker empty.
+                const firstSource = newSources.filter(utils.isDisplaySource)[0] || newSources[0];
+                if (firstSource) {
+                    setFocus(firstSource.id);
+                }
             }
             setSources(newSources);
         });

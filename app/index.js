@@ -13,6 +13,127 @@ const Menu = electron.Menu;
 const ipc = electron.ipcMain;
 const shell = electron.shell;
 
+// --- Remote-pointer overlay -------------------------------------------------
+// A transparent, click-through, always-on-top window that draws a brief pulsing
+// marker at a normalized (0..1) point on the shared display. Used by the
+// remote-pointer feature: while this desktop shares its screen, the remote peer
+// clicks the shared video and we draw "look here" over our real screen so it
+// appears in the shared stream. Purely visual; never intercepts input. The dot
+// is positioned via executeJavaScript from here, so the overlay page needs no
+// node integration.
+//
+// The marker is placed from SCREEN coordinates against the window's REAL bounds
+// rather than from the display size: the OS can refuse to give the window the
+// whole display (the macOS menu bar, a dock on a screen edge), and assuming the
+// window covers the display then lands every marker shifted and slightly scaled.
+const POINTER_OVERLAY_HIDE_DELAY = 1100;
+// Overlays are kept around briefly after the last point so repeated pointing
+// stays instant, then torn down rather than left resident for the session.
+const POINTER_OVERLAY_REAP_DELAY = 60000;
+
+const POINTER_OVERLAY_HTML = '<!doctype html><html><head><meta charset="utf-8"><style>'
+    + 'html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden}'
+    + '#dot{box-sizing:border-box;position:absolute;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;'
+    + 'border:4px solid #2196F3;background:rgba(33,150,243,.22);box-shadow:0 0 0 4px rgba(33,150,243,.35);'
+    + 'opacity:0;transition:opacity .12s}#dot.on{animation:pulse .38s ease-out 2}'
+    + '@keyframes pulse{0%{transform:scale(.7);opacity:.95}100%{transform:scale(1.9);opacity:0}}'
+    + '</style></head><body><div id="dot"></div><script>'
+    + 'window.__setPoint=function(px,py){var d=document.getElementById("dot");'
+    + 'd.style.left=px+"px";d.style.top=py+"px";'
+    + 'd.classList.remove("on");void d.offsetWidth;d.classList.add("on");d.style.opacity=1;clearTimeout(window.__t);'
+    + 'window.__t=setTimeout(function(){d.style.opacity=0;d.classList.remove("on");},760);};'
+    + '</script></body></html>';
+
+// One overlay per display, keyed by display id, so two calls sharing two
+// different screens do not fight over a single window.
+const pointerOverlays = new Map();
+
+function pointerOverlayDisplay(displayId) {
+    if (displayId !== undefined && displayId !== null && displayId !== '') {
+        const match = electron.screen.getAllDisplays().find((d) => String(d.id) === String(displayId));
+        if (match) { return match; }
+    }
+    return electron.screen.getPrimaryDisplay();
+}
+
+function pointerOverlayFor(display) {
+    const key = String(display.id);
+    let overlay = pointerOverlays.get(key);
+    if (overlay && !overlay.win.isDestroyed()) {
+        return overlay;
+    }
+
+    const b = display.bounds;
+    const win = new BrowserWindow({
+        x: b.x, y: b.y, width: b.width, height: b.height,
+        transparent: true, frame: false, resizable: false, movable: false,
+        minimizable: false, maximizable: false, focusable: false,
+        skipTaskbar: true, hasShadow: false, alwaysOnTop: true,
+        webPreferences: { backgroundThrottling: false }
+    });
+    win.setIgnoreMouseEvents(true);
+    try { win.setAlwaysOnTop(true, 'screen-saver'); } catch (e) {}
+    try { win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true }); } catch (e) {}
+    win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(POINTER_OVERLAY_HTML));
+
+    overlay = { win: win, hideTimer: null, reapTimer: null, loading: true };
+    // Only drop our own entry: a replacement may already have taken this key.
+    win.on('closed', () => {
+        if (pointerOverlays.get(key) === overlay) { pointerOverlays.delete(key); }
+    });
+    pointerOverlays.set(key, overlay);
+    return overlay;
+}
+
+function reapPointerOverlay(overlay) {
+    clearTimeout(overlay.hideTimer);
+    clearTimeout(overlay.reapTimer);
+    overlay.hideTimer = null;
+    overlay.reapTimer = null;
+    try { if (!overlay.win.isDestroyed()) { overlay.win.destroy(); } } catch (e) {}
+}
+
+function showPointerOverlay(p) {
+    if (!p || typeof p.x !== 'number' || typeof p.y !== 'number') { return; }
+    const display = pointerOverlayDisplay(p.displayId);
+    const b = display.bounds;
+    const overlay = pointerOverlayFor(display);
+    const win = overlay.win;
+
+    // Re-assert the geometry every time: the share can move to another display,
+    // and the resolution can change under us.
+    try { win.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height }); } catch (e) {}
+    let wb = b;
+    try { wb = win.getBounds(); } catch (e) {}
+    // normalized point -> screen coordinates -> coordinates local to the window
+    // as the OS actually placed and sized it.
+    const px = Math.round(b.x + p.x * b.width - wb.x);
+    const py = Math.round(b.y + p.y * b.height - wb.y);
+    const deliver = () => {
+        try { win.webContents.executeJavaScript('window.__setPoint&&window.__setPoint(' + px + ',' + py + ')'); } catch (e) {}
+    };
+    if (overlay.loading || win.webContents.isLoading()) {
+        overlay.loading = false;
+        win.webContents.once('did-finish-load', deliver);
+    } else {
+        deliver();
+    }
+    try { win.showInactive(); } catch (e) {}
+    clearTimeout(overlay.hideTimer);
+    overlay.hideTimer = setTimeout(() => {
+        try { if (!win.isDestroyed()) { win.hide(); } } catch (e) {}
+    }, POINTER_OVERLAY_HIDE_DELAY);
+    clearTimeout(overlay.reapTimer);
+    overlay.reapTimer = setTimeout(() => { reapPointerOverlay(overlay); }, POINTER_OVERLAY_REAP_DELAY);
+}
+
+function destroyPointerOverlays() {
+    for (const overlay of pointerOverlays.values()) {
+        reapPointerOverlay(overlay);
+    }
+    pointerOverlays.clear();
+}
+
 const { autoUpdater } = require('electron-updater')
 const ProgressBar = require('electron-progressbar');
 const log = require('electron-log');
@@ -275,6 +396,10 @@ function createMainWindow() {
         mainWindow.webContents.send('storagePath', storage.getDataPath('userData'));
     });
 
+    ipc.on('pointer-overlay', function(event, p) {
+        try { showPointerOverlay(p); } catch (e) { /* noop */ }
+    });
+
     ipc.handle('cache:saveFile', async (event, { id, data, filetype }) => {
         const cacheDir = path.join(storage.getDataPath('userData'), 'mediaCache');
         await fs.promises.mkdir(cacheDir, { recursive: true });
@@ -357,5 +482,6 @@ app.on('activate', () => {
 
 app.on('before-quit', () => {
     quitting = true;
+    destroyPointerOverlays();
 });
 

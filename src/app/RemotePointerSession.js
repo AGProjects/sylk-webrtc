@@ -13,14 +13,18 @@ const DEBUG = debug('blinkrtc:RemotePointer');
 //
 //   sylk-screen-sharing       {action: 'start'|'stop', pointer: <bool>}
 //       Announces our screen share. `pointer` says whether the share can be
-//       pointed at at all; it is fixed for the lifetime of a share, so it is
-//       normally sent once (see _announceCapability for the one exception).
+//       pointed at at all. It is fixed for the lifetime of a share — under
+//       Electron it depends only on display-vs-window, and the web build is
+//       never pointable — so it is sent exactly once, here.
 //   sylk-pointer              {x, y, t}
 //       A guide point, normalized (0..1) on the shared surface. `t` identifies
 //       the click so the sender can echo it once we confirm rendering it.
 //   sylk-pointer-visibility   {inApp: <bool>}
-//       The sharer can't paint into the capture right now (backgrounded iOS
-//       app, hidden browser tab). Unlike `pointer` this changes during a share.
+//       RECEIVE ONLY. The sharer can't paint into the capture right now — the
+//       mobile apps report this when they are backgrounded. This client never
+//       sends it: a web share is never pointable in the first place, and the
+//       Electron overlay is a separate always-on-top window on the shared
+//       display, so it draws whatever the main window is doing.
 //   sylk-pointer-ack          {t}
 //       We rendered the point identified by `t`.
 const CONTENT_TYPE = {
@@ -64,10 +68,8 @@ class RemotePointerSession extends EventEmitter {
         this._remoteInApp = true;
         this._pendingPoints = new Map();
         this._remoteVideoSize = null;
-        this._announcedCapable = null;
 
         this._onMessage = this._onMessage.bind(this);
-        this._onVisibilityChange = this._onVisibilityChange.bind(this);
 
         this._call.on('incomingMessage', this._onMessage);
     }
@@ -88,9 +90,7 @@ class RemotePointerSession extends EventEmitter {
 
     close() {
         this._call.removeListener('incomingMessage', this._onMessage);
-        document.removeEventListener('visibilitychange', this._onVisibilityChange);
         this._pendingPoints.clear();
-        guideMarker.destroy();
         this.removeAllListeners();
     }
 
@@ -102,34 +102,10 @@ class RemotePointerSession extends EventEmitter {
      * button only appears for peers that can do something with it.
      */
     setLocalSharing(sharing) {
-        if (!sharing) {
-            document.removeEventListener('visibilitychange', this._onVisibilityChange);
-            this._announcedCapable = null;
-            this._send(CONTENT_TYPE.sharing, { action: 'stop' });
-            return;
-        }
-        this._announceCapability();
-        // Only a browser can lose the ability to paint into the capture partway
-        // through a share (hidden tab, minimized window), so it is the only one
-        // that has to keep watching.
-        if (guideMarker.tracksVisibility()) {
-            document.addEventListener('visibilitychange', this._onVisibilityChange);
-        }
-        this._sendVisibility();
-    }
-
-    /**
-     * Announce whether our share can be pointed at. Normally sent once, with
-     * the 'start': the answer is fixed for the lifetime of a share. The one
-     * exception is a browser that could not classify the captured surface yet
-     * (Firefox reports no displaySurface and we have to guess from its size),
-     * where the first answer can turn out wrong — so re-announce if it changes.
-     */
-    _announceCapability() {
-        const capable = guideMarker.supportedForShare(this._call);
-        if (capable === this._announcedCapable) { return; }
-        this._announcedCapable = capable;
-        this._send(CONTENT_TYPE.sharing, { action: 'start', pointer: capable });
+        this._send(CONTENT_TYPE.sharing, sharing
+            ? { action: 'start', pointer: guideMarker.supportedForShare(this._call) }
+            : { action: 'stop' }
+        );
     }
 
     /**
@@ -191,15 +167,6 @@ class RemotePointerSession extends EventEmitter {
             x: Math.round(x * COORD_PRECISION) / COORD_PRECISION,
             y: Math.round(y * COORD_PRECISION) / COORD_PRECISION
         };
-    }
-
-    _onVisibilityChange() {
-        this._announceCapability();
-        this._sendVisibility();
-    }
-
-    _sendVisibility() {
-        this._send(CONTENT_TYPE.visibility, { inApp: guideMarker.renderableNow(this._call) });
     }
 
     _send(contentType, payload) {

@@ -653,6 +653,7 @@ class VideoBox extends React.Component {
         }
         const localVideoClasses = clsx({
             'video-thumbnail': true,
+            'screen-fit': this.state.remotePeerSharing,
             'mirror': !this.props.call.sharingScreen && !this.props.generatedVideoTrack,
             'hidden': !this.state.localVideoShow,
             'animated': true,
@@ -826,6 +827,9 @@ class VideoBox extends React.Component {
                         </IconButton>
                     </label></React.Fragment>);
             }
+            if (!this.state.remotePeerSharing) {
+                buttons.push(<br key="break" />);
+            }
             buttons.push(<button key="hangupButton" type="button" className="btn btn-round-big btn-danger" onClick={this.hangupCall}> <i className="fa fa-phone rotate-135"></i> </button>);
 
             callButtons = (
@@ -934,7 +938,7 @@ class VideoBox extends React.Component {
                                 {watermark}
                             </TransitionGroup>
                             <video id="remoteVideo" className={remoteVideoClasses} poster="assets/images/transparent-1px.png" ref={this.remoteVideo} autoPlay onClick={this.sendPointer} style={pointerCursor} />
-                            <video id="localVideo" className={localVideoClasses} ref={this.localVideo} autoPlay muted style={this.state.remotePeerSharing ? { display: 'none' } : undefined} />
+                            <video id="localVideo" className={localVideoClasses} ref={this.localVideo} autoPlay muted />
                             <TransitionGroup>
                                 {callButtons}
                             </TransitionGroup>

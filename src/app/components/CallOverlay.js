@@ -128,8 +128,6 @@ class CallOverlay extends React.Component {
                 name = this.props.contact.name;
             }
 
-            // While the peer's shared screen is on-screen, relabel the header:
-            // "Remote screen of Adam Lars" (no colon), instead of "Call with:".
             let titleSep = ':';
             if (this.props.remoteScreen) {
                 type = 'Remote screen of';

@@ -35,6 +35,10 @@
             height: $video-thumbnail-height !important;
             border: 2px solid $white;
             border-radius: 10px;
+
+            &.screen-fit {
+                bottom: calc(10px + #{$call-buttons-height});
+            }
         }
 
         &.poster {

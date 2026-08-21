@@ -4,6 +4,7 @@ const SillyNames = require('./SillyNames');
 const MaterialColors = require('./MaterialColors');
 const { Queue } = require('./utils/Queue');
 const { EventEmitter } = require('events');
+const { resumableDownload } = require('./utils/resumableFetch');
 
 const { default: parse } = require('html-react-parser');
 const linkifyUrls = require('linkify-urls');
@@ -237,3 +238,4 @@ exports.isMobile = isMobile;
 exports.isNodeEmitter = isNodeEmitter;
 exports.linkify = linkify;
 exports.customUrlRegexp = customUrlRegexp;
+exports.resumableDownload = resumableDownload;

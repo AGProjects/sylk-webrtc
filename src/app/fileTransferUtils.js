@@ -79,31 +79,19 @@ function upload({ notificationCenter, account }, files, uri, caption) {
 }
 
 function _download(account, url, filename, filetype, onProgress = null) {
-    const req = superagent
-        .get(url)
-        .timeout({
-            response: 5000,
-            deadline: 60000
-        });
-
-    if (onProgress) {
-        req.on('progress', onProgress);
-    }
-
     const isEncrypted = filename.endsWith('.asc');
+    const wrappedProgress = onProgress
+        ? (progress) => onProgress({ direction: 'download', ...progress })
+        : null;
 
-    if (!isEncrypted) {
-        req.responseType('blob');
-    }
+    const download = utils.resumableDownload(url, { onProgress: wrappedProgress });
 
-    const promise = !isEncrypted
-        ? req.then(res => ({
-            file: new File([res.body], filename, { type: filetype }),
-            didDecrypt: false
-        }))
-        : req.then(res => account.decryptFile(res.text, filename, filetype));
+    const promise = download.then(async blob => isEncrypted
+        ? account.decryptFile(await blob.arrayBuffer(), filename, filetype)
+        : { file: new File([blob], filename, { type: filetype }), didDecrypt: false }
+    );
 
-    promise.abort = () => req.abort();
+    promise.abort = () => download.abort();
 
     return promise;
 }

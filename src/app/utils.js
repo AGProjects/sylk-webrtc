@@ -25,6 +25,44 @@ function isDisplaySource(source) {
         || String(source.id).lastIndexOf('screen', 0) === 0;
 }
 
+// Is this URI a dialled phone number rather than a SIP/Sylk account?
+//
+// Ported from sylk-mobile's utils.isPhoneNumber so both clients classify
+// a destination the same way. Used by the capability advertisement to
+// skip PSTN destinations: a gateway can never advertise anything back,
+// and pushing an unknown content type into a SIP trunk is a needless
+// interop risk.
+//
+// `conferenceDomain` is the account's configured conference domain.
+// Conference URIs are NEVER phone numbers even when the room name is all
+// digits or starts with a leading 0, and substrings like 'conference.'
+// are not a reliable signal, so the domain is compared outright. Callers
+// without it just omit it.
+function isPhoneNumber(uri, conferenceDomain) {
+    if (typeof uri !== 'string' || !uri) {
+        return false;
+    }
+    // A tel: URI is a phone number wearing a scheme; unwrap it first.
+    let target = uri.trim();
+    if (target.toLowerCase().indexOf('tel:') === 0) {
+        target = target.substring(4);
+    }
+    let username = target;
+    let domain = '';
+    if (target.indexOf('@') > -1) {
+        const parts = target.split('@');
+        username = parts[0].trim();
+        domain = (parts[1] || '').trim().toLowerCase();
+    }
+    if (conferenceDomain && domain && domain === String(conferenceDomain).toLowerCase()) {
+        return false;
+    }
+    // Allow the human-friendly separators people type or paste inside a
+    // number -- spaces, dashes, underscores and parentheses -- so
+    // '+1-313-1313', '+1313_1313' and '+1 313 1313' all still match.
+    return /^(\+|0)([\d\-()_\s]+)$/.test(username);
+}
+
 function normalizeUri(uri, defaultDomain) {
     let targetUri = uri;
     let idx = targetUri.indexOf('@');
@@ -224,6 +262,7 @@ function linkify(content) {
 
 exports.copyToClipboard = copyToClipboard;
 exports.normalizeUri = normalizeUri;
+exports.isPhoneNumber = isPhoneNumber;
 exports.generateSillyName = generateSillyName;
 exports.generateRandomNumber = generateRandomNumber;
 exports.generateUniqueId = generateUniqueId;

@@ -252,6 +252,19 @@ class NotificationCenter extends React.Component {
         });
     }
 
+    // Outcome of a screen-share request we sent: the peer accepted,
+    // declined, or never answered. In-app rather than an OS notification
+    // on purpose -- the user is looking at the call window, and a request
+    // that produced no visible outcome reads as a broken button.
+    postScreenShareRequestOutcome(text) {
+        return this.refs.notificationSystem.addNotification({
+            title: text,
+            autoDismiss: 5,
+            level: 'info',
+            position: 'bc'
+        });
+    }
+
     postFileDownloadFailed(filename, reason) {
         filename = filename.replace('.asc', '').replace(/_/g, ' ');
         this.refs.notificationSystem.addNotification({

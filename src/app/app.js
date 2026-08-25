@@ -39,6 +39,7 @@ const MessagesLoadingScreen = require('./components/MessagesLoadingScreen');
 const NavigationBar = require('./components/NavigationBar');
 const Preview = require('./components/Preview');
 const ScreenSharingModal = require('./components/ScreenSharingModal');
+const { default: ScreenShareRequestModal } = require('./components/ScreenShareRequestModal');
 const ShortcutsModal = require('./components/ShortcutsModal');
 const EncryptionModal = require('./components/EncryptionModal');
 const ImportModal = require('./components/ImportModal');
@@ -50,6 +51,8 @@ const ConfigProvider = require('./ConfigProvider').default;
 
 const utils = require('./utils');
 const config = require('./config');
+const guideMarker = require('./guideMarker');
+const { declareCallCapabilities } = require('./CallCapabilities');
 const storage = require('./storage');
 const messageStorage = require('./messageStorage');
 const locationSharing = require('./locationSharing');
@@ -114,7 +117,18 @@ class Blink extends React.Component {
             unreadMessages: 0,
             unreadCallMessages: 0,
             storageLoadEmpty: false,
-            domain: null
+            domain: null,
+            // Incoming "please share your screen" prompt. callId pins it
+            // to the call it arrived on, so an answer can never be sent
+            // on a different call the user has since started.
+            screenShareRequestModal: {
+                show: false,
+                fromUri: null,
+                fromName: null,
+                requestId: null,
+                expiresAt: null,
+                callId: null
+            }
         };
         this.state = Object.assign({}, this._initialSstate);
 
@@ -178,6 +192,10 @@ class Blink extends React.Component {
             'main',
             'switchScreensharing',
             'toggleScreenSharingModal',
+            'screenShareRequested',
+            'acceptScreenShareRequest',
+            'declineScreenShareRequest',
+            'closeScreenShareRequestModal',
             'toggleShortcutsModal',
             'toggleEncryptionModal',
             'toggleImportModal',
@@ -211,6 +229,7 @@ class Blink extends React.Component {
         this.lastMessageFocus = '';
         this.retransmittedMessages = [];
         this.unreadTimer = null;
+        this.screenShareRequestExpiryTimer = null;
         this.showCall = true;
         this.savedConferenceState = null;
         this.wasConnected = false;
@@ -666,6 +685,11 @@ class Blink extends React.Component {
                     previousTargetUri: this.state.targetUri
                 });
                 this.savedConferenceState = null;
+                // A pending screen-share prompt dies with the call it
+                // belongs to; there is no longer anything to answer on.
+                if (this.state.screenShareRequestModal.show) {
+                    this.closeScreenShareRequestModal();
+                }
                 this.audioManager.current.destroy();
                 this.setFocusEvents(false);
                 this.participantsToInvite = null;
@@ -971,6 +995,10 @@ class Blink extends React.Component {
         const sharedIsDisplay = utils.isDisplaySource(sourceInfo);
         call._sharedDisplayId = sharedIsDisplay ? (sourceInfo.display_id || null) : null;
         call._sharedIsWindow = !!sourceInfo && !sharedIsDisplay;
+        // Tell the library whether this particular share can be pointed at; it
+        // announces that along with the share itself, and the answer is fixed
+        // for the share's lifetime.
+        call.setScreenSharePointable(guideMarker.supportedForShare(call));
 
         let screenConstraints = {
             video: {
@@ -1198,6 +1226,146 @@ class Blink extends React.Component {
         });
     }
 
+    // ===== Screen-share request handshake (receiver side) =====
+    //
+    // The peer pressed "Request screen". sylkrtc decodes the request --
+    // dropping stale and duplicate ones on the way -- and lands us here as
+    // 'screenShareRequest'; we prompt, and answer with
+    // call.acceptScreenShareRequest() / rejectScreenShareRequest().
+    // Accepting runs the ordinary switchScreensharing() path: the source
+    // picker (Electron) or the browser's capture prompt still runs,
+    // deliberately, because the modal is consent to be *asked* and the
+    // picker is consent to capture.
+    //
+    // The peer's control is gated on the 'screen-request' token we
+    // advertise in CallCapabilities.myCallCapabilities(), so the two must
+    // ship together -- advertising the token without this handler is what
+    // produces a button that does nothing.
+
+    /** Can this call carry a screen at all? startScreensharing replaces
+     *  the outgoing video track, so an audio-only call has no sender to
+     *  put a screen on. Reject rather than prompt for something we could
+     *  not deliver. */
+    callCanShareScreen(call) {
+        if (!call || typeof call.getLocalStreams !== 'function') {
+            return false;
+        }
+        const stream = call.getLocalStreams()[0];
+        return !!(stream && stream.getVideoTracks().length > 0);
+    }
+
+    screenShareRequested(call, request) {
+        if (!call || !request || !request.id) {
+            return;
+        }
+        if (!this.callCanShareScreen(call)) {
+            DEBUG('Screen requested on a call with no video sender, rejecting');
+            call.rejectScreenShareRequest(request.id);
+            return;
+        }
+        // Already sharing on this call -- there is nothing to ask. Ack at
+        // once so the requester's menu item leaves its pending state
+        // instead of sitting on "Requesting screen..." for the full expiry,
+        // and don't raise a modal over an in-progress share.
+        if (call.sharingScreen) {
+            call.acceptScreenShareRequest(request.id);
+            return;
+        }
+        const fromUri = call.remoteIdentity && call.remoteIdentity.uri;
+        const fromName = (call.remoteIdentity && call.remoteIdentity.displayName)
+            || (this.state.contactCache.has(fromUri) ? this.state.contactCache.get(fromUri) : null);
+
+        this.setState({
+            screenShareRequestModal: {
+                show: true,
+                fromUri: fromUri || null,
+                fromName: fromName || null,
+                requestId: request.id,
+                expiresAt: request.expiresAt,
+                callId: call.id
+            }
+        });
+
+        // Auto-dismiss at the request's own deadline. Silent -- no reply is
+        // sent, so the requester's expiry timer clears its pending state at
+        // the same moment.
+        if (this.screenShareRequestExpiryTimer) {
+            clearTimeout(this.screenShareRequestExpiryTimer);
+        }
+        this.screenShareRequestExpiryTimer = setTimeout(() => {
+            this.screenShareRequestExpiryTimer = null;
+            const modal = this.state.screenShareRequestModal;
+            if (modal && modal.show && modal.requestId === request.id) {
+                this.closeScreenShareRequestModal();
+            }
+        }, Math.max(0, request.expiresAt - Date.now()));
+    }
+
+    closeScreenShareRequestModal() {
+        if (this.screenShareRequestExpiryTimer) {
+            clearTimeout(this.screenShareRequestExpiryTimer);
+            this.screenShareRequestExpiryTimer = null;
+        }
+        this.setState({
+            screenShareRequestModal: {
+                show: false,
+                fromUri: null,
+                fromName: null,
+                requestId: null,
+                expiresAt: null,
+                callId: null
+            }
+        });
+    }
+
+    /** The call the prompt belongs to, or null if it is gone or the user
+     *  has since moved on to a different one. */
+    callForPendingScreenRequest() {
+        const modal = this.state.screenShareRequestModal;
+        if (!modal || !modal.requestId) {
+            return null;
+        }
+        if (typeof modal.expiresAt === 'number' && modal.expiresAt <= Date.now()) {
+            DEBUG('Screen request %s already expired, ignoring', modal.requestId);
+            return null;
+        }
+        const call = this.state.currentCall;
+        if (!call || call.id !== modal.callId) {
+            DEBUG('Screen request %s no longer matches the current call', modal.requestId);
+            return null;
+        }
+        return call;
+    }
+
+    acceptScreenShareRequest() {
+        const modal = this.state.screenShareRequestModal;
+        const call = this.callForPendingScreenRequest();
+        if (!call) {
+            return;
+        }
+        DEBUG('Accepted screen request %s from %s', modal.requestId,
+            call.remoteIdentity && call.remoteIdentity.uri);
+        call.acceptScreenShareRequest(modal.requestId);
+        // Ordinary share path: Electron opens the source picker, the web
+        // build goes straight to getDisplayMedia and the browser prompts.
+        // The peer sees the share arrive as a normal 'start' signal once we
+        // are through it.
+        this.switchScreensharing();
+    }
+
+    declineScreenShareRequest() {
+        const modal = this.state.screenShareRequestModal;
+        const call = this.callForPendingScreenRequest();
+        if (!call) {
+            return;
+        }
+        DEBUG('Rejected screen request %s from %s', modal.requestId,
+            call.remoteIdentity && call.remoteIdentity.uri);
+        // Explicit reply so the requester's menu item drops out of its
+        // pending state at once instead of waiting out the expiry.
+        call.rejectScreenShareRequest(modal.requestId);
+    }
+
     toggleShortcutsModal() {
         this.setState({
             showShortcutsModal: !this.state.showShortcutsModal
@@ -1367,7 +1535,30 @@ class Blink extends React.Component {
 
     outgoingCall(call) {
         call.on('stateChanged', this.callStateChanged);
+        this.attachCallSession(call);
         this.setState({ currentCall: call });
+    }
+
+    // In-dialog signalling for a 1-1 call. sylkrtc owns the wire: it
+    // advertises our capabilities once the call is established and decodes
+    // the peer's, and it runs the screen-share handshake. Two things are
+    // left to us -- declaring WHICH capabilities this build honours, and
+    // deciding what to do when the peer asks for our screen.
+    //
+    // Conference calls are skipped: a ConferenceCall is a room, not a peer,
+    // and neither handshake means anything there.
+    attachCallSession(call) {
+        if (!call || typeof call.participants !== 'undefined') {
+            return;
+        }
+        if (call._sylkSessionAttached) {
+            return;
+        }
+        call._sylkSessionAttached = true;
+        declareCallCapabilities(call);
+        call.on('screenShareRequest', (request) => {
+            this.screenShareRequested(call, request);
+        });
     }
 
     incomingCall(call, mediaTypes) {
@@ -1390,6 +1581,7 @@ class Blink extends React.Component {
                 call.terminate();
                 return;
             }
+            this.attachCallSession(call);
             this.setState({ showIncomingModal: true, inboundCall: call });
             this.setFocusEvents(true);
             call.on('stateChanged', this.inboundCallStateChanged);
@@ -1399,6 +1591,7 @@ class Blink extends React.Component {
             }
             this.setFocusEvents(true);
             call.on('stateChanged', this.callStateChanged);
+            this.attachCallSession(call);
             this.setState({ currentCall: call, inboundCall: call, showIncomingModal: true });
         }
         if (!this.shouldUseHashRouting) {
@@ -2293,6 +2486,14 @@ class Blink extends React.Component {
                 {redialScreen}
                 {footerBox}
                 <ShortcutsModal show={this.state.showShortcutsModal} close={this.toggleShortcutsModal} />
+                <ScreenShareRequestModal
+                    show={this.state.screenShareRequestModal.show}
+                    close={this.closeScreenShareRequestModal}
+                    fromUri={this.state.screenShareRequestModal.fromUri}
+                    fromName={this.state.screenShareRequestModal.fromName}
+                    onAccept={this.acceptScreenShareRequest}
+                    onDecline={this.declineScreenShareRequest}
+                />
                 <LogoutModal
                     show={this.state.showLogoutModal}
                     close={this.toggleLogoutModal}

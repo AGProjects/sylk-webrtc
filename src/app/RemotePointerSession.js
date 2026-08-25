@@ -7,110 +7,51 @@ const guideMarker = require('./guideMarker');
 
 const DEBUG = debug('blinkrtc:RemotePointer');
 
-// Wire protocol. These all travel on the in-dialog (session) message channel —
-// Call.sendMessage() / call.on('incomingMessage') — and never touch the
-// account-level message channel, so they can't leak into the chat history.
-//
-//   sylk-screen-sharing       {action: 'start'|'stop', pointer: <bool>}
-//       Announces our screen share. `pointer` says whether the share can be
-//       pointed at at all. It is fixed for the lifetime of a share — under
-//       Electron it depends only on display-vs-window, and the web build is
-//       never pointable — so it is sent exactly once, here.
-//   sylk-pointer              {x, y, t}
-//       A guide point, normalized (0..1) on the shared surface. `t` identifies
-//       the click so the sender can echo it once we confirm rendering it.
-//   sylk-pointer-visibility   {inApp: <bool>}
-//       RECEIVE ONLY. The sharer can't paint into the capture right now — the
-//       mobile apps report this when they are backgrounded. This client never
-//       sends it: a web share is never pointable in the first place, and the
-//       Electron overlay is a separate always-on-top window on the shared
-//       display, so it draws whatever the main window is doing.
-//   sylk-pointer-ack          {t}
-//       We rendered the point identified by `t`.
-const CONTENT_TYPE = {
-    sharing: 'application/sylk-screen-sharing',
-    pointer: 'application/sylk-pointer',
-    visibility: 'application/sylk-pointer-visibility',
-    ack: 'application/sylk-pointer-ack'
-};
-
-// Forget clicks we never saw an ACK for after this long.
-const PENDING_POINT_TTL = 5000;
-
-// Normalized coordinates are sent with millipoint precision; more is noise.
-const COORD_PRECISION = 1000;
-
 /**
- * Owns the remote-pointer protocol for a single call, on both sides:
+ * The pixel half of the remote-pointer feature, for a single call.
  *
- *   as VIEWER  it tracks whether the peer is sharing a screen, whether that
- *              share can be pointed at, and whether the peer can render a
- *              marker right now; it sends the points we click.
- *   as SHARER  it announces our share, draws the peer's guide points via
- *              guideMarker, and ACKs the ones that were actually rendered.
+ * The protocol itself lives in sylkrtc's Call: it owns the four content
+ * types, the peer's sharing state (`remoteScreenSharing`,
+ * `remoteScreenSharePointable`, `remoteInApp`, `canPointAtRemoteScreen`)
+ * and the point/ack bookkeeping. What is left here is what a library
+ * running in any environment cannot do:
  *
- * Deliberately free of React: the UI subscribes to 'changed' and 'ack' and
- * renders from the getters.
+ *   as VIEWER  map a click on a <video> element onto a normalized point
+ *              on the peer's shared surface -- geometry that needs the
+ *              DOM, the element's box and the letterboxing of
+ *              object-fit: contain.
+ *   as SHARER  actually draw the peer's guide point somewhere that ends
+ *              up inside our own capture, which under Electron means a
+ *              transparent always-on-top overlay window (guideMarker),
+ *              and confirm to the library what was really rendered.
  *
- * Events:
- *   'changed'          remoteSharing / remoteCapable / remoteInApp changed
- *   'ack' ({clientX, clientY})
- *                      the peer rendered a point we sent from that position
+ * State is read from the call, not mirrored here. The one event this
+ * still emits is 'ack', because the echo it drives is drawn in DOM
+ * coordinates that only the caller understands -- they travel to the
+ * library as an opaque context and come back untouched.
  */
 class RemotePointerSession extends EventEmitter {
     constructor(call) {
         super();
         this._call = call;
-        // The peer's state survives navigating away from the call screen and
-        // back, so it is remembered on the (longer-lived) call object.
-        this._remoteSharing = !!call._remotePeerSharing;
-        this._remoteCapable = call._remotePointerCapable !== false;
-        this._remoteInApp = true;
-        this._pendingPoints = new Map();
         this._remoteVideoSize = null;
 
-        this._onMessage = this._onMessage.bind(this);
+        this._onPointer = this._onPointer.bind(this);
+        this._onPointerAck = this._onPointerAck.bind(this);
 
-        this._call.on('incomingMessage', this._onMessage);
-    }
-
-    /** The peer is sharing their screen with us. */
-    get remoteSharing() { return this._remoteSharing; }
-
-    /** The peer's share can be pointed at at all (not a window / tab share). */
-    get remoteCapable() { return this._remoteCapable; }
-
-    /** The peer can render a marker right now (their app/tab is in front). */
-    get remoteInApp() { return this._remoteInApp; }
-
-    /** Would clicking the remote video actually put a marker on their screen? */
-    get canPoint() {
-        return this._remoteSharing && this._remoteCapable && this._remoteInApp;
+        this._call.on('pointer', this._onPointer);
+        this._call.on('pointerAck', this._onPointerAck);
     }
 
     close() {
-        this._call.removeListener('incomingMessage', this._onMessage);
-        this._pendingPoints.clear();
+        this._call.removeListener('pointer', this._onPointer);
+        this._call.removeListener('pointerAck', this._onPointerAck);
         this.removeAllListeners();
     }
 
-    // -- outgoing ------------------------------------------------------------
-
     /**
-     * Announce that we started/stopped sharing our screen. Its arrival is also
-     * what tells the peer we speak this protocol at all, so their pointer
-     * button only appears for peers that can do something with it.
-     */
-    setLocalSharing(sharing) {
-        this._send(CONTENT_TYPE.sharing, sharing
-            ? { action: 'start', pointer: guideMarker.supportedForShare(this._call) }
-            : { action: 'stop' }
-        );
-    }
-
-    /**
-     * Remember the remote video's intrinsic size, as a fallback for mapping
-     * clicks when the element reports no dimensions.
+     * Remember the remote video's intrinsic size, as a fallback for
+     * mapping clicks when the element reports no dimensions.
      */
     noteRemoteVideoSize(width, height) {
         if (width && height) {
@@ -119,22 +60,23 @@ class RemotePointerSession extends EventEmitter {
     }
 
     /**
-     * Map a click on the remote video onto the peer's shared surface and send
-     * it. Returns whether anything was sent.
+     * Map a click on the remote video onto the peer's shared surface and
+     * send it. Returns whether anything was sent.
      */
     sendPoint(video, event) {
-        if (!this.canPoint || !video) { return false; }
-        const point = this._normalize(video, event);
-        if (!point) { return false; }
-
-        const t = Date.now();
-        // Remember where we clicked so the ACK can be echoed there, and drop
-        // whatever never came back.
-        this._pendingPoints.set(t, { clientX: event.clientX, clientY: event.clientY });
-        for (const key of this._pendingPoints.keys()) {
-            if (key < t - PENDING_POINT_TTL) { this._pendingPoints.delete(key); }
+        if (!video) {
+            return false;
         }
-        return this._send(CONTENT_TYPE.pointer, { x: point.x, y: point.y, t });
+        const point = this._normalize(video, event);
+        if (!point) {
+            return false;
+        }
+        // The click's own DOM position rides along as context and comes
+        // back with the ACK, so the echo lands exactly where the user
+        // clicked rather than where we recompute it to be later.
+        const sent = this._call.sendPointer(point.x, point.y,
+            { clientX: event.clientX, clientY: event.clientY });
+        return sent !== null;
     }
 
     /** Normalized (0..1) position of a click within the video's picture. */
@@ -162,113 +104,29 @@ class RemotePointerSession extends EventEmitter {
             x = (event.clientX - rect.left) / rect.width;
             y = (event.clientY - rect.top) / rect.height;
         }
-        if (!(x >= 0 && x <= 1 && y >= 0 && y <= 1)) { return null; }
-        return {
-            x: Math.round(x * COORD_PRECISION) / COORD_PRECISION,
-            y: Math.round(y * COORD_PRECISION) / COORD_PRECISION
-        };
-    }
-
-    _send(contentType, payload) {
-        try {
-            this._call.sendMessage(JSON.stringify(payload), contentType);
-            return true;
-        } catch (e) {
-            DEBUG('Could not send %s: %s', contentType, e);
-            return false;
-        }
-    }
-
-    // -- incoming ------------------------------------------------------------
-
-    _onMessage(message) {
-        if (!message || !message.contentType) { return; }
-        let content;
-        switch (message.contentType) {
-            case CONTENT_TYPE.sharing:
-                content = this._parse(message);
-                if (content) { this._handleSharing(content); }
-                break;
-            case CONTENT_TYPE.pointer:
-                content = this._parse(message);
-                if (content) { this._handlePointer(content); }
-                break;
-            case CONTENT_TYPE.visibility:
-                content = this._parse(message);
-                if (content && typeof content.inApp === 'boolean') {
-                    this._update({ remoteInApp: content.inApp });
-                }
-                break;
-            case CONTENT_TYPE.ack:
-                content = this._parse(message);
-                if (content) { this._handleAck(content); }
-                break;
-            default:
-                break;
-        }
-    }
-
-    _parse(message) {
-        try {
-            return JSON.parse(message.content);
-        } catch (e) {
-            DEBUG('Ignoring malformed %s: %s', message.contentType, e);
+        if (!(x >= 0 && x <= 1 && y >= 0 && y <= 1)) {
             return null;
         }
+        return { x, y };
     }
 
-    _handleSharing(content) {
-        if (content.action !== 'start' && content.action !== 'stop') { return; }
-        const sharing = content.action === 'start';
-        this._update({
-            remoteSharing: sharing,
-            // Older peers omit `pointer`: assume the share is pointable.
-            remoteCapable: sharing ? content.pointer !== false : true,
-            // A new share starts out renderable until the sharer says otherwise;
-            // this also clears any stale value left by a previous share.
-            remoteInApp: true
-        });
-    }
-
-    _handlePointer(content) {
-        // Only draw a guide marker if WE are the one sharing our screen.
-        if (!this._call.sharingScreen) { return; }
-        if (typeof content.x !== 'number' || typeof content.y !== 'number') { return; }
-        const rendered = guideMarker.show(this._call, content.x, content.y);
-        // ACK so the sender knows we rendered it and can echo it locally.
-        if (rendered && content.t != null) {
-            this._send(CONTENT_TYPE.ack, { t: content.t });
+    // The peer pointed at the screen we are sharing. The library has
+    // already checked that we are in fact sharing.
+    _onPointer(point) {
+        const rendered = guideMarker.show(this._call, point.x, point.y);
+        DEBUG('Guide point %s: %o', rendered ? 'drawn' : 'not drawable', point);
+        // ACK only what was really drawn -- the sender echoes on the
+        // strength of it.
+        if (rendered) {
+            this._call.ackPointer(point.t);
         }
     }
 
-    _handleAck(content) {
-        if (content.t == null) { return; }
-        const origin = this._pendingPoints.get(content.t);
-        if (!origin) { return; }
-        this._pendingPoints.delete(content.t);
-        this.emit('ack', origin);
-    }
-
-    _update(next) {
-        let changed = false;
-        if ('remoteSharing' in next && next.remoteSharing !== this._remoteSharing) {
-            this._remoteSharing = next.remoteSharing;
-            this._call._remotePeerSharing = next.remoteSharing;
-            changed = true;
-        }
-        if ('remoteCapable' in next && next.remoteCapable !== this._remoteCapable) {
-            this._remoteCapable = next.remoteCapable;
-            this._call._remotePointerCapable = next.remoteCapable;
-            changed = true;
-        }
-        if ('remoteInApp' in next && next.remoteInApp !== this._remoteInApp) {
-            this._remoteInApp = next.remoteInApp;
-            changed = true;
-        }
-        if (changed) {
-            DEBUG('State: sharing=%s capable=%s inApp=%s',
-                this._remoteSharing, this._remoteCapable, this._remoteInApp);
-            this.emit('changed');
+    // A point we sent was rendered on the peer's screen; hand back the DOM
+    // position it was clicked at.
+    _onPointerAck(context) {
+        if (context) {
+            this.emit('ack', context);
         }
     }
 }

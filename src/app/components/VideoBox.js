@@ -30,6 +30,7 @@ const { default: FileUploadModal } = require('./FileUploadModal');
 const fileTransferUtils = require('../fileTransferUtils');
 const utils = require('../utils');
 const RemotePointerSession = require('../RemotePointerSession');
+const { CAP_SCREEN_SHARING, CAP_SCREEN_REQUEST } = require('../CallCapabilities');
 
 const DEBUG = debug('blinkrtc:Video');
 
@@ -84,7 +85,7 @@ class VideoBox extends React.Component {
             remoteVideoShow: false,
             remoteSharesScreen: false,
             // Remote-pointer feature (screen-share guidance). The protocol and
-            // the peer's state live in RemotePointerSession; these mirror it for
+            // the peer's state live on the call (sylkrtc); these mirror it for
             // rendering. `pointerMode` is ours alone: while on, clicking the
             // remote screen sends a guide point.
             pointerMode: false,
@@ -109,7 +110,10 @@ class VideoBox extends React.Component {
             // The peer's share can be pointed at at all — false for a shared
             // application window or tab, where nothing on their side can place a
             // marker. Gates the pointer button so it never silently no-ops.
-            remotePointerCapable: true
+            remotePointerCapable: true,
+            // A "share your screen" request of ours is on the wire and has not
+            // been answered yet.
+            screenRequestPending: false
         };
         this.emaBitrate = 0;
         this.alpha = 0.4;
@@ -118,13 +122,16 @@ class VideoBox extends React.Component {
 
         this.overlayTimer = null;
         this.ackEchoTimer = null;
+        // Id of the screen-share request we are waiting on. The deadline that
+        // gives up on it is the call's, not ours.
+        this.screenRequestId = null;
         this.localVideo = React.createRef();
         this.remoteVideo = React.createRef();
         this._notificationCenter = null;
         this.speechEvents = null;
-        // Remote-pointer protocol, created on mount (see componentDidMount).
+        // Pointer geometry and marker drawing, created on mount (see
+        // componentDidMount). The protocol behind it lives in the call.
         this.pointerSession = null;
-        this.sharingScreen = false;
 
         // ES6 classes no longer autobind
         [
@@ -151,8 +158,11 @@ class VideoBox extends React.Component {
             'uploadFiles',
             'sendPointer',
             'togglePointerMode',
-            'handlePointerSessionChange',
-            'handlePointerAck'
+            'handleRemoteScreenSharingChanged',
+            'handlePointerAck',
+            'requestScreenShare',
+            'handlePeerCapabilities',
+            'handleScreenRequestResolved'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
@@ -164,13 +174,10 @@ class VideoBox extends React.Component {
         if (vt && vt.enabled && this.state.videoMuted) {
             this.setState({ videoMuted: false, localVideoShow: true });
         }
-        // Advertise screen-sharing start/stop to the peer so their pointer button
-        // appears/disappears (its arrival also proves we support the pointer).
-        const sharing = !!this.props.call.sharingScreen;
-        if (this.pointerSession && sharing !== this.sharingScreen) {
-            this.sharingScreen = sharing;
-            this.pointerSession.setLocalSharing(sharing);
-        }
+        // Screen-share start/stop used to be announced from here, by noticing
+        // that call.sharingScreen had changed since the last render. sylkrtc
+        // announces it itself now, from the one place that knows the share
+        // really started.
     }
 
     componentDidMount() {
@@ -197,18 +204,25 @@ class VideoBox extends React.Component {
         this.remoteVideo.current.addEventListener('playing', this.handleRemoteVideoPlaying);
         this.props.call.account.on('incomingMessage', this.incomingMessage);
 
-        // The pointer protocol runs on the in-dialog (call) message channel.
+        // Drawing the peer's guide points, and mapping our clicks onto their
+        // shared screen. The protocol behind it lives in the call.
         this.pointerSession = new RemotePointerSession(this.props.call);
-        this.pointerSession.on('changed', this.handlePointerSessionChange);
         this.pointerSession.on('ack', this.handlePointerAck);
-        this.sharingScreen = !!this.props.call.sharingScreen;
-        if (this.sharingScreen) {
-            this.pointerSession.setLocalSharing(true);
-        }
-        // The session survives navigating away from this screen and back, so it
-        // may already know the peer is sharing.
-        if (this.pointerSession.remoteSharing) {
-            this.handlePointerSessionChange();
+
+        // Everything the peer told us -- what their build can do, whether they
+        // are sharing, whether that share can be pointed at -- is decoded by
+        // sylkrtc and kept on the call, which outlives this component. So seed
+        // from what is already there (we may be remounting mid-share), then
+        // follow the events.
+        this.props.call.on('capabilitiesChanged', this.handlePeerCapabilities);
+        this.props.call.on('remoteScreenSharingChanged', this.handleRemoteScreenSharingChanged);
+        this.props.call.on('screenShareRequestResolved', this.handleScreenRequestResolved);
+        if (this.props.call.remoteScreenSharing) {
+            this.handleRemoteScreenSharingChanged({
+                sharing: true,
+                pointable: this.props.call.remoteScreenSharePointable,
+                inApp: this.props.call.remoteInApp
+            });
         }
 
         sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.remoteVideo.current, { muted: true, disableContextMenu: true });
@@ -251,6 +265,9 @@ class VideoBox extends React.Component {
             this.pointerSession.close();
             this.pointerSession = null;
         }
+        this.props.call.removeListener('capabilitiesChanged', this.handlePeerCapabilities);
+        this.props.call.removeListener('remoteScreenSharingChanged', this.handleRemoteScreenSharingChanged);
+        this.props.call.removeListener('screenShareRequestResolved', this.handleScreenRequestResolved);
         this.props.call.statistics.removeListener('stats', this.statistics);
     }
 
@@ -422,26 +439,34 @@ class VideoBox extends React.Component {
         }
     }
 
-    // The peer's sharing / pointer capability changed (RemotePointerSession).
-    handlePointerSessionChange() {
-        const session = this.pointerSession;
-        const startedSharing = session.remoteSharing && !this.state.remotePeerSharing;
+    // The peer started/stopped sharing, or their share's pointability or
+    // renderability changed (sylkrtc's 'remoteScreenSharingChanged').
+    handleRemoteScreenSharingChanged(remote) {
+        const startedSharing = remote.sharing && !this.state.remotePeerSharing;
         this.setState({
-            remotePeerSharing: session.remoteSharing,
-            remotePointerCapable: session.remoteCapable,
-            remoteInApp: session.remoteInApp,
+            remotePeerSharing: remote.sharing,
+            remotePointerCapable: remote.pointable,
+            remoteInApp: remote.inApp,
             // Losing the share or its pointability turns the pointer off; the
             // peer merely stepping out of their app does not — pointing resumes
             // by itself when they come back (the cursor says so meanwhile).
-            pointerMode: session.remoteSharing && session.remoteCapable && this.state.pointerMode,
+            pointerMode: remote.sharing && remote.pointable && this.state.pointerMode,
             // A share starting must not be hidden by a stale low-bitrate verdict
             // from before it (see statistics()).
-            hasVideo: session.remoteSharing || this.state.hasVideo,
-            callOverlayVisible: session.remoteSharing || this.state.callOverlayVisible
+            hasVideo: remote.sharing || this.state.hasVideo,
+            callOverlayVisible: remote.sharing || this.state.callOverlayVisible
         });
         if (startedSharing) {
             this.lowVideoStreak = 0;
             clearTimeout(this.overlayTimer);
+            // The screen we asked for is here. Clear any request still pending
+            // even if its request_accept never arrived -- the share itself is
+            // the answer, and leaving a request open would let its timeout
+            // announce that the peer "did not respond" while we watch their
+            // screen.
+            if (this.state.screenRequestPending) {
+                this.clearScreenRequest();
+            }
         }
     }
 
@@ -454,6 +479,80 @@ class VideoBox extends React.Component {
 
     togglePointerMode() {
         this.setState({ pointerMode: !this.state.pointerMode });
+    }
+
+    // ===== Screen-share REQUEST (ask the peer to share THEIR screen) =====
+    //
+    // The mirror image of the share button, which shares ours. sylkrtc owns
+    // the handshake and its 60 s deadline, answering with
+    // 'screenShareRequestResolved' -- accepted, declined, or timed out. An
+    // accepted share follows separately, once the peer is through their
+    // source picker. All this owns is the button.
+
+    handlePeerCapabilities() {
+        this.forceUpdate();
+    }
+
+    /** Can we offer to ask this peer for their screen? Only when they
+     *  advertised BOTH that they can produce a screen and that they run the
+     *  request handshake. Absence of an advertisement means an older build or
+     *  a PSTN gateway, and offering the button there would send a request
+     *  nothing will ever answer. */
+    peerCanShareScreen() {
+        return this.props.call.peerSupports(CAP_SCREEN_SHARING)
+        && this.props.call.peerSupports(CAP_SCREEN_REQUEST);
+    }
+
+    /** Human label for the peer, for the outcome notification. */
+    peerLabel() {
+        const identity = this.props.contact && this.props.contact.identity;
+        if (identity && identity.displayName) {
+            return identity.displayName;
+        }
+        const uri = this.props.call.remoteIdentity && this.props.call.remoteIdentity.uri;
+        return (uri && uri.split('@')[0]) || 'Your contact';
+    }
+
+    requestScreenShare() {
+        if (this.state.screenRequestPending) {
+            return;
+        }
+        const requestId = this.props.call.requestScreenShare();
+        if (!requestId) {
+            return;
+        }
+        this.screenRequestId = requestId;
+        this.setState({ screenRequestPending: true });
+    }
+
+    // The peer answered, or nobody did: sylkrtc reports a peer that never
+    // answers (older build, prompt nobody saw, window closed) as a timeout at
+    // the deadline it put on the wire, so the button cannot stick on
+    // "Waiting...".
+    handleScreenRequestResolved(result) {
+        if (!result || result.id !== this.screenRequestId) {
+            return;
+        }
+        this.clearScreenRequest();
+        if (result.reason === 'timeout') {
+            this.postScreenRequestOutcome(
+                `${this.peerLabel()} did not respond to the screen request`);
+            return;
+        }
+        this.postScreenRequestOutcome(result.accepted
+            ? `${this.peerLabel()} accepted — waiting for the screen…`
+            : `${this.peerLabel()} declined to share their screen`);
+    }
+
+    clearScreenRequest() {
+        this.screenRequestId = null;
+        this.setState({ screenRequestPending: false });
+    }
+
+    postScreenRequestOutcome(text) {
+        if (this._notificationCenter) {
+            this._notificationCenter.postScreenShareRequestOutcome(text);
+        }
     }
 
     sendPointer(event) {
@@ -737,6 +836,16 @@ class VideoBox extends React.Component {
                 'text-warning': this.props.call.sharingScreen
             });
 
+            // Asking for the peer's screen: a monitor with an arrow pointing
+            // our way, distinct from the share button's own icon. While a
+            // request is in flight the icon spins and the button is disabled.
+            const requestScreenButtonIcons = clsx({
+                'fa': true,
+                'fa-desktop': !this.state.screenRequestPending,
+                'fa-circle-o-notch': this.state.screenRequestPending,
+                'fa-spin': this.state.screenRequestPending
+            });
+
             const fullScreenButtonIcons = clsx({
                 'fa': true,
                 'fa-expand': !this.isFullScreen(),
@@ -765,6 +874,11 @@ class VideoBox extends React.Component {
             const shareButtonClasses = clsx(
                 commonButtonClasses,
                 this.props.classes.sharingButton
+            );
+
+            const requestScreenButtonClasses = clsx(
+                commonButtonClasses,
+                { 'active': this.state.screenRequestPending }
             );
 
             const shareFileButtonIcons = clsx({
@@ -799,6 +913,28 @@ class VideoBox extends React.Component {
             );
             if (!this.state.remotePeerSharing) {
                 buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen}><i className={screenSharingButtonIcons}></i></button>);
+            }
+            // Ask the peer for THEIR screen. Hidden unless they advertised the
+            // handshake, while either side is already presenting (there is
+            // nothing to ask for), and while we have no video sender of our own
+            // to have been asked through.
+            if (!this.state.remotePeerSharing
+                && !this.props.call.sharingScreen
+                && this.peerCanShareScreen()) {
+                buttons.push(
+                    <button
+                        key="requestScreen"
+                        type="button"
+                        title={this.state.screenRequestPending
+                            ? `Waiting for ${this.peerLabel()}…`
+                            : `Ask ${this.peerLabel()} to share their screen`}
+                        className={requestScreenButtonClasses}
+                        disabled={this.state.screenRequestPending}
+                        onClick={this.requestScreenShare}
+                    >
+                        <i className={requestScreenButtonIcons}></i>
+                    </button>
+                );
             }
             if (this.state.remotePeerSharing && this.state.remotePointerCapable) {
                 buttons.push(<button key="pointer" type="button" title={this.state.pointerMode ? 'Pointer on — click the remote screen' : 'Point at the remote screen'} className={clsx(commonButtonClasses, { 'active': this.state.pointerMode, 'btn-pointer-active': this.state.pointerMode })} onClick={this.togglePointerMode}><i className="fa fa-mouse-pointer"></i></button>);

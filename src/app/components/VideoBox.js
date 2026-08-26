@@ -6,7 +6,7 @@ const { default: TransitionGroup } = require('react-transition-group/TransitionG
 const { default: CSSTransition } = require('react-transition-group/CSSTransition');
 const ReactMixin = require('react-mixin');
 const sylkrtc = require('sylkrtc');
-const { Badge, IconButton } = require('@material-ui/core');
+const { Badge, IconButton, Menu, MenuItem, ListItemIcon } = require('@material-ui/core');
 const { withStyles } = require('@material-ui/core/styles');
 const {
     NetworkCheck: NetworkCheckIcon
@@ -95,7 +95,6 @@ class VideoBox extends React.Component {
             showSwitchMenu: false,
             showAudioSwitchMenu: false,
             showStatistics: false,
-            showChat: false,
             showInlineChat: false,
             videoGraphData: data,
             audioGraphData: data,
@@ -113,7 +112,8 @@ class VideoBox extends React.Component {
             remotePointerCapable: true,
             // A "share your screen" request of ours is on the wire and has not
             // been answered yet.
-            screenRequestPending: false
+            screenRequestPending: false,
+            anchorEl: null
         };
         this.emaBitrate = 0;
         this.alpha = 0.4;
@@ -310,7 +310,7 @@ class VideoBox extends React.Component {
         }
 
         let videoRTT = (videoRemoteExists && videoRemoteData.inbound[0].roundTripTime) || 0
-        const videoJitter = videoData.inbound[0].jitter || 0
+        const videoJitter = (videoData && videoData.inbound[0].jitter) || 0
         const videoPacketRateOutbound = (videoData && videoData.outbound[0].packetRate) || 0;
         const videoPacketRateInbound = (videoData && videoData.inbound[0].packetRate) || 0;
         const videoPacketsLostOutbound = videoRemoteExists && videoRemoteData.inbound[0].packetLossRate || 0;
@@ -522,7 +522,7 @@ class VideoBox extends React.Component {
             return;
         }
         this.screenRequestId = requestId;
-        this.setState({ screenRequestPending: true });
+        this.setState({ screenRequestPending: true, anchorEl: null });
     }
 
     // The peer answered, or nobody did: sylkrtc reports a peer that never
@@ -541,7 +541,7 @@ class VideoBox extends React.Component {
         }
         this.postScreenRequestOutcome(result.accepted
             ? `${this.peerLabel()} accepted — waiting for the screen…`
-            : `${this.peerLabel()} declined to share their screen`);
+            : `${this.peerLabel()} declined to share the screen`);
     }
 
     clearScreenRequest() {
@@ -608,7 +608,7 @@ class VideoBox extends React.Component {
         this.overlayTimer = setTimeout(() => {
             // While viewing the remote's shared screen keep the top bar (with the
             // docked call controls) pinned — don't auto-hide it.
-            if (this.state.remotePeerSharing) { return; }
+            if (this.state.remotePeerSharing || this.state.anchorEl) { return; }
             if (this.state.hasVideo) {
                 this.setState({ callOverlayVisible: false });
             }
@@ -616,7 +616,7 @@ class VideoBox extends React.Component {
     }
 
     showCallOverlay() {
-        if (!this.state.showChat && !this.state.showInlineChat) {
+        if (!this.state.showInlineChat) {
             if (this.state.remoteVideoShow) {
                 if (!this.state.callOverlayVisible) {
                     this.setState({ callOverlayVisible: true });
@@ -630,6 +630,7 @@ class VideoBox extends React.Component {
 
     toggleEscalateConferenceModal() {
         this.setState({
+            anchorEl: null,
             callOverlayVisible: false,
             showEscalateConferenceModal: !this.state.showEscalateConferenceModal
         });
@@ -671,19 +672,17 @@ class VideoBox extends React.Component {
 
     toggleStatistics() {
         this.setState({
+            anchorEl: null,
             showStatistics: !this.state.showStatistics
         });
     }
 
     toggleChatInCall() {
-        if (!this.state.showChat) {
-            this.setState({
-                showChat: !this.state.showChat,
-                callOverlayVisible: true
-            });
-            this.props.toggleChatInCall();
-            clearTimeout(this.overlayTimer);
-        }
+        this.setState({
+            callOverlayVisible: true
+        });
+        this.props.toggleChatInCall();
+        clearTimeout(this.overlayTimer);
     }
 
     toggleInlineChat() {
@@ -703,11 +702,9 @@ class VideoBox extends React.Component {
                     });
                 }
             } else {
-                if (!this.state.showChat) {
-                    this._notificationCenter.postNewMessage(message, () => {
-                        this.toggleChatInCall();
-                    });
-                }
+                this._notificationCenter.postNewMessage(message, () => {
+                    this.toggleChatInCall();
+                });
             }
         }
     }
@@ -798,23 +795,13 @@ class VideoBox extends React.Component {
             'btn-link',
         );
 
-        const callButtonClasses = clsx(
-            baseLink,
-            {
-                'active': !this.state.showChat,
-                'blink': this.state.showChat
-            }
-        );
-
         const chatButtonClasses = clsx(
             baseLink,
-            {
-                'active': this.state.showChat
-            }
         );
 
         const unreadMessages = (this.props.unreadMessages && this.props.unreadMessages.total - this.props.unreadMessages.call) || 0;
         const unreadCallMessages = this.props.unreadMessages && this.props.unreadMessages.call || 0;
+        const menuItems = [];
 
         if (this.state.callOverlayVisible) {
             const muteButtonIcons = clsx({
@@ -846,12 +833,6 @@ class VideoBox extends React.Component {
                 'fa-spin': this.state.screenRequestPending
             });
 
-            const fullScreenButtonIcons = clsx({
-                'fa': true,
-                'fa-expand': !this.isFullScreen(),
-                'fa-compress': this.isFullScreen()
-            });
-
             const commonButtonClasses = clsx({
                 'btn': true,
                 'btn-round': true,
@@ -876,72 +857,62 @@ class VideoBox extends React.Component {
                 this.props.classes.sharingButton
             );
 
-            const requestScreenButtonClasses = clsx(
-                commonButtonClasses,
-                { 'active': this.state.screenRequestPending }
-            );
-
             const shareFileButtonIcons = clsx({
                 'fa': true,
                 'fa-upload': true
             });
             const buttons = [];
 
-            if (!this.state.showChat) {
-                buttons.push(
-                    <button key="statisticsBtn" type="button" className={commonButtonClasses} onClick={this.toggleStatistics}>
-                        <NetworkCheckIcon />
-                    </button>
+            menuItems.push(<MenuItem style={{fontSize: '14px', fontFamily: 'inherit'}} onClick={() => { this.toggleStatistics(); }}>
+                <ListItemIcon style={{minWidth: '18px', marginRight: '8px'}}><NetworkCheckIcon /></ListItemIcon>
+                Statistics
+            </MenuItem>)
+
+            menuItems.push(<MenuItem style={{fontSize: '14px', fontFamily: 'inherit'}} onClick={() => { this.toggleEscalateConferenceModal(); }}>
+                <ListItemIcon style={{minWidth: '18px', marginRight: '8px'}}><i className="fa fa-user-plus"></i></ListItemIcon>
+                Escalate to conference
+            </MenuItem>)
+
+            // Ask the peer for THEIR screen. Hidden unless they advertised the
+            // handshake, while either side is already presenting (there is
+            // nothing to ask for), and while we have no video sender of our own
+            // to have been asked through.
+            if (!this.state.remotePeerSharing
+                // && !this.props.call.sharingScreen
+                && this.peerCanShareScreen()) {
+                menuItems.push(
+                    <MenuItem style={{fontSize: '14px', fontFamily: 'inherit'}}
+                        disabled={this.state.screenRequestPending}
+                        onClick={this.requestScreenShare}
+                    >
+                        <ListItemIcon style={{minWidth: '18px', marginRight: '8px'}}><i className={requestScreenButtonIcons}></i></ListItemIcon>
+                        {this.state.screenRequestPending
+                            ? `Waiting for ${this.peerLabel()}…`
+                            : `Ask ${this.peerLabel()} to share the screen`}
+                    </MenuItem>
                 );
             }
-            if (!this.state.remotePeerSharing) {
-                buttons.push(<button key="escalateButton" type="button" className={commonButtonClasses} onClick={this.toggleEscalateConferenceModal}> <i className="fa fa-user-plus"></i> </button>);
-            }
-            if (!this.state.remotePeerSharing) {
-                buttons.push(
-                    <div className="btn-container" key="video">
-                        <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>
-                        <button key="videodevices" type="button" title="Select cameras" className={menuButtonClasses} onClick={this.toggleSwitchMenu}> <i className={menuButtonIcons}></i> </button>
-                    </div>
-                );
-            }
+            buttons.push(
+                <div className="btn-container" key="video">
+                    <button key="muteVideo" type="button" className={commonButtonClasses} onClick={this.muteVideo}> <i className={muteVideoButtonIcons}></i> </button>
+                    <button key="videodevices" type="button" title="Select cameras" className={menuButtonClasses} onClick={this.toggleSwitchMenu}> <i className={menuButtonIcons}></i> </button>
+                </div>
+            );
+
             buttons.push(
                 <div className="btn-container" key="audio">
                     <button key="muteAudio" type="button" className={commonButtonClasses} onClick={this.muteAudio}> <i className={muteButtonIcons}></i> </button>
                     <button key="audiodevices" type="button" title="Select audio devices" className={menuButtonClasses} onClick={this.toggleAudioSwitchMenu}> <i className={menuButtonIcons}></i> </button>
                 </div>
             );
-            if (!this.state.remotePeerSharing) {
-                buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen}><i className={screenSharingButtonIcons}></i></button>);
-            }
-            // Ask the peer for THEIR screen. Hidden unless they advertised the
-            // handshake, while either side is already presenting (there is
-            // nothing to ask for), and while we have no video sender of our own
-            // to have been asked through.
-            if (!this.state.remotePeerSharing
-                && !this.props.call.sharingScreen
-                && this.peerCanShareScreen()) {
-                buttons.push(
-                    <button
-                        key="requestScreen"
-                        type="button"
-                        title={this.state.screenRequestPending
-                            ? `Waiting for ${this.peerLabel()}…`
-                            : `Ask ${this.peerLabel()} to share their screen`}
-                        className={requestScreenButtonClasses}
-                        disabled={this.state.screenRequestPending}
-                        onClick={this.requestScreenShare}
-                    >
-                        <i className={requestScreenButtonIcons}></i>
-                    </button>
-                );
-            }
-            if (this.state.remotePeerSharing && this.state.remotePointerCapable) {
-                buttons.push(<button key="pointer" type="button" title={this.state.pointerMode ? 'Pointer on — click the remote screen' : 'Point at the remote screen'} className={clsx(commonButtonClasses, { 'active': this.state.pointerMode, 'btn-pointer-active': this.state.pointerMode })} onClick={this.togglePointerMode}><i className="fa fa-mouse-pointer"></i></button>);
-            }
-            if (this.isFullscreenSupported()) {
-                buttons.push(<button key="fsButton" type="button" className={commonButtonClasses} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
-            }
+
+            buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen}><i className={screenSharingButtonIcons}></i></button>);
+
+            buttons.push(
+                <button key="more" type="button" title="More" className={commonButtonClasses} onClick={(e) => this.setState({anchorEl: e.currentTarget})}>
+                    <i className="fa fa-ellipsis-h"></i>
+                </button>
+            );
             if (this.props.inlineChat) {
                 buttons.push(<React.Fragment key="inlineChat">
                     <Badge key="unreadBadge" badgeContent={unreadCallMessages} color="primary" classes={{ badge: this.props.classes.badge }} overlap="circular">
@@ -962,6 +933,9 @@ class VideoBox extends React.Component {
                             <i className={shareFileButtonIcons}></i>
                         </IconButton>
                     </label></React.Fragment>);
+            }
+            if (this.state.remotePeerSharing && this.state.remotePointerCapable) {
+                buttons.push(<button key="pointer" type="button" title={this.state.pointerMode ? 'Pointer on — click the remote screen' : 'Point at the remote screen'} className={clsx(commonButtonClasses, { 'active': this.state.pointerMode, 'btn-pointer-active': this.state.pointerMode })} onClick={this.togglePointerMode}><i className="fa fa-mouse-pointer"></i></button>);
             }
             if (!this.state.remotePeerSharing) {
                 buttons.push(<br key="break" />);
@@ -992,15 +966,34 @@ class VideoBox extends React.Component {
         }
 
         const callClasses = clsx({
-            'drawer-wide-visible': this.state.showInlineChat && !this.state.showChat && !utils.isMobile.any(),
-            'drawer-visible': this.state.showInlineChat && !this.state.showChat && utils.isMobile.any()
+            'drawer-wide-visible': this.state.showInlineChat && !utils.isMobile.any(),
+            'drawer-visible': this.state.showInlineChat && utils.isMobile.any()
         });
 
         const topButtons = {
             top: {
-                left: []
+                left: [],
+                right: []
             }
         };
+
+        const handleClose = () => {
+            this.setState({anchorEl: null});
+        };
+
+        const menu = (
+            <Menu
+                open={Boolean(this.state.anchorEl)}
+                anchorEl={this.state.anchorEl}
+                onClose={handleClose}
+                keepMounted={false}
+                anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                getContentAnchorEl={null}
+            >
+                {menuItems}
+            </Menu>
+        );
 
         if (this.props.toggleChatInCall !== undefined) {
             topButtons.top.left = [
@@ -1017,6 +1010,17 @@ class VideoBox extends React.Component {
                 </Badge>
             ]
         }
+
+        if (this.isFullscreenSupported()) {
+            const fullScreenButtonIcons = clsx({
+                'fa': true,
+                'fa-expand': !this.isFullScreen(),
+                'fa-compress': this.isFullScreen(),
+                'fa-2x': true
+            });
+            topButtons.top.right.push(<button key="fsButton" type="button" className={baseLink} onClick={this.handleFullscreen}> <i className={fullScreenButtonIcons}></i> </button>);
+        }
+
 
         return (
             <React.Fragment>
@@ -1055,6 +1059,8 @@ class VideoBox extends React.Component {
                             direction="up"
                             audio
                         />
+                        {menu}
+
                         {!this.state.hasVideo &&
                             <div className="call-user-icon">
                                 <UserIcon identity={this.props.contact.identity} large={true} active={this.state.active} />
@@ -1066,7 +1072,6 @@ class VideoBox extends React.Component {
                                 contact={this.props.contact}
                                 call={this.props.call}
                                 buttons={topButtons}
-                                onTop={this.state.showChat}
                                 callQuality={callQuality}
                                 remoteScreen={this.state.remotePeerSharing}
                             />
@@ -1086,7 +1091,7 @@ class VideoBox extends React.Component {
                             />
                         </div>
                         <ConferenceDrawer
-                            show={this.state.showStatistics && !this.state.showChat}
+                            show={this.state.showStatistics}
                             anchor="left"
                             showClose={true}
                             close={this.toggleStatistics}
@@ -1103,7 +1108,7 @@ class VideoBox extends React.Component {
                         </ConferenceDrawer>
                     </div>
                     <ConferenceDrawer
-                        show={this.state.showInlineChat && !this.state.showChat}
+                        show={this.state.showInlineChat}
                         anchor="right"
                         showClose={true}
                         close={this.toggleInlineChat}

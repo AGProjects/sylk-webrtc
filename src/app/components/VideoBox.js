@@ -749,7 +749,6 @@ class VideoBox extends React.Component {
         }
         const localVideoClasses = clsx({
             'video-thumbnail': true,
-            'screen-fit': this.state.remotePeerSharing,
             'mirror': !this.props.call.sharingScreen && !this.props.generatedVideoTrack,
             'hidden': !this.state.localVideoShow,
             'animated': true,

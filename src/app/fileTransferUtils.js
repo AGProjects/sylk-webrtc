@@ -33,6 +33,43 @@ function sendMetadata(account, id, uri, caption, cb = null) {
     account.sendMessage(uri, JSON.stringify(metaData), 'application/sylk-message-metadata', { timestamp: date, id: messageId }, cb);
 }
 
+function _cacheUploadedFile(file, id, contact) {
+    return new Promise((resolve, reject) => {
+        const fr = new FileReader();
+
+        fr.onload = async () => {
+            try {
+                if (file.type.startsWith('video/') && isElectron) {
+                    const filePath = await ipcRenderer.invoke('cache:saveFile', {
+                        id,
+                        data: fr.result,
+                        filetype: file.type
+                    });
+
+                    cacheStorage.add({
+                        id,
+                        data: [filePath, file.name],
+                        contact
+                    });
+                } else {
+                    cacheStorage.add({
+                        id,
+                        data: [fr.result, file.name],
+                        contact
+                    });
+                }
+
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        };
+
+        fr.onerror = reject;
+        fr.readAsDataURL(file);
+    });
+}
+
 function upload({ notificationCenter, account }, files, uri, caption) {
     for (const file of files) {
         if (file instanceof File) {
@@ -45,34 +82,81 @@ function upload({ notificationCenter, account }, files, uri, caption) {
                     if (!complete) {
                         uploadRequest.abort();
                         uploads.splice(uploads.indexOf(uploadRequest), 1);
+                        cacheStorage.remove(id);
+                        cacheStorage.remove(`thumb_${id}`);
+                        delete imageCache[id];
                     }
                 }
             );
-            account.encryptFile(uri, file).then((encryptionResult) => {
-                const id = utils.generateUniqueId();
-                if (caption) {
-                    sendMetadata(account, id, uri, caption);
-                }
-                uploadRequest = superagent
-                    .post(`${config.fileTransferUrl}/${account.id}/${uri}/${id}/${encryptionResult.file.name}`)
-                    .set('Content-Type', encryptionResult.file.type)
-                    //.set('Original-Content-Length', file.size)
-                    .send(encryptionResult.file)
-                    .on('progress', (e) => {
-                        notificationCenter().editFileUploadNotification(e.percent, progressNotification);
-                    })
-                    .then(response => {
-                        complete = true;
-                        notificationCenter().removeFileUploadNotification(progressNotification);
-                        uploads.splice(uploads.indexOf(uploadRequest), 1);
-                    })
-                    .catch(err => {
-                        complete = true;
-                        notificationCenter().removeFileUploadNotification(progressNotification);
-                        notificationCenter().postFileUploadFailed(filename);
-                        uploads.splice(uploads.indexOf(uploadRequest), 1);
+
+            const id = utils.generateUniqueId();
+            const MAX_CACHEABLE_SIZE = 75 * 1024 * 1024; // 75MB
+            let fileCachePromise = Promise.resolve(null);
+            const isCacheableMedia = file.type.startsWith('image/')
+                || file.type.startsWith('video/')
+                || file.type.startsWith('audio/');
+
+            if (isCacheableMedia && (isElectron || file.size <= MAX_CACHEABLE_SIZE)) {
+                fileCachePromise = _cacheUploadedFile(file, id, uri).catch(error => {
+                    DEBUG('Failed to cache uploaded file: %o', error);
+                });
+            } else {
+                DEBUG('Skipping upload cache for %s (%s, %d bytes)', file.name, file.type, file.size);
+            }
+            let thumbnailPromise = Promise.resolve(null);
+            if (
+                file.type.startsWith('image/') ||
+                    file.type.startsWith('video/')
+            ) {
+                DEBUG('Generating thumbnail from upload: %s (%s)', file.name, id);
+                const imageData = URL.createObjectURL(file);
+
+                thumbnailPromise = _createThumbnail(
+                    imageData,
+                    file.name,
+                    file.type,
+                    id,
+                    uri
+                ).then(([imageData, thumbFilename, w, h, duration]) => {
+                        const thumbnail = [imageData, thumbFilename, w, h, duration];
+                        cacheStorage.addThumbnail({ id, data: thumbnail, contact: uri });
+                        imageCache[id] = thumbnail;
+                    }).catch(error => {
+                        DEBUG('Failed to generate upload thumbnail: %o', error);
+                    }).finally(() => {
+                        URL.revokeObjectURL(imageData);
                     });
-                uploads.push([uploadRequest, progressNotification]);
+            }
+
+            Promise.allSettled([fileCachePromise, thumbnailPromise]).then(() => {
+                account.encryptFile(uri, file).then((encryptionResult) => {
+                    if (caption) {
+                        sendMetadata(account, id, uri, caption);
+                    }
+                    uploadRequest = superagent
+                        .post(`${config.fileTransferUrl}/${account.id}/${uri}/${id}/${encryptionResult.file.name}`)
+                        .set('Content-Type', encryptionResult.file.type)
+                        //.set('Original-Content-Length', file.size)
+                        .send(encryptionResult.file)
+                        .on('progress', (e) => {
+                            notificationCenter().editFileUploadNotification(e.percent, progressNotification);
+                        })
+                        .then(response => {
+                            complete = true;
+                            notificationCenter().removeFileUploadNotification(progressNotification);
+                            uploads.splice(uploads.indexOf(uploadRequest), 1);
+                        })
+                        .catch(err => {
+                            complete = true;
+                            notificationCenter().removeFileUploadNotification(progressNotification);
+                            notificationCenter().postFileUploadFailed(filename);
+                            uploads.splice(uploads.indexOf(uploadRequest), 1);
+                            cacheStorage.remove(id);
+                            cacheStorage.remove(`thumb_${id}`);
+                            delete imageCache[id];
+                        });
+                    uploads.push([uploadRequest, progressNotification]);
+                });
             });
         }
     }
@@ -124,7 +208,10 @@ function _downloadAndRead(account, url, filename, filetype, id, contact) {
             return new Promise((resolve, reject) => {
                 fr.onload = () => {
                     if (filetype === 'image/svg+xml') {
-                        resolve(['data:image/svg+xml,' + encodeURIComponent(fr.result), file.file.name])
+                        const svgResult = 'data:image/svg+xml,' + encodeURIComponent(fr.result);
+                        cacheStorage.add({ id: id, data: [svgResult, file.file.name], contact: contact });
+                        resolve([svgResult, file.file.name]);
+                        return;
                     }
                     let result = fr.result.replace('application/octet-stream', filetype);
                     cacheStorage.add({ id: id, data: [result, file.file.name], contact: contact })
@@ -317,6 +404,52 @@ function getThumbnail(message) {
     });
 }
 
+function _createThumbnail(imageData, filename, filetype, id, contact) {
+    return new Promise((resolve, reject) => {
+        let boundBox = [300, 300]
+        const isVideo = filetype.startsWith('video/');
+        if (isVideo) {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.muted = true;
+
+            video.onseeked = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const scaleRatio = Math.min(boundBox[0] / video.videoWidth, boundBox[1] / video.videoHeight, 1);
+                const dpi = window.devicePixelRatio;
+                const w = Math.floor(video.videoWidth * scaleRatio * dpi);
+                const h = Math.floor(video.videoHeight * scaleRatio * dpi);
+                canvas.width = w;
+                canvas.height = h;
+                ctx.drawImage(video, 0, 0, w, h);
+                const duration = video.duration;
+                resolve([canvas.toDataURL(), filename, w / dpi, h / dpi, duration]);
+            };
+
+            video.onerror = reject;
+            video.onloadedmetadata = () => { video.currentTime = 1; };
+            video.src = imageData;
+        } else {
+            const img = document.createElement('img');
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const scaleRatio = Math.min(boundBox[0] / img.width, boundBox[1] / img.height, 1);
+                const dpi = window.devicePixelRatio;
+                const w = Math.floor(img.width * scaleRatio * dpi);
+                const h = Math.floor(img.height * scaleRatio * dpi);
+                canvas.width = w;
+                canvas.height = h;
+                ctx.drawImage(img, 0, 0, w, h)
+                resolve([canvas.toDataURL(), filename, w / dpi, h / dpi]);
+            }
+            img.onerror = reject;
+            img.src = imageData;
+        }
+    });
+}
+
 function generateThumbnail(account, message) {
     let { id, state } = message
     let { url, filename, filetype, sender, receiver } = message.json;
@@ -324,7 +457,6 @@ function generateThumbnail(account, message) {
     if (filetype == null) {
         filetype = 'application/octet-stream'
     }
-
 
     if (_isMemoryCached(id)) {
         DEBUG('Thumbnail from memory cache: %s (%s)', filename, id);
@@ -351,49 +483,7 @@ function generateThumbnail(account, message) {
         return _downloadAndRead(account, url, filename, filetype, id, contact)
             .then(([imageData, filename]) => {
                 DEBUG('Generating thumbnail from download: %s (%s)', filename, id);
-                return new Promise((resolve, reject) => {
-                    let boundBox = [300, 300]
-                    const isVideo = filetype.startsWith('video/');
-                     if (isVideo) {
-                        const video = document.createElement('video');
-                        video.preload = 'metadata';
-                        video.muted = true;
-
-                        video.onseeked = () => {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            const scaleRatio = Math.min(boundBox[0] / video.videoWidth, boundBox[1] / video.videoHeight, 1);
-                            const dpi = window.devicePixelRatio;
-                            const w = Math.floor(video.videoWidth * scaleRatio * dpi);
-                            const h = Math.floor(video.videoHeight * scaleRatio * dpi);
-                            canvas.width = w;
-                            canvas.height = h;
-                            ctx.drawImage(video, 0, 0, w, h);
-                            const duration = video.duration;
-                            resolve([canvas.toDataURL(), filename, w / dpi, h / dpi, duration]);
-                        };
-
-                        video.onerror = reject;
-                        video.onloadedmetadata = () => { video.currentTime = 1; };
-                        video.src = imageData;
-                    } else {
-                        const img = document.createElement('img');
-                        img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            const scaleRatio = Math.min(boundBox[0] / img.width, boundBox[1] / img.height, 1);
-                            const dpi = window.devicePixelRatio;
-                            const w = Math.floor(img.width * scaleRatio * dpi);
-                            const h = Math.floor(img.height * scaleRatio * dpi);
-                            canvas.width = w;
-                            canvas.height = h;
-                            ctx.drawImage(img, 0, 0, w, h)
-                            resolve([canvas.toDataURL(), filename, w / dpi, h / dpi]);
-                        }
-                        img.onerror = reject;
-                        img.src = imageData;
-                    }
-                });
+                return _createThumbnail(imageData, filename, filetype, id, contact);
             }).then(([imageData, filename, w, h, duration]) => {
                 cacheStorage.addThumbnail({ id: id, data: [imageData, filename, w, h, duration], contact: contact })
                 imageCache[id] = [imageData, filename, w, h, duration];

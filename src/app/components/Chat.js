@@ -40,6 +40,16 @@ const { isNodeEmitter } = require('../utils');
 
 const endedLocationSessions = new Set();
 
+// Splits one whole location envelope into the v2 wire pair
+function sendableLocationEnvelope(envelope) {
+    const pair = sylkLocationSharing.splitLocationEnvelope(envelope);
+    if (!pair) {
+        DEBUG('[location] not an envelope, sending payload unchanged');
+        return { content: envelope, metadata: null };
+    }
+    return pair;
+}
+
 function enrichWithMetadata(message) {
     if (message.metadata.length > 0) {
         return Promise.resolve(message);
@@ -348,7 +358,9 @@ const Chat = (props) => {
 
         const deriveLocationEvent = (message, contact, direction) => {
             if (message.jsonError || !message.json) {
-                DEBUG('[location] derive: no json (%s) msg=%s', direction, message.id || '-');
+                // no envelope on either side - grep target for rollover issues
+                DEBUG('[location] derive: no envelope (%s) msg=%s metadata=%s', direction,
+                    message.id || '-', message.wireMetadata ? 'present' : 'absent');
                 return null;
             }
             return locationSharing.toLocationEvent(message.json, {
@@ -819,18 +831,17 @@ const Chat = (props) => {
             ? message.receiver.uri : message.receiver)
             || selectedContactRef.current?.defaultUri?.uri;
         if (!peerUri) { DEBUG('[location] stopLocationShare: no peer uri for %s', sessionId); return; }
+        // stop is coordinate-free; sessionId is the only required field
         const wire = {
             action: 'location_stop',
             reason: 'ended',
-            sessionId: sessionId,
-            messageId: sessionId,
-            metadataId: sessionId,
-            version: '1.0'
+            sessionId: sessionId
         };
+        const pair = sendableLocationEnvelope(wire);
         try {
             props.account.sendMessage(
-                peerUri, JSON.stringify(wire), 'application/sylk-location-sharing',
-                { cleartext: true }, (error) => {
+                peerUri, pair.content, 'application/sylk-location-sharing',
+                { cleartext: true, metadata: pair.metadata }, (error) => {
                     if (error) DEBUG('[location] stopLocationShare send error: %s', error);
                 });
             DEBUG('[location] stopLocationShare sent session %s to %s', String(sessionId).slice(0, 8), peerUri);
@@ -856,16 +867,17 @@ const Chat = (props) => {
         const uri = selectedContact?.defaultUri?.uri;
         if (!uri || !props.account) return;
         const requestId = uuidv4();
+        // Coordinate-free as well: empty content, envelope in the metadata.
         const wire = {
             action: 'location_request',
             messageId: requestId,
-            expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-            version: '1.0'
+            expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
         };
+        const pair = sendableLocationEnvelope(wire);
         try {
             props.account.sendMessage(
-                uri, JSON.stringify(wire), 'application/sylk-location-sharing',
-                { cleartext: true, id: requestId }, (error) => {
+                uri, pair.content, 'application/sylk-location-sharing',
+                { cleartext: true, id: requestId, metadata: pair.metadata }, (error) => {
                     if (error) DEBUG('[location] requestLocation send error: %s', error);
                 });
             DEBUG('[location] requestLocation sent to %s req=%s', uri, requestId);
@@ -888,9 +900,10 @@ const Chat = (props) => {
                 return;
             }
 
+            const pair = sendableLocationEnvelope(envelope);
             const sentMessage = props.account.sendMessage(
-                uri, envelope, 'application/sylk-location-sharing',
-                { id: envelopeId, cleartext: true },
+                uri, pair.content, 'application/sylk-location-sharing',
+                { id: envelopeId, cleartext: true, metadata: pair.metadata },
                 (error) => { if (error) DEBUG('[location] shareLocationOnce send error: %s', error); }
             );
 

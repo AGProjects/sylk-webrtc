@@ -1,19 +1,20 @@
 'use strict';
 
-// Ingestion adapter for the `application/sylk-location-sharing` wire format
-// (mobile v1). A share is a CLEARTEXT lifecycle envelope with a single
-// PGP-encrypted `value` (the coordinates). sylkrtc decrypts `value` in the lib
+// Ingestion adapter for the `application/sylk-location-sharing` wire format.
+// A share is a CLEARTEXT lifecycle envelope with a single PGP-encrypted
+// `value`. sylkrtc decrypts the coordinates in the lib
 // (Account._handleEvent -> locationSharing.decryptInPlace) and populates
-// `message.json` with the parsed envelope (its `value` is the decrypted coords
+// `message.json` with one whole envelope (its `value` is the decrypted coords
 // as a JSON string), so this module only parses shapes — no decryption, no async.
+//
+// Payload v2+: envelope rides in the wire metadata, content is the bare
+// blob. sylkrtc's lib/locationSharing.js handles the split both ways, so
+// this module and everything below it sees one shape regardless of version.
 //
 // This module is pure translation: envelope -> a normalized event whose `json`
 // is fed to the existing location reducer (./locationTrail applyLocationEvent).
 // It mirrors the mobile live-receive split in sylk-mobile/app/app.js so the two
-// interoperate. See docs/messages/sylk-location-sharing-v1.md for the spec (the
-// wire here follows the actual mobile code, which differs from the doc in a few
-// places — e.g. the inviter's coordinate origin ships as a value-bearing
-// `meeting_request`).
+// interoperate.
 
 // Wire actions that carry an encrypted `value` (coordinates).
 const COORD_ACTIONS = new Set([

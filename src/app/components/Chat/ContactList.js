@@ -479,11 +479,13 @@ const ContactList = (props) => {
                     </MenuItem>
                 }
                 <Divider />
-                <MenuItem className={classes.item} onClick={() => { props.removeChat(contactRef.current); handleClose() }} onMouseEnter={() => setSubMenuAnchor(null)}>
-                    Remove Chat
-                </MenuItem>
+                {!contactRef?.current?._isNew &&
+                    <MenuItem className={classes.item} onClick={() => { props.removeChat(contactRef.current); handleClose() }} onMouseEnter={() => setSubMenuAnchor(null)}>
+                        Remove Chat
+                    </MenuItem>
+                }
                 <MenuItem className={clsx(classes.item, classes.danger)} onClick={() => { props.deleteContact(contactRef.current); handleClose() }} onMouseEnter={() => setSubMenuAnchor(null)}>
-                    Delete Contact
+                    {!contactRef?.current?._isNew ? 'Delete Contact' : 'Delete Draft Contact' }
                 </MenuItem>
             </CustomContextMenu>
             {contacts.map(contact => {

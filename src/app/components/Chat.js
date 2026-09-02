@@ -169,6 +169,7 @@ const Chat = (props) => {
     const anchorEl = useRef(null);
     const input = useRef();
     const saveContactRef = useRef(null);
+    const addressbookLoadedOnce = useRef(false);
 
     const { notificationCenter } = props;
 
@@ -191,6 +192,7 @@ const Chat = (props) => {
 
     useEffect(() => {
         if (!props.focusOn || props.focusOn === '') return;
+        if (!addressbookLoadedOnce.current) return;
 
         const contact = lookup(props.focusOn);
         if (selectedContactRef.current !== contact) {
@@ -218,6 +220,12 @@ const Chat = (props) => {
     }, [showInfoPanel, onError, notificationCenter]);
 
     useEffect(() => {
+        addressbookLoadedOnce.current = true;
+        setNewContacts(prev => prev.filter(c => {
+            const uri = c.defaultUri?.uri;
+            return !(uri && addressbook.contacts.get(uri)?.length > 0);
+        }));
+
         if (!selectedContactRef.current) return;
         const updated = [...addressbook.contacts.values()]
         .flat()
@@ -727,6 +735,10 @@ const Chat = (props) => {
 
     const startChat = () => {
         if (input.current.value !== '') {
+            if (!addressbookLoadedOnce.current) {
+                DEBUG('startChat: addressbook not loaded yet, ignoring: %s', input.current.value);
+                return;
+            }
             const target = utils.normalizeUri(input.current.value, defaultDomain);
             const contact = { ...lookup(target), _isNew: true };
             const contactsForUri = addressbook.contacts.get(target) ?? [];

@@ -140,7 +140,8 @@
       "category": "public.app-category.video",
       "extendInfo": {
         "NSMicrophoneUsageDescription": "Please allow access to the microphone to be able to make calls.",
-        "NSCameraUsageDescription": "Please allow access to the camera to be able to make video calls."
+        "NSCameraUsageDescription": "Please allow access to the camera to be able to make video calls.",
+        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to share it when you choose to."
       },
       "hardenedRuntime": true,
       "gatekeeperAssess": false,

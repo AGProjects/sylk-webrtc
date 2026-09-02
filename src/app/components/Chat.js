@@ -40,16 +40,6 @@ const { isNodeEmitter } = require('../utils');
 
 const endedLocationSessions = new Set();
 
-// Splits one whole location envelope into the v2 wire pair
-function sendableLocationEnvelope(envelope) {
-    const pair = sylkLocationSharing.splitLocationEnvelope(envelope);
-    if (!pair) {
-        DEBUG('[location] not an envelope, sending payload unchanged');
-        return { content: envelope, metadata: null };
-    }
-    return pair;
-}
-
 function enrichWithMetadata(message) {
     if (message.metadata.length > 0) {
         return Promise.resolve(message);
@@ -849,11 +839,10 @@ const Chat = (props) => {
             reason: 'ended',
             sessionId: sessionId
         };
-        const pair = sendableLocationEnvelope(wire);
         try {
             props.account.sendMessage(
-                peerUri, pair.content, 'application/sylk-location-sharing',
-                { cleartext: true, metadata: pair.metadata }, (error) => {
+                peerUri, JSON.stringify(wire), 'application/sylk-location-sharing',
+                {}, (error) => {
                     if (error) DEBUG('[location] stopLocationShare send error: %s', error);
                 });
             DEBUG('[location] stopLocationShare sent session %s to %s', String(sessionId).slice(0, 8), peerUri);
@@ -888,8 +877,8 @@ const Chat = (props) => {
         const pair = sendableLocationEnvelope(wire);
         try {
             props.account.sendMessage(
-                uri, pair.content, 'application/sylk-location-sharing',
-                { cleartext: true, id: requestId, metadata: pair.metadata }, (error) => {
+                uri, JSON.stringify(wire), 'application/sylk-location-sharing',
+                { id: requestId }, (error) => {
                     if (error) DEBUG('[location] requestLocation send error: %s', error);
                 });
             DEBUG('[location] requestLocation sent to %s req=%s', uri, requestId);
@@ -904,18 +893,10 @@ const Chat = (props) => {
         try {
             const coords = await locationSharing.getCurrentPosition();
             const envelopeId = uuidv4();
-            const envelope = await sylkLocationSharing.buildEncryptedEnvelope(
-                'location_once', coords, props.account.pgp, uri, envelopeId
-            );
-            if (!envelope) {
-                DEBUG('[location] shareLocationOnce: encryption failed, not sending');
-                return;
-            }
-
-            const pair = sendableLocationEnvelope(envelope);
+            const envelope = JSON.stringify({ action: 'location_once', value: JSON.stringify(coords) });
             const sentMessage = props.account.sendMessage(
-                uri, pair.content, 'application/sylk-location-sharing',
-                { id: envelopeId, cleartext: true, metadata: pair.metadata },
+                uri, envelope, 'application/sylk-location-sharing',
+                { id: envelopeId },
                 (error) => { if (error) DEBUG('[location] shareLocationOnce send error: %s', error); }
             );
 
@@ -955,7 +936,7 @@ const Chat = (props) => {
             DEBUG('[location] shareLocationOnce failed: %s', e.message);
         }
     };
-
+    const isElectronLinux = isElectron && navigator.userAgent.toLowerCase().includes('linux');
     const messagePane = (
         <React.Fragment key="pane">
             <MessageList
@@ -988,7 +969,7 @@ const Chat = (props) => {
                 editMessage={editMessage}
                 cancelEdit={() => { setFocus(''); setEditMessage(''); }}
                 requestLocation={props.noConnection ? null : requestLocation}
-                shareLocationOnce={props.noConnection ? null : shareLocationOnce}
+                shareLocationOnce={isElectronLinux || props.noConnection ? null : shareLocationOnce}
                 multiline
             />
         </React.Fragment>

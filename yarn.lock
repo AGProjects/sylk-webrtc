@@ -8888,8 +8888,8 @@ svgo@^2.4.0:
     stable "^0.1.8"
 
 sylkrtc@AGProjects/sylkrtc.js:
-  version "1.8.1"
-  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/7d9744f3865286e5f75ac2e535af22d83d0b96e6"
+  version "1.8.2"
+  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/7efe16a0fdf45d31c213a44fb59bce3f666b33f5"
   dependencies:
     blueimp-md5 "^2.19.0"
     bowser "^2.11.0"

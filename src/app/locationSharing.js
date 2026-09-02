@@ -136,7 +136,9 @@ function toLocationEvent(wire, opts = {}) {
 
 function getCurrentPosition() {
     return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
+        const ua = navigator.userAgent.toLowerCase();
+        const isElectronLinux = ua.includes('electron') && ua.includes('linux');
+        if (isElectronLinux || !navigator.geolocation) {
             reject(new Error('Geolocation not supported'));
             return;
         }

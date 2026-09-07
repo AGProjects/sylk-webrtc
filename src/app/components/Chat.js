@@ -1093,7 +1093,7 @@ const Chat = (props) => {
                                         </div>
                                         {props.hideCallButtons === false && [
                                             <IconButton key="callButton" className="fa fa-phone" disabled={props.noConnection} onClick={() => props.startCall(selectedContact.defaultUri.uri, { video: false })} />,
-                                            <IconButton key="videoCallButton" className="fa fa-video-camera" disabled={props.noConnection} onClick={() => props.startCall(selectedContact.defaultUri.uri)} />,
+                                            <IconButton key="videoCallButton" className="fa fa-video-camera" disabled={props.noConnection} onClick={() => props.startCall(selectedContact.defaultUri.uri)} />
                                         ]}
                                     </React.Fragment>
                                 }

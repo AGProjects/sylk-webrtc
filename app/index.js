@@ -5,6 +5,7 @@ const fs = require('fs');
 const openAboutWindow = require('about-window').default;
 const Badge = require('electron-windows-badge');
 const path = require('path');
+const { spawn } = require('child_process');
 
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
@@ -151,7 +152,7 @@ let updateWindow = null;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
-app.commandLine.appendSwitch('enable-features', 'MacCoreLocationBackend,WinrtGeolocationImplementation');
+app.commandLine.appendSwitch('enable-features', 'WinrtGeolocationImplementation');
 
 // Keep old storage
 app.setPath('userData', path.join(app.getPath('appData'), 'Sylk'));
@@ -408,7 +409,7 @@ function createMainWindow() {
         const buffer = Buffer.from(data.split(',')[1], 'base64');
         await fs.promises.writeFile(filePath, buffer);
         return filePath;
-    });
+});
 
     ipc.handle('cache:getFile', async (event, { id }) => {
         const filePath = path.join(storage.getDataPath('userData'), 'mediaCache', id);
@@ -425,6 +426,44 @@ function createMainWindow() {
         await fs.promises.unlink(filePath).catch(() => {});
     });
 
+    function getLocationViaHelper() {
+        return new Promise((resolve, reject) => {
+            const binPath = app.isPackaged
+                ? path.join(process.resourcesPath, '..', 'Helpers', 'Blink Desktop Helper (Location).app', 'Contents', 'MacOS', 'blink-location-helper')
+                : path.join(__dirname, '..', 'Helpers', 'location-helper.app', 'Contents', 'MacOS', 'blink-location-helper');
+            const proc = spawn(binPath);
+            let output = '';
+            let errorOutput = '';
+
+            proc.stdout.on('data', (data) => { output += data.toString(); });
+            proc.stderr.on('data', (data) => { errorOutput += data.toString(); });
+
+            proc.on('close', (code) => {
+                if (!output.trim()) {
+                    reject(new Error(`location-helper produced no output (exit ${code}): ${errorOutput}`));
+                    return;
+                }
+                try {
+                    const result = JSON.parse(output.trim());
+                    if (result.error) {
+                        reject(new Error(result.error));
+                    } else {
+                        resolve(result);
+                    }
+                } catch (e) {
+                    reject(new Error(`Invalid JSON from location-helper: ${output}`));
+                }
+            });
+
+            proc.on('error', (err) => {
+                reject(new Error(`Failed to start location-helper: ${err.message}`));
+            });
+        });
+    }
+
+    ipc.handle('get-location', async () => {
+        return getLocationViaHelper();
+    });
     // open links with default browser
     mainWindow.webContents.on('new-window', function(event, url) {
         event.preventDefault();

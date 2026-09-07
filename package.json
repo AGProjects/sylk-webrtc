@@ -104,7 +104,7 @@
     "build": "parcel build ./src/index.html --no-source-maps",
     "prebuild-dev": "npm run preserve && npm run lint:eslint",
     "build-dev": "parcel build ./src/index.html",
-    "preelectron": "(rm -f .posthtmlrc && cp .posthtmlrc_electron .posthtmlrc) || cp .posthtmlrc_electron .posthtmlrc && npm run lint:eslint",
+    "preelectron": "(rm -f .posthtmlrc && cp .posthtmlrc_electron .posthtmlrc) || cp .posthtmlrc_electron .posthtmlrc && npm run lint:eslint && node build/build-location-helper.js",
     "electron": "parcel build ./src/index.html ./src/incomingWindow.html --dist-dir ./app/www/ --public-url ./ --no-source-maps --no-cache",
     "lint:eslint": "eslint src/app",
     "lint:sass": "stylelint \"src/**/*.scss\"",
@@ -136,7 +136,14 @@
     "dmg": {
       "title": "Install Blink Desktop"
     },
+    "extraFiles": [
+      {
+        "from": "resources/Blink Desktop Helper (Location).app",
+        "to": "Helpers/Blink Desktop Helper (Location).app"
+      }
+    ],
     "mac": {
+      "binaries": ["resources/Blink Desktop Helper (Location).app/Contents/MacOS/blink-location-helper"],
       "category": "public.app-category.video",
       "extendInfo": {
         "NSMicrophoneUsageDescription": "Please allow access to the microphone to be able to make calls.",

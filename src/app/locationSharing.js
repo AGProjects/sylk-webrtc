@@ -134,14 +134,31 @@ function toLocationEvent(wire, opts = {}) {
     };
 }
 
+const { ipcRenderer } = window.require('electron');
+
 function getCurrentPosition() {
     return new Promise((resolve, reject) => {
         const ua = navigator.userAgent.toLowerCase();
         const isElectronLinux = ua.includes('electron') && ua.includes('linux');
+        const isElectronMac = ua.includes('electron') && ua.includes('mac');
+
         if (isElectronLinux || !navigator.geolocation) {
             reject(new Error('Geolocation not supported'));
             return;
         }
+
+        if (isElectronMac) {
+            ipcRenderer.invoke('get-location')
+                .then((pos) => resolve({
+                    latitude: pos.latitude,
+                    longitude: pos.longitude,
+                    accuracy: pos.accuracy,
+                    timestamp: pos.timestamp
+                }))
+                .catch((err) => reject(err));
+            return;
+        }
+
         navigator.geolocation.getCurrentPosition(
             (pos) => resolve({
                 latitude: pos.coords.latitude,

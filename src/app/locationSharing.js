@@ -134,7 +134,7 @@ function toLocationEvent(wire, opts = {}) {
     };
 }
 
-const { ipcRenderer } = window.require('electron');
+const isElectron = window.require !== undefined;
 
 function getCurrentPosition() {
     return new Promise((resolve, reject) => {
@@ -147,7 +147,8 @@ function getCurrentPosition() {
             return;
         }
 
-        if (isElectronMac) {
+        if (isElectron && isElectronMac) {
+            const { ipcRenderer } = window.require('electron');
             ipcRenderer.invoke('get-location')
                 .then((pos) => resolve({
                     latitude: pos.latitude,

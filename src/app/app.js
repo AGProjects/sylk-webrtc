@@ -1764,9 +1764,6 @@ class Blink extends React.Component {
         if (this.addressbookRef.current?.addressbook.contacts.has(message.sender.uri)) {
             const contacts = this.addressbookRef.current?.addressbook.contacts.get(message.sender.uri)
             for (let contact of contacts) {
-                // Only fill a name that is just the address, and only with a
-                // real name: an empty display name, or the address again, would
-                // be a write that changes nothing.
                 if (
                     message.sender.displayName &&
                     message.sender.displayName !== message.sender.uri &&
@@ -1781,9 +1778,6 @@ class Blink extends React.Component {
                         }
                     };
 
-                    // The ref exposes update(), not updateContact(): calling the
-                    // latter threw a TypeError here, which aborted incomingMessage
-                    // before the contact cache update and the notifications.
                     this.addressbookRef.current?.update(updatedContact)
                         .catch((err) => DEBUG('Contact name not updated from message %O', updatedContact, err));
                 }

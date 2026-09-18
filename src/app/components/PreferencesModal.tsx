@@ -61,14 +61,14 @@ const styleSheet = makeStyles((theme) => ({
         textAlign: 'left'
     },
     darkerText: { color: '#333' },
-    section: { padding: theme.spacing(1.5, 0) },
+    section: { padding: theme.spacing(1, 0) },
     sectionTitle: {
         marginBottom: theme.spacing(1.5),
         fontFamily: 'inherit'
     },
     field: {
         width: '100%',
-        marginBottom: theme.spacing(2)
+        marginBottom: theme.spacing(1)
     },
     loading: {
         display: 'flex',
@@ -77,9 +77,9 @@ const styleSheet = makeStyles((theme) => ({
     },
     error: { marginBottom: theme.spacing(1) },
     previewOuter: {
-        width: '90%',
+        width: '50%',
         margin: '0 auto',
-        marginBottom: theme.spacing(2)
+        marginBottom: theme.spacing(1)
     },
     previewWrapper: {
         position: 'relative',
@@ -283,10 +283,10 @@ const PreferencesModal = ({ show, close }: PreferencesModalProps) => {
                     </div>
                 ) : (
                     <>
-                        {/* AUDIO */}
+                        {/* AUDIO & VIDEO */}
                         <div className={classes.section}>
                             <DialogContentText component="div" className={classes.fixFont}>
-                                <div className={classes.sectionTitle}>Audio</div>
+                                <div className={classes.sectionTitle}>Audio &amp; video</div>
                             </DialogContentText>
 
                             {devicesError && (
@@ -342,57 +342,49 @@ const PreferencesModal = ({ show, close }: PreferencesModalProps) => {
                                 </Select>
                             </FormControl>
                             */}
-                        </div>
 
-                        <Divider />
+                            {videoInputs.length !== 0 && (
+                                <>
+                                    <FormControl className={classes.field} fullWidth>
+                                        <InputLabel id="camera-label">Camera</InputLabel>
 
-                        {/* VIDEO */}
-                        {videoInputs.length !== 0 && (
-                            <div className={classes.section}>
-                                <DialogContentText component="div" className={classes.fixFont}>
-                                    <div className={classes.sectionTitle}>Video</div>
-                                </DialogContentText>
+                                        <Select
+                                            labelId="camera-label"
+                                            value={preferences.videoInputDeviceId}
+                                            input={<InputBase />}
+                                            classes={{ selectMenu: classes.select, icon: classes.icon }}
+                                            onChange={handleCameraChange}
+                                        >
+                                            <MenuItem value="default">System default</MenuItem>
 
-                                <div className={classes.previewOuter}>
-                                    <div className={classes.previewWrapper}>
-                                        <video ref={videoRef} className={classes.previewVideo} autoPlay muted playsInline />
+                                            {videoInputs.map((device) => (
+                                                <MenuItem key={device.deviceId} value={device.deviceId}>
+                                                    {device.label || 'Camera'}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
 
-                                        {(previewLoading || previewError) && (
-                                            <div className={classes.previewOverlay}>
-                                                {previewLoading && <CircularProgress size={32} color="inherit" />}
+                                    <div className={classes.previewOuter}>
+                                        <div className={classes.previewWrapper}>
+                                            <video ref={videoRef} className={classes.previewVideo} autoPlay muted playsInline />
 
-                                                {!previewLoading && previewError && (
-                                                    <Typography variant="body2" align="center" style={{ padding: '0 16px' }}>
-                                                        {previewError}
-                                                    </Typography>
-                                                )}
-                                            </div>
-                                        )}
+                                            {(previewLoading || previewError) && (
+                                                <div className={classes.previewOverlay}>
+                                                    {previewLoading && <CircularProgress size={32} color="inherit" />}
+
+                                                    {!previewLoading && previewError && (
+                                                        <Typography variant="body2" align="center" style={{ padding: '0 16px' }}>
+                                                            {previewError}
+                                                        </Typography>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-
-                                <FormControl className={classes.field} fullWidth>
-                                    <InputLabel id="camera-label">Camera</InputLabel>
-
-                                    <Select
-                                        labelId="camera-label"
-                                        value={preferences.videoInputDeviceId}
-                                        input={<InputBase />}
-                                        classes={{ selectMenu: classes.select, icon: classes.icon }}
-                                        onChange={handleCameraChange}
-                                    >
-                                        <MenuItem value="default">System default</MenuItem>
-
-                                        {videoInputs.map((device) => (
-                                            <MenuItem key={device.deviceId} value={device.deviceId}>
-                                                {device.label || 'Camera'}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </div>
-                        )}
-
+                                </>
+                            )}
+                        </div>
                         <Divider />
 
                         {/* ZRTP */}

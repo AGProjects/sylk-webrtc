@@ -83,6 +83,9 @@ class NavigationBar extends React.Component {
             case 'preview':
                 this.props.preview();
                 break;
+            case 'preferences':
+                this.props.togglePreferences();
+                break;
             case 'shortcuts':
                 this.props.toggleShortcuts();
                 break;
@@ -225,6 +228,9 @@ class NavigationBar extends React.Component {
                         <MenuItem eventKey="preview">
                             <i className="fa fa-video-camera"></i> Video preview
                         </MenuItem>
+                        <MenuItem eventKey="preferences">
+                            <i className="fa fa-wrench"></i> Preferences
+                        </MenuItem>
                         <MenuItem eventKey="settings">
                             <i className="fa fa-wrench"></i> Server account settings
                         </MenuItem>
@@ -259,6 +265,7 @@ NavigationBar.propTypes = {
     account: PropTypes.object.isRequired,
     logout: PropTypes.func.isRequired,
     preview: PropTypes.func.isRequired,
+    togglePreferences: PropTypes.func.isRequired,
     toggleMute: PropTypes.func.isRequired,
     toggleShortcuts: PropTypes.func.isRequired,
     router: PropTypes.object.isRequired,

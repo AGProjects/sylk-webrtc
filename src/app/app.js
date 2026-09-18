@@ -48,6 +48,7 @@ const LogoutModal = require('./components/LogoutModal');
 const ParticipantAudioManager = require('./components/ParticipantAudioManager');
 const AddressBookProvider = require('./AddressbookProvider').default;
 const ConfigProvider = require('./ConfigProvider').default;
+const PreferencesProvider = require('./PreferencesProvider').default;
 
 const utils = require('./utils');
 const config = require('./config');
@@ -72,6 +73,8 @@ const MODE_PRIVATE = Symbol('mode-private');
 const MODE_GUEST_CALL = Symbol('mode-guest-call');
 const MODE_GUEST_CONFERENCE = Symbol('mode-guest-conference');
 
+const { default: PreferencesModal } = require('./components/PreferencesModal');
+
 
 class Blink extends React.Component {
     constructor() {
@@ -88,6 +91,7 @@ class Blink extends React.Component {
             oldMessages: {},
             inboundCall: null,
             showIncomingModal: false,
+            showPreferencesModal: false,
             showScreenSharingModal: false,
             showShortcutsModal: false,
             showImportModal: false,
@@ -190,12 +194,14 @@ class Blink extends React.Component {
             'startPreview',
             'preview',
             'main',
+            'navbar',
             'switchScreensharing',
             'toggleScreenSharingModal',
             'screenShareRequested',
             'acceptScreenShareRequest',
             'declineScreenShareRequest',
             'closeScreenShareRequestModal',
+            'togglePreferencesModal',
             'toggleShortcutsModal',
             'toggleEncryptionModal',
             'toggleImportModal',
@@ -255,6 +261,7 @@ class Blink extends React.Component {
         this.remoteAudio = React.createRef();
         this.audioManager = React.createRef();
         this.addressbookRef = React.createRef();
+        this.preferencesRef = React.createRef();
 
         if (window.location.hash.startsWith('#!/')) {
             this.redirectTo = window.location.hash.replace('#!', '');
@@ -1364,6 +1371,12 @@ class Blink extends React.Component {
         // Explicit reply so the requester's menu item drops out of its
         // pending state at once instead of waiting out the expiry.
         call.rejectScreenShareRequest(modal.requestId);
+    }
+
+    togglePreferencesModal() {
+        this.setState({
+            showPreferencesModal: !this.state.showPreferencesModal
+        });
     }
 
     toggleShortcutsModal() {
@@ -2558,34 +2571,37 @@ class Blink extends React.Component {
                 <ParticipantAudioManager ref={this.audioManager} />
                 {screenSharingModal}
                 <ConfigProvider domain={this.state.domain} onConfigReady={this.onConfigReady}>
-                    <AddressBookProvider
-                        connection={this.state.connection}
-                        contactCache={this.state.contactCache}
-                        account={this.state.account} ref={this.addressbookRef}
-                        onContactRemoved={this.removeConversation}
-                        onAddressbookReady={this.updateAddressbook}
-                    >
-                        <TransitionGroup>
-                            {incomingCallModal}
-                        </TransitionGroup>
-                        {incomingWindow}
+                    <PreferencesProvider account={this.state.account} ref={this.preferencesRef}>
+                        <AddressBookProvider
+                            connection={this.state.connection}
+                            contactCache={this.state.contactCache}
+                            account={this.state.account} ref={this.addressbookRef}
+                            onContactRemoved={this.removeConversation}
+                            onAddressbookReady={this.updateAddressbook}
+                        >
+                            <TransitionGroup>
+                                {incomingCallModal}
+                            </TransitionGroup>
+                            {incomingWindow}
 
-                        <Locations hash={this.shouldUseHashRouting} ref={this.router} onBeforeNavigation={this.checkRoute}>
-                            <Location path="/" handler={this.main} />
-                            <Location path="/login" handler={this.login} />
-                            <Location path="/logout" handler={this.logout} />
-                            <Location path="/ready" handler={this.ready} />
-                            <Location path="/call" handler={this.call} />
-                            <Location path="/call/:targetUri" urlPatternOptions={{ segmentValueCharset: 'a-zA-Z0-9-_ \.@' }} handler={this.callByUri} />
-                            <Location path="/call-complete" handler={this.callComplete} />
-                            <Location path="/chat" handler={this.chat} />
-                            <Location path="/conference" handler={this.conference} />
-                            <Location path="/conference/:targetUri" urlPatternOptions={{ segmentValueCharset: 'a-zA-Z0-9-_~ %\.@' }} handler={this.conferenceByUri} />
-                            <Location path="/not-supported" handler={this.notSupported} />
-                            <Location path="/preview" handler={this.preview} />
-                            <NotFound handler={this.notFound} />
-                        </Locations>
-                    </AddressBookProvider>
+                            <PreferencesModal  show={this.state.showPreferencesModal} close={()=> this.setState({showPreferencesModal: false})}/>
+                            <Locations hash={this.shouldUseHashRouting} ref={this.router} onBeforeNavigation={this.checkRoute}>
+                                <Location path="/" handler={this.main} />
+                                <Location path="/login" handler={this.login} />
+                                <Location path="/logout" handler={this.logout} />
+                                <Location path="/ready" handler={this.ready} />
+                                <Location path="/call" handler={this.call} />
+                                <Location path="/call/:targetUri" urlPatternOptions={{ segmentValueCharset: 'a-zA-Z0-9-_ \.@' }} handler={this.callByUri} />
+                                <Location path="/call-complete" handler={this.callComplete} />
+                                <Location path="/chat" handler={this.chat} />
+                                <Location path="/conference" handler={this.conference} />
+                                <Location path="/conference/:targetUri" urlPatternOptions={{ segmentValueCharset: 'a-zA-Z0-9-_~ %\.@' }} handler={this.conferenceByUri} />
+                                <Location path="/not-supported" handler={this.notSupported} />
+                                <Location path="/preview" handler={this.preview} />
+                                <NotFound handler={this.notFound} />
+                            </Locations>
+                        </AddressBookProvider>
+                    </PreferencesProvider>
                 </ConfigProvider>
             </div>
         );
@@ -2712,21 +2728,28 @@ class Blink extends React.Component {
         );
     }
 
+    navbar() {
+        return (
+            <NavigationBar
+                notificationCenter={this.notificationCenter}
+                account={this.state.account}
+                logout={this.toggleLogoutModal}
+                preview={this.startPreview}
+                togglePreferences={this.togglePreferencesModal}
+                toggleMute={this.toggleMute}
+                toggleShortcuts={this.toggleShortcutsModal}
+                router={this.router.current}
+                enableMessaging={this.state.enableMessaging}
+                exportPrivateKey={() => this.setState({ export: true, showEncryptionModal: true })}
+                unreadMessages={this.state.unreadMessages}
+            />
+        );
+    }
+
     ready() {
         return (
             <div>
-                <NavigationBar
-                    notificationCenter={this.notificationCenter}
-                    account={this.state.account}
-                    logout={this.toggleLogoutModal}
-                    preview={this.startPreview}
-                    toggleMute={this.toggleMute}
-                    toggleShortcuts={this.toggleShortcutsModal}
-                    router={this.router.current}
-                    enableMessaging={this.state.enableMessaging}
-                    exportPrivateKey={() => this.setState({ export: true, showEncryptionModal: true })}
-                    unreadMessages={this.state.unreadMessages}
-                />
+                {this.navbar()}
                 <ReadyBox
                     account={this.state.account}
                     startCall={this.startCall}
@@ -2834,18 +2857,7 @@ class Blink extends React.Component {
         }
         return (
             <div>
-                <NavigationBar
-                    notificationCenter={this.notificationCenter}
-                    account={this.state.account}
-                    logout={this.toggleLogoutModal}
-                    preview={this.startPreview}
-                    toggleMute={this.toggleMute}
-                    toggleShortcuts={this.toggleShortcutsModal}
-                    router={this.router.current}
-                    enableMessaging={this.state.enableMessaging}
-                    exportPrivateKey={() => this.setState({ export: true, showEncryptionModal: true })}
-                    unreadMessages={this.state.unreadMessages}
-                />
+                {this.navbar()}
                 {this.state.messagesLoadingProgress &&
                     <MessagesLoadingScreen progress={this.state.messagesLoadingProgress} />
                 }

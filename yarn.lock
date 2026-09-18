@@ -8896,7 +8896,7 @@ svgo@^2.4.0:
 
 sylkrtc@AGProjects/sylkrtc.js:
   version "1.8.3"
-  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/76de82a12d3fa1944ed40252bdd7d1f0a6d7940d"
+  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/a7505732331874576105c1c2a787df90e5433ee2"
   dependencies:
     blueimp-md5 "^2.19.0"
     bowser "^2.11.0"
@@ -8905,6 +8905,7 @@ sylkrtc@AGProjects/sylkrtc.js:
     openpgp tijmenNL/openpgpjs#4eb26e0
     regenerator-runtime "^0.13.9"
     sdp-transform "^2.14.1"
+    tweetnacl "^1.0.3"
     uuid "^11.1.0"
     webrtc-adapter "^9.0.5"
     websocket "^1.0.34"
@@ -9089,6 +9090,11 @@ tunnel@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/tunnel/-/tunnel-0.0.6.tgz#72f1314b34a5b192db012324df2cc587ca47f92c"
   integrity sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==
+
+tweetnacl@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"
+  integrity sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==
 
 type-check@~0.3.2:
   version "0.3.2"

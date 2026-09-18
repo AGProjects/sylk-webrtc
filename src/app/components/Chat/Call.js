@@ -9,6 +9,7 @@ const { AddressbookContext } = require('../../AddressbookProvider');
 
 const CallOverlay = require('../CallOverlay');
 const CallQuality = require('../CallQuality');
+const { default: ZrtpCallBanners } = require('../ZrtpCallBanners');
 
 const config = require('../../config');
 
@@ -529,6 +530,7 @@ class Call extends React.Component {
             }
         }
         box = [
+            <ZrtpCallBanners call={this.props.currentCall} notificationCenter={this.props.notificationCenter} />,
             <CallOverlay
                 show={true}
                 contact={contact}
@@ -569,7 +571,8 @@ Call.propTypes = {
     currentCall: PropTypes.object,
     localMedia: PropTypes.object,
     targetUri: PropTypes.string,
-    remoteAudio: PropTypes.object
+    remoteAudio: PropTypes.object,
+    notificationCenter: PropTypes.func
 };
 
 

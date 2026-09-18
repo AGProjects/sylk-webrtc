@@ -59,6 +59,7 @@ const messageStorage = require('./messageStorage');
 const locationSharing = require('./locationSharing');
 const addressbookStorage = require('./addressbookStorage');
 const keyStorage = require('./keyStorage');
+const zrtpStorage = require('./zrtpStorage');
 const cacheStorage = require('./cacheStorage');
 const history = require('./history');
 
@@ -541,9 +542,44 @@ class Blink extends React.Component {
             }
             messageStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
             keyStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
+            zrtpStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
             cacheStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
             addressbookStorage.initialize(this.state.accountId, storage.instance(), this.shouldUseHashRouting);
 
+            storage.get(`zrtpDeviceId-${this.state.accountId}`).then(key => {
+                if (key) {
+                    this.state.account.loadDeviceId(storedDeviceId);
+                } else {
+                    return Promise.reject();
+                }
+            }).catch(() => {
+                    const id = this.state.account.generateDeviceId();
+                    storage.set(`zrtpDeviceId-${this.state.accountId}`, id);
+                })
+
+            zrtpStorage.getAll().then(map => {
+                const entries = [];
+
+                for (const [key, entry] of Object.entries(map)) {
+                    if (!entry?.rs1 || entry.rs1.length !== 32) {
+                        DEBUG('Invalid ZRTP RS1:', key, entry);
+                        continue;
+                    }
+
+                    // Keys are either "uri:deviceId" (current scheme) or a bare "uri"
+                    // (legacy single-slot entries from before per-device storage).
+                    const lastColon = key.lastIndexOf(':');
+                    const uri      = lastColon === -1 ? key : key.slice(0, lastColon);
+                    const deviceId = lastColon === -1 ? null : key.slice(lastColon + 1);
+
+                    entries.push({ uri, deviceId, rs1: entry.rs1 });
+                }
+
+                this.state.account.loadRs1(entries);
+            });
+            const encryptionMode = this.preferencesRef.current?.getEncryptionMode();
+
+            this.state.account.encryptionMode = encryptionMode;
             let { privateKey, publicKey, revocationCertificate } = '';
 
             if (this.state.enableMessaging) {
@@ -2837,6 +2873,7 @@ class Blink extends React.Component {
                         hangupCall={this.hangupCall}
                         remoteAudio={this.remoteAudio}
                         router={this.router.current}
+                        notificationCenter={this.notificationCenter}
                     />
                 }
                 {this.chatWrapper(false, Boolean(call))}

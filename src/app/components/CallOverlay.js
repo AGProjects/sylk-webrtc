@@ -14,6 +14,7 @@ const ButtonToolbar = ReactBootstrap.ButtonToolbar;
 const Timer = require('./Timer');
 const UserIcon = require('./UserIcon');
 const config = require('../config');
+const { default: ZrtpStatus } = require('./ZrtpStatus');
 
 const stateMap = {
     ringing: 'Ringing...',
@@ -26,7 +27,7 @@ class CallOverlay extends React.Component {
 
         this._electron = false;
 
-        this.state = { callState: 'connecting' };
+        this.state = { callState: 'connecting', modalOpen: false };
 
         // ES6 classes no longer autobind
         this.callStateChanged = this.callStateChanged.bind(this);
@@ -77,7 +78,7 @@ class CallOverlay extends React.Component {
     render() {
         let header;
 
-        if (this.props.show) {
+        if (this.props.show || this.state.modalOpen) {
             let callDetail;
             let isConference = false;
 
@@ -91,6 +92,7 @@ class CallOverlay extends React.Component {
                         <i className="fa fa-clock-o"></i>{' '}
                         <Timer startTime={this.props.call._startTime} />{' '}
                         {this.props.callQuality}
+                        <ZrtpStatus call={this.props.call} onModalOpenChange={(open)=> this.setState({modalOpen:open })}/>
                     </span>
                 );
             } else {

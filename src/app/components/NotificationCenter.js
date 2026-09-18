@@ -265,6 +265,16 @@ class NotificationCenter extends React.Component {
         });
     }
 
+    postEncryptionStatus(title, text, level = null) {
+        return this.refs.notificationSystem.addNotification({
+            title: title,
+            message: text,
+            autoDismiss: 8,
+            level: level || 'info',
+            position: 'bc'
+        });
+    }
+
     postFileDownloadFailed(filename, reason) {
         filename = filename.replace('.asc', '').replace(/_/g, ' ');
         this.refs.notificationSystem.addNotification({

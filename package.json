@@ -143,7 +143,9 @@
       }
     ],
     "mac": {
-      "binaries": ["resources/Blink Desktop Helper (Location).app/Contents/MacOS/blink-location-helper"],
+      "binaries": [
+        "resources/Blink Desktop Helper (Location).app/Contents/MacOS/blink-location-helper"
+      ],
       "category": "public.app-category.video",
       "extendInfo": {
         "NSMicrophoneUsageDescription": "Please allow access to the microphone to be able to make calls.",

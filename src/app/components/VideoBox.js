@@ -81,7 +81,14 @@ class VideoBox extends React.Component {
                     return false;
                 }
             })(),
-            localVideoShow: false,
+            localVideoShow: (() => {
+                try {
+                    const s = this.props.call.getLocalStreams()[0];
+                    return !!(s && s.getVideoTracks()[0] && s.getVideoTracks()[0].enabled);
+                } catch (e) {
+                    return false;
+                }
+            })(),
             remoteVideoShow: false,
             remoteSharesScreen: false,
             // Remote-pointer feature (screen-share guidance). The protocol and

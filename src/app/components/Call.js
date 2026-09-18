@@ -9,6 +9,7 @@ const { AddressbookContext } = require('../AddressbookProvider');
 const AudioCallBox = require('./AudioCallBox');
 const LocalMedia = require('./LocalMedia');
 const VideoBox = require('./VideoBox');
+const { default: ZrtpCallBanners } = require('./ZrtpCallBanners');
 const config = require('../config');
 
 const DEBUG = debug('blinkrtc:Call');
@@ -319,6 +320,7 @@ class Call extends React.Component {
         }
         return (
             <div>
+                <ZrtpCallBanners call={this.props.currentCall} notificationCenter={this.props.notificationCenter} />
                 {box}
             </div>
         );

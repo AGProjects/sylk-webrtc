@@ -37,7 +37,7 @@ const LoadingScreen = require('./components/LoadingScreen');
 const RedialScreen = require('./components/RedialScreen');
 const MessagesLoadingScreen = require('./components/MessagesLoadingScreen');
 const NavigationBar = require('./components/NavigationBar');
-const Preview = require('./components/Preview');
+const Preview = require('./components/Preview').default;
 const ScreenSharingModal = require('./components/ScreenSharingModal');
 const { default: ScreenShareRequestModal } = require('./components/ScreenShareRequestModal');
 const ShortcutsModal = require('./components/ShortcutsModal');
@@ -2288,7 +2288,7 @@ class Blink extends React.Component {
     }
 
     startPreview() {
-        this.getLocalMedia({ audio: true, video: true }, '/preview');
+        this.router.current.navigate('/preview');
     }
 
     addCallHistoryEntry(uri) {
@@ -2772,10 +2772,7 @@ class Blink extends React.Component {
         return (
             <div>
                 <Preview
-                    localMedia={this.state.localMedia}
                     hangupCall={this.hangupCall}
-                    setDevice={this.setDevice}
-                    selectedDevices={this.state.devices}
                 />
             </div>
         );

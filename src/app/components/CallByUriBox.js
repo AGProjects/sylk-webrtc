@@ -65,7 +65,6 @@ class CallByUriBox extends React.Component {
                     hangupCall = {this.props.hangupCall}
                     shareScreen = {this.props.shareScreen}
                     generatedVideoTrack = {this.props.generatedVideoTrack}
-                    setDevice = {this.props.setDevice}
                     remoteAudio = {this.props.remoteAudio}
                 />
             );
@@ -120,7 +119,6 @@ CallByUriBox.propTypes = {
     handleCallByUri     : PropTypes.func.isRequired,
     notificationCenter  : PropTypes.func.isRequired,
     hangupCall          : PropTypes.func.isRequired,
-    setDevice           : PropTypes.func.isRequired,
     shareScreen         : PropTypes.func.isRequired,
     getLocalMedia       : PropTypes.func.isRequired,
     targetUri           : PropTypes.string,

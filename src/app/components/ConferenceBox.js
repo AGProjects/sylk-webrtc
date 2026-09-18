@@ -1515,7 +1515,6 @@ class ConferenceBox extends React.Component {
                     anchor={this.state.switchAnchor}
                     close={this.toggleSwitchMenu}
                     call={this.props.call}
-                    setDevice={this.props.setDevice}
                 />
                 <SwitchDevicesMenu
                     show={this.state.showAudioSwitchMenu}
@@ -1523,7 +1522,6 @@ class ConferenceBox extends React.Component {
                     close={this.toggleAudioSwitchMenu}
                     call={this.props.call}
                     direction={chatLayout ? 'right' : ''}
-                    setDevice={this.props.setDevice}
                     audio
                 />
                 <input
@@ -1683,7 +1681,6 @@ class ConferenceBox extends React.Component {
                     close={this.toggleSwitchModal}
                     call={this.props.call}
                     disableCameraSelection={chatLayout}
-                    setDevice={this.props.setDevice}
                 />
             </DragAndDrop>
         );
@@ -1692,7 +1689,6 @@ class ConferenceBox extends React.Component {
 
 ConferenceBox.propTypes = {
     notificationCenter: PropTypes.func.isRequired,
-    setDevice: PropTypes.func.isRequired,
     shareScreen: PropTypes.func.isRequired,
     classes: PropTypes.object.isRequired,
     propagateKeyPress: PropTypes.func.isRequired,

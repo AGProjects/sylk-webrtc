@@ -275,7 +275,6 @@ class Call extends React.Component {
                         mediaPlaying={this.mediaPlaying}
                         startVideo={this.startVideoUpgrade}
                         escalateToConference={this.props.escalateToConference}
-                        setDevice={this.props.setDevice}
                         toggleChatInCall={this.props.toggleChatInCall}
                         inlineChat={inlineChat}
                         unreadMessages={this.props.unreadMessages}
@@ -297,7 +296,6 @@ class Call extends React.Component {
                             hangupCall={this.hangupCall}
                             escalateToConference={this.props.escalateToConference}
                             generatedVideoTrack={this.props.generatedVideoTrack}
-                            setDevice={this.props.setDevice}
                             toggleChatInCall={this.props.toggleChatInCall}
                             inlineChat={inlineChat}
                             unreadMessages={this.props.unreadMessages}
@@ -330,7 +328,6 @@ class Call extends React.Component {
 Call.propTypes = {
     account: PropTypes.object.isRequired,
     hangupCall: PropTypes.func.isRequired,
-    setDevice: PropTypes.func.isRequired,
     shareScreen: PropTypes.func.isRequired,
     currentCall: PropTypes.object,
     escalateToConference: PropTypes.func,

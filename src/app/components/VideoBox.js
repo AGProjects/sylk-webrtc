@@ -1046,7 +1046,6 @@ class VideoBox extends React.Component {
                             anchor={this.state.switchAnchor}
                             close={this.toggleSwitchMenu}
                             call={this.props.call}
-                            setDevice={this.props.setDevice}
                             direction="up"
                         />
                         <SwitchDevicesMenu
@@ -1054,7 +1053,6 @@ class VideoBox extends React.Component {
                             anchor={this.state.switchAnchor}
                             close={this.toggleAudioSwitchMenu}
                             call={this.props.call}
-                            setDevice={this.props.setDevice}
                             direction="up"
                             audio
                         />
@@ -1124,7 +1122,6 @@ class VideoBox extends React.Component {
 
 VideoBox.propTypes = {
     classes: PropTypes.object.isRequired,
-    setDevice: PropTypes.func.isRequired,
     shareScreen: PropTypes.func.isRequired,
     call: PropTypes.object,
     localMedia: PropTypes.object,

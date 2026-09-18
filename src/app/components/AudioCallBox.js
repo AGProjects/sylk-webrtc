@@ -457,7 +457,6 @@ class AudioCallBox extends React.Component {
                                 anchor={this.state.switchAnchor}
                                 close={this.toggleAudioSwitchMenu}
                                 call={this.props.call}
-                                setDevice={this.props.setDevice}
                                 direction="up"
                                 audio
                             />
@@ -566,7 +565,6 @@ class AudioCallBox extends React.Component {
 
 AudioCallBox.propTypes = {
     classes: PropTypes.object.isRequired,
-    setDevice: PropTypes.func.isRequired,
     call: PropTypes.object,
     escalateToConference: PropTypes.func,
     hangupCall: PropTypes.func,

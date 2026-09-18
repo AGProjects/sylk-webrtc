@@ -13,6 +13,8 @@ const AudioMenuItem = require('./SwitchDevicesMenu/AudioMenuItem')
 const VideoMenuItem = require('./SwitchDevicesMenu/VideoMenuItem')
 const { Queue } = require('../utils');
 
+const { usePreferences } = require('../PreferencesProvider');
+
 const DEBUG = debug('blinkrtc:SwitchDevicesMenu');
 
 
@@ -57,6 +59,7 @@ const styleSheet = makeStyles((theme) => ({
 
 const SwitchDevicesMenu = (props) => {
     const classes = styleSheet(props);
+    const { preferences, updatePreferences } = usePreferences();
     const [devices, setDevices] = useState([]);
     const [videoInput, setVideoInput] = useState('');
     const [audioInput, setAudioInput] = useState('');
@@ -139,28 +142,8 @@ const SwitchDevicesMenu = (props) => {
             }
         }
 
-        const isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
-            navigator.userAgent &&
-            navigator.userAgent.indexOf('CriOS') == -1 &&
-            navigator.userAgent.indexOf('FxiOS') == -1;
-
         const promises = [];
-        return new Promise((resolve, reject) => {
-            if (isSafari) {
-                return navigator.mediaDevices.getUserMedia(constraints)
-                    .then((stream) => {
-                        sylkrtc.utils.closeMediaStream(stream);
-                        resolve();
-                    }).catch((error) => {
-                        DEBUG('Intial access failed: %o', error);
-                        resolve();
-                    });
-            }
-            resolve();
-        })
-            .then(() => {
-                return navigator.mediaDevices.enumerateDevices();
-            })
+        navigator.mediaDevices.enumerateDevices()
             .then((devices) => {
                 DEBUG('We got the devices: %o', devices);
                 setDevices(devices);
@@ -222,9 +205,11 @@ const SwitchDevicesMenu = (props) => {
             });
     }
 
+    const isRealDevice = (d) => d.deviceId !== 'default' && d.deviceId !== 'communications';
+
     const getVideoInputDevices = () => {
         const videodevices = devices.filter(
-            (device) => device.kind === 'videoinput').map(
+            (device) => device.kind === 'videoinput' && isRealDevice(device)).map(
                 device => {
                     const id = device.deviceId;
                     return (
@@ -246,7 +231,7 @@ const SwitchDevicesMenu = (props) => {
 
     const getAudioInputDevices = () => {
         const audioDevices = devices.filter(
-            (device) => device.kind === 'audioinput').map(
+            (device) => device.kind === 'audioinput' && isRealDevice(device)).map(
                 device => {
                     const id = device.deviceId;
                     return (
@@ -269,7 +254,7 @@ const SwitchDevicesMenu = (props) => {
 
     const getAudioOutputDevices = () => {
         let outputDevices = devices.filter(
-            (device) => device.kind === 'audiooutput').map(
+            (device) => device.kind === 'audiooutput' && isRealDevice(device)).map(
                 device => {
                     return (
                         <MenuItem
@@ -290,12 +275,12 @@ const SwitchDevicesMenu = (props) => {
         if (videoInput === device.deviceId) {
             props.close();
         }
-        props.setDevice(device);
+        updatePreferences({ videoInputDeviceId: device.deviceId || 'default' });
     }
 
     const selectAudioInput = (device) => {
         setAudioInput(device.deviceId);
-        props.setDevice(device);
+        updatePreferences({ audioInputDeviceId: device.deviceId || 'default' });
     }
 
     const selectAudioOutput = (device) => {
@@ -408,7 +393,6 @@ SwitchDevicesMenu.propTypes = {
     show: PropTypes.bool.isRequired,
     close: PropTypes.func.isRequired,
     call: PropTypes.object.isRequired,
-    setDevice: PropTypes.func.isRequired,
     anchor: PropTypes.object,
     audio: PropTypes.bool,
     showOutput: PropTypes.bool,

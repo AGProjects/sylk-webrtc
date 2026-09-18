@@ -106,7 +106,6 @@ class Blink extends React.Component {
             generatedVideoTrack: false,
             history: [],
             serverHistory: [],
-            devices: {},
             propagateKeyPress: false,
             showRedialScreen: false,
             resumeCall: false,
@@ -179,7 +178,6 @@ class Blink extends React.Component {
             'conferenceInvite',
             'notificationCenter',
             'escalateToConference',
-            'setDevice',
             'login',
             'logout',
             'ready',
@@ -296,13 +294,6 @@ class Blink extends React.Component {
         history.load().then((entries) => {
             if (entries) {
                 this.setState({ history: entries });
-            }
-        });
-
-        // Load camera/mic preferences
-        storage.get('devices').then((devices) => {
-            if (devices) {
-                this.setState({ devices: devices });
             }
         });
 
@@ -969,24 +960,6 @@ class Blink extends React.Component {
         }
     }
 
-    setDevice(device) {
-        const oldDevices = Object.assign({}, this.state.devices);
-
-        if (device.kind === 'videoinput') {
-            oldDevices['camera'] = device;
-        } else if (device.kind === 'audioinput') {
-            oldDevices['mic'] = device;
-        }
-
-        this.setState({ devices: oldDevices });
-        storage.set('devices', oldDevices);
-        const path = this.router.current.getPath();
-        if (path === '/preview') {
-            sylkrtc.utils.closeMediaStream(this.state.localMedia);
-            this.getLocalMedia();
-        }
-    }
-
     getLocalScreen(source, sourceInfo) {
         // Everything below is against this call, not this.state.currentCall: the
         // media request can resolve after the user hung up and started another
@@ -1121,24 +1094,29 @@ class Blink extends React.Component {
 
         navigator.mediaDevices.enumerateDevices()
             .then((devices) => {
-                devices.forEach((device) => {
-                    if ('video' in constraints && 'camera' in this.state.devices) {
-                        if (constraints.video !== false && (device.deviceId === this.state.devices.camera.deviceId || device.label === this.state.devices.camera.label)) {
-                            constraints.video.deviceId = {
-                                exact: device.deviceId
-                            };
-                        }
+                const preferences = this.preferencesRef.current?.getPreferences() || {};
+
+                if ('video' in constraints && constraints.video !== false
+                    && preferences.videoInputDeviceId && preferences.videoInputDeviceId !== 'default') {
+                    const match = devices.find((device) => device.kind === 'videoinput' && device.deviceId === preferences.videoInputDeviceId);
+                    if (match) {
+                        constraints.video.deviceId = {
+                            exact: match.deviceId
+                        };
                     }
-                    if ('mic' in this.state.devices) {
-                        if (device.deviceId === this.state.devices.mic.deviceId || device.label === this.state.devices.mic.Label) {
-                            constraints.audio = {
-                                deviceId: {
-                                    exact: device.deviceId
-                                }
-                            };
-                        }
+                }
+
+                if (constraints.audio !== false
+                    && preferences.audioInputDeviceId && preferences.audioInputDeviceId !== 'default') {
+                    const match = devices.find((device) => device.kind === 'audioinput' && device.deviceId === preferences.audioInputDeviceId);
+                    if (match) {
+                        constraints.audio = {
+                            deviceId: {
+                                exact: match.deviceId
+                            }
+                        };
                     }
-                });
+                }
             })
             .catch((error) => {
                 DEBUG('Device enumeration failed: %o', error);
@@ -2790,7 +2768,6 @@ class Blink extends React.Component {
                     hangupCall={this.hangupCall}
                     shareScreen={this.switchScreensharing}
                     generatedVideoTrack={this.state.generatedVideoTrack}
-                    setDevice={this.setDevice}
                     toggleChatInCall={this.toggleChatInCall}
                     inlineChat={this.chatWrapper(true)}
                     unreadMessages={{ total: this.state.unreadMessages, call: this.state.unreadCallMessages }}
@@ -2829,7 +2806,6 @@ class Blink extends React.Component {
                 shareScreen={this.switchScreensharing}
                 generatedVideoTrack={this.state.generatedVideoTrack}
                 getLocalMedia={this.getLocalMedia}
-                setDevice={this.setDevice}
                 remoteAudio={this.remoteAudio}
             />
         );
@@ -2892,7 +2868,6 @@ class Blink extends React.Component {
                     toggleShortcuts={this.toggleShortcutsModal}
                     roomMedia={this.state.roomMedia}
                     lowBandwidth={this.state.lowBandwidth}
-                    setDevice={this.setDevice}
                     toggleChatInCall={this.toggleChatInConference}
                     unreadMessages={{ total: this.state.unreadMessages }}
                     audioManager={this.audioManager.current}
@@ -2940,7 +2915,6 @@ class Blink extends React.Component {
                 toggleShortcuts={this.toggleShortcutsModal}
                 lowBandwidth={this.state.lowBandwidth}
                 getLocalMedia={this.getLocalMediaGuestWrapper}
-                setDevice={this.setDevice}
                 audioManager={this.audioManager.current}
                 saveState={this.saveConferenceState}
                 getSavedState={this.getConferenceState}

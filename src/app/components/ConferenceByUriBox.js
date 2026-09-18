@@ -197,7 +197,6 @@ class ConferenceByUriBox extends React.Component {
                     propagateKeyPress={this.props.propagateKeyPress}
                     toggleShortcuts={this.props.toggleShortcuts}
                     lowBandwidth={this.state.lowBandwidth}
-                    setDevice={this.props.setDevice}
                     audioManager = {this.props.audioManager}
                     saveState = {this.props.saveState}
                     getSavedState = {this.props.getSavedState}
@@ -340,7 +339,6 @@ ConferenceByUriBox.propTypes = {
     notificationCenter: PropTypes.func.isRequired,
     handler: PropTypes.func.isRequired,
     hangupCall: PropTypes.func.isRequired,
-    setDevice: PropTypes.func.isRequired,
     shareScreen: PropTypes.func.isRequired,
     propagateKeyPress: PropTypes.func.isRequired,
     toggleShortcuts: PropTypes.func.isRequired,

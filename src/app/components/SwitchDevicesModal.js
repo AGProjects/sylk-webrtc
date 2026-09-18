@@ -9,6 +9,7 @@ const { Dialog, DialogTitle, DialogContent, DialogActions }  = require('@materia
 const { FormControl,InputLabel, Select, MenuItem, Grid, Fade, CircularProgress} = require('@material-ui/core');
 const VolumeBar = require('./VolumeBar')
 const sylkrtc               = require('sylkrtc');
+const { usePreferences } = require('../PreferencesProvider');
 
 const { Button, InputBase } = require('../MaterialUIAsBootstrap');
 
@@ -73,6 +74,7 @@ const styleSheet = makeStyles((theme) => ({
 
 const SwitchDevicesModal = (props) => {
     const classes = styleSheet();
+    const { preferences, updatePreferences } = usePreferences();
     const [devices, setDevices] = useState([]);
     const [stream, setStream] = useState(null);
     const [audioStream, setAudioStream] = useState(props.call.getLocalStreams()[0]);
@@ -143,27 +145,8 @@ const SwitchDevicesModal = (props) => {
 
     const getDevices = () => {
         DEBUG('Getting available devices');
-        const isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
-        navigator.userAgent &&
-        navigator.userAgent.indexOf('CriOS') == -1 &&
-        navigator.userAgent.indexOf('FxiOS') == -1;
 
-        new Promise((resolve, reject) => {
-            if (isSafari) {
-                return navigator.mediaDevices.getUserMedia(constraints)
-                    .then((stream) => {
-                        sylkrtc.utils.closeMediaStream(stream);
-                        resolve();
-                    }).catch((error) => {
-                        DEBUG('Intial access failed: %o', error);
-                        resolve();
-                    });
-            }
-            resolve();
-        })
-            .then(() => {
-                return navigator.mediaDevices.enumerateDevices();
-            })
+        navigator.mediaDevices.enumerateDevices()
             .then((devices) => {
                 DEBUG('We got the devices: %o', devices);
                 setDevices(devices);
@@ -269,7 +252,7 @@ const SwitchDevicesModal = (props) => {
 
     const getVideoInputDevices = () => {
         let videodevices = devices.filter(
-            (device) => device.kind === 'videoinput').map(
+            (device) => device.kind === 'videoinput' && isRealDevice(device)).map(
                 device => {
                     return (<MenuItem value={device.deviceId} key={device.deviceId}>{device.label}</MenuItem>)
                 });
@@ -278,7 +261,7 @@ const SwitchDevicesModal = (props) => {
 
     const getAudioInputDevices = () => {
         let audioDevices = devices.filter(
-            (device) => device.kind === 'audioinput').map(
+            (device) => device.kind === 'audioinput' && isRealDevice(device)).map(
                 device => {
                     return (<MenuItem value={device.deviceId} key={device.deviceId}>{device.label}</MenuItem>)
                 });
@@ -305,6 +288,8 @@ const SwitchDevicesModal = (props) => {
     const selectOutput = (device) => {
         setAudioOutput(device.target.value)
     }
+
+    const isRealDevice = (d) => d.deviceId !== 'default' && d.deviceId !== 'communications';
 
     const isCurrentVideoDevice = () => {
         let currentVideo = currentStream.getVideoTracks()[0].label;
@@ -334,7 +319,7 @@ const SwitchDevicesModal = (props) => {
             );
             let device = devices.find(device => device.deviceId === videoInput);
             if (device) {
-                props.setDevice(device);
+                updatePreferences({ videoInputDeviceId: device.deviceId || 'default' });
             }
         }
         if (audioInput !== '' && !isCurrentAudioDevice()) {
@@ -346,7 +331,7 @@ const SwitchDevicesModal = (props) => {
             )
             let device = devices.find(device => device.deviceId === audioInput);
             if (device) {
-                props.setDevice(device);
+                updatePreferences({ audioInputDeviceId: device.deviceId || 'default' });
             }
             sylkrtc.utils.closeMediaStream(audioStream);
         }
@@ -469,7 +454,6 @@ SwitchDevicesModal.propTypes = {
     show: PropTypes.bool.isRequired,
     close: PropTypes.func.isRequired,
     call: PropTypes.object.isRequired,
-    setDevice: PropTypes.func.isRequired,
     showOutput: PropTypes.bool,
     disableCameraSelection: PropTypes.bool
 };

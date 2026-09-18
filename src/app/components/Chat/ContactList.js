@@ -10,7 +10,7 @@ const { default: clsx } = require('clsx');
 const debug = require('debug');
 const PropTypes = require('prop-types');
 const xss = require('xss');
-const { DateTime } = require('luxon');
+const { DateTime, Duration } = require('luxon');
 const { makeStyles } = require('@material-ui/core/styles');
 const {
     Avatar,
@@ -209,7 +209,6 @@ const ContactList = (props) => {
 
         for (const [uri, msgs] of Object.entries(props.messages)) {
             if (!msgs?.length) continue;
-
             let orderMsg = null;
             let labelMsg = null;
             for (let i = 1; i <= msgs.length; i++) {
@@ -335,6 +334,17 @@ const ContactList = (props) => {
                     icon={<LockIcon />}
                     label="Public key"
                 />
+            );
+        } else if (message.contentType == ('application/blink-call-detail-record')) {
+            let cdr = message.json;
+            const isOutgoing = cdr.direction === 'outgoing';
+            const color = isOutgoing ? '#007bff' : '#28a745'; // Bootstrap primary / success
+            const isVideo = cdr.media?.includes('video') ?? false;
+            const iconClass = isVideo ? 'fa fa-video-camera' : `fa fa-phone${isOutgoing ? ' fa-flip-horizontal' : ''}`;
+            const callType = isVideo ? 'video call' : 'call';
+            const duration = Duration.fromObject({ seconds: cdr.duration }).toFormat('hh:mm:ss');
+            return (
+                <span><i className={iconClass} style={{color}}/> {isOutgoing ? 'Outgoing' : 'Incoming'} {callType} ({duration})</span>
             );
         } else if (message.contentType == ('application/sylk-file-transfer')) {
             let file = message.json;

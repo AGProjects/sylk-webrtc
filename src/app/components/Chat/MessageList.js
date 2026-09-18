@@ -20,6 +20,7 @@ const FileTransferMessage = require('./FileTransferMessage');
 const ImagePreviewModal = require('./ImagePreviewModal')
 const Message = require('./Message');
 const LocationMessage = require('./LocationMessage').default;
+const CallMessage = require('./CallMessage').default;
 
 const { useHasChanged, usePrevious } = require('../../hooks');
 const fileTransferUtils = require('../../fileTransferUtils');
@@ -149,6 +150,11 @@ const MessageList = ({
             let continues = false;
             if (prevMessage !== null && prevMessage.sender.uri === message.sender.uri) {
                 continues = true;
+                const prevDirection = prevMessage.json?.direction;
+                const currDirection = message.json?.direction;
+                if (prevDirection && currDirection && prevDirection !== currDirection) {
+                    continues = false;
+                }
             }
             if (prevMessage === null || formatTime(prevMessage) !== formatTime(message)) {
                 timestamp = (<div style={{ padding: '5px 15px 0 15px' }}><DividerWithText>{formatTime(message)}</DividerWithText></div>);
@@ -163,7 +169,8 @@ const MessageList = ({
             const messageComponents = {
                 default: Message,
                 fileTransfer: FileTransferMessage,
-                location: LocationMessage
+                location: LocationMessage,
+                cdr: CallMessage
             };
             let MessageComponent = messageComponents['default'];
             let extraProps = {}
@@ -181,6 +188,9 @@ const MessageList = ({
                     selfIdentity: { ...account.displayName, uri: account.id },
                     peerIdentity: selectedContact?.identity
                 }
+            }
+            if (message.contentType == ('application/blink-call-detail-record')) {
+                MessageComponent = messageComponents['cdr']
             }
 
             return (

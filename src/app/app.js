@@ -2030,6 +2030,7 @@ class Blink extends React.Component {
                     && message.dispositionState !== 'displayed'
                     && message.dispositionNotification.indexOf('display') !== -1
                     && message.contentType !== 'application/sylk-message-metadata'
+                    && message.contentType !== 'application/blink-call-detail-record'
                     && !sylkLocationSharing.isLocationSharing(message.contentType)
                     && !message.content.startsWith('?OTRv')
                 ) {
@@ -2058,6 +2059,7 @@ class Blink extends React.Component {
                         && message.dispositionNotification.indexOf('display') !== -1
                         && !message.content.startsWith('?OTRv')
                         && message.contentType !== 'application/sylk-message-metadata'
+                        && message.contentType !== 'application/blink-call-detail-record'
                         && !sylkLocationSharing.isLocationSharing(message.contentType)
                         && message.sender.uri === this.state.currentCall.remoteIdentity.uri
                     ) {

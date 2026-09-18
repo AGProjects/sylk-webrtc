@@ -524,7 +524,8 @@ function loadLastMessages() {
 function _fixFileMessages(messages) {
     return messages.map(message => {
         let fixedMessage = JSON.parse(message, _parseDates);
-        if (fixedMessage.contentType == 'application/sylk-file-transfer') {
+        if (fixedMessage.contentType == 'application/sylk-file-transfer'
+        || fixedMessage.contentType == 'application/blink-call-detail-record') {
             let json = {};
             let error = false;
             try {

@@ -76,19 +76,24 @@ const styleSheet = makeStyles((theme) => ({
         padding: theme.spacing(6)
     },
     error: { marginBottom: theme.spacing(1) },
-    previewOuter: {
-        width: '50%',
-        margin: '0 auto',
-        marginBottom: theme.spacing(1)
+    cameraRow: {
+        display: 'flex',
+        gap: theme.spacing(2),
+        alignItems: 'flex-start',
+        marginBottom: theme.spacing(1),
+        marginTop: theme.spacing(1)
     },
-    previewWrapper: {
+    cameraSelect: {
+        flex: 1
+    },
+    cameraPreview: {
         position: 'relative',
-        width: '100%',
-        paddingTop: '56.25%',
+        width: 160,
+        height: 90,
+        flexShrink: 0,
         backgroundColor: '#000',
         borderRadius: 4,
-        overflow: 'hidden',
-        marginBottom: theme.spacing(2)
+        overflow: 'hidden'
     },
     previewVideo: {
         position: 'absolute',
@@ -344,8 +349,8 @@ const PreferencesModal = ({ show, close }: PreferencesModalProps) => {
                             */}
 
                             {videoInputs.length !== 0 && (
-                                <>
-                                    <FormControl className={classes.field} fullWidth>
+                                <div className={classes.cameraRow}>
+                                    <FormControl className={classes.cameraSelect}>
                                         <InputLabel id="camera-label">Camera</InputLabel>
 
                                         <Select
@@ -365,8 +370,7 @@ const PreferencesModal = ({ show, close }: PreferencesModalProps) => {
                                         </Select>
                                     </FormControl>
 
-                                    <div className={classes.previewOuter}>
-                                        <div className={classes.previewWrapper}>
+                                    <div className={classes.cameraPreview}>
                                             <video ref={videoRef} className={classes.previewVideo} autoPlay muted playsInline />
 
                                             {(previewLoading || previewError) && (
@@ -382,7 +386,6 @@ const PreferencesModal = ({ show, close }: PreferencesModalProps) => {
                                             )}
                                         </div>
                                     </div>
-                                </>
                             )}
                         </div>
                         <Divider />

@@ -3685,10 +3685,10 @@ cross-spawn@^7.0.1, cross-spawn@^7.0.6:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-crypto-js@^3.1.6:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-3.3.0.tgz#846dd1cce2f68aacfa156c8578f926a609b7976b"
-  integrity sha512-DIT51nX0dCfKltpRiXV+/TVZq+Qq2NgF4644+K7Ttnla7zEzqc+kjJyiB96BHNyUTBxyjzRcZYpUdZa+QAqi6Q==
+crypto-js@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.2.0.tgz#4d931639ecdfd12ff80e8186dba6af2c2e856631"
+  integrity sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==
 
 css-select@^4.1.3:
   version "4.3.0"
@@ -3984,10 +3984,10 @@ detect-node@^2.0.4:
   integrity sha512-T0NIuQpnTvFDATNuHN5roPwSBG83rFsuO+MXXH9/3N1eFbn4wcPjttvjMLEPWJ0RGUYgQE7cGgS3tNxbqCGM7g==
 
 digest-auth-request@tijmenNL/digest-auth-request:
-  version "0.8.0"
-  resolved "https://codeload.github.com/tijmenNL/digest-auth-request/tar.gz/e9d69219088d440c57af69f7ef1fffd5ff7d3527"
+  version "0.8.1"
+  resolved "https://codeload.github.com/tijmenNL/digest-auth-request/tar.gz/e1d803577a70317f0d77680dacb0bdf8569e9ebe"
   dependencies:
-    crypto-js "^3.1.6"
+    crypto-js "^4.2.0"
 
 dir-compare@^4.2.0:
   version "4.2.0"

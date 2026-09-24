@@ -239,7 +239,6 @@ const Chat = (props) => {
         if (props.account === null && isElectron) {
             DEBUG('Loading messages with electron and no account');
             const newMessages = cloneDeep(props.oldMessages);
-            _preserveLiveLocations(newMessages);
 
             for (let contact of Object.keys(newMessages)) {
                 newMessages[contact].sort((a, b) => a.timestamp - b.timestamp);
@@ -881,7 +880,6 @@ const Chat = (props) => {
             messageId: requestId,
             expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
         };
-        const pair = sendableLocationEnvelope(wire);
         try {
             props.account.sendMessage(
                 uri, JSON.stringify(wire), 'application/sylk-location-sharing',

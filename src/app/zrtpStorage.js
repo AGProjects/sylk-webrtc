@@ -44,7 +44,7 @@ function getAll() {
     if (store === null) return Promise.resolve({});
     const result = {};
     return Queue.enqueue(() => store.keys().then(uris => {
-        return Promise.all(uris.map(uri =>
+        return Promise.all((uris ?? []).map(uri =>
             store.getItem(uri).then(value => {
                 if (value) result[uri] = value;
             })

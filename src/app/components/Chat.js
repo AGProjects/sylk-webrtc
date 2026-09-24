@@ -160,6 +160,7 @@ const Chat = (props) => {
     const anchorEl = useRef(null);
     const input = useRef();
     const saveContactRef = useRef(null);
+    const timerRef = useRef(null);
 
     const { notificationCenter } = props;
 
@@ -178,7 +179,6 @@ const Chat = (props) => {
 
     const componentJustMounted = useRef(true);
 
-    let timer = null
     useEffect(() => {
         const unsubscribe = onError((err) => {
             if (err.action === 'delete' && !showInfoPanel) {
@@ -575,6 +575,10 @@ const Chat = (props) => {
         return () => {
             DEBUG('Running leave hook');
             setShow(false);
+            if (timerRef.current !== null) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
             if (props.account !== null) {
                 props.account.removeListener('incomingMessage', incomingMessage);
                 props.account.removeListener('messageStateChanged', messageStateChanged);
@@ -780,10 +784,10 @@ const Chat = (props) => {
             timestamp,
             state
         );
-        if (timer !== null) {
-            clearTimeout(timer);
+        if (timerRef.current !== null) {
+            clearTimeout(timerRef.current);
         }
-        timer = setTimeout(() => {
+        timerRef.current = setTimeout(() => {
             let sendMark = true;
             for (let message of messages[uri]) {
                 if (message.state === 'received'

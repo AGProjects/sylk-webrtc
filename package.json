@@ -1,6 +1,6 @@
 {
   "name": "Blink",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "license": "AGPL-3.0-or-later",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead, electron 13.6.9",

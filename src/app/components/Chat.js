@@ -145,6 +145,7 @@ const Chat = (props) => {
     const [upload, setUpload] = useState(null);
     const [selectedContact, _setSelectedContact] = useState(null);
     const [deleteContact, setDeleteContact] = useState(null);
+    const [addressbookLoaded, setAddressbookLoaded] = useState(false);
 
     const [selectedAudioMessage, setSelectedAudioMessage] = useState(null);
     const [showVoiceMessageRecordModal, setVoiceMessageRecordModal] = useState(false);
@@ -159,7 +160,6 @@ const Chat = (props) => {
     const anchorEl = useRef(null);
     const input = useRef();
     const saveContactRef = useRef(null);
-    const addressbookLoadedOnce = useRef(false);
 
     const { notificationCenter } = props;
 
@@ -179,26 +179,6 @@ const Chat = (props) => {
     const componentJustMounted = useRef(true);
 
     let timer = null
-
-    useEffect(() => {
-        if (!props.focusOn || props.focusOn === '') return;
-        if (!addressbookLoadedOnce.current) return;
-
-        const contact = lookup(props.focusOn);
-        if (selectedContactRef.current !== contact) {
-            DEBUG('Setting selectedContact from lookup: %s -> %o', props.focusOn, contact);
-            setSelectedContact(contact);
-        } else {
-            DEBUG('focusOn contact unchanged, skipping update: %s', props.focusOn);
-        }
-        const inAddressbook = addressbook.contacts.get(contact.defaultUri.uri)?.length > 0;
-        if (!inAddressbook) {
-            setNewContacts(prev =>
-                prev.some(c => c.id === contact.id) ? prev : [{ ...contact, _isNew: true }, ...prev]
-            );
-        }
-    }, [props.focusOn, addressbook.contacts, lookup]);
-
     useEffect(() => {
         const unsubscribe = onError((err) => {
             if (err.action === 'delete' && !showInfoPanel) {
@@ -210,25 +190,48 @@ const Chat = (props) => {
     }, [showInfoPanel, onError, notificationCenter]);
 
     useEffect(() => {
-        addressbookLoadedOnce.current = true;
-        setNewContacts(prev => prev.filter(c => {
-            const uri = c.defaultUri?.uri;
-            return !(uri && addressbook.contacts.get(uri)?.length > 0);
-        }));
+        if (!addressbookLoaded) setAddressbookLoaded(true);
+        setNewContacts(prev => {
+            const pruned = prev.filter(c => {
+                const uri = c.defaultUri?.uri;
+                return !(uri && addressbook.contacts.get(uri)?.length > 0);
+            });
+            if (pruned.length !== prev.length) {
+                DEBUG('Pruned %d stale draft contact(s)', prev.length - pruned.length);
+            }
+            return pruned;
+        });
 
-        if (!selectedContactRef.current) return;
-        const updated = [...addressbook.contacts.values()]
-        .flat()
-        .find(c => c.id === selectedContactRef.current.id);
+        if (selectedContactRef.current) {
+            const currentId = selectedContactRef.current.id;
+            const currentUri = selectedContactRef.current.defaultUri?.uri;
 
-        DEBUG('addressbook effect, updated: %o', updated);
-        if (updated) {
-            if (!isEqual(updated, selectedContactRef.current)) {
+            const updated = [...addressbook.contacts.values()]
+            .flat()
+            .find(c => c.id === currentId || (currentUri && c.defaultUri?.uri === currentUri));
+
+            if (updated && !isEqual(updated, selectedContactRef.current)) {
+                DEBUG('selectedContact updated: %o', updated);
                 _setSelectedContact(updated);
                 selectedContactRef.current = updated;
             }
         }
-    }, [addressbook.contacts]);
+
+        if (!props.focusOn || props.focusOn === '') return;
+        if (!addressbookLoaded) return;
+
+        const contact = lookup(props.focusOn);
+        if (selectedContactRef.current !== contact) {
+            DEBUG('Setting selectedContact from lookup: %s -> %o', props.focusOn, contact);
+            setSelectedContact(contact);
+        }
+        const inAddressbook = addressbook.contacts.get(contact.defaultUri.uri)?.length > 0;
+        if (!inAddressbook) {
+            setNewContacts(prev =>
+                prev.some(c => c.id === contact.id) ? prev : [{ ...contact, _isNew: true }, ...prev]
+            );
+        }
+    }, [addressbook.contacts, props.focusOn, lookup, addressbookLoaded]);
 
     const isElectron = navigator.userAgent.includes('Electron');
 
@@ -725,7 +728,7 @@ const Chat = (props) => {
 
     const startChat = () => {
         if (input.current.value !== '') {
-            if (!addressbookLoadedOnce.current) {
+            if (!addressbookLoaded) {
                 DEBUG('startChat: addressbook not loaded yet, ignoring: %s', input.current.value);
                 return;
             }

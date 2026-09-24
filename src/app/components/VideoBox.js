@@ -317,18 +317,18 @@ class VideoBox extends React.Component {
         }
 
         let videoRTT = (videoRemoteExists && videoRemoteData.inbound[0].roundTripTime) || 0
-        const videoJitter = (videoData && videoData.inbound[0].jitter) || 0
-        const videoPacketRateOutbound = (videoData && videoData.outbound[0].packetRate) || 0;
-        const videoPacketRateInbound = (videoData && videoData.inbound[0].packetRate) || 0;
-        const videoPacketsLostOutbound = videoRemoteExists && videoRemoteData.inbound[0].packetLossRate || 0;
-        const videoPacketsLostInbound = videoData.inbound[0].packetLossRate || 0;
+        const videoJitter = videoData?.inbound[0]?.jitter || 0
+        const videoPacketRateOutbound = videoData?.outbound[0]?.packetRate || 0;
+        const videoPacketRateInbound = videoData?.inbound[0]?.packetRate || 0;
+        const videoPacketsLostOutbound = (videoRemoteExists && videoRemoteData.inbound[0].packetLossRate) || 0;
+        const videoPacketsLostInbound = videoData?.inbound[0]?.packetLossRate || 0;
 
-        const audioJitter = audioData.inbound[0].jitter || 0;
-        const audioRTT = audioRemoteExists && audioRemoteData.inbound[0].roundTripTime || 0;
-        const audioPacketsLostOutbound = audioRemoteExists && audioRemoteData.inbound[0].packetLossRate || 0;
-        const audioPacketsLostInbound = audioData.inbound[0].packetLossRate || 0;
-        const audioPacketRateOutbound = (audioData && audioData.outbound[0].packetRate) || 0;
-        const audioPacketRateInbound = (audioData && audioData.inbound[0].packetRate) || 0;
+        const audioJitter = audioData?.inbound[0]?.jitter || 0;
+        const audioRTT = (audioRemoteExists && audioRemoteData.inbound[0].roundTripTime) || 0;
+        const audioPacketsLostOutbound = (audioRemoteExists && audioRemoteData.inbound[0].packetLossRate) || 0;
+        const audioPacketsLostInbound = audioData?.inbound[0]?.packetLossRate || 0;
+        const audioPacketRateOutbound = audioData?.outbound[0]?.packetRate || 0;
+        const audioPacketRateInbound = audioData?.inbound[0]?.packetRate || 0;
 
         if (videoRTT === 0 && audioRTT !== 0) {
             videoRTT = audioRTT;
@@ -337,8 +337,8 @@ class VideoBox extends React.Component {
         const addData = {
             audio: {
                 timestamp: audioData.timestamp,
-                incomingBitrate: audioData.inbound[0].bitrate || 0,
-                outgoingBitrate: audioData.outbound[0].bitrate || 0,
+                incomingBitrate: audioData?.inbound[0]?.bitrate || 0,
+                outgoingBitrate: audioData?.outbound[0]?.bitrate || 0,
                 latency: audioRTT,
                 jitter: audioJitter,
                 packetsLostOutbound: audioPacketsLostOutbound,
@@ -348,8 +348,8 @@ class VideoBox extends React.Component {
             },
             video: {
                 timestamp: videoData.timestamp,
-                incomingBitrate: videoData.inbound[0].bitrate || 0,
-                outgoingBitrate: videoData.outbound[0].bitrate || 0,
+                incomingBitrate: videoData?.inbound[0]?.bitrate || 0,
+                outgoingBitrate: videoData?.outbound[0]?.bitrate || 0,
                 latency: videoRTT,
                 jitter: videoJitter,
                 packetsLostOutbound: videoPacketsLostOutbound,

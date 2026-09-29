@@ -474,7 +474,7 @@ const Chat = (props) => {
             const _code = data && data.code;
             DEBUG('Message state changed: id=%s state=%s%s', messageId, state,
                 (_reason || _code) ? ` reason=${_reason ?? '-'} code=${_code ?? '-'}` : '');
-            let oldMessages = Object.assign({}, messagesRef.current);
+            const oldMessages = Object.assign({}, messagesRef.current);
             setMessages(oldMessages);
         };
 
@@ -501,7 +501,7 @@ const Chat = (props) => {
         };
 
         const removeMessage = (message) => {
-            const oldMessages = cloneDeep(messagesRef.current);
+            const oldMessages = Object.assign({}, messagesRef.current);
             let key = message.receiver;
             if (message.state === 'received') {
                 key = message.sender.uri;

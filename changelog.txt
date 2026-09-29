@@ -1,3 +1,77 @@
+Version 4.1.0 Tue Sep 29 07:09:37
+
+  * Added E2E zRTP encryption for audio and video calls
+  * Added location sharing
+  * Added preferences panel
+  * Added media file caching for uploads
+  * Added support for blink-call-detail-record messages
+  * Added capabilities and screensharing request support
+  * Added resumable downloads
+  * Added video/audio detection to video box
+  * Added video detection to chat call
+  * Fixed crash updating contact name from incoming message
+  * Improved draft contacts/possible duplicates
+  * Cleaned up videobox and reordered buttons
+  * Improved screensharing
+  * Fixed audio message sending and preview playback
+  * Updated speaking animation
+  * Fixed switching between chat/call for calls with video added
+  * Allow sending non-encrypted messages
+  * Implement escalate audio to video call
+
+Version 4.0.0 Jul 9 2026
+
+  * Added syncronized contacts management between multiple devices
+  * Skip audio recordings in Media tab in info panel
+  * Lower CPU usage in message list rendering
+  * Fixed retry url
+  * Start audio to conference on audio call buttons
+  * Hide chat in conference cards
+  * Added detection of video bitrate on conference participants
+  * Added switch option to 'chat layout' in conferences
+  * Fixed conference invites
+  * Drop incoming calls from conference bridge
+  * Fixed rendering of voice messages
+  * Added videoplayer component
+  * Fixed displaying metadata messages in chat
+  * Remove contact messages from retranmissions on conversation remove
+  * Determine tabs in info panel from all stored messges
+  * Added video file cache and render videos in media and chat
+  * Improved scrolling in Infopanel and prevent updating unmounted component
+  * Fixed check for metadata messages in unread messages compute
+  * Bug fixes for new chat/contact and linting fixes
+  * Fixed selection and chat in calls
+  * Only remove conversations for uri if uri is not in any other contact
+  * Prevent removeConversation on deleteContact from server
+  * Fixed incoming call window in electron
+  * Prevent info screen from hiding on contact edit
+  * Fixed file upload by drop in audio/video calls and resolved 'hanging' incoming calls
+  * Enable sending video in conferences for Safari
+  * Use a random number for conferences
+  * Handle SipBridge and Sip participants in conferences
+  * Show history cards for conferences
+  * Fixed mute icon and audio participant layout in carousel
+  * Don't add draft contact if already in addressbook
+  * Cancel message editing on escape
+  * Updated contact interface 
+  * Added edit file transfer caption handling
+  * Use upload modal for file uploads and improve copy pasting files in editor
+  * Fixed adding new contact from ready screen
+  * Added notification for contact delete failure
+  * Allow edit of filetransfer messages
+  * Added reply message component
+  * Added file upload modal component
+  * Added addressbook storage
+  * Use config context to support multiple domains from electron app
+  * Added support to edit file captions in message editor
+  * Added function to send metadata for filetransfers
+  * Switched download to handle download prop so we get feedback
+  * Added file download progress for encrypted files
+  * Fixed echo in a conference with active speakers
+  * Fixed traceback conference in Safari in there is no video
+  * Fixed sending PGP key on first message
+
+
 Version 3.8.0 Fri Dec 19 11:37:47 CET 2025
 
   * Fixed attaching audio in call

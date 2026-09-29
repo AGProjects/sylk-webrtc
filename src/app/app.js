@@ -2139,20 +2139,16 @@ class Blink extends React.Component {
 
             if (fetchedMessage.contentType === 'application/sylk-conversation-read') {
                 const contact = fetchedMessage.content
-                promises.push(messageStorage.loadLastMessages().then(allMessages => {
-                    if (allMessages) {
-                        const messages = allMessages[contact];
-                        if (!messages) {
-                            return;
-                        }
-
-                        for (let message of messages) {
-                            if (message.state == 'received'
-                                && message.dispositionState !== 'displayed'
-                                && message.dispositionNotification.indexOf('display') !== -1
-                            ) {
-                                this.sendingDispositionNotification(message.id, 'displayed')
-                            }
+                promises.push(messageStorage.getParsed(contact).then(storedMessages => {
+                    if (!storedMessages) {
+                        return;
+                    }
+                    for (let message of storedMessages) {
+                        if (message.state == 'received'
+                            && message.dispositionState !== 'displayed'
+                            && message.dispositionNotification.indexOf('display') !== -1
+                        ) {
+                            this.sendingDispositionNotification(message.id, 'displayed')
                         }
                     }
                 }));

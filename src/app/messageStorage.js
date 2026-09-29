@@ -28,6 +28,7 @@ const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
 const dateFormat1 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3,}[\+|-]\d{2}:\d{2}$/;
 
 const idsInStorage = new Map();
+const idToContact = new Map();
 
 function _parseDates(key, value) {
     if (typeof value === 'string' && dateFormat.test(value)) {
@@ -181,6 +182,7 @@ function close() {
     return;
 }
 
+
 function addMetadata(message) {
     if (message.jsonError || !message.json || !message.json.messageId) return Promise.resolve();
 
@@ -242,6 +244,7 @@ function addMetadata(message) {
     });
 }
 
+
 function add(message) {
     if (store === null) return Promise.resolve([]);
 
@@ -262,16 +265,12 @@ function add(message) {
     return Queue.enqueue(() => get(contact).then((messages) => {
         if (!messages) {
             messages = [];
-        } else {
-            for (let storedMessage of messages) {
-                storedMessage = JSON.parse(storedMessage, _parseDates);
-                if (message.id === storedMessage.id) {
-                    DEBUG('NOT Saving message in storage: %o', message);
-                    return
-                }
-            };
+        } else if (idsInStorage.has(message.id)) {
+            DEBUG('NOT Saving message in storage: %o', message);
+            return;
         }
         idsInStorage.set(message.id, message.state);
+        idToContact.set(message.id, contact);
 
         return metadataStore.getItem(message.id).then(metadata => {
             if (metadata) {
@@ -281,6 +280,7 @@ function add(message) {
             } else {
                 messages.push(JSON.stringify(message));
             }
+            DEBUG('Storing message: %s', message.id);
             set(contact, messages);
         });
     }));
@@ -333,6 +333,7 @@ function _ingestLocationSharing(message) {
     if (!event) return Promise.resolve();
     return addLocationEvent(event, message, contact);
 }
+
 
 function addLocationEvent(event, message, contact) {
     const originId = event.sessionId;
@@ -409,6 +410,7 @@ function addLocationEvent(event, message, contact) {
                 messages.push(JSON.stringify(stub));
             }
             idsInStorage.set(originId, stub.state);
+            idToContact.set(originId, contact);
             return Promise.all([locationStore.setItem(originId, rec), set(contact, messages)]);
         });
     }));
@@ -421,15 +423,16 @@ function update(message) {
         return;
     }
 
+    const inStorage = idsInStorage.get(message.messageId);
+    if (!inStorage || inStorage === message.state) return;
+
+    const contact = idToContact.get(message.messageId);
+    if (!contact) return; // shouldn't happen given idsInStorage/idToContact are always set together
     let messages = [];
     let found = false;
-    Queue.enqueue(() => store.iterate((storedMessages, key) => {
-        let inStorage = idsInStorage.get(message.messageId);
-        if (!inStorage || (inStorage && inStorage === message.state)) {
-            return;
-        }
+    return Queue.enqueue(() => getParsed(contact).then((storedMessages) => {
+        if (!storedMessages) return;
         messages = storedMessages.map((storedMessage) => {
-            storedMessage = JSON.parse(storedMessage, _parseDates);
             if (message.messageId === storedMessage.id && message.state !== storedMessage.state && storedMessage.state !== 'displayed') {
                 if (storedMessage.state === 'delivered' && message.state === 'accepted') {
                     return
@@ -442,13 +445,8 @@ function update(message) {
             return JSON.stringify(storedMessage);
         });
         if (found) {
-            return [key, messages];
-        }
-    }).then((result) => {
-        if (result !== undefined) {
-            const [key, messages] = result;
-            DEBUG('Saving state stored messages for: %s', key);
-            set(key, messages);
+            DEBUG('Saving state stored messages for: %s', contact);
+            set(contact, messages);
             return messages;
         }
     }));
@@ -457,12 +455,13 @@ function update(message) {
 
 function updateDisposition(id, state) {
     if (store === null) return [];
-
-    let messages = [];
+    const contact = idToContact.get(id);
+    if (!contact) return;
+    let messages;
     let found = false;
-    Queue.enqueue(() => store.iterate((storedMessages, key) => {
-        messages = storedMessages.map((storedMessage) => {
-            storedMessage = JSON.parse(storedMessage, _parseDates);
+    return Queue.enqueue(() => getParsed(contact).then((storedMessages) => {
+        if (!storedMessages) return;
+        const messages = storedMessages.map((storedMessage) => {
             if (id === storedMessage.id && state !== storedMessage.dispositionState) {
                 DEBUG('Updating dispositionState for stored message with id: %s', storedMessage.id);
                 storedMessage.dispositionState = state;
@@ -471,12 +470,8 @@ function updateDisposition(id, state) {
             return JSON.stringify(storedMessage);
         });
         if (found) {
-            return [key, messages];
-        }
-    }).then((result) => {
-        if (result !== undefined) {
-            DEBUG('Saving stored messages for: %s', result[0]);
-            set(result[0], result[1]);
+            DEBUG('Saving stored messages for: %s', contact);
+            set(contact, messages);
             return messages;
         }
     }));
@@ -521,6 +516,7 @@ function loadLastMessages() {
     }));
 }
 
+
 function _fixFileMessages(messages) {
     return messages.map(message => {
         let fixedMessage = JSON.parse(message, _parseDates);
@@ -559,6 +555,7 @@ function _fixFileMessages(messages) {
     });
 }
 
+
 // Merge live-location trails (kept in locationStore) back onto their stubs.
 // A live-location bubble with no record in the store is dropped from the view.
 function _mergeLocationTrails(messages) {
@@ -585,6 +582,7 @@ function _mergeLocationTrails(messages) {
         m.contentType !== 'application/sylk-location-sharing' || !drop.has(m.id)
     ));
 }
+
 
 function loadMoreFiles(key) {
     if (store === null) return {};
@@ -639,8 +637,8 @@ function loadMoreFiles(key) {
             return lastMessages
         }
     }));
-
 }
+
 
 function loadMoreMessages(key) {
     if (store === null) return {};
@@ -716,6 +714,7 @@ function hasMore(key) {
     });
 }
 
+
 function hasMoreFiles(key) {
     if (store === null) return false;
 
@@ -733,6 +732,7 @@ function hasMoreFiles(key) {
         }
     });
 }
+
 
 function hasFileTypes(key) {
     if (store === null) return Promise.resolve({ images: false, files: false, voice: false });
@@ -760,13 +760,16 @@ function hasFileTypes(key) {
     });
 }
 
+
 function updateIdMap() {
     return Queue.enqueue(() => new Promise((resolve) => {
         idsInStorage.clear();
+        idToContact.clear();
         store.iterate((storedMessages, key) => {
             for (let storedMessage of storedMessages) {
                 storedMessage = JSON.parse(storedMessage, _parseDates);
                 idsInStorage.set(storedMessage.id, storedMessage.state)
+                idToContact.set(storedMessage.id, key);
             }
         }).then(() => {
             resolve()
@@ -774,21 +777,33 @@ function updateIdMap() {
     }))
 }
 
+
 function revertFiles(key) {
     lastFileIdLoaded.set(key, lastIdLoaded.get(key));
 }
 
+
 function getMetadata(messageId) {
     return metadataStore.getItem(messageId);
 }
+
 
 function getLocationTrail(messageId) {
     if (locationStore === null) return Promise.resolve(null);
     return locationStore.getItem(messageId);
 }
 
+
 function fixMessage(message) {
     return _fixFileMessages([JSON.stringify(message)])[0];
+}
+
+
+function getParsed(key) {
+    return get(key).then(messages => {
+        if (!messages) return null;
+        return messages.map(m => JSON.parse(m, _parseDates));
+    });
 }
 
 
@@ -814,3 +829,4 @@ exports.updateIdMap = updateIdMap;
 exports.getMetadata = getMetadata;
 exports.getLocationTrail = getLocationTrail;
 exports.fixMessage = fixMessage;
+exports.getParsed = getParsed;

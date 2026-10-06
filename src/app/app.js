@@ -548,7 +548,7 @@ class Blink extends React.Component {
 
             storage.get(`zrtpDeviceId-${this.state.accountId}`).then(key => {
                 if (key) {
-                    this.state.account.loadDeviceId(storedDeviceId);
+                    this.state.account.loadDeviceId(key);
                 } else {
                     return Promise.reject();
                 }

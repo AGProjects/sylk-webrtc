@@ -806,6 +806,9 @@ function getParsed(key) {
     });
 }
 
+function has(id) {
+    return idsInStorage.has(id);
+}
 
 exports.initialize = initialize;
 exports.set = set;
@@ -830,3 +833,4 @@ exports.getMetadata = getMetadata;
 exports.getLocationTrail = getLocationTrail;
 exports.fixMessage = fixMessage;
 exports.getParsed = getParsed;
+exports.has = has;

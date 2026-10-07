@@ -1970,7 +1970,7 @@ class Blink extends React.Component {
 
         messageStorage.update({ messageId: id, state });
         let found = false;
-        if (state === 'accepted' && !fromSync) {
+        if (state === 'accepted' && !fromSync  && messageStorage.has(id)) {
             storage.set(`lastMessageId-${this.state.accountId}`, id);
         }
         const oldMessages = cloneDeep(this.state.oldMessages);

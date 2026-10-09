@@ -3,7 +3,7 @@
 const React = require('react');
 const { withStyles, makeStyles, alpha } = require('@material-ui/core/styles');
 const { Button, Tab, Tabs, Tooltip } = require('@material-ui/core');
-const { InputBase } = require('@material-ui/core');
+const { InputBase, TextField } = require('@material-ui/core');
 
 const BootstrapButton = withStyles((theme) => ({
     root: {
@@ -107,6 +107,51 @@ const BootstrapButton = withStyles((theme) => ({
     }
 }))(Button);
 
+const BootstrapTextField = withStyles({
+    root: {
+        '& .MuiOutlinedInput-root': {
+            fontFamily: 'inherit',
+            fontSize: 14,
+            borderRadius: 4,
+            backgroundColor: '#fff',
+            boxShadow: 'inset 0 1px 1px rgba(0, 0, 0, .075)',
+            transition: 'border-color ease-in-out .15s, box-shadow ease-in-out',
+
+            '& fieldset': {
+                borderColor: '#ced4da',
+                boxShadow: 'inset 0 1px 1px rgba(0,0,0,.075)'
+            },
+
+            '&:hover fieldset': {
+                borderColor: '#ced4da'
+            },
+
+            '&.Mui-focused fieldset': {
+                borderColor: '#66afe9',
+                borderWidth: 1,
+                boxShadow:
+                    '0 0 8px rgba(102, 175, 233, .6)'
+            }
+        },
+            '& .MuiInputLabel-outlined': {
+                  color: '#999999',
+                  fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                  fontSize: '14px',
+                  // Dwingt het label om exact in het midden van de 34px hoge inputbox te starten
+                   transform: 'translate(12px, 12px) scale(1)',
+                       },
+            '& .MuiInputLabel-outlined.MuiInputLabel-shrink': {
+                  // Schuift het label netjes omhoog naar de bovenrand
+                   transform: 'translate(14px, -6px) scale(0.75)',
+                       },
+        '& .MuiOutlinedInput-input': {
+               fontSize: '14px',
+            padding: '10px 12px',
+            height: '20px',
+    boxSizing: 'content-box'
+        }
+    }
+})(TextField);
 
 const BootstrapInputBase = withStyles((theme) => ({
     root: {
@@ -186,4 +231,5 @@ exports.Button = BootstrapButton;
 exports.InputBase = BootstrapInputBase;
 exports.Tab = BootstrapTab;
 exports.Tabs = BootstrapTabs;
+exports.TextField = BootstrapTextField;
 exports.Tooltip = BootstrapTooltip;

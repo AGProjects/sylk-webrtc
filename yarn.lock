@@ -3114,6 +3114,12 @@ binary-extensions@^2.0.0:
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-2.2.0.tgz#75f502eeaf9ffde42fc98829645be4ea76bd9e2d"
   integrity sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==
 
+blink-addressbook@AGProjects/blink-addressbook.js:
+  version "0.1.0"
+  resolved "https://codeload.github.com/AGProjects/blink-addressbook.js/tar.gz/134cfff9fbfafab805d860b96c64f22734a85ccd"
+  dependencies:
+    crypto-js "^3.3.0"
+
 bluebird@~3.7.2:
   version "3.7.2"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
@@ -8895,8 +8901,8 @@ svgo@^2.4.0:
     stable "^0.1.8"
 
 sylkrtc@AGProjects/sylkrtc.js:
-  version "1.8.5"
-  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/754d566050cc1758b799d4a171e6e20fd563a523"
+  version "1.8.6"
+  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/8d353b9cf7026c1a8c8d785b92b539d7bf5f748b"
   dependencies:
     blueimp-md5 "^2.19.0"
     bowser "^2.11.0"

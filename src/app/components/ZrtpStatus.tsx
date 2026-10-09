@@ -246,7 +246,7 @@ const ZrtpStatus = ({ call, onModalOpenChange }: ZrtpStatusProps) => {
                                     Close
                                 </Button>
                             }
-                        </div> 
+                        </div>
                     </DialogActions>
                 </Dialog>
             )}
@@ -254,10 +254,11 @@ const ZrtpStatus = ({ call, onModalOpenChange }: ZrtpStatusProps) => {
             {mitm && (
                 <Dialog
                     open
-                    onClose={() => {}}
                     maxWidth="sm"
                     fullWidth={true}
-                    disableBackdropClick
+                    onClose={(_event, reason) => {
+                        if (reason !== 'backdropClick') setOpen(false);
+                    }}
                     disableEscapeKeyDown
                     aria-labelledby="zrtp-mitm-title"
                     aria-describedby="zrtp-mitm-description"

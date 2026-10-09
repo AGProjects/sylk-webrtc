@@ -27,7 +27,8 @@ const configOptions = {
         sipBridge: 'conference.sip2sip.info'
     },
     showGuestCompleteScreen: true,
-    downloadUrl: 'https://ag-projects.com/endpoints'
+    downloadUrl: 'https://ag-projects.com/endpoints',
+    pstn: {rules: {replacePlus: '00'}}
 };
 
 const config = Object.assign({}, configOptions);

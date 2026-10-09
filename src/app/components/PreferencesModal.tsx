@@ -17,8 +17,9 @@ import {
     Typography
 } from '@material-ui/core';
 
-import { Button, InputBase } from '../MaterialUIAsBootstrap';
+import { Button, InputBase, TextField } from '../MaterialUIAsBootstrap';
 import { usePreferences } from '../PreferencesProvider';
+import { cleanReplaceLeadingZero } from '../addressbook';
 
 interface PreferencesModalProps {
     show: boolean;
@@ -425,6 +426,31 @@ const PreferencesModal = ({ show, close }: PreferencesModalProps) => {
                                     Mandatory
                                 </Button>
                             </div>
+                        </div>
+
+                        <Divider />
+                        {/* PHONE NUMBERS */}
+                        <div className={classes.section}>
+                            <DialogContentText component="div" className={classes.fixFont}>
+                                <div className={classes.sectionTitle}>Phone numbers</div>
+                                <div>
+                                    Replace a leading 0 in a phone number (e.g. 0031 reads 06… as 00316…).
+                                    Leave empty to keep national numbers as they are.
+                                </div>
+                            </DialogContentText>
+
+                            <TextField
+                                label="Replace 0 with"
+                                placeholder="0031"
+                                value={preferences.replaceLeadingZero}
+                                variant="outlined"
+                                style={{ height: 25 }}
+                                inputProps={{ inputMode: 'numeric', maxLength: 8 }}
+                                onChange={(e) => updatePreferences(
+                                        {replaceLeadingZero: cleanReplaceLeadingZero(e.target.value)}
+                                    )}
+                                fullWidth
+                            />
                         </div>
                     </>
                 )}

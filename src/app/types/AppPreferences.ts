@@ -21,6 +21,7 @@ export interface AppPreferences {
 
     notificationsEnabled: boolean;
     notificationSound: boolean;
+    replaceLeadingZero: string;
 }
 
 export const defaultPreferences: AppPreferences = {
@@ -40,7 +41,8 @@ export const defaultPreferences: AppPreferences = {
     zrtpMode: 'off',
 
     notificationsEnabled: true,
-    notificationSound: true
+    notificationSound: true,
+    replaceLeadingZero: ''
 };
 
 // Preferences live in the app's normal (global) storage module, namespaced

@@ -15,6 +15,10 @@ import keyStorage from './keyStorage';
 import addressbookStorage from './addressbookStorage';
 import { uniqueId } from './utils';
 
+import { usePreferences } from './PreferencesProvider';
+import { ContactIndex } from  'blink-addressbook';
+import { createAccountRules, cleanReplaceLeadingZero } from './addressbook';
+
 import { AddressbookContextValue, AddressbookState, AddressbookRef, LookupInput } from './types/Addressbook';
 import { Connection } from './types/Connection';
 import { Contact } from './types/Contact';
@@ -43,8 +47,18 @@ interface OperationPayload {
 
 const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>(
     ({ connection, contactCache = new Map(), account, onContactRemoved, onAddressbookReady, children }, ref) => {
+        const { preferences, loading: preferencesLoading } = usePreferences();
+
+        const leadingZero = (account && !preferencesLoading)
+            ? cleanReplaceLeadingZero(preferences.replaceLeadingZero)
+            : '';
+        const rules = useMemo(() => createAccountRules(leadingZero), [leadingZero]);
+        const rulesRef = useRef(rules);
+        rulesRef.current = rules;
+
+
         const [addressbook, setAddressbook] = useState<AddressbookState>({
-            contacts: new Map()
+            contacts: new ContactIndex<Contact>(rules)
         });
         const isFirstRun = useRef(true);
         const operationQueue = useRef<Map<string, OperationPayload>>(new Map());
@@ -119,7 +133,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
 
             let contacts = connection.addressbook.contacts;
 
-            const contactMap = new Map<string, Contact[]>();
+            const contactMap = new ContactIndex<Contact>(rules);
 
             for (let contact of contacts) {
                 const entry: Contact = { ...contact };
@@ -144,9 +158,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                     if (uriObj.type !== 'SIP') {
                         // continue;
                     }
-                    const existing = contactMap.get(uriObj.uri) || [];
-                    existing.push(entry);
-                    contactMap.set(uriObj.uri, existing);
+                    contactMap.add(uriObj.uri, entry);
                 }
             }
             isFirstRun.current = false;
@@ -156,7 +168,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                 await loadAndFlushQueue();
                 onAddressbookReady?.();
             }
-        }, [connection, contactCache, loadAndFlushQueue, onAddressbookReady]);
+        }, [connection, contactCache, loadAndFlushQueue, onAddressbookReady, rules]);
 
         const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -210,6 +222,13 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                 if (debounceTimer.current) clearTimeout(debounceTimer.current); // missing
             };
         }, [connection, addressbookDataLoaded, addressbookDataUpdated, addressbookUpdateFailed, addressbookDataDeleted]);
+
+        const appliedRules = useRef(rules);
+        useEffect(() => {
+            if (appliedRules.current === rules) return;
+            appliedRules.current = rules;
+            addressbookDataUpdated();
+        }, [rules, addressbookDataUpdated]);
 
         const addContact = useCallback((contact: Contact): Promise<void> => {
             DEBUG('Adding contact: %o, Ready: %s', contact, isReady);
@@ -288,19 +307,13 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                 ? { uri: input, name: input }
                 : { uri: input.uri, name: input.displayName };
 
-            const contactsForUri = addressbook.contacts.get(uri) ?? [];
-
-            if (contactsForUri.length === 0) return createContact(uri, name);
-
-            return contactsForUri.length > 1
-                ? contactsForUri.find(c => c.defaultUri?.uri === uri) ?? contactsForUri[0]
-                : contactsForUri[0];
+            return addressbook.contacts.best(uri) ?? createContact(uri, name);
         }, [addressbook]);
 
         const reset = useCallback(() => {
-            setAddressbook({ contacts: new Map() });
+            setAddressbook({ contacts: new ContactIndex<Contact>(rules) });
             isFirstRun.current = true;
-        }, []);
+        }, [rules]);
 
         const contextValue = useMemo<AddressbookContextValue>(() => ({
             addressbook,

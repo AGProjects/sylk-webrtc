@@ -1,9 +1,10 @@
 import { Contact } from './Contact';
+import type { ContactIndex } from 'blink-addressbook';
 
 export type LookupInput = string | { uri: string;[key: string]: any }
 
 export interface AddressbookState {
-    contacts: Map<string, Contact[]>;
+    contacts: ContactIndex<Contact>;
 }
 
 export interface AddressbookActions {

@@ -219,6 +219,7 @@ class Blink extends React.Component {
             'chatWrapper',
             'saveConferenceState',
             'getConferenceState',
+            'onAddressbookReady',
             'updateAddressbook',
             'onConfigReady'
         ].forEach((name) => {
@@ -242,6 +243,9 @@ class Blink extends React.Component {
         this.wasConnected = false;
         this.loggingOut = false;
         this.failureReason = null;
+        this.messagesSynced = false;
+        this.addressbookReady = false;
+        this.addingContacts = new Set();
 
         // Check if we should use hash routing
         if (typeof window.process !== 'undefined') {
@@ -862,6 +866,10 @@ class Blink extends React.Component {
         let oldMessages = {};
         if (this.state.account !== null) {
             DEBUG('We already have an account, removing it');
+            this.messagesSynced = false;
+            this.addressbookReady = false;
+            this.addingContacts.clear();
+
             // Preserve messages from account
             if (accountId === this.state.accountId) {
                 oldMessages = cloneDeep(this.state.oldMessages);
@@ -1759,14 +1767,28 @@ class Blink extends React.Component {
         }
     }
 
+    onAddressbookReady() {
+        this.addressbookReady = true;
+        this.updateAddressbook();
+    }
+
     updateAddressbook() {
+        const book = this.addressbookRef.current;
+        if (!book) return;
+        if (!this.messagesSynced) return;
+        if (!this.addressbookReady) return;
+
         for (const uri of Object.keys(this.state.oldMessages)) {
-            if (!this.addressbookRef.current?.addressbook.contacts.has(uri)) {
-                const contact = this.addressbookRef.current?.lookup(uri);
-                this.addressbookRef.current?.add(contact)
-                    .then(() => DEBUG('Message contact added to addressbook: %O', contact))
-                    .catch((err) => DEBUG('Message contact not added to adddressbook %O', contact, err));
-            }
+            if (book.addressbook.contacts.has(uri)) continue;
+            if (this.addingContacts.has(uri)) continue;
+
+            this.addingContacts.add(uri);
+
+            const contact = book.lookup(uri);
+            book.withReason('conversation-history', () => addressbook.add(contact))
+                .then(() => DEBUG('Message contact added to addressbook: %O', contact))
+                .catch((err) => DEBUG('Message contact not added to adddressbook %O', contact, err))
+                .finally(() => this.addingContacts.delete(uri));
         }
     }
 
@@ -1778,7 +1800,11 @@ class Blink extends React.Component {
                 this.state.account?.syncConversations(id, (error) => {
                     if (error) {
                         this.retransmitMessages();
-                        this.setState({ messagesLoading: false, messagesLoadingProgress: false });
+                        this.messagesSynced = true;
+                        this.setState(
+                            { messagesLoading: false, messagesLoadingProgress: false },
+                            () => this.updateAddressbook()
+                        );
                     }
                 })
             );
@@ -2179,16 +2205,22 @@ class Blink extends React.Component {
                 this.state.account?.syncConversations(lastId, (error) => {
                     if (error) {
                         this.retransmitMessages();
-                        this.setState({ messagesLoading: false, messagesLoadingProgress: false });
+                        this.messagesSynced = true;
+                        this.setState(
+                            { messagesLoading: false, messagesLoadingProgress: false },
+                            () => this.updateAddressbook()
+                        );
                     }
                 })
                 return;
             }
             messageStorage.loadLastMessages().then(messages => {
-                if (messages) {
-                    this.setState({ oldMessages: messages, messagesLoading: false, messagesLoadingProgress: false });
-                    this.calculateUnreadMessages(messages);
-                }
+                this.messagesSynced = true;
+                this.setState(
+                    { oldMessages: messages, messagesLoading: false, messagesLoadingProgress: false },
+                    () => this.updateAddressbook()
+                );
+                this.calculateUnreadMessages(messages);
                 setImmediate(() => this.retransmitMessages());
                 if (this.state.transmitKeys) {
                     setImmediate(() => {
@@ -2209,6 +2241,10 @@ class Blink extends React.Component {
                     });
                 }
             })
+            .catch((error) => {
+                DEBUG('Failed to load last messages: %o', error);
+                this.setState({ messagesLoading: false, messagesLoadingProgress: false });
+            });
         }
         );
     }
@@ -3049,6 +3085,9 @@ class Blink extends React.Component {
                 this.addressbookRef.current?.reset();
                 this.isRetry = false;
                 this.failureReason = null;
+                this.messagesSynced = false;
+                this.addressbookReady = false;
+                this.addingContacts.clear();
                 this.setState(
                     {
                         account: null,

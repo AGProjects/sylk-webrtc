@@ -2595,7 +2595,8 @@ class Blink extends React.Component {
                             contactCache={this.state.contactCache}
                             account={this.state.account} ref={this.addressbookRef}
                             onContactRemoved={this.removeConversation}
-                            onAddressbookReady={this.updateAddressbook}
+                            onAddressbookReady={this.onAddressbookReady}
+                            originAgent={`Blink ${this.shouldUseHashRouting ? 'Desktop' : 'Web'} PACKAGE_VERSION`}
                             originDeviceId={this.state.originDeviceId}
                         >
                             <TransitionGroup>

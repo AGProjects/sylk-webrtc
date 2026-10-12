@@ -17,7 +17,7 @@ import { uniqueId } from './utils';
 
 import { usePreferences } from './PreferencesProvider';
 import { ContactIndex } from  'blink-addressbook';
-import { createAccountRules, cleanReplaceLeadingZero, startAddressbookNotifications } from './addressbook';
+import { createAccountRules, cleanReplaceLeadingZero, startAddressbookNotifications, installContactPayloadFilter } from './addressbook';
 
 import { AddressbookContextValue, AddressbookState, AddressbookRef, LookupInput } from './types/Addressbook';
 import { Connection } from './types/Connection';
@@ -33,6 +33,7 @@ interface AddressBookProviderProps {
     contactCache?: Map<string, string>;
     onContactRemoved?: any;
     onAddressbookReady?: any;
+    originAgent?: string;
     originDeviceId?: string;
     children: ReactNode;
     account: any;
@@ -47,7 +48,7 @@ interface OperationPayload {
 }
 
 const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>(
-    ({ connection, contactCache = new Map(), account, onContactRemoved, onAddressbookReady, originDeviceId = '', children }, ref) => {
+    ({ connection, contactCache = new Map(), account, onContactRemoved, onAddressbookReady, originAgent = '', originDeviceId = '', children }, ref) => {
         const { preferences, loading: preferencesLoading } = usePreferences();
 
         const leadingZero = (account && !preferencesLoading)
@@ -72,6 +73,8 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
         const originDeviceIdRef = useRef(originDeviceId);
         originDeviceIdRef.current = originDeviceId;
         const getDeviceId = useCallback((): string => originDeviceIdRef.current || '', []);
+        const originAgentRef = useRef(originAgent);
+        originAgentRef.current = originAgent;
 
         const subscribeFailed = useCallback((callback: (err: any) => void) => {
             failedSubscribers.current.push(callback);
@@ -205,6 +208,13 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
 //                onContactRemoved?.(data, true);
             }
         }, [onContactRemoved])
+
+        useEffect(() => {
+            if (!connection || !connection.addressbook) return;
+            return installContactPayloadFilter(connection.addressbook, () => rulesRef.current, {
+                stamp: { deviceId: getDeviceId, agent: () => originAgentRef.current || 'Blink Desktop' }
+            });
+        }, [connection, getDeviceId]);
 
         useEffect(() => {
             if (!connection || !connection.addressbook) return;

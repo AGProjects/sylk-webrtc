@@ -17,7 +17,7 @@ import { uniqueId } from './utils';
 
 import { usePreferences } from './PreferencesProvider';
 import { ContactIndex } from  'blink-addressbook';
-import { createAccountRules, cleanReplaceLeadingZero, startAddressbookNotifications, installContactPayloadFilter } from './addressbook';
+import { createAccountRules, cleanReplaceLeadingZero, startAddressbookNotifications, installContactPayloadFilter, withReason } from './addressbook';
 
 import { AddressbookContextValue, AddressbookState, AddressbookRef, LookupInput } from './types/Addressbook';
 import { Connection } from './types/Connection';
@@ -355,7 +355,8 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             add: addContact,
             delete: deleteContact,
             update: updateContact,
-            lookup
+            lookup,
+            withReason
         }), [addressbook, addressbookDataLoaded, addContact, deleteContact, updateContact, reset, lookup]);
         return (
             <AddressbookContext.Provider value={contextValue}>

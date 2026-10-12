@@ -1837,7 +1837,7 @@ class Blink extends React.Component {
             if (this.state.contactCache.has(message.sender.uri)) {
                 contact.name = this.state.contactCache.get(message.sender.uri);
             }
-            this.addressbookRef.current?.add(contact);
+            this.addressbookRef.current?.withReason('message-sender', () => this.addressbookRef.current?.add(contact));
         }
 
         if (message.sender.displayName !== null

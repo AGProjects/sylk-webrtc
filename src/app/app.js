@@ -55,6 +55,7 @@ const config = require('./config');
 const guideMarker = require('./guideMarker');
 const { declareCallCapabilities } = require('./CallCapabilities');
 const storage = require('./storage');
+const { v4: uuidv4 } = require('uuid');
 const messageStorage = require('./messageStorage');
 const locationSharing = require('./locationSharing');
 const addressbookStorage = require('./addressbookStorage');
@@ -89,6 +90,7 @@ class Blink extends React.Component {
             currentCall: null,
             connection: null,
             contactCache: new Map(),
+            originDeviceId: '',
             oldMessages: {},
             inboundCall: null,
             showIncomingModal: false,
@@ -302,6 +304,18 @@ class Blink extends React.Component {
         storage.get('contactCache').then((cache) => {
             if (cache) {
                 this.setState({ contactCache: new Map(cache) })
+            }
+        });
+
+        // One id for this installation, for the addressbook's origin stamps and notifications (it is not the zRTP
+        // device id, which belongs to an account). Made on first use.
+        storage.get('addressbookOriginDeviceId').catch(() => null).then((id) => {
+            if (typeof id === 'string' && id) {
+                this.setState({ originDeviceId: id });
+            } else {
+                const created = uuidv4();
+                this.setState({ originDeviceId: created });
+                Promise.resolve(storage.set('addressbookOriginDeviceId', created)).catch(() => {});
             }
         });
 
@@ -2582,6 +2596,7 @@ class Blink extends React.Component {
                             account={this.state.account} ref={this.addressbookRef}
                             onContactRemoved={this.removeConversation}
                             onAddressbookReady={this.updateAddressbook}
+                            originDeviceId={this.state.originDeviceId}
                         >
                             <TransitionGroup>
                                 {incomingCallModal}

@@ -17,7 +17,7 @@ import { uniqueId } from './utils';
 
 import { usePreferences } from './PreferencesProvider';
 import { ContactIndex } from  'blink-addressbook';
-import { createAccountRules, cleanReplaceLeadingZero } from './addressbook';
+import { createAccountRules, cleanReplaceLeadingZero, startAddressbookNotifications } from './addressbook';
 
 import { AddressbookContextValue, AddressbookState, AddressbookRef, LookupInput } from './types/Addressbook';
 import { Connection } from './types/Connection';
@@ -33,6 +33,7 @@ interface AddressBookProviderProps {
     contactCache?: Map<string, string>;
     onContactRemoved?: any;
     onAddressbookReady?: any;
+    originDeviceId?: string;
     children: ReactNode;
     account: any;
 }
@@ -46,7 +47,7 @@ interface OperationPayload {
 }
 
 const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>(
-    ({ connection, contactCache = new Map(), account, onContactRemoved, onAddressbookReady, children }, ref) => {
+    ({ connection, contactCache = new Map(), account, onContactRemoved, onAddressbookReady, originDeviceId = '', children }, ref) => {
         const { preferences, loading: preferencesLoading } = usePreferences();
 
         const leadingZero = (account && !preferencesLoading)
@@ -66,6 +67,11 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
         const failedSubscribers = useRef<((err: any) => void)[]>([]);
         const queueLoaded = useRef(false);
         const isInitialLoad = useRef(false);
+        const notifierRef = useRef<any>(null);   // a heal suppresses and resumes through this later
+
+        const originDeviceIdRef = useRef(originDeviceId);
+        originDeviceIdRef.current = originDeviceId;
+        const getDeviceId = useCallback((): string => originDeviceIdRef.current || '', []);
 
         const subscribeFailed = useCallback((callback: (err: any) => void) => {
             failedSubscribers.current.push(callback);
@@ -229,6 +235,16 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             appliedRules.current = rules;
             addressbookDataUpdated();
         }, [rules, addressbookDataUpdated]);
+
+        useEffect(() => {
+            if (!connection || !connection.addressbook || !account) return;
+            const handle = startAddressbookNotifications(connection, account, { deviceId: getDeviceId });
+            notifierRef.current = handle.notifier;
+            return () => {
+                handle.stop();
+                notifierRef.current = null;
+            };
+        }, [connection, account, getDeviceId]);
 
         const addContact = useCallback((contact: Contact): Promise<void> => {
             DEBUG('Adding contact: %o, Ready: %s', contact, isReady);

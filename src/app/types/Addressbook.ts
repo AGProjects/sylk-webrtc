@@ -18,6 +18,8 @@ export interface AddressbookActions {
 export interface AddressbookRef extends AddressbookActions {
     reset: () => void;
     addressbook: AddressbookState;
+    withReason: <T>(reason: string, fn: () => T) => T;
+    adoptsDisplayName: (contact: any, displayName: string, senderUri: string) => boolean;
 }
 
 export interface AddressbookContextValue {

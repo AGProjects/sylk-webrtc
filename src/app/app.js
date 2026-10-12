@@ -1814,21 +1814,9 @@ class Blink extends React.Component {
         if (this.addressbookRef.current?.addressbook.contacts.has(message.sender.uri)) {
             const contacts = this.addressbookRef.current?.addressbook.contacts.get(message.sender.uri)
             for (let contact of contacts) {
-                if (
-                    message.sender.displayName &&
-                    message.sender.displayName !== message.sender.uri &&
-                    contact.name === message.sender.uri
-                ) {
-                    const updatedContact = {
-                        ...contact,
-                        name: message.sender.displayName,
-                        identity: {
-                            ...contact.identity,
-                            displayName: message.sender.displayName
-                        }
-                    };
-
-                    this.addressbookRef.current?.update(updatedContact)
+                if (this.addressbookRef.current?.adoptsDisplayName(contact, message.sender.displayName, message.sender.uri)) {
+                    const updatedContact = { ...contact, name: message.sender.displayName };
+                    this.addressbookRef.current?.withReason('message-sender', () => this.addressbookRef.current?.update(updatedContact))
                         .catch((err) => DEBUG('Contact name not updated from message %O', updatedContact, err));
                 }
             }

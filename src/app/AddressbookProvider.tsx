@@ -16,7 +16,7 @@ import addressbookStorage from './addressbookStorage';
 import { uniqueId } from './utils';
 
 import { usePreferences } from './PreferencesProvider';
-import { ContactIndex } from  'blink-addressbook';
+import { ContactIndex, contactPayload } from  'blink-addressbook';
 import { createAccountRules, cleanReplaceLeadingZero, startAddressbookNotifications, installContactPayloadFilter, withReason } from './addressbook';
 
 import { AddressbookContextValue, AddressbookState, AddressbookRef, LookupInput } from './types/Addressbook';
@@ -148,12 +148,13 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                 const entry: Contact = { ...contact };
                 const uri = entry.defaultUri?.uri;
 
-                if (isFirstRun.current && entry.name === uri && contactCache.has(uri)) {
+                const cachedName = isFirstRun.current ? contactPayload.cachedRealName(entry, contactCache, rules) : '';
+                if (cachedName) {
                     const oldName = entry.name;
-                    entry.name = contactCache.get(uri);
+                    entry.name = cachedName;
                     DEBUG(`Will update contact name ${oldName} -> ${entry.name}`);
 
-                    connection.addressbook.updateContact(entry);
+                    withReason('name-cache', () => connection.addressbook.updateContact(entry));
                 }
 
                 entry.key = uri ? await keyStorage.get(uri) : undefined;
@@ -356,8 +357,10 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             delete: deleteContact,
             update: updateContact,
             lookup,
-            withReason
-        }), [addressbook, addressbookDataLoaded, addContact, deleteContact, updateContact, reset, lookup]);
+            withReason,
+            adoptsDisplayName: (contact: any, displayName: string, senderUri: string): boolean =>
+                contactPayload.adoptsDisplayName(contact, displayName, senderUri, rules)
+        }), [addressbook, addressbookDataLoaded, addContact, deleteContact, updateContact, reset, lookup, rules]);
         return (
             <AddressbookContext.Provider value={contextValue}>
                 {children}

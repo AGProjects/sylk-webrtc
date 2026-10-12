@@ -16,7 +16,7 @@ import addressbookStorage from './addressbookStorage';
 import { uniqueId } from './utils';
 
 import { usePreferences } from './PreferencesProvider';
-import { ContactIndex, contactPayload } from  'blink-addressbook';
+import { ContactIndex, contactPayload, queueDecision } from  'blink-addressbook';
 import { createAccountRules, cleanReplaceLeadingZero, startAddressbookNotifications, installContactPayloadFilter, withReason } from './addressbook';
 
 import { AddressbookContextValue, AddressbookState, AddressbookRef, LookupInput } from './types/Addressbook';
@@ -45,6 +45,8 @@ interface OperationPayload {
     type: OperationType;
     contactId: string;
     contactData?: Contact;
+    base?: string | null;
+    queuedAt?: number;
 }
 
 const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>(
@@ -96,14 +98,29 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             }
         }, [connection]);
 
-        const flushQueue = useCallback(() => {
+        const flushQueue = useCallback((contacts: any = null) => {
+            const ab = connection?.addressbook;
             operationQueue.current.forEach((payload, id) => {
-                const opFn = executeOperation(payload);
-                opFn();
+                let decision = 'send';
+                try {
+                    decision = queueDecision.decide(payload, {
+                        current: ab ? ab.getContact(payload.contactId) : null,
+                        contacts,
+                        rules
+                    });
+                } catch (e) {
+                    decision = 'send';
+                }
+                if (decision === 'send') {
+                    withReason('offline-queue', executeOperation(payload), { keepRealName: payload.base === undefined });
+                } else {
+                    DEBUG('[ab] [queue] ' + payload.type + ' ' + payload.contactId + ' not replayed: ' + decision
+                        + (payload.queuedAt ? ' (queued ' + new Date(payload.queuedAt).toISOString() + ')' : ' (queued by an older build)'));
+                }
                 operationQueue.current.delete(id); // remove after execution
                 saveQueue(); // persist the updated queue
             });
-        }, [executeOperation]);
+        }, [executeOperation, connection, rules]);
 
         const saveQueue = () => {
             const serialized = Array.from(operationQueue.current.entries());
@@ -114,7 +131,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             DEBUG('Addressbook updated:', addressbook.contacts.size);
         }, [addressbook]);
 
-        const loadAndFlushQueue = useCallback(async () => {
+        const loadAndFlushQueue = useCallback(async (contacts: any = null) => {
             if (!queueLoaded.current) {
                 const saved = await addressbookStorage.get('operationQueue');
                 if (saved) {
@@ -125,7 +142,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                 }
                 queueLoaded.current = true;
             }
-            flushQueue();
+            flushQueue(contacts);
         }, [flushQueue]);
 
         const addressbookDataLoaded = useCallback(async () => {
@@ -175,7 +192,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             setAddressbook({ contacts: contactMap });
             if (isInitialLoad.current) {
                 isInitialLoad.current = false;
-                await loadAndFlushQueue();
+                await loadAndFlushQueue(contactMap);
                 onAddressbookReady?.();
             }
         }, [connection, contactCache, loadAndFlushQueue, onAddressbookReady, rules]);
@@ -259,6 +276,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
 
         const addContact = useCallback((contact: Contact): Promise<void> => {
             DEBUG('Adding contact: %o, Ready: %s', contact, isReady);
+            const queuedBase = queueDecision.baseFor(connection.addressbook.getContact(contact.id));
             return new Promise<void>((resolve, reject) => {
                 connection.addressbook.addContact(contact, (err) => {
                     if (err) reject(err);
@@ -268,7 +286,8 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                     const newOperation: OperationPayload = {
                         type: 'addContact',
                         contactId: contact.id,
-                        contactData: contact
+                        contactData: contact,
+                        ...queuedBase
                     };
                     operationQueue.current.set(uniqueId(), newOperation);
                     saveQueue();
@@ -278,6 +297,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
         }, [connection, isReady, addressbookDataLoaded]);
 
         const deleteContact = useCallback((contact: Contact): Promise<void> => {
+            const queuedBase = queueDecision.baseFor(connection.addressbook.getContact(contact.id));
             return new Promise<void>((resolve, reject) => {
                 connection.addressbook.deleteContact(contact.id, (err) => {
                     if (err) reject(err);
@@ -287,7 +307,8 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                     const newOperation: OperationPayload = {
                         type: 'deleteContact',
                         contactId: contact.id,
-                        contactData: contact
+                        contactData: contact,
+                        ...queuedBase
                     };
                     operationQueue.current.set(uniqueId(), newOperation);
                     saveQueue();
@@ -296,6 +317,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
         }, [connection, isReady]);
 
         const updateContact = useCallback((contact: Contact): Promise<void> => {
+            const queuedBase = queueDecision.baseFor(connection.addressbook.getContact(contact.id));
             return new Promise<void>((resolve, reject) => {
                 connection.addressbook.updateContact(contact, (err) => {
                     if (err) reject(err);
@@ -305,7 +327,8 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                     const newOperation: OperationPayload = {
                         type: 'updateContact',
                         contactId: contact.id,
-                        contactData: contact
+                        contactData: contact,
+                        ...queuedBase
                     };
                     operationQueue.current.set(uniqueId(), newOperation);
                     saveQueue();

@@ -3115,10 +3115,10 @@ binary-extensions@^2.0.0:
   integrity sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==
 
 blink-addressbook@AGProjects/blink-addressbook.js:
-  version "0.1.0"
-  resolved "https://codeload.github.com/AGProjects/blink-addressbook.js/tar.gz/134cfff9fbfafab805d860b96c64f22734a85ccd"
+  version "0.2.0"
+  resolved "https://codeload.github.com/AGProjects/blink-addressbook.js/tar.gz/fa2bc260f37776342f3f2cce1813914055b5830e"
   dependencies:
-    crypto-js "^3.3.0"
+    crypto-js "^4.2.0"
 
 bluebird@~3.7.2:
   version "3.7.2"

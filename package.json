@@ -84,7 +84,7 @@
     "timers-browserify": "^2.0.11",
     "typescript": "^5.9.3",
     "uuid": "^11.1.0",
-    "wavesurfer.js": "^7.3.8",
+    "wavesurfer.js": "7.12.12",
     "webrtc-adapter": "9.0.5",
     "xss": "^1.0.9"
   },

@@ -12,6 +12,9 @@ import {
 import DragAndDropJS from '../DragAndDrop';
 import UserIcon from '../UserIcon';
 
+import { contactPayload } from 'blink-addressbook';
+import { useAddressbook } from '../../AddressbookProvider';
+
 import { Contact } from '../../types/Contact';
 
 
@@ -48,6 +51,20 @@ const ContactListContact = ({
     contactRef,
     setAnchorEl
 }: ContactListContactProps) => {
+    const { rules } = useAddressbook();
+
+    const secondLine = () => {
+        const preview = contact.message ? parseContent(contact.message, contact) : null;
+        const empty = preview == null || (typeof preview === 'string' && preview.trim() === '');
+        if (!empty) return preview;
+        const uri = contact.defaultUri?.uri || contact.uris?.[0]?.uri || '';
+        if (!uri) return null;
+        const name = (contact.name || '').trim().toLowerCase();
+        const spellings: string[] = contactPayload.echoSpellings(rules, [[uri]]);
+        if (!name || spellings.includes(name) || spellings.includes(name.replace(/^sips?:/, ''))) return null;
+        return getHighlightedText(uri, filter);
+    };
+
     return (
         <>
             <ListItem
@@ -120,7 +137,7 @@ const ContactListContact = ({
                                     >
                                         {contact._isNew
                                             ? <em style={{ color: '#888' }}>(Draft)</em>
-                                                : contact.message && parseContent(contact.message, contact)
+                                                : secondLine()
                                         }
                                     </Typography>
                                 </Grid>

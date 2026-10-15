@@ -31,6 +31,7 @@ const useStyles = makeStyles((theme: Theme) => ({
         }
     },
     formroot: {
+        margin: theme.spacing(1),
         '& > div': {
             margin: theme.spacing(1)
         }

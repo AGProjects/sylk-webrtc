@@ -13,6 +13,9 @@ interface ContactDetailNameProps {
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
+    paper: {
+        margin: theme.spacing(1)
+    },
     center: {
         display: 'block',
         textAlign: 'center',
@@ -52,7 +55,7 @@ const ContactDetailName = ({ contact, formContact, editContact, onChange, onSubm
 
     if (editContact) {
         return (
-            <Paper elevation={0} style={{ marginBottom: '20px', marginTop: '20px' }}>
+            <Paper elevation={0} className={classes.paper} style={{ marginBottom: '20px', marginTop: '20px' }}>
                 <form
                     className={classes.formroot}
                     noValidate

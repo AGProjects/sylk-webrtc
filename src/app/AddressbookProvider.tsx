@@ -149,7 +149,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             if (!connection || !connection.addressbook) return;
 
             if (connection.addressbook.contacts.length > 0) {
-                DEBUG('Saving addressbook');
+                DEBUG('Saving addressbook locally');
                 addressbookStorage.set('addressbook', {
                     contacts: connection.addressbook.contacts,
                     groups: connection.addressbook.groups,

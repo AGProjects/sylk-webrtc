@@ -1,10 +1,13 @@
+@use "sass:color";
+@use "variables";
+
 div {
     &.uri-input {
         .algolia-autocomplete {
             width: 100%;
 
             .aa-hint {
-                color: $lighter-gray;
+                color: variables.$lighter-gray;
             }
 
             .aa-input,
@@ -14,8 +17,8 @@ div {
 
             .aa-dropdown-menu {
                 width: 100%;
-                background-color: $white;
-                border: 1px solid $lighter-gray;
+                background-color: variables.$white;
+                border: 1px solid variables.$lighter-gray;
                 border-top: 0;
 
                 .aa-suggestion {
@@ -29,14 +32,14 @@ div {
 
                     .uri {
                         font-weight: 600;
-                        color: $gray;
+                        color: variables.$gray;
                         margin-right: 4px;
                         flex-shrink: 0;
                         line-height: 1.5;     // zorg dat het gelijk staat met de naam
                     }
 
                     .name {
-                        color: $lighter-gray;
+                        color: variables.$lighter-gray;
                         overflow: hidden;
                         text-overflow: ellipsis;
                         white-space: nowrap !important;
@@ -45,10 +48,10 @@ div {
                     }
 
                     &.aa-cursor {
-                        background-color: $bootstrap-link-hover-bg;
+                        background-color: variables.$bootstrap-link-hover-bg;
 
                         .uri {
-                            color: darken($gray, 5%);
+                            color: color.adjust(variables.$gray, $lightness: -5%);
                         }
                     }
                 }

@@ -1,5 +1,7 @@
+@use "variables";
+
 .popover {
-    color: $gray;
+    color: variables.$gray;
 
     &.on-top {
         z-index: 2000;

@@ -1,3 +1,5 @@
+@use "variables";
+
 .semi-transparent {
     opacity: .7;
 }
@@ -37,7 +39,7 @@
 }
 
 .blue-bar {
-    background-color: $bootstrap-primary !important;
+    background-color: variables.$bootstrap-primary !important;
 }
 
 .rotate-minus-45 {

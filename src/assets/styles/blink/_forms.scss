@@ -1,3 +1,5 @@
+@use "variables";
+
 // General
 
 // Forms
@@ -65,7 +67,7 @@
                     padding-bottom: 11px;
                     font-size: 16px;
                     border: 0;
-                    border-top: 1px solid $light-gray;
+                    border-top: 1px solid variables.$light-gray;
                     border-top-left-radius: 0;
                     border-top-right-radius: 0;
                 }

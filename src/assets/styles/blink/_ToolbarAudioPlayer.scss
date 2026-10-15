@@ -1,4 +1,6 @@
-$rhap_theme-color: $bootstrap-primary !default;
+@use "variables";
+
+$rhap_theme-color: variables.$bootstrap-primary !default;
 $rhap_background-color: #fff !default;
 $rhap_bar-color: #dddddd !default;
 $rhap_time-color: #333 !default;

@@ -1,3 +1,5 @@
+@use "variables";
+
 // One row of round buttons pinned to the bottom of the video. A remote screen
 // share is sized against $call-buttons-height (see .screen-fit in _video.scss),
 // so keep the two in step: line-height 0 removes the baseline slack a line box
@@ -65,8 +67,8 @@
 
 .call-header {
     padding: 4px 0;
-    color: $white;
-    background-color: $darker-gray-transparent;
+    color: variables.$white;
+    background-color: variables.$darker-gray-transparent;
 
     p {
         margin-bottom: 2px !important;
@@ -81,17 +83,17 @@
     }
 
     &.solid-background {
-        background-color: $darker-gray;
+        background-color: variables.$darker-gray;
     }
 
     .btn-link {
         padding-top: 9.5px;
         padding-bottom: 7.5px;
         margin-top: -3.5px;
-        color: $lighter-gray;
+        color: variables.$lighter-gray;
 
         &:hover {
-            color: $white;
+            color: variables.$white;
         }
 
         &.active {

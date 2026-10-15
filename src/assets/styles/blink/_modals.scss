@@ -1,14 +1,16 @@
+@use "variables";
+
 
 .modal-content {
     a {
         &,
         &:focus,
         &:hover {
-            color: $bootstrap-primary;
+            color: variables.$bootstrap-primary;
         }
 
         &.btn-primary {
-            color: $white;
+            color: variables.$white;
         }
     }
 }
@@ -29,19 +31,19 @@
 .modal-body,
 .modal-header,
 .modal-footer {
-    color: $gray;
+    color: variables.$gray;
 }
 
 .modal-danger > .modal-content > .modal-header {
     padding: 10px;
-    color: $bootstrap-danger !important;
-    background-color: $bootstrap-danger-bg;
-    border-color: $bootstrap-danger-border;
+    color: variables.$bootstrap-danger !important;
+    background-color: variables.$bootstrap-danger-bg;
+    border-color: variables.$bootstrap-danger-border;
     border-radius: 6px 6px 0 0;
 }
 
 .modal-danger > .modal-content {
-    border-color: $bootstrap-danger-border;
+    border-color: variables.$bootstrap-danger-border;
 }
 
 .bd {

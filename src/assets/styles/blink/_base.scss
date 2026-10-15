@@ -1,3 +1,6 @@
+@use "mixins";
+@use "variables";
+
 // Base structure
 
 html,
@@ -7,10 +10,10 @@ body {
 }
 
 body {
-    @include background-image-retina($base-background-image, 512px, 512px);
-    color: $base-foreground-color;
+    @include mixins.background-image-retina(variables.$base-background-image, 512px, 512px);
+    color: variables.$base-foreground-color;
     text-align: center;
-    background-color: $base-background-color;
+    background-color: variables.$base-background-color;
 }
 
 h1,
@@ -42,7 +45,7 @@ h6,
 // Extra markup and styles for table-esque vertical and horizontal centering
 .site-wrapper-shadow {
     @extend %site-wrapper;
-    box-shadow: inset 0 0 100px $black-transparent;
+    box-shadow: inset 0 0 100px variables.$black-transparent;
 }
 
 .site-wrapper-inner {
@@ -66,7 +69,7 @@ h6,
 }
 
 .blink-logo {
-    @include background-image-retina($base-logo-image, 125px, 125px);
+    @include mixins.background-image-retina(variables.$base-logo-image, 125px, 125px);
     width: 125px;
     height: 125px;
     margin: 0 auto;
@@ -85,8 +88,8 @@ h6,
 .sticky {
     //sass-lint:disable-block no-color-literals, property-sort-order
     /* stylelint-disable order/properties-order,declaration-block-no-shorthand-property-overrides */
-    background-color: $black-less-transparent;
-    background: linear-gradient(180deg, $black 0%, rgba($black, .95) 15%, rgba($black, .55) 80%, rgba($black, 0) 100%);
+    background-color: variables.$black-less-transparent;
+    background: linear-gradient(180deg, variables.$black 0%, rgba(variables.$black, .95) 15%, rgba(variables.$black, .55) 80%, rgba(variables.$black, 0) 100%);
     /* stylelint-enable */
 }
 
@@ -124,8 +127,8 @@ h6,
     position: fixed;
     bottom: 0;
     font-size: 11px;
-    color: $white-transparent;
-    text-shadow: 0 1px 3px $black-transparent;
+    color: variables.$white-transparent;
+    text-shadow: 0 1px 3px variables.$black-transparent;
 }
 
 // Handle the widths
@@ -151,13 +154,13 @@ h6,
     width: 100vw;
     height: 100px;
     margin: 0 -20px;
-    box-shadow: 0 -5px 100px $black-transparent;
+    box-shadow: 0 -5px 100px variables.$black-transparent;
 }
 
 .chat-image {
     width: 300px;
     height: 300px;
-    @include background-image-retina($video-big-poster-image, 300px, 300px);
+    @include mixins.background-image-retina(variables.$video-big-poster-image, 300px, 300px);
     filter: brightness(75%);
     opacity: .8;
 }

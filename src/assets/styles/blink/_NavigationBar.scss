@@ -1,3 +1,7 @@
+@use "functions";
+@use "mixins";
+@use "variables";
+
 // Values
 // 31 -> inner buttonsize + border
 // 38 -> default padding is 6 on a 50px 50-12
@@ -8,20 +12,20 @@
 }
 
 .navbar-blink-logo {
-    @include background-image-retina($navbar-logo-image, $navbar-height, $navbar-height);
-    width: $navbar-height;
-    height: $navbar-height;
+    @include mixins.background-image-retina(variables.$navbar-logo-image, variables.$navbar-height, variables.$navbar-height);
+    width: variables.$navbar-height;
+    height: variables.$navbar-height;
     margin: 0 auto;
     margin-left: 15px;
 }
 
 .navbar-btn-toolbar {
-    margin-top: ($navbar-height - 31 - zero($navbar-height - 38)) * 0.5; // 40 -> 7/2, 50 -> 7/2
+    margin-top: (variables.$navbar-height - 31 - functions.zero(variables.$navbar-height - 38)) * 0.5; // 40 -> 7/2, 50 -> 7/2
 
     button.active {
-        padding-top: 6 + ($navbar-height - 31 - zero($navbar-height - 38)) * 0.5; // 40 -> 7/2, 50 -> 7/2
-        padding-bottom: 4 + ($navbar-height - 31 - zero($navbar-height - 38)) * 0.5; // 40 -> 7/2, 50 -> 7/2
-        margin-top: -($navbar-height - 31 - zero($navbar-height - 38)) * 0.5; // 40 -> 7/2, 50 -> 7/2
+        padding-top: 6 + (variables.$navbar-height - 31 - functions.zero(variables.$navbar-height - 38)) * 0.5; // 40 -> 7/2, 50 -> 7/2
+        padding-bottom: 4 + (variables.$navbar-height - 31 - functions.zero(variables.$navbar-height - 38)) * 0.5; // 40 -> 7/2, 50 -> 7/2
+        margin-top: -(variables.$navbar-height - 31 - functions.zero(variables.$navbar-height - 38)) * 0.5; // 40 -> 7/2, 50 -> 7/2
         color: #fff;
         background-color: rgb(8, 8, 8);
     }
@@ -29,10 +33,10 @@
 
 .navbar {
     z-index: 1201;
-    min-height: $navbar-height;
+    min-height: variables.$navbar-height;
 
     button {
-        padding: zero(($navbar-height - 38) * 0.5) 12px;
+        padding: functions.zero((variables.$navbar-height - 38) * 0.5) 12px;
 
         &.btn-fw {
             width: 58px;
@@ -42,12 +46,13 @@
 }
 
 .navbar-brand {
-    height: $navbar-height;
-    padding: ($navbar-height - 20) * 0.5 15px;
+    height: variables.$navbar-height;
+    padding: (variables.$navbar-height - 20) * 0.5 15px;
     padding-left: 0;
     margin-left: 0 !important;
 }
 
 .navbar-text {
-    margin: ($navbar-height - 20) * 0.5 15px;
+    margin: (variables.$navbar-height - 20) * 0.5 15px;
 }
+

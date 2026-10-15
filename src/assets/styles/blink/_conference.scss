@@ -1,3 +1,6 @@
+@use "mixins";
+@use "variables";
+
 .conference-buttons {
     padding-top: 10px;
     margin: auto;
@@ -11,10 +14,10 @@
     margin-top: 3.5px;
 
     .btn-link {
-        color: $lighter-gray;
+        color: variables.$lighter-gray;
 
         &:hover {
-            color: $white;
+            color: variables.$white;
         }
     }
 }
@@ -26,10 +29,10 @@
     margin-top: 3.5px;
 
     .btn-link {
-        color: $lighter-gray;
+        color: variables.$lighter-gray;
 
         &:hover {
-            color: $white;
+            color: variables.$white;
         }
     }
 }
@@ -51,15 +54,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: $video-thumbnail-width !important;
-        height: $video-thumbnail-height !important;
+        width: variables.$video-thumbnail-width !important;
+        height: variables.$video-thumbnail-height !important;
         margin: 5px;
 
         video {
             width: 100% ;
             height: 100% ;
-            background-color: $gray;
-            border: 1px solid $white;
+            background-color: variables.$gray;
+            border: 1px solid variables.$white;
             border-radius: 10px;
         }
 
@@ -70,7 +73,7 @@
     }
 
     .conference-active {
-        box-shadow: 0 0 10px 2px $bootstrap-base;
+        box-shadow: 0 0 10px 2px variables.$bootstrap-base;
     }
 
     .mute {
@@ -100,14 +103,14 @@
     .left-arrow {
         float: left;
         margin-left: 15px;
-        color: $light-gray;
+        color: variables.$light-gray;
         transform: translateY(50%);
     }
 
     .right-arrow {
         float: right;
         margin-right: 15px;
-        color: $light-gray;
+        color: variables.$light-gray;
         transform: translateY(50%);
     }
 
@@ -204,8 +207,8 @@
 
         video {
             &.poster {
-                @include background-image-retina($video-big-poster-image, 350px, 350px);
-                background-color: $black-transparent;
+                @include mixins.background-image-retina(variables.$video-big-poster-image, 350px, 350px);
+                background-color: variables.$black-transparent;
             }
         }
     }
@@ -239,10 +242,10 @@
         margin: 4px;
         overflow: hidden;
         text-overflow: ellipsis;
-        border: 3px solid $white-transparent;
+        border: 3px solid variables.$white-transparent;
 
         &.conference-active {
-            box-shadow: 0 0 10px 2px $bootstrap-base;
+            box-shadow: 0 0 10px 2px variables.$bootstrap-base;
         }
 
         &.large {
@@ -260,7 +263,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: $black-transparent;
+            background-color: variables.$black-transparent;
         }
 
         &.contains-avatar {
@@ -290,7 +293,7 @@
             min-height: 114px;
             max-height: 114px;
             padding-left: 20px;
-            box-shadow: inset 0 -100px 60px -60px $black-less-transparent;
+            box-shadow: inset 0 -100px 60px -60px variables.$black-less-transparent;
 
             .lead {
                 margin-bottom: 10px;
@@ -349,16 +352,16 @@
             width: 100%;
             height: 114px;
             content: '';
-            background-color: $black;
+            background-color: variables.$black;
         }
 
         .controls {
-            box-shadow: inset 0 -100px 60px -60px $black;
+            box-shadow: inset 0 -100px 60px -60px variables.$black;
         }
     }
 
     .fit {
-        background-color: $white-transparent !important;
+        background-color: variables.$white-transparent !important;
         object-fit: contain !important;
     }
 

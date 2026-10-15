@@ -1,12 +1,14 @@
+@use "variables";
+
 
 // Custom default button for DTMF keypad
 .btn-dtmf {
     &,
     &:hover,
     &:focus {
-        color: $gray;
+        color: variables.$gray;
         text-shadow: none; // Prevent inheritence from `body`
-        background-color: $white;
-        border: 1px solid $gray;
+        background-color: variables.$white;
+        border: 1px solid variables.$gray;
     }
 }

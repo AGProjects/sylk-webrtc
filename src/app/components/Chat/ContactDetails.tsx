@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef, useCallback, useImperativeHandle } from 'react';
+import React, { useState, useEffect, useMemo, forwardRef, useCallback, useImperativeHandle } from 'react';
 
 import { Paper } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
@@ -8,6 +8,7 @@ import { Button } from '../../MaterialUIAsBootstrap';
 import ContactDeleteModal from '../ContactDeleteModal';
 import ContactDetailName from './ContactDetailName';
 import ContactDetailUriList from './ContactDetailUriList';
+import ContactDetailGroups, { GroupsForm, groupsOf, groupsChanged } from './ContactDetailGroups';
 
 import { useAddressbook } from '../../AddressbookProvider';
 import { uniqueId } from '../../utils';
@@ -56,9 +57,12 @@ const ContactDetails = forwardRef<{ save: () => Promise<boolean> }, ContactDetai
         const [formContact, setFormContact] = useState(() => initFormContact(contact));
         const [error, setError] = useState(null);
         const [showDeleteModel, setShowDeleteModel] = useState(false);
-        const { actions, onError: onContextError }: AddressbookContext = useAddressbook();
+        const { addressbook, actions, onError: onContextError }: AddressbookContext = useAddressbook();
         const classes = useStyles();
 
+        const onServer = !contact._isNew && addressbook.contactIds.has(contact.id);
+        const savedGroups = useMemo(() => groupsOf(addressbook.groups, contact.id), [addressbook.groups, contact.id]);
+        const [formGroups, setFormGroups] = useState<GroupsForm>(savedGroups);
 
         const handleSave = useCallback(() => {
             const urisToSave = formContact.uris.filter(u => u.uri.trim() !== '');
@@ -67,25 +71,28 @@ const ContactDetails = forwardRef<{ save: () => Promise<boolean> }, ContactDetai
             const normalize = (uris: ContactURI[]) => uris.map(u => ({ uri: u.uri, default: u.default, type: u.type }));
             const urisChanged = JSON.stringify(normalize(urisToSave)) !== JSON.stringify(normalize(contact.uris));
             const nameChanged = formContact.name !== contact.name;
+            const groupsDirty = onServer && groupsChanged(formGroups, savedGroups);
 
-            if (!urisChanged && !nameChanged) {
+            if (!urisChanged && !nameChanged && !groupsDirty) {
                 setError('');
                 setFormContact(initFormContact(contact));
+                setFormGroups(savedGroups);
                 return Promise.resolve(false);
             }
-            return actions.update({
-                ...formContact,
-                uris: urisToSave
-            })
+            const saveContact = (urisChanged || nameChanged)
+                ? actions.update({ ...formContact, uris: urisToSave })
+                : Promise.resolve();
+            return saveContact
+                .then(() => groupsDirty ? actions.setGroups(contact.id, formGroups.keys, formGroups.newNames) : undefined)
                 .then(() => {
                     setError(null);
                     return false;
                 })
                 .catch((err) => {
-                    setError(err.message);
+                    setError({ id: contact.id, error: err?.message || String(err) });
                     return true;
                 });
-        }, [formContact, contact, actions]);
+        }, [formContact, formGroups, savedGroups, onServer, contact, actions]);
 
         useImperativeHandle(ref, () => ({
             save: handleSave
@@ -103,6 +110,12 @@ const ContactDetails = forwardRef<{ save: () => Promise<boolean> }, ContactDetai
             return unsubscribe;
         }, [onContextError, notificationCenter]);
 
+
+        useEffect(() => {
+            if (!editContact) {
+                setFormGroups(savedGroups);
+            }
+        }, [savedGroups, editContact]);
 
         useEffect(() => {
             if (!editContact) {
@@ -155,8 +168,17 @@ const ContactDetails = forwardRef<{ save: () => Promise<boolean> }, ContactDetai
                     onSubmit={() => { handleSave(); setEdit(false); }}
                     key="urilist"
                 />
+                {onServer &&
+                    <ContactDetailGroups
+                        contactId={contact.id}
+                        groups={addressbook.groups}
+                        editContact={editContact}
+                        value={formGroups}
+                        onChange={setFormGroups}
+                    />
+                }
                 {editContact &&
-                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16, marginLeft: 8, marginRight: 8}}>
                         <Button disableElevation variant="outlined" color="secondary" size="large" onClick={() => setShowDeleteModel(true)} style={{ flex: 1 }}>Delete Contact</Button>
                     </div>
                 }

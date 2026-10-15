@@ -1,10 +1,12 @@
 import { Contact } from './Contact';
-import type { ContactIndex } from 'blink-addressbook';
+import type { ContactIndex, ContactGroup, Rules } from 'blink-addressbook';
 
 export type LookupInput = string | { uri: string;[key: string]: any }
 
 export interface AddressbookState {
     contacts: ContactIndex<Contact>;
+    groups: ContactGroup[];
+    contactIds: ReadonlySet<string>;
 }
 
 export interface AddressbookActions {
@@ -12,6 +14,7 @@ export interface AddressbookActions {
     add: (contact: Contact) => Promise<void>;
     delete: (contact: Contact) => Promise<void>;
     update: (contact: Contact) => Promise<void>;
+    setGroups: (contactId: string, keys: string[], names?: string[]) => Promise<void>;
     reset: () => void;
 }
 
@@ -26,6 +29,7 @@ export interface AddressbookContextValue {
     addressbook: AddressbookState;
     actions: AddressbookActions;
     lookup: (input: LookupInput) => Contact;
+    rules: Rules;
     onError: (callback: (err: any) => void) => (() => void);
 }
 

@@ -41,6 +41,7 @@ const UserIcon = require('../UserIcon');
 const CustomContextMenu = require('../CustomContextMenu');
 const DragAndDrop = require('../DragAndDrop');
 const ContactListContact = require('./ContactListContact').default;
+const ContactGroupsBar = require('./ContactGroupsBar');
 
 const { useAddressbook } = require('../../AddressbookProvider');
 
@@ -121,7 +122,10 @@ const styleSheet = makeStyles((theme) => ({
         color: '#333'
     },
     scrollable: {
-        overflow: 'auto',
+        flex: '1 1 auto',
+        minHeight: 0,
+        overflowX: 'hidden',
+        overflowY: 'auto',
         marginRight: -15,
         paddingRight: 15,
         marginLeft: -15,
@@ -168,6 +172,15 @@ const ContactList = (props) => {
     const anchorElRef = useRef(null);
     const [subMenuAnchor, setSubMenuAnchor] = useState(null);
     const { addressbook, actions, lookup } = useAddressbook();
+    const [selectedGroup, setSelectedGroup] = useState(null);
+    const groups = React.useMemo(() => addressbook.groups.filter(g => g.count > 0), [addressbook.groups]);
+    const activeGroup = selectedGroup ? groups.find(g => g.key === selectedGroup) : null;
+
+    useEffect(() => {
+        if (selectedGroup && !activeGroup) {
+            setSelectedGroup(null);
+        }
+    }, [selectedGroup, activeGroup]);
 
     const filteredMessages = props.filter ?
         Object.values(props.messages)
@@ -255,8 +268,10 @@ const ContactList = (props) => {
         }
 
         const result = Array.from(contactMap.values()).filter(c =>
-            c.name.toLowerCase().includes(filterLower) ||
-            c.uris?.some(u => u.uri.toLowerCase().includes(filterLower))
+            (!activeGroup || c._isNew || activeGroup.members.has(c.id)) && (
+                c.name.toLowerCase().includes(filterLower) ||
+                c.uris?.some(u => u.uri.toLowerCase().includes(filterLower))
+            )
         );
 
         result.sort((a, b) => a.name.localeCompare(b.name))
@@ -269,7 +284,7 @@ const ContactList = (props) => {
         );
         return result;
 
-    }, [addressbook.contacts, props.messages, props.filter, props.newContacts, lookup]);
+    }, [addressbook.contacts, props.messages, props.filter, props.newContacts, lookup, activeGroup]);
 
     const unreadMessages = React.useMemo(() => {
         const tnumbers = {}
@@ -433,7 +448,7 @@ const ContactList = (props) => {
             });
     };
 
-    return (<div className={classes.scrollable}>
+    return (<React.Fragment><div className={classes.scrollable}>
         <List disablePadding>
             {props.filter && props.defaultDomain && Object.keys(props.messages).indexOf(props.filter) === -1 &&
                 [
@@ -564,7 +579,14 @@ const ContactList = (props) => {
                 </React.Fragment>
             }
         </List>
-    </div>);
+    </div>
+    <ContactGroupsBar
+        groups={groups}
+        total={addressbook.contactIds.size}
+        selected={activeGroup ? activeGroup.key : null}
+        onSelect={setSelectedGroup}
+    />
+    </React.Fragment>);
 }
 
 ContactList.propTypes = {

@@ -16,7 +16,7 @@ import addressbookStorage from './addressbookStorage';
 import { uniqueId } from './utils';
 
 import { usePreferences } from './PreferencesProvider';
-import { ContactIndex, contactPayload, queueDecision } from  'blink-addressbook';
+import { ContactIndex, contactGroups, contactPayload, queueDecision } from  'blink-addressbook';
 import { createAccountRules, cleanReplaceLeadingZero, startAddressbookNotifications, installContactPayloadFilter, withReason } from './addressbook';
 
 import { AddressbookContextValue, AddressbookState, AddressbookRef, LookupInput } from './types/Addressbook';
@@ -27,6 +27,9 @@ import { Contact } from './types/Contact';
 const DEBUG = debug('blinkrtc:AddressBookProvider');
 
 export const AddressbookContext = createContext<AddressbookContextValue | null>(null);
+
+const emptyAddressbook = (rules: ReturnType<typeof createAccountRules>): AddressbookState =>
+    ({ contacts: new ContactIndex<Contact>(rules), groups: [], contactIds: new Set() });
 
 interface AddressBookProviderProps {
     connection: Connection;
@@ -60,10 +63,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
         const rulesRef = useRef(rules);
         rulesRef.current = rules;
 
-
-        const [addressbook, setAddressbook] = useState<AddressbookState>({
-            contacts: new ContactIndex<Contact>(rules)
-        });
+        const [addressbook, setAddressbook] = useState<AddressbookState>(() => emptyAddressbook(rules));
         const isFirstRun = useRef(true);
         const operationQueue = useRef<Map<string, OperationPayload>>(new Map());
         const isReady = connection?.state === 'ready' && account?.addressbookFetched;
@@ -160,6 +160,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             let contacts = connection.addressbook.contacts;
 
             const contactMap = new ContactIndex<Contact>(rules);
+            const contactIds = new Set<string>();   // the contacts the list can show: they have an address
 
             for (let contact of contacts) {
                 const entry: Contact = { ...contact };
@@ -186,10 +187,11 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                         // continue;
                     }
                     contactMap.add(uriObj.uri, entry);
+                    contactIds.add(entry.id);
                 }
             }
             isFirstRun.current = false;
-            setAddressbook({ contacts: contactMap });
+            setAddressbook({ contacts: contactMap, groups: contactGroups.buildGroups(connection.addressbook.groups, contactIds), contactIds });
             if (isInitialLoad.current) {
                 isInitialLoad.current = false;
                 await loadAndFlushQueue(contactMap);
@@ -273,6 +275,20 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                 notifierRef.current = null;
             };
         }, [connection, account, getDeviceId]);
+
+        const setContactGroups = useCallback((contactId: string, keys: string[], names: string[] = []): Promise<void> => {
+            const ab = connection?.addressbook;
+            if (!ab || !isReady) return Promise.reject(new Error('The addressbook is not ready'));
+            const contact = ab.getContact(contactId);
+            if (!contact) return Promise.reject(new Error('Unknown contact ' + contactId));
+
+            const writes = contactGroups.planMembership(ab.groups, contact, { keys, names });
+            return Promise.all(writes.map(({ action, group }) => new Promise<void>((resolve, reject) => {
+                DEBUG('[ab] [groups] %s "%s" (%d members)', action, group.name, group.contacts?.length);
+                const done = (err?: any) => (err ? reject(err) : resolve());
+                if (action === 'add') ab.addGroup(group, done); else ab.updateGroup(group, done);
+            }))).then(() => { addressbookDataLoaded(); });
+        }, [connection, isReady, addressbookDataLoaded]);
 
         const addContact = useCallback((contact: Contact): Promise<void> => {
             DEBUG('Adding contact: %o, Ready: %s', contact, isReady);
@@ -361,16 +377,17 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
         }, [addressbook]);
 
         const reset = useCallback(() => {
-            setAddressbook({ contacts: new ContactIndex<Contact>(rules) });
+            setAddressbook(emptyAddressbook(rules));
             isFirstRun.current = true;
         }, [rules]);
 
         const contextValue = useMemo<AddressbookContextValue>(() => ({
             addressbook,
-            actions: { reload: addressbookDataLoaded, add: addContact, delete: deleteContact, update: updateContact, reset },
+            actions: { reload: addressbookDataLoaded, add: addContact, delete: deleteContact, update: updateContact, setGroups: setContactGroups, reset },
             lookup,
+            rules,
             onError: subscribeFailed
-        }), [addressbook, addressbookDataLoaded, addContact, deleteContact, updateContact, reset, lookup, subscribeFailed]);
+        }), [addressbook, addressbookDataLoaded, addContact, deleteContact, updateContact, setContactGroups, reset, lookup, rules, subscribeFailed]);
 
         useImperativeHandle(ref, () => ({
             reset,
@@ -379,11 +396,12 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             add: addContact,
             delete: deleteContact,
             update: updateContact,
+            setGroups: setContactGroups,
             lookup,
             withReason,
             adoptsDisplayName: (contact: any, displayName: string, senderUri: string): boolean =>
                 contactPayload.adoptsDisplayName(contact, displayName, senderUri, rules)
-        }), [addressbook, addressbookDataLoaded, addContact, deleteContact, updateContact, reset, lookup, rules]);
+        }), [addressbook, addressbookDataLoaded, addContact, deleteContact, updateContact, setContactGroups, reset, lookup, rules]);
         return (
             <AddressbookContext.Provider value={contextValue}>
                 {children}

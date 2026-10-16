@@ -1785,7 +1785,7 @@ class Blink extends React.Component {
             this.addingContacts.add(uri);
 
             const contact = book.lookup(uri);
-            book.withReason('conversation-history', () => addressbook.add(contact))
+            book.withReason('conversation-history', () => book.add(contact))
                 .then(() => DEBUG('Message contact added to addressbook: %O', contact))
                 .catch((err) => DEBUG('Message contact not added to adddressbook %O', contact, err))
                 .finally(() => this.addingContacts.delete(uri));

@@ -296,13 +296,29 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             }))).then(() => { addressbookDataLoaded(); });
         }, [connection, isReady, addressbookDataLoaded]);
 
+        const syncKindGroups = useCallback((contact: Contact) => {
+            const ab = connection?.addressbook;
+            if (!ab || !isReady) return;
+            const current = ab.getContact(contact.id) || contact;
+            for (const { action, group } of contactGroups.planKindMembership(ab.groups, current, rules)) {
+                DEBUG('[ab] [kind groups] %s "%s" (%d members)', action, group.name, group.contacts?.length);
+                const done = (err?: any) => { if (err) DEBUG('Filing %s in %s failed: %s', contact.id, group.name, err); };
+                if (action === 'add') ab.addGroup(group, done); else ab.updateGroup(group, done);
+            }
+        }, [connection, isReady, rules]);
+
+
         const addContact = useCallback((contact: Contact): Promise<void> => {
             DEBUG('Adding contact: %o, Ready: %s', contact, isReady);
             const queuedBase = queueDecision.baseFor(connection.addressbook.getContact(contact.id));
             return new Promise<void>((resolve, reject) => {
                 connection.addressbook.addContact(contact, (err) => {
-                    if (err) reject(err);
-                    else resolve();
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                        syncKindGroups(contact);
+                    }
                 });
                 if (!isReady) {
                     const newOperation: OperationPayload = {
@@ -316,14 +332,19 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                 }
                 addressbookDataLoaded();
             });
-        }, [connection, isReady, addressbookDataLoaded]);
+        }, [connection, isReady, addressbookDataLoaded, syncKindGroups]);
 
         const deleteContact = useCallback((contact: Contact): Promise<void> => {
             const queuedBase = queueDecision.baseFor(connection.addressbook.getContact(contact.id));
+            avatars.forget(contact.id);
             return new Promise<void>((resolve, reject) => {
                 connection.addressbook.deleteContact(contact.id, (err) => {
-                    if (err) reject(err);
-                    else resolve();
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                        syncKindGroups(contact);
+                    }
                 });
                 if (!isReady) {
                     const newOperation: OperationPayload = {
@@ -336,14 +357,18 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                     saveQueue();
                 }
             });
-        }, [connection, isReady]);
+        }, [connection, isReady, avatars, syncKindGroups]);
 
         const updateContact = useCallback((contact: Contact): Promise<void> => {
             const queuedBase = queueDecision.baseFor(connection.addressbook.getContact(contact.id));
             return new Promise<void>((resolve, reject) => {
                 connection.addressbook.updateContact(contact, (err) => {
-                    if (err) reject(err);
-                    else resolve();
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                        syncKindGroups(contact);
+                    }
                 });
                 if (!isReady) {
                     const newOperation: OperationPayload = {
@@ -357,7 +382,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                 }
                 addressbookDataLoaded();
             });
-        }, [connection, isReady, addressbookDataLoaded]);
+        }, [connection, isReady, addressbookDataLoaded, syncKindGroups]);
 
         const createContact = (uri: string, name: string): Contact => {
             const uris = [{ uri, id: uniqueId(), default: false, type: 'SIP', attributes: {} }];

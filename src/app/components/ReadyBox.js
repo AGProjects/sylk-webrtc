@@ -106,7 +106,9 @@ class ReadyBox extends React.Component {
     }
 
     handleAudioCall(event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
             this.props.startConference(this.state.targetUri, {
                 mediaConstraints: { audio: true, video: false }
@@ -117,7 +119,9 @@ class ReadyBox extends React.Component {
     }
 
     handleVideoCall(event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         if (this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
             this.props.startConference(this.state.targetUri);
         } else {
@@ -126,14 +130,18 @@ class ReadyBox extends React.Component {
     }
 
     handleChat(event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         if (!this.state.targetUri.endsWith(`@${config.defaultConferenceDomain}`)) {
             this.props.startChat(this.getTargetUri());
         }
     }
 
     showConferenceModal(event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         if (this.state.targetUri.length !== 0) {
             const uri = `${this.state.targetUri.split('@')[0].replace(/[\s()-]/g, '')}@${config.defaultConferenceDomain}`;
             this.handleConferenceCall(uri.toLowerCase());

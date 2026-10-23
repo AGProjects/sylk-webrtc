@@ -67,7 +67,7 @@ const HistoryCard = (props) => {
             props.setTargetUri(props.historyItem.remoteParty);
             // We need to wait for targetURI
             setImmediate(() => {
-                props.startVideoCall(e);
+                props.startVideoCall();
             });
         }
     }
@@ -77,8 +77,8 @@ const HistoryCard = (props) => {
         props.setTargetUri(props.historyItem.remoteParty);
         // We need to wait for targetURI
         setImmediate(() => {
-            props.startAudioCall(e);
-        });
+            props.startAudioCall();
+        })
     }
 
     const startChat = (e) => {
@@ -86,7 +86,7 @@ const HistoryCard = (props) => {
         props.setTargetUri(props.historyItem.remoteParty);
         // We need to wait for targetURI
         setImmediate(() => {
-            props.startChat(e);
+            props.startChat();
         });
     }
 

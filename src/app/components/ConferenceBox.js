@@ -1624,8 +1624,8 @@ class ConferenceBox extends React.Component {
                         </h4>
                     }
                     {(this.state.showInlineChat || chatLayout) && [
-                        <ConferenceChat messages={this.state.messages} scroll={this.state.shouldScroll} />,
-                        <ConferenceChatEditor onSubmit={this.handleSend} onTyping={this.handleTyping} scroll={this.setScroll} focus={this.toggleChatEditorFocus} />
+                        <ConferenceChat key="chat" messages={this.state.messages} scroll={this.state.shouldScroll} />,
+                        <ConferenceChatEditor key="editor" onSubmit={this.handleSend} onTyping={this.handleTyping} scroll={this.setScroll} focus={this.toggleChatEditorFocus} />
                     ]}
                 </ConferenceDrawer>
                 <ConferenceDrawer show={this.state.showDrawer && !this.state.showChat} close={this.toggleDrawer}>

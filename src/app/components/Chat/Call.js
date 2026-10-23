@@ -530,7 +530,7 @@ class Call extends React.Component {
             }
         }
         box = [
-            <ZrtpCallBanners call={this.props.currentCall} notificationCenter={this.props.notificationCenter} />,
+            <ZrtpCallBanners key="zrtp" call={this.props.currentCall} notificationCenter={this.props.notificationCenter} />,
             <CallOverlay
                 show={true}
                 contact={contact}

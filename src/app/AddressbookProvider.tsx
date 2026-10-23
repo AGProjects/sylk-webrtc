@@ -70,6 +70,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
         const failedSubscribers = useRef<((err: any) => void)[]>([]);
         const queueLoaded = useRef(false);
         const isInitialLoad = useRef(false);
+        const hasServerLoad = useRef(false);
         const notifierRef = useRef<any>(null);   // a heal suppresses and resumes through this later
 
         const originDeviceIdRef = useRef(originDeviceId);
@@ -229,6 +230,8 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             }
         }, [onContactRemoved])
 
+        useEffect(() => { hasServerLoad.current = false; }, [connection]);
+
         useEffect(() => {
             if (!connection || !connection.addressbook) return;
             return installContactPayloadFilter(connection.addressbook, () => rulesRef.current, {
@@ -240,7 +243,10 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             if (!connection || !connection.addressbook) return;
 
             const onDataLoaded = () => {
-                isInitialLoad.current = true;
+                if (!hasServerLoad.current) {
+                    hasServerLoad.current = true;
+                    isInitialLoad.current = true;
+                }
                 addressbookDataUpdated();
             };
             connection.addressbook.on('dataLoaded', onDataLoaded);

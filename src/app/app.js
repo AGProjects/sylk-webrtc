@@ -930,7 +930,8 @@ class Blink extends React.Component {
             account: accountId,
             password: password,
             displayName: displayName,
-            ha1: true
+            ha1: true,
+            handleCallMessages: true
         };
 
         if (accountId.indexOf('@') !== -1) {

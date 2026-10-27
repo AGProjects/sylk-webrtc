@@ -805,7 +805,7 @@ const Chat = (props) => {
                     setCalcUnread(uri)
                 }
                 props.account.markConversationRead(uri);
-                timer = null;
+                timerRef.current = null;
             }
         }, 500);
     };

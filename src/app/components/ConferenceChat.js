@@ -6,11 +6,12 @@ const useRef        = React.useRef;
 const useState      = React.useState;
 const PropTypes     = require('prop-types');
 const Message       = require('./Chat/Message');
+const { useAddressbook } = require('../AddressbookProvider');
 
 
 const ConferenceChat = (props) => {
     const messagesEndRef = useRef(null);
-
+    const ab = useAddressbook();
     const scrollToBottom = () => {
         messagesEndRef.current.scrollIntoView({behavior: 'smooth'})
     }
@@ -29,12 +30,16 @@ const ConferenceChat = (props) => {
                 continues = true;
             }
             prevMessage = message;
+            const fromSelf = !!props.selfUri && message.sender.uri.toLowerCase() === props.selfUri.toLowerCase();
+            const identity = !fromSelf && ab
+                ? ab.lookup({ uri: message.sender.uri, displayName: message.sender.displayName }).identity
+                : message.sender;
             return (
-                <Message key={idx} message={message} cont={continues} scroll={scrollToBottom} identity={message.sender}/>
+                <Message key={idx} message={message} cont={continues} scroll={scrollToBottom} identity={identity} />
             )
         });
         setEntries(entries);
-    }, [props.messages])
+    }, [props.messages, props.selfUri, ab])
 
     return (
         <div className="drawer-chat">
@@ -46,7 +51,8 @@ const ConferenceChat = (props) => {
 
 ConferenceChat.propTypes = {
     scroll: PropTypes.bool,
-    messages: PropTypes.array.isRequired
+    messages: PropTypes.array.isRequired,
+    selfUri: PropTypes.string
 };
 
 

@@ -10,6 +10,7 @@ const hark              = require('hark');
 const { default: clsx } = require('clsx');
 const UserIcon = require('./UserIcon');
 
+
 class ConferenceParticipantSelf extends React.Component {
     constructor(props) {
         super(props);

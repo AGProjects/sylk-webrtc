@@ -11,6 +11,7 @@ const HandIcon    = require('./HandIcon');
 const UserIcon    = require('./UserIcon');
 const CallQuality = require('./CallQuality');
 
+
 class ConferenceMatrixParticipant extends React.Component {
     constructor(props) {
         super(props);
@@ -184,7 +185,7 @@ class ConferenceMatrixParticipant extends React.Component {
             <div className={remoteVideoClasses}>
                 {activeIcon}
                 {participantInfo}
-                {(this.props.pauseVideo === true || !this.state.hasVideo) && <UserIcon identity={this.props.participant.identity} active={this.state.active} large />}
+                {(this.props.pauseVideo === true || !this.state.hasVideo) && <UserIcon identity={this.props.participant.identity} active={this.state.active} lookup={!this.props.isLocal} large />}
                 <div className={videoClasses}>
                     <video poster="assets/images/transparent-1px.png" className={classes} ref={this.videoElement} autoPlay muted={this.props.isLocal}/>
                 </div>

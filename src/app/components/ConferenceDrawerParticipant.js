@@ -13,12 +13,17 @@ const hark              = require('hark');
 const UserIcon    = require('./UserIcon');
 const HandIcon    = require('./HandIcon');
 const CallQuality = require('./CallQuality');
+const { useAddressbook } = require('../AddressbookProvider');
 
 
 const ConferenceDrawerParticipant = (props) => {
     let [active, setActive] = useState(false);
     let [speech, setSpeech] = useState(null);
     const streams = props.participant.streams;
+
+    const ab = useAddressbook();
+
+    const contact = !props.isLocal ? ab.lookup(props.participant.identity) : undefined;
 
     React.useEffect(() => {
         return () => {
@@ -57,10 +62,10 @@ const ConferenceDrawerParticipant = (props) => {
     return (
         <Media className="text-left">
             <Media.Left>
-                <UserIcon identity={props.participant.identity} active={active} small={true} />
+                <UserIcon identity={props.participant.identity} active={active} small={true} contact={contact} lookup={false}/>
             </Media.Left>
             <Media.Body className="vertical-center">
-                <Media.Heading>{props.participant.identity.displayName || props.participant.identity.uri} {callQuality}</Media.Heading>
+                <Media.Heading>{contact?.name || props.participant.identity.displayName || props.participant.identity.uri} {callQuality}</Media.Heading>
             </Media.Body>
             <Media.Right className="vertical-center">
                 <HandIcon

@@ -133,22 +133,20 @@ const BootstrapTextField = withStyles({
                     '0 0 8px rgba(102, 175, 233, .6)'
             }
         },
-            '& .MuiInputLabel-outlined': {
-                  color: '#999999',
-                  fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-                  fontSize: '14px',
-                  // Dwingt het label om exact in het midden van de 34px hoge inputbox te starten
-                   transform: 'translate(12px, 12px) scale(1)',
-                       },
-            '& .MuiInputLabel-outlined.MuiInputLabel-shrink': {
-                  // Schuift het label netjes omhoog naar de bovenrand
-                   transform: 'translate(14px, -6px) scale(0.75)',
-                       },
+        '& .MuiInputLabel-outlined': {
+            color: '#999999',
+            fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+            fontSize: '14px',
+            transform: 'translate(12px, 12px) scale(1)'
+        },
+        '& .MuiInputLabel-outlined.MuiInputLabel-shrink': {
+            transform: 'translate(14px, -6px) scale(0.75)'
+        },
         '& .MuiOutlinedInput-input': {
-               fontSize: '14px',
+            fontSize: '14px',
             padding: '10px 12px',
             height: '20px',
-    boxSizing: 'content-box'
+            boxSizing: 'content-box'
         }
     }
 })(TextField);

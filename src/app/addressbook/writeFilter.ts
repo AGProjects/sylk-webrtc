@@ -42,6 +42,11 @@ export function withReason<T>(reason: string, fn: () => T, options: WithReasonOp
 
 const messageOf = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
+const avatarInstruction = (item: any) => {
+    const avatar = item && item.avatar;
+    return avatar && (avatar.remove || avatar.data) ? avatar : null;
+};
+
 // getRules() returns the rules of the moment of the write: the ones the addressbook index was built with, so a
 // changed "Replace 0 with" applies to the next write.
 //
@@ -60,6 +65,7 @@ export function installContactPayloadFilter(
 
     target.setWriteFilter((kind, item, previous) => {
         let out = item;
+        const avatar = kind === 'contact' ? avatarInstruction(item) : null;
 
         if (kind === 'contact') {
             try {
@@ -86,6 +92,10 @@ export function installContactPayloadFilter(
             } catch (error) {
                 DEBUG('[ab] [origin] cannot stamp ' + kind + ' ' + (item && item.id) + ': ' + messageOf(error));
             }
+        }
+
+        if (avatar && out && typeof out === 'object') {
+            out = { ...out, avatar };
         }
 
         return out;

@@ -17,12 +17,11 @@ import { uniqueId } from './utils';
 
 import { usePreferences } from './PreferencesProvider';
 import { ContactIndex, contactGroups, contactPayload, queueDecision } from  'blink-addressbook';
-import { createAccountRules, cleanReplaceLeadingZero, startAddressbookNotifications, installContactPayloadFilter, withReason } from './addressbook';
+import { createAccountRules, cleanReplaceLeadingZero, startAddressbookNotifications, installContactPayloadFilter, withReason, AvatarStore } from './addressbook';
 
 import { AddressbookContextValue, AddressbookState, AddressbookRef, LookupInput } from './types/Addressbook';
 import { Connection } from './types/Connection';
 import { Contact } from './types/Contact';
-
 
 const DEBUG = debug('blinkrtc:AddressBookProvider');
 
@@ -62,6 +61,8 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
         const rules = useMemo(() => createAccountRules(leadingZero), [leadingZero]);
         const rulesRef = useRef(rules);
         rulesRef.current = rules;
+
+        const avatars = useMemo(() => new AvatarStore(addressbookStorage), []);
 
         const [addressbook, setAddressbook] = useState<AddressbookState>(() => emptyAddressbook(rules));
         const isFirstRun = useRef(true);
@@ -182,6 +183,7 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                     displayName: entry.name || '',
                     uri: uri || ''
                 };
+                avatars.decorate(entry);
 
                 for (let uriObj of entry.uris || []) {
                     if (uriObj.type !== 'SIP') {
@@ -192,13 +194,15 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                 }
             }
             isFirstRun.current = false;
+            if (contacts.length > 0) avatars.prune(new Set(contacts.map((c: Contact) => c.id)));
+
             setAddressbook({ contacts: contactMap, groups: contactGroups.buildGroups(connection.addressbook.groups, contactIds), contactIds });
             if (isInitialLoad.current) {
                 isInitialLoad.current = false;
                 await loadAndFlushQueue(contactMap);
                 onAddressbookReady?.();
             }
-        }, [connection, contactCache, loadAndFlushQueue, onAddressbookReady, rules]);
+        }, [connection, contactCache, loadAndFlushQueue, onAddressbookReady, rules, avatars]);
 
         const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -228,7 +232,18 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
                 DEBUG('Contact was deleted, removing all data!!!')
 //                onContactRemoved?.(data, true);
             }
-        }, [onContactRemoved])
+        }, [onContactRemoved]);
+
+        const refreshRef = useRef(addressbookDataUpdated);
+        refreshRef.current = addressbookDataUpdated;
+
+        useEffect(() => {
+            const ab = connection?.addressbook;
+            if (!ab) return;
+            const detach = avatars.attach(ab);
+            avatars.load().then(() => refreshRef.current());
+            return detach;
+        }, [connection, avatars]);
 
         useEffect(() => { hasServerLoad.current = false; }, [connection]);
 
@@ -409,16 +424,22 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
 
         const reset = useCallback(() => {
             setAddressbook(emptyAddressbook(rules));
+            avatars.clear();
             isFirstRun.current = true;
-        }, [rules]);
+            hasServerLoad.current = false;
+        }, [rules, avatars]);
+
+        const setAvatar = useCallback((contact: Contact, data: string | null, contentType = 'image/jpeg') =>
+            updateContact(avatars.withPicture(contact, data, contentType, getDeviceId())),
+        [avatars, updateContact, getDeviceId]);
 
         const contextValue = useMemo<AddressbookContextValue>(() => ({
             addressbook,
-            actions: { reload: addressbookDataLoaded, add: addContact, delete: deleteContact, update: updateContact, setGroups: setContactGroups, reset },
+            actions: { reload: addressbookDataLoaded, add: addContact, delete: deleteContact, update: updateContact, setAvatar, setGroups: setContactGroups, reset },
             lookup,
             rules,
             onError: subscribeFailed
-        }), [addressbook, addressbookDataLoaded, addContact, deleteContact, updateContact, setContactGroups, reset, lookup, rules, subscribeFailed]);
+        }), [addressbook, addressbookDataLoaded, addContact, deleteContact, updateContact, setContactGroups, reset, lookup, rules, subscribeFailed, setAvatar]);
 
         useImperativeHandle(ref, () => ({
             reset,
@@ -427,12 +448,13 @@ const AddressBookProvider = forwardRef<AddressbookRef, AddressBookProviderProps>
             add: addContact,
             delete: deleteContact,
             update: updateContact,
+            setAvatar,
             setGroups: setContactGroups,
             lookup,
             withReason,
             adoptsDisplayName: (contact: any, displayName: string, senderUri: string): boolean =>
                 contactPayload.adoptsDisplayName(contact, displayName, senderUri, rules)
-        }), [addressbook, addressbookDataLoaded, addContact, deleteContact, updateContact, setContactGroups, reset, lookup, rules]);
+        }), [addressbook, addressbookDataLoaded, addContact, deleteContact, updateContact, setContactGroups, reset, lookup, rules, setAvatar]);
         return (
             <AddressbookContext.Provider value={contextValue}>
                 {children}

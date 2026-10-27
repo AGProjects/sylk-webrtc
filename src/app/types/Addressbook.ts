@@ -15,6 +15,7 @@ export interface AddressbookActions {
     delete: (contact: Contact) => Promise<void>;
     update: (contact: Contact) => Promise<void>;
     setGroups: (contactId: string, keys: string[], names?: string[]) => Promise<void>;
+    setAvatar:  (contact: Contact, data: string | null, contentType?: string) => Promise<void>;
     reset: () => void;
 }
 

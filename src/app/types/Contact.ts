@@ -24,4 +24,6 @@ export interface Contact {
     presence?: any;
     attributes?: any;
     _isNew?: boolean;
+    avatar?: { etag?: string; contentType?: string; size?: number; modified?: string; deviceId?: string };
+    avatarUri?: string;
 }

@@ -100,7 +100,7 @@ const ContactListContact = ({
                     handleDrop={(files) => uploadFiles(files, contact.defaultUri.uri)}
                 >
                     <ListItemAvatar style={{ minWidth: 60, marginTop: 0 }}>
-                        <UserIcon identity={contact.identity} active={false} chatContact />
+                        <UserIcon contact={contact} active={false} chatContact />
                     </ListItemAvatar>
                     <ListItemText
                         disableTypography

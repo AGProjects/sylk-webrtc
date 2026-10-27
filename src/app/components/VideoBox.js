@@ -1067,7 +1067,7 @@ class VideoBox extends React.Component {
 
                         {!this.state.hasVideo &&
                             <div className="call-user-icon">
-                                <UserIcon identity={this.props.contact.identity} large={true} active={this.state.active} />
+                                <UserIcon contact={this.props.contact} large={true} active={this.state.active} />
                             </div>
                         }
                         <div className="video-container" onMouseMove={this.showCallOverlay}>

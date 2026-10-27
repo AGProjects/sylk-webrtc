@@ -1088,7 +1088,7 @@ const Chat = (props) => {
                                     :
                                     <React.Fragment>
                                         <div style={{ flex: 0 }} onClick={togglePanel}>
-                                            <UserIcon identity={selectedContact.identity} active={false} small={true} />
+                                            <UserIcon contact={selectedContact} active={false} small={true} />
                                         </div>
                                         <div onClick={togglePanel} style={{ flex: '1', display: 'flex', alignItems: 'center' }}>
                                             <Typography className={classes.title} variant="h6" noWrap>

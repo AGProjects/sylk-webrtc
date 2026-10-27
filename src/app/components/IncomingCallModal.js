@@ -89,7 +89,7 @@ const IncomingCallModal = (props) => {
                 <div className="loading">
                     <div className="loading-inner">
                         <OverlayTrigger placement="top" overlay={tooltip}>
-                            <UserIcon identity={contact.identity} large={true} />
+                            <UserIcon contact={contact} large={true} />
                         </OverlayTrigger>
                         <h1>{contact.name}</h1>
                         <h4>is calling with {callType}</h4>

@@ -146,7 +146,7 @@ class CallOverlay extends React.Component {
                         <Navbar inverse={true} fixedTop={true} fluid={true} style={{ borderBottom: '3px solid #4cae4c' }}>
                             <Navbar.Header>
                                 <div style={{ float: 'left', margin: '0 auto 0 15px' }}>
-                                    <UserIcon identity={this.props.contact.identity} active={false} small={true} isConference={isConference} />
+                                    <UserIcon contact={this.props.contact} active={false} small={true} isConference={isConference} />
                                 </div>
                                 <Navbar.Brand style={{ color: '#f0f0f0', padding: '15px' }}>
                                     <strong>{type}{titleSep}</strong> {name} - {callDetail}

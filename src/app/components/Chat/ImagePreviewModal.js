@@ -161,7 +161,7 @@ const ImagePreviewModal = (props) => {
     const contact = props.message && props.message.sender && lookup(props.message.sender.uri);
 
     const userIcon = props.message && props.message.sender
-        ? <UserIcon identity={contact.identity} />
+        ? <UserIcon contact={contact} />
         : '';
 
     const title = props.message && props.message.sender

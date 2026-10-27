@@ -131,7 +131,7 @@ const HistoryCard = (props) => {
                 </CardActions>
             </div>
             <div className={classes.icon}>
-                <UserIcon identity={contact.identity} card isConference={isConference} />
+                <UserIcon contact={contact} card isConference={isConference} />
             </div>
         </Card>
     );

@@ -337,11 +337,11 @@ const Message = ({
                 }
                 <div ref={messageRef} />
                 <Media.Left>
-                    <UserIcon identity={identity} />
+                    <UserIcon identity={identity} lookup={!fromSelf}/>
                 </Media.Left>
                 <Media.Body className="vertical-center">
                     <Media.Heading>
-                        {identity.displayName || identity.uri}&nbsp;
+                        { identity.displayName || identity.uri}&nbsp;
                         <span>{time}</span>
                         <span className="pull-right" style={{ paddingRight: '15px' }}>
                             {message.isSecure && <LockIcon className={classes.lockIcon} />}

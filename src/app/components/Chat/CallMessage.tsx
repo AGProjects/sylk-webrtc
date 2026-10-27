@@ -110,7 +110,7 @@ const CallMessage = ({ message, cont, scroll, identity }: CallMessageProps) => {
         <div ref={ref}>
             <Media className={theme}>
                 <Media.Left>
-                    <UserIcon identity={renderIdentity} />
+                    <UserIcon identity={renderIdentity}  contact={isOutgoing ? undefined : contact} lookup={!isOutgoing}/>
                 </Media.Left>
                 <Media.Body className="vertical-center">
                     <Media.Heading>

@@ -525,7 +525,7 @@ const FileTransferMessage = ({
                 }
                 <div ref={messageRef} />
                 <Media.Left>
-                    <UserIcon identity={identity} />
+                    <UserIcon identity={identity} lookup={!fromSelf}/>
                 </Media.Left>
                 <Media.Body className="vertical-center">
                     <Media.Heading>

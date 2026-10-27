@@ -44,6 +44,7 @@ const fileTransferUtils = require('../../fileTransferUtils');
 const messageStorage = require('../../messageStorage');
 const { useAddressbook } = require('../../AddressbookProvider');
 const ContactDetails = require('./ContactDetails').default;
+const AvatarPicker = require('./AvatarPicker').default;
 
 
 const DEBUG = debug('blinkrtc:InfoPanel');
@@ -529,7 +530,9 @@ const InfoPanel = ({
                 removeMessage={removeMessage}
             />
             <DragAndDrop title="Drop files to share them" handleDrop={uploadFiles} marginTop={'100px'} style={{ height: '100%', flexDirection: 'column'}} useFlex>
-                <UserIcon identity={selectedContact.identity} active={false} large={true} />
+                <AvatarPicker contact={selectedContact} editable={!!editContact}>
+                    {(open) => <UserIcon contact={selectedContact} active={false} large={true} onEdit={open} />}
+                </AvatarPicker>
                 <ContactDetails
                     key={selectedContact.id}
                     contact={selectedContact}

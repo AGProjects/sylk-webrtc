@@ -6,9 +6,11 @@ const utils     = require('../utils');
 
 const { makeStyles }    = require('@material-ui/core/styles');
 const { Avatar }        = require('@material-ui/core');
+const { AddAPhoto: AddAPhotoIcon } = require('@material-ui/icons');
 
 const { default: clsx } = require('clsx');
 
+const { useAddressbook } = require('../AddressbookProvider');
 
 const styleSheet = makeStyles({
     root: {
@@ -51,6 +53,9 @@ const styleSheet = makeStyles({
     shadowSmall: {
         boxShadow: '0 0 5px 2px #999'
     },
+    editable: {
+        cursor: 'pointer'
+    },
     '@keyframes speakingPulse': {
         '0%': {
             boxShadow: '0 0 0 0 rgba(var(--avatar-color), 0.7), 0 0 0 3px rgba(0, 0, 0, 0.25)'
@@ -80,9 +85,12 @@ function hexToRgbString(hex) {
 
 const UserIcon = (props) => {
     const classes = styleSheet();
-    const name = props.identity.displayName || props.identity.uri;
+    const ab = useAddressbook();
+    const identity = props.contact?.identity || props.identity;
+    if (!identity) return null;
+    const name = identity.displayName || identity.uri;
     let initials = name.split(' ', 2).map(x => x[0]).join('');
-    const color = utils.generateMaterialColor(props.identity.uri)['300'];
+    const color = utils.generateMaterialColor(identity.uri)['300'];
     const avatarClasses = clsx(
         classes.root,
         classes.drawerAvatar,
@@ -92,10 +100,11 @@ const UserIcon = (props) => {
         {[`${classes.speaking}`]: props.active},
         {[`${classes.shadowSmall}`]: props.active && props.small},
         {[`${classes.carousel}`]: props.carousel},
+        {[`${classes.editable}`]: !!props.onEdit},
         {[`${classes.margin}`]: props.small}
     );
 
-    if (props.identity.uri === 'anonymous@anonymous.invalid') {
+    if (identity.uri === 'anonymous@anonymous.invalid') {
         initials = <i className="fa fa-user fa-2x fa-fw"></i>;
     }
 
@@ -107,22 +116,44 @@ const UserIcon = (props) => {
         }
     }
 
+    if (props.onEdit && !props.contact?.avatarUri) {
+        initials = <AddAPhotoIcon fontSize="inherit" />;
+    }
+    let avatarUri = props.contact?.avatarUri;
+
+    if (!props.contact && props.lookup !== false) {
+        avatarUri = ab?.addressbook.contacts.best(identity.uri)?.avatarUri;
+    }
+
     return (
-        <Avatar className={avatarClasses} style={{backgroundColor: color, '--avatar-color': hexToRgbString(color)}}>
+        <Avatar className={avatarClasses} src={avatarUri} style={{backgroundColor: color, '--avatar-color': hexToRgbString(color)}} onClick={props.onEdit}>
             {initials}
         </Avatar>
     );
 };
 
+const identityCheck = (props, propName, componentName) => {
+    if (props.identity && typeof props.identity !== 'object') {
+        return new Error(`${componentName}: "identity" must be an object.`);
+    }
+    if (!props.identity && !(props.contact && props.contact.identity)) {
+        return new Error(`${componentName}: pass "identity", or a "contact" that has an "identity".`);
+    }
+    return null;
+};
+
 UserIcon.propTypes = {
-    identity: PropTypes.object.isRequired,
+    contact: PropTypes.object,
+    identity: identityCheck,
     large: PropTypes.bool,
     card: PropTypes.bool,
     carousel: PropTypes.bool,
     small: PropTypes.bool,
     active: PropTypes.bool,
     chatContact: PropTypes.bool,
-    isConference: PropTypes.bool
+    isConference: PropTypes.bool,
+    onEdit: PropTypes.func,
+    lookup: PropTypes.bool
 };
 
 

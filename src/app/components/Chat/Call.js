@@ -68,7 +68,8 @@ class Call extends React.Component {
             audioGraphData: data,
             audioMuted: false,
             lastData: {},
-            hasVideo: true
+            hasVideo: true,
+            remoteSharing: false
         };
 
         this.emaBitrate = 0;
@@ -90,6 +91,7 @@ class Call extends React.Component {
         this.onMediaUpdated = this.onMediaUpdated.bind(this);
         this.onUpdateFailed = this.onUpdateFailed.bind(this);
         this.onConfirm = this.onConfirm.bind(this);
+        this.handleRemoteScreenSharingChanged = this.handleRemoteScreenSharingChanged.bind(this);
 
         this.localVideo = React.createRef();
         this.remoteVideo = React.createRef();
@@ -158,6 +160,11 @@ class Call extends React.Component {
     componentDidMount() {
         if (this.props.currentCall != null) {
             this.props.currentCall.statistics.on('stats', this.statistics);
+            this.props.currentCall.on('remoteScreenSharingChanged', this.handleRemoteScreenSharingChanged);
+            if (this.props.currentCall.remoteScreenSharing) {
+                this.handleRemoteScreenSharingChanged({ sharing: true });
+            }
+
             const localStream = this.props.currentCall?.getLocalStreams?.()[0];
             const audioTrack = localStream?.getAudioTracks?.()[0];
 
@@ -182,12 +189,20 @@ class Call extends React.Component {
         if (prevProps.currentCall !== this.props.currentCall) {
             this._detachUpgradeHandlers(prevProps.currentCall);
             this._attachUpgradeHandlers(this.props.currentCall);
+            if (prevProps.currentCall != null) {
+                prevProps.currentCall.removeListener('remoteScreenSharingChanged', this.handleRemoteScreenSharingChanged);
+            }
+            if (this.props.currentCall != null) {
+                this.props.currentCall.on('remoteScreenSharingChanged', this.handleRemoteScreenSharingChanged);
+                this.handleRemoteScreenSharingChanged({ sharing: !!this.props.currentCall.remoteScreenSharing });
+            }
         }
     }
 
     componentWillUnmount() {
         if (this.props.currentCall) {
             this.props.currentCall.statistics.removeListener('stats', this.statistics);
+            this.props.currentCall.removeListener('remoteScreenSharingChanged', this.handleRemoteScreenSharingChanged);
         }
         this._detachUpgradeHandlers(this.props.currentCall);
     }
@@ -267,6 +282,19 @@ class Call extends React.Component {
         }
     }
 
+    handleRemoteScreenSharingChanged(remote) {
+        const sharing = !!(remote && remote.sharing);
+        this.lowVideoStreak = 0;
+        this.videoWarmupTicks = 0;
+        if (!sharing) {
+            this.emaBitrate = 0;   // restart the EMA from scratch after a share ends
+        }
+        this.setState(state => ({
+            remoteSharing: sharing,
+            hasVideo: sharing ? true : state.hasVideo
+        }));
+    }
+
     statistics(stats) {
         const audioData = stats.data.audio;
         const audioRemoteData = stats.data.remote.audio;
@@ -301,28 +329,31 @@ class Call extends React.Component {
         const packets = videoInbound?.packetRate || 0;
         const videoRemoteExists = stats.data.remote.video?.inbound[0];
 
-        if (bitrate > 0 && this.emaBitrate === 0) {
-            this.emaBitrate = bitrate;
-            this.videoWarmupTicks = 5;
-        } else {
-            this.emaBitrate = this.alpha * bitrate + (1 - this.alpha) * this.emaBitrate;
-        }
-
-        const meetsThreshold = videoRemoteExists === undefined
-            ? undefined
-            : (videoRemoteExists && this.emaBitrate > 5000 && packets > 15);
-
         let hasVideo = this.state.hasVideo;
-        if (meetsThreshold === true) {
+
+        if (this.state.remoteSharing) {
             this.lowVideoStreak = 0;
-            this.videoWarmupTicks = 0;
             hasVideo = true;
-        } else if (meetsThreshold === false) {
-            if (this.videoWarmupTicks > 0) {
-                this.videoWarmupTicks -= 1;
+        } else {
+            if (bitrate > 0 && this.emaBitrate === 0) {
+                this.emaBitrate = bitrate;
+                this.videoWarmupTicks = 5;
             } else {
-                this.lowVideoStreak = (this.lowVideoStreak || 0) + 1;
-                if (this.lowVideoStreak >= 3) {
+                this.emaBitrate = this.alpha * bitrate + (1 - this.alpha) * this.emaBitrate;
+            }
+
+            const meetsThreshold = videoRemoteExists === undefined
+                ? undefined
+                : (videoRemoteExists && this.emaBitrate > 5000 && packets > 15);
+
+            if (meetsThreshold === true) {
+                this.lowVideoStreak = 0;
+                this.videoWarmupTicks = 0;
+                hasVideo = true;
+            } else if (meetsThreshold === false) {
+                if (this.videoWarmupTicks > 0) {
+                    this.videoWarmupTicks -= 1;
+                } else if (++this.lowVideoStreak >= 3) {
                     hasVideo = false;
                 }
             }

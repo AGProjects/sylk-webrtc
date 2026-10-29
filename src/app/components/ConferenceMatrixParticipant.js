@@ -38,6 +38,15 @@ class ConferenceMatrixParticipant extends React.Component {
         }
         this.emaBitrate = 0;
         this.alpha = 0.4;
+        this.lastSample = null;
+        this.lowSamples = 0;
+        this.holdOff = 3;   // consecutive black + low-bitrate samples before hiding
+
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = 32;
+        this.canvas.height = 18;
+        this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
+
     }
 
     componentDidMount() {
@@ -66,29 +75,66 @@ class ConferenceMatrixParticipant extends React.Component {
     }
 
     componentDidUpdate() {
-        if (!this.props.stats?.packetLossData) return;
-        if (!this.props.participant) return;
+        if (this.state.sharesScreen && this.isBlackFrame() === false) {
+            if (!this.state.hasVideo) this.setState({ hasVideo: true });
+            return;
+        }
+        const data = this.props.stats?.packetLossData;
+        if (!data || !data.length || !this.props.participant) return;
 
-        const latest =
-            this.props.stats.packetLossData[
-            this.props.stats.packetLossData.length - 1
-        ];
+        const latest = data[data.length - 1];
+        if (latest === this.lastSample) return;   // don't count the same sample twice
+        this.lastSample = latest;
 
         const bitrate = latest?.inboundVideoBitrate;
         const packets = latest?.packetRateInbound;
-
         if (!Number.isFinite(bitrate)) return;
-        // EMA update
+
         this.emaBitrate = this.alpha * bitrate + (1 - this.alpha) * this.emaBitrate;
 
-        const participants = this.props.participant._conference.participants.length - 1 ;
-        const hasVideo = this.emaBitrate > 100000 / Math.max(participants, 1) && packets > 5;
+        const participants = Math.max(this.props.participant._conference.participants.length - 1, 1);
+        const looksLikeVideo = this.emaBitrate > 100000 / participants && packets > 5;
 
-        if (this.state.hasVideo !== hasVideo) {
-            this.setState({ hasVideo });
+        if (looksLikeVideo) {
+            this.lowSamples = 0;
+            if (!this.state.hasVideo) this.setState({ hasVideo: true });
+            return;
         }
 
+        const black = this.isBlackFrame();
+
+        if (!this.state.hasVideo) {
+            // quiet stream but real pixels: show it
+            if (black === false) this.setState({ hasVideo: true });
+            return;
+        }
+
+        // bitrate is low: only hide if the picture is really black, several samples in a row
+        if (black === true) {
+            if (++this.lowSamples >= this.holdOff) {
+                this.lowSamples = 0;
+                this.setState({ hasVideo: false });
+            }
+        } else {
+            this.lowSamples = 0;
+        }
     }
+
+    isBlackFrame() {
+        const video = this.videoElement.current;
+        if (!video || video.readyState < 2 || !video.videoWidth) return null; // unknown
+
+        this.ctx.drawImage(video, 0, 0, this.canvas.width, this.canvas.height);
+        const { data } = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+
+        let max = 0;
+        for (let i = 0; i < data.length; i += 4) {
+            const y = (data[i] * 3 + data[i + 1] * 6 + data[i + 2]) / 10;
+            if (y > max) max = y;
+        }
+        return max < 12;
+    }
+
     onParticipantStateChanged(oldState, newState) {
         if (newState === 'established') {
             this.maybeAttachStream();
@@ -98,13 +144,13 @@ class ConferenceMatrixParticipant extends React.Component {
     handleResize(event) {
         // console.log(event.srcElement.videoWidth);
         const resolutions = ['1280x720', '960x540', '640x480', '640x360', '480x270', '320x180'];
-        if (this.state.hasVideo) {
-            const videoResolution = event.target.videoWidth + 'x' + event.target.videoHeight;
-            if (resolutions.indexOf(videoResolution) === -1) {
-                this.setState({sharesScreen: true});
-            } else {
-                this.setState({sharesScreen: false});
-            }
+        const { videoWidth, videoHeight } = event.target;
+        if (!videoWidth || !videoHeight) return;
+
+        const sharesScreen = resolutions.indexOf(videoWidth + 'x' + videoHeight) === -1;
+        if (sharesScreen !== this.state.sharesScreen) {
+            if (!sharesScreen) this.emaBitrate = 100000;
+            this.setState({ sharesScreen });
         }
     }
 

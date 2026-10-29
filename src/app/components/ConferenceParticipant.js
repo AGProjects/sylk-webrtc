@@ -73,7 +73,7 @@ class ConferenceParticipant extends React.Component {
         if (!Number.isFinite(bitrate)) return;
 
         this.emaBitrate = this.alpha * bitrate + (1 - this.alpha) * this.emaBitrate;
-        const hasVideo = this.emaBitrate > 80000;
+        const hasVideo = this.emaBitrate > 50000;
 
         if (this.state.hasVideo !== hasVideo) {
             this.setState({ hasVideo });

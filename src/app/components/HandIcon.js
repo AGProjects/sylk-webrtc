@@ -54,7 +54,7 @@ const HandIcon = (props) => {
             button = (<span style={{padding: '0 13px'}}><i className="fa fa-hand-o-up" /></span>);
         }
         content = (
-            <Badge badgeContent={props.raisedHand + 1} color="primary" classes={{badge: badgeClass, root: rootClass}}>
+            <Badge badgeContent={props.raisedHand + 1} color="primary" overlap="rectangular" classes={{badge: badgeClass, root: rootClass}}>
                 {button}
             </Badge>
         );

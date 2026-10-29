@@ -20,9 +20,11 @@ class ConferenceParticipantSelf extends React.Component {
             sharesScreen: false
         }
         this.speechEvents = null;
+        this._isMounted = false;
     }
 
     componentDidMount() {
+        this._isMounted = true;
         sylkrtc.utils.attachMediaStream(this.props.stream, this.refs.videoElement, {disableContextMenu: true, muted: true});
 
         // factor it out to a function to avoid lint warning about calling setState here
@@ -36,6 +38,9 @@ class ConferenceParticipantSelf extends React.Component {
     }
 
     handleResize(event) {
+        if (!this._isMounted) {
+            return;
+        }
         const resolutions = [ '1280x720', '960x540', '640x480', '640x360', '480x270','320x180'];
         const videoResolution = event.target.videoWidth + 'x' + event.target.videoHeight;
         if (resolutions.indexOf(videoResolution) === -1) {
@@ -46,6 +51,12 @@ class ConferenceParticipantSelf extends React.Component {
     }
 
     componentWillUnmount() {
+        this._isMounted = false;
+
+        if (this.refs.videoElement) {
+            this.refs.videoElement.onresize = null;
+        }
+
         if (this.speechEvents !== null) {
             this.speechEvents.stop();
             this.speechEvents = null;

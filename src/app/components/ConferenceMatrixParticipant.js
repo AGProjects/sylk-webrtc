@@ -219,7 +219,6 @@ class ConferenceMatrixParticipant extends React.Component {
                 </p>
             </div>
         );
-
         let activeIcon;
 
         if (this.props.isLocal) {

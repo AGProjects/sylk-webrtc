@@ -186,7 +186,8 @@ class ConferenceMatrixParticipant extends React.Component {
     render() {
         const classes = clsx({
             'poster' : !this.state.hasVideo,
-            'fit'    : this.state.sharesScreen
+            'fit'    : this.state.sharesScreen,
+            'mirror' : this.props.isLocal && !this.state.sharesScreen
         });
         const remoteVideoClasses = clsx({
             'remote-video'      : true,

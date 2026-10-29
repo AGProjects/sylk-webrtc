@@ -1066,7 +1066,7 @@ class Blink extends React.Component {
             navigator.getDisplayMedia({
                 video: true
             }).then(screenStream => {
-                call.startScreensharing(screenStream.getVideoTracks()[0]);
+                setTimeout(call.startScreensharing(screenStream.getVideoTracks()[0]), 100);
                 screenStream.getVideoTracks()[0].addEventListener('ended', (ev) => {
                     DEBUG('Screensharing stream ended by user action');
                     this.switchScreensharing();
@@ -1078,7 +1078,7 @@ class Blink extends React.Component {
             navigator.mediaDevices.getDisplayMedia({
                 video: true
             }).then(screenStream => {
-                call.startScreensharing(screenStream.getVideoTracks()[0]);
+                setTimeout(call.startScreensharing(screenStream.getVideoTracks()[0]), 100);
                 screenStream.getVideoTracks()[0].addEventListener('ended', (ev) => {
                     DEBUG('Screensharing stream ended by user action');
                     this.switchScreensharing();
@@ -1090,7 +1090,7 @@ class Blink extends React.Component {
             DEBUG('Modern Screensharing API not available using getUserMedia');
             navigator.mediaDevices.getUserMedia(screenConstraints)
                 .then((screenStream) => {
-                    call.startScreensharing(screenStream.getVideoTracks()[0]);
+                    setTimeout(call.startScreensharing(screenStream.getVideoTracks()[0]), 100);
                     if (this.shouldUseHashRouting) {
                         const ipcRenderer = window.require('electron').ipcRenderer;
                         ipcRenderer.send('minimize');

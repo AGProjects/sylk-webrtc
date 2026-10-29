@@ -41,7 +41,7 @@ const UserIcon = require('../UserIcon');
 const CustomContextMenu = require('../CustomContextMenu');
 const DragAndDrop = require('../DragAndDrop');
 const ContactListContact = require('./ContactListContact').default;
-const ContactGroupsBar = require('./ContactGroupsBar');
+const ContactGroupsBar = require('./ContactGroupsBar').default;
 
 const { useAddressbook } = require('../../AddressbookProvider');
 

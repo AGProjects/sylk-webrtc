@@ -1,17 +1,10 @@
-'use strict';
+import React from 'react';
 
-const React = require('react');
-const PropTypes = require('prop-types');
-const { default: clsx } = require('clsx');
-const { makeStyles } = require('@material-ui/core/styles');
-const { Divider, Tabs, Tab } = require('@material-ui/core');
+import { makeStyles } from '@material-ui/core/styles';
+import { Divider, Tab, Tabs } from '@material-ui/core';
+import clsx from 'clsx';
 
-// The groups bar at the bottom of the contacts list, as in sylk-mobile's
-// ContactsCategoryBar: an icon over a short label per group, "All" first and
-// never highlighted (it means no filter), tapping the active group clears it.
 
-// Built-in keys and common group names get a fitting glyph (mobile's
-// _groupIconByName, in Font Awesome 4); anything else is a tag.
 const ICONS = {
     all: 'fa-users',
     messages: 'fa-comment',
@@ -21,20 +14,34 @@ const ICONS = {
     missed: 'fa-phone-square',
     blocked: 'fa-ban',
     conference: 'fa-video-camera',
-    family: 'fa-child', families: 'fa-child', kids: 'fa-child',
+    family: 'fa-child',
+    families: 'fa-child',
+    kids: 'fa-child',
     home: 'fa-home',
-    friend: 'fa-smile-o', friends: 'fa-smile-o', buddies: 'fa-smile-o',
-    work: 'fa-briefcase', works: 'fa-briefcase', job: 'fa-briefcase', office: 'fa-briefcase',
-    colleague: 'fa-id-badge', colleagues: 'fa-id-badge',
+    friend: 'fa-smile-o',
+    friends: 'fa-smile-o',
+    buddies: 'fa-smile-o',
+    work: 'fa-briefcase',
+    works: 'fa-briefcase',
+    job: 'fa-briefcase',
+    office: 'fa-briefcase',
+    colleague: 'fa-id-badge',
+    colleagues: 'fa-id-badge',
     team: 'fa-sitemap',
-    email: 'fa-envelope', emails: 'fa-envelope', mail: 'fa-envelope',
-    business: 'fa-building', company: 'fa-building',
-    client: 'fa-handshake-o', clients: 'fa-handshake-o',
+    email: 'fa-envelope',
+    emails: 'fa-envelope',
+    mail: 'fa-envelope',
+    business: 'fa-building',
+    company: 'fa-building',
+    client: 'fa-handshake-o',
+    clients: 'fa-handshake-o',
     school: 'fa-graduation-cap',
     vip: 'fa-diamond'
 };
 
-const iconFor = (group) => ICONS[group.key] || ICONS[group.name.toLowerCase()] || 'fa-tag';
+const iconFor = (group) => {
+    return ICONS[group.key] || ICONS[group.name.toLowerCase()] || 'fa-tag';
+};
 
 const styleSheet = makeStyles({
     bar: {
@@ -47,9 +54,9 @@ const styleSheet = makeStyles({
     icon: {
         width: 40,
         height: 26,
-        lineHeight: '26px',
+        lineHeight: '26px !important',
         borderRadius: 13,
-        fontSize: 16,
+        fontSize: '16px !important',
         textAlign: 'center'
     },
     item: {
@@ -73,11 +80,25 @@ const styleSheet = makeStyles({
     },
     tabbar: {
         paddingLeft: '6px',
-        paddingRight: '6px'
+        paddingRight: '6px',
+         '& .MuiTabScrollButton-root.Mui-disabled': { display: 'none' }
     }
 });
 
-const ContactGroupsBar = ({ groups, total, selected, onSelect }) => {
+interface GroupProps {
+    key: string;
+    name: string;
+    count?: number;
+}
+
+interface ContactGroupsBarProps {
+    groups: GroupProps[];
+    total: number;
+    selected: string | null;
+    onSelect: (value: string | null) => void;
+}
+
+const ContactGroupsBar = ({ groups, total, selected, onSelect }: ContactGroupsBarProps) => {
     const classes = styleSheet();
 
     if (!groups.length) {
@@ -118,15 +139,4 @@ const ContactGroupsBar = ({ groups, total, selected, onSelect }) => {
     );
 };
 
-ContactGroupsBar.propTypes = {
-    groups: PropTypes.arrayOf(PropTypes.shape({
-        key: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired,
-        count: PropTypes.number
-    })).isRequired,
-    total: PropTypes.number.isRequired,
-    selected: PropTypes.string,
-    onSelect: PropTypes.func.isRequired
-};
-
-module.exports = ContactGroupsBar;
+export default ContactGroupsBar;

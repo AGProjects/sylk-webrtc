@@ -119,7 +119,7 @@ class ConferenceParticipantSelf extends React.Component {
                 {muteIcon}
                 <OverlayTrigger placement="top" overlay={tooltip}>
                     <div className="participant-container">
-                        {(!this.state.hasVideo) && <UserIcon identity={this.props.identity} active={this.state.active}  carousel />}
+                        {(!this.state.hasVideo) && (<UserIcon identity={this.props.identity} active={this.state.active} isMuted={this.props.audioMuted} carousel />)}
                         <video ref="videoElement" className={classes} poster="assets/images/transparent-1px.png" autoPlay muted />
                     </div>
                 </OverlayTrigger>

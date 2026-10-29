@@ -72,6 +72,9 @@ const styleSheet = makeStyles({
     },
     speakingSmall: {
         animation: '$speakingPulse 1.4s ease-out infinite'
+    },
+    muted: {
+        opacity: 0.5
     }
 });
 
@@ -101,7 +104,8 @@ const UserIcon = (props) => {
         {[`${classes.shadowSmall}`]: props.active && props.small},
         {[`${classes.carousel}`]: props.carousel},
         {[`${classes.editable}`]: !!props.onEdit},
-        {[`${classes.margin}`]: props.small}
+        {[`${classes.margin}`]: props.small},
+        {[`${classes.muted}`]: props.isMuted} // Apply muted class when isMuted is true
     );
 
     if (identity.uri === 'anonymous@anonymous.invalid') {
@@ -153,7 +157,8 @@ UserIcon.propTypes = {
     chatContact: PropTypes.bool,
     isConference: PropTypes.bool,
     onEdit: PropTypes.func,
-    lookup: PropTypes.bool
+    lookup: PropTypes.bool,
+    isMuted: PropTypes.bool
 };
 
 

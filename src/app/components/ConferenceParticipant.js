@@ -167,9 +167,10 @@ class ConferenceParticipant extends React.Component {
                 'btn-warning': this.state.audioMuted
             });
             if (this.props.participant.type !== 'sip') {
+                const videoShow = !this.props.pauseVideo && this.state.hasVideo;
                 muteButton = (
-                    <div className="mute">
-                        <button className={muteButtonClasses} onClick={this.onMuteAudioClicked} title="Mute remote audio locally">
+                    <div className="mute" style={videoShow ? {top: '25px'} : {}}>
+                        <button className={muteButtonClasses} style={videoShow ? {transform: 'translateX(50%)'} : {}} onClick={this.onMuteAudioClicked} title="Mute remote audio locally">
                             <i className={muteButtonIcons}></i>
                         </button>
                     </div>

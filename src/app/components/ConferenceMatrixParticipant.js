@@ -158,7 +158,7 @@ class ConferenceMatrixParticipant extends React.Component {
         const streams = this.props.participant.streams;
         if (streams.length > 0) {
             sylkrtc.utils.attachMediaStream(streams[0], this.videoElement.current, {muted: this.props.isLocal});
-            if (!this.props.isLocal) {
+            if (!this.props.isLocal && streams[0].getAudioTracks().length > 0) {
                 const el = this.props.audioManager.createAudio(this.props.participant.id)
                 sylkrtc.utils.attachMediaStream(streams[0], el, {muted: true});
             }
@@ -171,13 +171,15 @@ class ConferenceMatrixParticipant extends React.Component {
                 interval: 150,
                 play: false
             };
-            this.speechEvents = hark(streams[0], options);
-            this.speechEvents.on('speaking', () => {
-                this.setState({active: true});
-            });
-            this.speechEvents.on('stopped_speaking', () => {
-                this.setState({active: false});
-            });
+            if (streams[0].getAudioTracks().length > 0) {
+                this.speechEvents = hark(streams[0], options);
+                this.speechEvents.on('speaking', () => {
+                    this.setState({active: true});
+                });
+                this.speechEvents.on('stopped_speaking', () => {
+                    this.setState({active: false});
+                });
+            }
         }
     }
 

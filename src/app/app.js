@@ -1037,7 +1037,9 @@ class Blink extends React.Component {
         // Tell the library whether this particular share can be pointed at; it
         // announces that along with the share itself, and the answer is fixed
         // for the share's lifetime.
-        call.setScreenSharePointable(guideMarker.supportedForShare(call));
+        if (typeof call.setScreenSharePointable === 'function') {
+            call.setScreenSharePointable(guideMarker.supportedForShare(call));
+        }
 
         let screenConstraints = {
             video: {

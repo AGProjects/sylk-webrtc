@@ -2,9 +2,9 @@
     "parser": "babel-eslint",
     "parserOptions": {
         "ecmaVersion": 6,
-            "ecmaFeatures": {
-                "jsx": true
-            },
+        "ecmaFeatures": {
+            "jsx": true
+        },
     },
     "plugins": [
         "import",
@@ -16,10 +16,10 @@
     },
     "settings": {
         "react": {
-          "createClass": "createReactClass",
-          "pragma": "React",
-          "version": "detect",
-          "flowVersion": "0.53"
+            "createClass": "createReactClass",
+            "pragma": "React",
+            "version": "detect",
+            "flowVersion": "0.53"
         },
         "propWrapperFunctions": [
             "forbidExtraProps",
@@ -28,42 +28,48 @@
         ]
     },
     "rules": {
-         "import/extensions": 2,
+        "import/extensions": [
+            "error",
+            "never",
+            {
+                json: "always"
+            }
+        ],
 
-         "react/display-name": [2, { "ignoreTranspilerName": false }],
-         "react/jsx-no-duplicate-props": 2,
-         "react/jsx-no-undef": 2,
-         "react/jsx-quotes": 0,
-         "react/jsx-closing-bracket-location": [1, "tag-aligned"],
-         "react/jsx-uses-react": 2,
-         "react/jsx-uses-vars": 2,
-         "react/no-did-mount-set-state": 2,
-         "react/no-did-update-set-state": 2,
-         "react/no-multi-comp": 2,
-         "react/no-unknown-property": 2,
-         "react/prop-types": 1,
-         "react/react-in-jsx-scope": 2,
-         "react/self-closing-comp": 0,
-         "react/jsx-wrap-multilines": 2,
-         "react/sort-comp": 0,
+        "react/display-name": [2, { "ignoreTranspilerName": false }],
+        "react/jsx-no-duplicate-props": 2,
+        "react/jsx-no-undef": 2,
+        "react/jsx-quotes": 0,
+        "react/jsx-closing-bracket-location": [1, "tag-aligned"],
+        "react/jsx-uses-react": 2,
+        "react/jsx-uses-vars": 2,
+        "react/no-did-mount-set-state": 2,
+        "react/no-did-update-set-state": 2,
+        "react/no-multi-comp": 2,
+        "react/no-unknown-property": 2,
+        "react/prop-types": 1,
+        "react/react-in-jsx-scope": 2,
+        "react/self-closing-comp": 0,
+        "react/jsx-wrap-multilines": 2,
+        "react/sort-comp": 0,
 
-         "react-hooks/rules-of-hooks": "error",
-         "react-hooks/exhaustive-deps": "warn",
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
 
-         "quotes": [1, "single", "avoid-escape"],
-         "jsx-quotes": 1,
-         "comma-dangle": [1, "never"],
-         "no-underscore-dangle": 0,
-         "func-names": 0,
-         "no-else-return": 2,
-         "no-console": 1,
-         "no-throw-literal": 0,
-         "no-mixed-spaces-and-tabs": 2,
-         "space-in-parens": [2, "never"],
-         "space-infix-ops": 2,
-         "space-before-blocks": 2,
-         "id-length": 0,
-         "camelcase": [2, {"properties": "always"}]
+        "quotes": [1, "single", "avoid-escape"],
+        "jsx-quotes": 1,
+        "comma-dangle": [1, "never"],
+        "no-underscore-dangle": 0,
+        "func-names": 0,
+        "no-else-return": 2,
+        "no-console": 1,
+        "no-throw-literal": 0,
+        "no-mixed-spaces-and-tabs": 2,
+        "space-in-parens": [2, "never"],
+        "space-infix-ops": 2,
+        "space-before-blocks": 2,
+        "id-length": 0,
+        "camelcase": [2, {"properties": "always"}]
     },
     "overrides": [
         {

@@ -189,7 +189,7 @@ class AudioCallBox extends React.Component {
             return;
         }
 
-        const audioJitter = audioData.inbound[0].jitter || 0;
+        const audioJitter = audioData?.inbound[0]?.jitter || 0;
         const audioRTT = audioRemoteData.inbound[0].roundTripTime || 0;
 
         const audioPacketsLostOutbound = audioRemoteExists && audioRemoteData.inbound[0].packetLossRate || 0;

@@ -1,58 +1,57 @@
 const React = require('react');
-const { useState, useRef, useImperativeHandle, forwardRef } = React;
+const debug = require('debug');
+const { useRef, useImperativeHandle, useEffect, useCallback, forwardRef } = React;
+
+const DEBUG = debug('blinkrtc:ParticipantAudioManager');
 
 const ParticipantAudioManager = forwardRef((props, ref) => {
-    const [audios, setAudios] = useState({}); // { id: true }
-    const audioRefs = useRef({}); // { id: HTMLAudioElement }
+    const containerRef = useRef(null);
+    const audioElements = useRef({}); // { participantId: HTMLAudioElement }
 
-    // Create audio element for a participant
-    const createAudio = (id) => {
-        if (!audios[id]) {
-            setAudios(prev => ({ ...prev, [id]: true }));
+    const createAudio = (participantId) => {
+        DEBUG('Adding audio for %s', participantId);
+        let audioElement = audioElements.current[participantId];
+        if (!audioElement && containerRef.current) {
+            DEBUG('Really adding audio for %s', participantId);
+            audioElement = document.createElement('audio');
+            audioElement.autoplay = true;
+            containerRef.current.appendChild(audioElement);
+            audioElements.current[participantId] = audioElement;
         }
-        return audioRefs.current[id] || null;
+        return audioElement || null;
     };
-
 
     const setAllMute = (muted) => {
-        Object.values(audioRefs.current).forEach(el => {
-            if (el) el.muted = muted;
+        DEBUG('Set all audio muted: %s', muted);
+        Object.values(audioElements.current).forEach((audioElement) => {
+            audioElement.muted = muted;
         });
     };
 
-    // Remove audio element
-    const removeAudio = (id) => {
-        setAudios(prev => {
-            const { [id]: _, ...rest } = prev;
-            return rest;
-        });
-        delete audioRefs.current[id];
-    };
-    const destroy = () => {
-        setAudios({});
-        audioRefs.current = {};
-    };
+    const removeAudio = useCallback((participantId) => {
+        DEBUG('Remove audio for %s', participantId);
+        const audioElement = audioElements.current[participantId];
 
-    useImperativeHandle(ref, () => ({
-        createAudio,
-        removeAudio,
-        setAllMute,
-        destroy
-    }));
+        if (audioElement) {
+            audioElement.pause();
+            audioElement.srcObject = null;
+            audioElement.remove();
+            delete audioElements.current[participantId];
+        }
+    }, []);
 
-    return (
-        <div style={{ display: 'none' }}>
-            {Object.keys(audios).map(id => (
-                <audio
-                    key={id}
-                    autoPlay
-                    ref={el => {
-                        if (el) audioRefs.current[id] = el;
-                    }}
-                />
-            ))}
-        </div>
-    );
+    const destroy = useCallback(() => {
+        DEBUG('Destroy all audio');
+        Object.keys(audioElements.current).forEach(removeAudio);
+    }, [removeAudio]);
+
+    useImperativeHandle(ref, () => ({ createAudio, removeAudio, setAllMute, destroy }));
+
+    useEffect(() => {
+        return () => destroy();
+    }, [destroy]);
+
+    return <div ref={containerRef} style={{ display: 'none' }} />;
 });
 
 ParticipantAudioManager.displayName = 'ParticipantAudioManager';

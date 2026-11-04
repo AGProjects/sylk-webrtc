@@ -6,6 +6,7 @@ const PropTypes         = require('prop-types');
 const sylkrtc           = require('sylkrtc');
 const hark              = require('hark');
 const { default: clsx }  = require('clsx');
+const { VideoPresenceDetector } = require('../utils');
 
 const HandIcon    = require('./HandIcon');
 const UserIcon    = require('./UserIcon');
@@ -36,17 +37,9 @@ class ConferenceMatrixParticipant extends React.Component {
         if (!props.isLocal) {
             props.participant.on('stateChanged', this.onParticipantStateChanged);
         }
-        this.emaBitrate = 0;
-        this.alpha = 0.4;
+
+        this.videoDetector = new VideoPresenceDetector({ minBitrate: 0, minPackets: 5, initial: false });
         this.lastSample = null;
-        this.lowSamples = 0;
-        this.holdOff = 3;   // consecutive black + low-bitrate samples before hiding
-
-        this.canvas = document.createElement('canvas');
-        this.canvas.width = 32;
-        this.canvas.height = 18;
-        this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
-
     }
 
     componentDidMount() {
@@ -75,64 +68,33 @@ class ConferenceMatrixParticipant extends React.Component {
     }
 
     componentDidUpdate() {
-        if (this.state.sharesScreen && this.isBlackFrame() === false) {
-            if (!this.state.hasVideo) this.setState({ hasVideo: true });
+        if (this.props.isLocal) {
+            const track = this.props.participant.streams[0]?.getVideoTracks()[0];
+            const hasVideo = !!track && track.enabled;
+            if (hasVideo !== this.state.hasVideo) {
+                this.setState({ hasVideo });
+            }
             return;
         }
+
         const data = this.props.stats?.packetLossData;
         if (!data || !data.length || !this.props.participant) return;
 
         const latest = data[data.length - 1];
-        if (latest === this.lastSample) return;   // don't count the same sample twice
+        if (latest === this.lastSample) return;
         this.lastSample = latest;
-
-        const bitrate = latest?.inboundVideoBitrate;
-        const packets = latest?.packetRateInbound;
-        if (!Number.isFinite(bitrate)) return;
-
-        this.emaBitrate = this.alpha * bitrate + (1 - this.alpha) * this.emaBitrate;
-
         const participants = Math.max(this.props.participant._conference.participants.length - 1, 1);
-        const looksLikeVideo = this.emaBitrate > 100000 / participants && packets > 5;
+        const hasVideo = this.videoDetector.update({
+            bitrate: latest?.inboundVideoBitrate,
+            packets: latest?.packetRateInbound,
+            video: this.videoElement.current,
+            trustBitrate: 100000 / participants,
+            sharing: this.state.sharesScreen
+        });
 
-        if (looksLikeVideo) {
-            this.lowSamples = 0;
-            if (!this.state.hasVideo) this.setState({ hasVideo: true });
-            return;
+        if (hasVideo !== null && hasVideo !== this.state.hasVideo) {
+            this.setState({ hasVideo });
         }
-
-        const black = this.isBlackFrame();
-
-        if (!this.state.hasVideo) {
-            // quiet stream but real pixels: show it
-            if (black === false) this.setState({ hasVideo: true });
-            return;
-        }
-
-        // bitrate is low: only hide if the picture is really black, several samples in a row
-        if (black === true) {
-            if (++this.lowSamples >= this.holdOff) {
-                this.lowSamples = 0;
-                this.setState({ hasVideo: false });
-            }
-        } else {
-            this.lowSamples = 0;
-        }
-    }
-
-    isBlackFrame() {
-        const video = this.videoElement.current;
-        if (!video || video.readyState < 2 || !video.videoWidth) return null; // unknown
-
-        this.ctx.drawImage(video, 0, 0, this.canvas.width, this.canvas.height);
-        const { data } = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-
-        let max = 0;
-        for (let i = 0; i < data.length; i += 4) {
-            const y = (data[i] * 3 + data[i + 1] * 6 + data[i + 2]) / 10;
-            if (y > max) max = y;
-        }
-        return max < 12;
     }
 
     onParticipantStateChanged(oldState, newState) {
@@ -149,7 +111,6 @@ class ConferenceMatrixParticipant extends React.Component {
 
         const sharesScreen = resolutions.indexOf(videoWidth + 'x' + videoHeight) === -1;
         if (sharesScreen !== this.state.sharesScreen) {
-            if (!sharesScreen) this.emaBitrate = 100000;
             this.setState({ sharesScreen });
         }
     }
@@ -163,7 +124,10 @@ class ConferenceMatrixParticipant extends React.Component {
                 sylkrtc.utils.attachMediaStream(streams[0], el, {muted: true});
             }
 
-            this.setState({hasVideo: streams[0].getVideoTracks().length > 0});
+            if (this.props.isLocal) {
+                const track = streams[0].getVideoTracks()[0];
+                this.setState({ hasVideo: !!track && track.enabled });
+            }
             if (this.props.pauseVideo && !this.props.isLocal) {
                 this.props.participant.pauseVideo();
             }
@@ -202,6 +166,7 @@ class ConferenceMatrixParticipant extends React.Component {
             'hide'   : this.props.audioOnly || !this.state.hasVideo,
             'fadeOut': !this.state.hasVideo
         });
+
         const participantInfo = (
             <div className="controls">
                 <p className="lead">{this.props.participant.identity.displayName || this.props.participant.identity.uri}

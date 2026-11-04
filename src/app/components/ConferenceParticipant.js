@@ -8,6 +8,7 @@ const OverlayTrigger = ReactBootstrap.OverlayTrigger;
 const sylkrtc = require('sylkrtc');
 const hark = require('hark');
 const { default: clsx } = require('clsx');
+const { VideoPresenceDetector } = require('../utils');
 
 const CallQuality = require('./CallQuality');
 const HandIcon = require('./HandIcon');
@@ -24,7 +25,8 @@ class ConferenceParticipant extends React.Component {
             audioMuted: false
         }
         this.speechEvents = null;
-
+        this.videoDetector = new VideoPresenceDetector({ minBitrate: 0, minPackets: 5, initial: false });
+        this.lastSample = null;
         this.videoElement = React.createRef();
 
         // ES6 classes no longer autobind
@@ -37,8 +39,6 @@ class ConferenceParticipant extends React.Component {
             this[name] = this[name].bind(this);
         });
 
-        this.emaBitrate = 0;
-        this.alpha = 0.4;
         props.participant.on('stateChanged', this.onParticipantStateChanged);
     }
 
@@ -60,22 +60,24 @@ class ConferenceParticipant extends React.Component {
     }
 
     componentDidUpdate() {
-        if (!this.props.stats?.packetLossData) return;
+        if (this.props.pauseVideo) return;
 
-        const latest =
-            this.props.stats.packetLossData[
-            this.props.stats.packetLossData.length - 1
-        ];
+        const data = this.props.stats?.packetLossData;
+        if (!data || !data.length) return;
 
-        const bitrate = latest?.inboundVideoBitrate;
-        const packets = latest?.packetRateInbound;
+        const latest = data[data.length - 1];
+        if (latest === this.lastSample) return;
+        this.lastSample = latest;
 
-        if (!Number.isFinite(bitrate)) return;
+        const participants = Math.max(this.props.participant._conference.participants.length - 1, 1);
+        const hasVideo = this.videoDetector.update({
+            bitrate: latest?.inboundVideoBitrate,
+            packets: latest?.packetRateInbound,
+            video: this.videoElement.current,
+            trustBitrate: 100000 / participants
+        });
 
-        this.emaBitrate = this.alpha * bitrate + (1 - this.alpha) * this.emaBitrate;
-        const hasVideo = this.emaBitrate > 50000;
-
-        if (this.state.hasVideo !== hasVideo) {
+        if (hasVideo !== null && hasVideo !== this.state.hasVideo) {
             this.setState({ hasVideo });
         }
     }
@@ -113,7 +115,6 @@ class ConferenceParticipant extends React.Component {
             if (this.props.pauseVideo) {
                 this.props.participant.pauseVideo();
             }
-            this.setState({ hasVideo: streams[0].getVideoTracks().length > 0 });
             const options = {
                 interval: 150,
                 play: false

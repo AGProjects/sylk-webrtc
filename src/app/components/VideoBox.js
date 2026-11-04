@@ -61,6 +61,11 @@ const styleSheet = {
         '&:hover': {
             backgroundColor: '#fff'
         }
+    },
+    remoteHidden: {
+        opacity: '0 !important',
+        pointerEvents: 'none',
+        transition: 'opacity 0.3s'
     }
 };
 
@@ -108,7 +113,7 @@ class VideoBox extends React.Component {
             callQuality: new Array(30).fill({}),
             upload: null,
             lastData: {},
-            hasVideo: true,
+            hasVideo: null,
             // Local echo of a click WE sent that the peer ACKed rendering.
             ackEcho: null,
             // The peer can render a marker right now (their app/tab is in front).
@@ -122,10 +127,6 @@ class VideoBox extends React.Component {
             screenRequestPending: false,
             anchorEl: null
         };
-        this.emaBitrate = 0;
-        this.alpha = 0.4;
-        this.videoWarmupTicks = 0;
-        this.lowVideoStreak = 0;
 
         this.overlayTimer = null;
         this.ackEchoTimer = null;
@@ -139,6 +140,7 @@ class VideoBox extends React.Component {
         // Pointer geometry and marker drawing, created on mount (see
         // componentDidMount). The protocol behind it lives in the call.
         this.pointerSession = null;
+        this.videoDetector = new utils.VideoPresenceDetector({ minBitrate: 5000, minPackets: 5 });
 
         // ES6 classes no longer autobind
         [
@@ -169,10 +171,11 @@ class VideoBox extends React.Component {
             'handlePointerAck',
             'requestScreenShare',
             'handlePeerCapabilities',
-            'handleScreenRequestResolved'
+            'handleScreenRequestResolved',
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });
+
     }
 
     componentDidUpdate() {
@@ -231,6 +234,11 @@ class VideoBox extends React.Component {
                 inApp: this.props.call.remoteInApp
             });
         }
+        this.props.call.statistics.on('stats', this.statistics);
+        document.addEventListener('keydown', this.onKeyDown);
+
+        const remoteStream = this.props.call.getRemoteStreams()[0];
+        if (!remoteStream) { return; }
 
         sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.remoteVideo.current, { muted: true, disableContextMenu: true });
         const options = {
@@ -249,8 +257,6 @@ class VideoBox extends React.Component {
             DEBUG('Attaching audio');
             sylkrtc.utils.attachMediaStream(this.props.call.getRemoteStreams()[0], this.props.remoteAudio.current, { disableContextMenu: true });
         }
-        this.props.call.statistics.on('stats', this.statistics);
-        document.addEventListener('keydown', this.onKeyDown);
     }
 
     componentWillUnmount() {
@@ -362,42 +368,24 @@ class VideoBox extends React.Component {
         const bitrate = addData?.video?.incomingBitrate;
         const packets = addData?.video?.packetRateInbound;
 
-        if (bitrate > 0 && this.emaBitrate === 0) {
-            this.emaBitrate = bitrate;
-            this.videoWarmupTicks = 5;
-        } else {
-            this.emaBitrate = this.alpha * bitrate + (1 - this.alpha) * this.emaBitrate;
-        }
-
-        const meetsThreshold = videoRemoteExists === undefined
-            ? undefined
-            : (videoRemoteExists && this.emaBitrate > 5000 && packets > 15);
+        const inboundVideo = videoData?.inbound[0];
 
         let hasVideo = this.state.hasVideo;
-        if (meetsThreshold === true) {
-            this.lowVideoStreak = 0;
-            this.videoWarmupTicks = 0;
-            hasVideo = true;
-        } else if (meetsThreshold === false) {
-            if (this.videoWarmupTicks > 0) {
-                this.videoWarmupTicks -= 1;
-            } else {
-                this.lowVideoStreak = (this.lowVideoStreak || 0) + 1;
-                // While the peer is SCREEN SHARING, a static screen sends a low,
-                // bursty bitrate that trips this threshold even though the share
-                // is fine. Don't hide the video / show the poster there — the
-                // detection is only meant to catch a dead camera stream.
-                if (this.lowVideoStreak >= 3 && !this.state.remotePeerSharing) {
-                    hasVideo = false;
-                }
-            }
+        if (inboundVideo) {
+            hasVideo = this.videoDetector.update({
+                bitrate,
+                packets,
+                video: this.remoteVideo.current,
+                sharing: this.state.remotePeerSharing
+            });
+        } else if (hasVideo === null && audioData?.inbound[0]) {
+            hasVideo = false;
         }
 
         if (hasVideo !== this.state.hasVideo && !hasVideo) {
             clearTimeout(this.overlayTimer);
             this.setState({ callOverlayVisible: true });
         }
-        // DEBUG(this.emaBitrate, hasVideo, packets)
         this.setState(state => {
             const videoGraphData = state.videoGraphData.concat(addData.video);
             const audioGraphData = state.audioGraphData.concat(addData.audio);
@@ -426,7 +414,11 @@ class VideoBox extends React.Component {
     }
 
     handleRemoteVideoPlaying() {
-        this.setState({ remoteVideoShow: true });
+        const decided = this.videoDetector.firstFrame(this.remoteVideo.current);
+        this.setState(state => ({
+            remoteVideoShow: true,
+            hasVideo: decided === true ? true : state.hasVideo
+        }));
         this.remoteVideo.current.onresize = (event) => {
             this.handleRemoteResize(event)
         };
@@ -464,7 +456,7 @@ class VideoBox extends React.Component {
             callOverlayVisible: remote.sharing || this.state.callOverlayVisible
         });
         if (startedSharing) {
-            this.lowVideoStreak = 0;
+            this.videoDetector.force(true);
             clearTimeout(this.overlayTimer);
             // The screen we asked for is here. Clear any request still pending
             // even if its request_accept never arrived -- the share itself is
@@ -774,7 +766,7 @@ class VideoBox extends React.Component {
             // title bar and the call buttons so the whole shared screen is
             // visible and nothing floats on top of it.
             'screen-fit': this.state.remotePeerSharing,
-            'hide': !this.state.hasVideo
+            [this.props.classes.remoteHidden]: !this.state.hasVideo
         });
 
         let callButtons;
@@ -1065,7 +1057,7 @@ class VideoBox extends React.Component {
                         />
                         {menu}
 
-                        {!this.state.hasVideo &&
+                        {this.state.hasVideo === false &&
                             <div className="call-user-icon">
                                 <UserIcon contact={this.props.contact} large={true} active={this.state.active} />
                             </div>

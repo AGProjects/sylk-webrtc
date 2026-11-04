@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const SillyNames = require('./SillyNames');
 const MaterialColors = require('./MaterialColors');
 const { Queue } = require('./utils/Queue');
+const { default: VideoPresenceDetector } = require('./utils/VideoPresenceDetector');
 const { EventEmitter } = require('events');
 const { resumableDownload } = require('./utils/resumableFetch');
 
@@ -278,3 +279,4 @@ exports.isNodeEmitter = isNodeEmitter;
 exports.linkify = linkify;
 exports.customUrlRegexp = customUrlRegexp;
 exports.resumableDownload = resumableDownload;
+exports.VideoPresenceDetector = VideoPresenceDetector;

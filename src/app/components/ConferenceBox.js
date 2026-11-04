@@ -503,6 +503,7 @@ class ConferenceBox extends React.Component {
         }
         DEBUG(`Participant left: ${p.identity}`);
         this.audioPlayerParticipantLeft.current.play();
+        this.props.audioManager.removeAudio(p.id)
         const participants = this.state.participants.slice();
         const idx = participants.indexOf(p);
         if (idx !== -1) {
@@ -511,7 +512,6 @@ class ConferenceBox extends React.Component {
                 participants: participants
             });
         }
-        this.props.audioManager.removeAudio(p.id)
         if (p.type !== 'sip') {
             p.detach(true);
         }

@@ -382,7 +382,7 @@ class ConferenceBox extends React.Component {
                 }
                 const participantAudioData = this.participantStats[p.id].lastData.data.audio;
                 if (participantAudioData && participantAudioData.inbound && participantAudioData.inbound[0]) {
-                    inboundAudioBitrate = inboundVideoBitrate + participantAudioData.inbound[0].bitrate;
+                    inboundAudioBitrate = inboundAudioBitrate + participantAudioData.inbound[0].bitrate;
                     audioPacketsLostInboundData = audioPacketsLostInboundData + participantAudioData.inbound[0].packetLossRate;
                     audioPacketRateInbound = audioPacketRateInbound + participantAudioData.inbound[0].packetRate;
                 }

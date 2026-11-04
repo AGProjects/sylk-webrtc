@@ -1097,14 +1097,15 @@ class ConferenceBox extends React.Component {
         let chatLayout = this.props.call.supportsVideo === false || this.props.lowBandwidth || this.state.showChatLayout;
 
         const unreadMessages = (this.props.unreadMessages && this.props.unreadMessages.total) || 0;
-
+        const localTrack = this.props.call.getLocalStreams()[0].getVideoTracks()[0];
+        const localVideoOff = !localTrack || !localTrack.enabled;
         const largeVideoClasses = clsx({
             'animated': true,
             'fadeIn': true,
             'large': true,
             'mirror': !this.props.call.sharingScreen && !this.props.generatedVideoTrack,
             'fit': this.props.call.sharingScreen,
-            'hide': chatLayout || !this.haveVideo
+            'hide': chatLayout || !this.haveVideo || localVideoOff
         });
 
         let matrixClasses = clsx({
@@ -1376,12 +1377,11 @@ class ConferenceBox extends React.Component {
         );
 
         let videos = [];
-
         if (this.state.participants.length === 0) {
             videos.push(
                 <video ref={this.largeVideo} key="largeVideo" className={largeVideoClasses} poster="assets/images/transparent-1px.png" autoPlay muted />
             );
-            if (this.props.call.getLocalStreams()[0].getVideoTracks().length === 0) {
+            if (localVideoOff) {
                 videos.push(<UserIcon key="icon" identity={this.props.call.localIdentity} large />)
             }
         } else {

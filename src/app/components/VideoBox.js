@@ -171,7 +171,7 @@ class VideoBox extends React.Component {
             'handlePointerAck',
             'requestScreenShare',
             'handlePeerCapabilities',
-            'handleScreenRequestResolved',
+            'handleScreenRequestResolved'
         ].forEach((name) => {
             this[name] = this[name].bind(this);
         });

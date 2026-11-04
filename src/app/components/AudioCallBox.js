@@ -155,6 +155,7 @@ class AudioCallBox extends React.Component {
         }
         document.removeEventListener('keydown', this.onKeyDown);
         if (this.props.call) {
+            this.props.call.removeListener('stateChanged', this.callStateChanged);
             this.props.call.account.removeListener('incomingMessage', this.incomingMessage);
             this.props.call.statistics.removeListener('stats', this.statistics);
         }

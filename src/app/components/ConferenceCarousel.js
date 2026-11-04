@@ -102,18 +102,20 @@ class ConferenceCarousel extends React.Component {
 
     render() {
         const items = [];
-        let idx = 0;
-        React.Children.forEach(this.props.children, (child) => {
-            items.push(<CSSTransition key={idx} classNames="carousel" timeout={{enter:500, exit:300}}><li className="carousel-item">{child}</li></CSSTransition>);
-            idx++;
+        React.Children.forEach(this.props.children, (child, idx) => {
+            items.push(
+                <CSSTransition key={child.key != null ? child.key : idx} classNames="carousel" timeout={{enter:500, exit:300}}>
+                    <li className="carousel-item">{child}</li>
+                </CSSTransition>
+            );
         });
 
         const arrows = [];
         if (this.state.displayLeftArrow) {
-            arrows.push(<div className="left-arrow" onClick={this.scrollToLeft}><i className="fa fa-caret-left fa-4x"></i></div>);
+            arrows.push(<div key="left" className="left-arrow" onClick={this.scrollToLeft}><i className="fa fa-caret-left fa-4x"></i></div>);
         }
         if (this.state.displayRightArrow) {
-            arrows.push(<div className="right-arrow" onClick={this.scrollToRight}><i className="fa fa-caret-right fa-4x"></i></div>);
+            arrows.push(<div key="right" className="right-arrow" onClick={this.scrollToRight}><i className="fa fa-caret-right fa-4x"></i></div>);
         }
         const classes = clsx({
             'carousel-list' : true,

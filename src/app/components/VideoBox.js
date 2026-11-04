@@ -861,12 +861,12 @@ class VideoBox extends React.Component {
             });
             const buttons = [];
 
-            menuItems.push(<MenuItem style={{fontSize: '14px', fontFamily: 'inherit'}} onClick={() => { this.toggleStatistics(); }}>
+            menuItems.push(<MenuItem key="stat" style={{fontSize: '14px', fontFamily: 'inherit'}} onClick={() => { this.toggleStatistics(); }}>
                 <ListItemIcon style={{minWidth: '18px', marginRight: '8px'}}><NetworkCheckIcon /></ListItemIcon>
                 Statistics
             </MenuItem>)
 
-            menuItems.push(<MenuItem style={{fontSize: '14px', fontFamily: 'inherit'}} onClick={() => { this.toggleEscalateConferenceModal(); }}>
+            menuItems.push(<MenuItem key="ec" style={{fontSize: '14px', fontFamily: 'inherit'}} onClick={() => { this.toggleEscalateConferenceModal(); }}>
                 <ListItemIcon style={{minWidth: '18px', marginRight: '8px'}}><i className="fa fa-user-plus"></i></ListItemIcon>
                 Escalate to conference
             </MenuItem>)
@@ -879,7 +879,7 @@ class VideoBox extends React.Component {
                 // && !this.props.call.sharingScreen
                 && this.peerCanShareScreen()) {
                 menuItems.push(
-                    <MenuItem style={{fontSize: '14px', fontFamily: 'inherit'}}
+                    <MenuItem key="sc" style={{fontSize: '14px', fontFamily: 'inherit'}}
                         disabled={this.state.screenRequestPending}
                         onClick={this.requestScreenShare}
                     >
@@ -981,6 +981,7 @@ class VideoBox extends React.Component {
 
         const menu = (
             <Menu
+                key="menu"
                 open={Boolean(this.state.anchorEl)}
                 anchorEl={this.state.anchorEl}
                 onClose={handleClose}

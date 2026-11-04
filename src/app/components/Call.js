@@ -159,7 +159,7 @@ class Call extends React.Component {
             return;
         }
 
-        navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+        navigator.mediaDevices.getUserMedia({ audio: false, video: { width: { ideal: 1280 }, height: { ideal: 720 } } })
             .then((stream) => {
                 stream.getVideoTracks().forEach((t) => { t.enabled = false; });
                 try {
@@ -183,7 +183,7 @@ class Call extends React.Component {
         if (call == null || typeof call.addVideo !== 'function') {
             return;
         }
-        navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+        navigator.mediaDevices.getUserMedia({ audio: false, video: { width: { ideal: 1280 }, height: { ideal: 720 } }})
             .then((stream) => {
                 try {
                     call.addVideo({ localStream: stream });

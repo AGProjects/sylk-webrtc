@@ -220,13 +220,14 @@ class AudioCallBox extends React.Component {
     }
 
     attachStream(call) {
+        this.setState({ showExtraButtons: true });
+
         const remoteStream = call.getRemoteStreams()[0];
         const stream = this.props.remoteAudio.current.srcObject;
         if (!stream || stream.id !== remoteStream.id) {
             DEBUG('Attaching audio');
             sylkrtc.utils.attachMediaStream(remoteStream, this.props.remoteAudio.current);
         }
-        this.setState({ showExtraButtons: true });
         const options = {
             interval: 225,
             play: false

@@ -40,12 +40,11 @@ class Call extends React.Component {
     }
 
     _deriveAudioOnly(call) {
-        if (call != null) {
-            const stream = call.getLocalStreams()[0];
-            const hasVideo = stream && stream.getVideoTracks().length > 0;
-            return !hasVideo;
+        const stream = call != null ? call.getLocalStreams()[0] : null;
+        if (stream) {
+            return stream.getVideoTracks().length === 0;
         }
-        return this.props.localMedia.getVideoTracks().length === 0;
+        return !this.props.localMedia || this.props.localMedia.getVideoTracks().length === 0;
     }
 
     _attachUpgradeHandlers(call) {

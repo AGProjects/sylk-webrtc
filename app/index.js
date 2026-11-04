@@ -157,6 +157,15 @@ app.commandLine.appendSwitch('enable-features', 'WinrtGeolocationImplementation'
 // Keep old storage
 app.setPath('userData', path.join(app.getPath('appData'), 'Sylk'));
 
+app.on('web-contents-created', (event, contents) => {
+    contents.setWindowOpenHandler(({ url }) => {
+        if (/^https?:\/\//i.test(url)) {
+            shell.openExternal(url);
+        }
+        return { action: 'deny' };
+    });
+});
+
 autoUpdater.on('error', (error) => {
     if (updater != null) {
         if (progressBar != null) {
@@ -335,6 +344,81 @@ function createUpdateDialog(info) {
     }
 }
 
+let incomingCallWindow = null;
+let incomingCallWanted = false;
+
+ipc.on('incomingCall:create', (event, { url, script, enabled }) => {
+    if (incomingCallWindow && !incomingCallWindow.isDestroyed()) {
+        incomingCallWindow.close();
+    }
+    incomingCallWanted = !!enabled;
+
+    const win = new BrowserWindow({
+        show: false,
+        width: 425,
+        height: 475,
+        frame: false,
+        skipTaskbar: true,
+        title: 'Incoming Call',
+        alwaysOnTop: true,
+        backgroundColor: '#333',
+        type: 'toolbar',
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
+    });
+    incomingCallWindow = win;
+
+    win.loadURL(url);
+
+    win.once('ready-to-show', () => {
+        if (incomingCallWanted && !win.isDestroyed()) {
+            win.showInactive();
+        }
+    });
+
+    win.webContents.once('dom-ready', () => {
+        win.webContents.executeJavaScript(script).then(() => {
+            if (mainWindow) { mainWindow.webContents.send('incomingCall:ready'); }
+        });
+    });
+
+    win.on('closed', () => {
+        if (incomingCallWindow === win) {
+            incomingCallWindow = null;
+        }
+    });
+
+    ipc.on('incomingCall:content', (event, { html, styles }) => {
+        const win = incomingCallWindow;
+        if (!win || win.isDestroyed()) { return; }
+        win.webContents.send('updateContent', html);
+        styles.forEach((css) => win.webContents.send('updateStyles', css));
+    });
+});
+
+ipc.on('incomingCall:setVisible', (event, visible) => {
+    incomingCallWanted = !!visible;
+    if (!incomingCallWindow || incomingCallWindow.isDestroyed()) { return; }
+    if (visible) {
+        incomingCallWindow.showInactive();
+    } else {
+        incomingCallWindow.hide();
+    }
+});
+
+ipc.on('incomingCall:close', () => {
+    if (incomingCallWindow && !incomingCallWindow.isDestroyed()) {
+        incomingCallWindow.close();
+    }
+    incomingCallWindow = null;
+});
+
+ipc.on('window:blur', () => {
+    if (mainWindow) { mainWindow.blur(); }
+});
+
 function createMainWindow() {
     // Options for BrowserWindow
     const windowOptions = {
@@ -347,8 +431,7 @@ function createMainWindow() {
         autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: true,
-            enableRemoteModule: true,
-            contextIsolation: false,
+            contextIsolation: false
         }
     };
     if (isDarwin) {
@@ -409,7 +492,7 @@ function createMainWindow() {
         const buffer = Buffer.from(data.split(',')[1], 'base64');
         await fs.promises.writeFile(filePath, buffer);
         return filePath;
-});
+    });
 
     ipc.handle('cache:getFile', async (event, { id }) => {
         const filePath = path.join(storage.getDataPath('userData'), 'mediaCache', id);
@@ -424,6 +507,17 @@ function createMainWindow() {
     ipc.handle('cache:removeFile', async (event, { id }) => {
         const filePath = path.join(storage.getDataPath('userData'), 'mediaCache', id);
         await fs.promises.unlink(filePath).catch(() => {});
+    });
+
+    ipc.handle('desktop-capturer:get-sources', async (event, options) => {
+        const sources = await electron.desktopCapturer.getSources(options);
+        return sources.map((s) => ({
+            id: s.id,
+            name: s.name,
+            display_id: s.display_id,
+            thumbnail: s.thumbnail.toDataURL(),
+            appIcon: s.appIcon ? s.appIcon.toDataURL() : null
+        }));
     });
 
     function getLocationViaHelper() {
@@ -463,11 +557,6 @@ function createMainWindow() {
 
     ipc.handle('get-location', async () => {
         return getLocationViaHelper();
-    });
-    // open links with default browser
-    mainWindow.webContents.on('new-window', function(event, url) {
-        event.preventDefault();
-        shell.openExternal(url);
     });
 
     // prevent title update

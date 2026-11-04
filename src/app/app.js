@@ -1653,16 +1653,13 @@ class Blink extends React.Component {
 
     setFocusEvents(enabled) {
         if (this.shouldUseHashRouting) {
-            const remote = window.require('electron').remote;
             if (enabled) {
-                const currentWindow = remote.getCurrentWindow();
-                currentWindow.on('focus', this.hasFocus);
-                currentWindow.on('blur', this.hasNoFocus);
-                this.setState({ haveFocus: currentWindow.isFocused() });
+                window.addEventListener('focus', this.hasFocus);
+                window.addEventListener('blur', this.hasNoFocus);
+                this.setState({ haveFocus: document.hasFocus() });
             } else {
-                const currentWindow = remote.getCurrentWindow();
-                currentWindow.removeListener('focus', this.hasFocus);
-                currentWindow.removeListener('blur', this.hasNoFocus);
+                window.removeEventListener('focus', this.hasFocus);
+                window.removeEventListener('blur', this.hasNoFocus);
             }
         }
     }
@@ -1884,9 +1881,7 @@ class Blink extends React.Component {
             }
         }
         if (this.shouldUseHashRouting) {
-            const remote = window.require('electron').remote;
-            const currentWindow = remote.getCurrentWindow();
-            if (!currentWindow.isFocused()) {
+            if (!document.hasFocus() || document.hidden) {
                 if (notifiable) {
                     this._notificationCenter.postSystemNotification('New message',
                         {

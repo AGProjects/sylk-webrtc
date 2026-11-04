@@ -63,19 +63,22 @@ const ScreenSharingModal = (props) => {
     };
 
     const getSources = () => {
-        const desktopCapturer = window.require('electron').desktopCapturer;
-        desktopCapturer.getSources({ types: ['window', 'screen'], thumbnailSize: {width: 180, height: 180}})
-        .then((newSources) => {
-            if (sources.length === 0) {
-                // Prefer a whole display; fall back to whatever is on offer so a
-                // machine that reports no display never leaves the picker empty.
-                const firstSource = newSources.filter(utils.isDisplaySource)[0] || newSources[0];
-                if (firstSource) {
-                    setFocus(firstSource.id);
+        const ipcRenderer = window.require('electron').ipcRenderer;
+        ipcRenderer.invoke('desktop-capturer:get-sources', {
+            types: ['window', 'screen'],
+            thumbnailSize: { width: 180, height: 180 }
+        })
+            .then((newSources) => {
+                if (sources.length === 0) {
+                    // Prefer a whole display; fall back to whatever is on offer so a
+                    // machine that reports no display never leaves the picker empty.
+                    const firstSource = newSources.filter(utils.isDisplaySource)[0] || newSources[0];
+                    if (firstSource) {
+                        setFocus(firstSource.id);
+                    }
                 }
-            }
-            setSources(newSources);
-        });
+                setSources(newSources);
+            });
     }
 
     const close = () => {
@@ -121,7 +124,7 @@ const ScreenSharingModal = (props) => {
                     <GridList cellHeight={180} spacing={8} cols={2}  className={classes.gridList}>
                         {screens.map(screen => (
                             <GridListTile key={screen.id} onClick={() => setFocus(screen.id)} className={screen.id === focus && classes.border}>
-                                <img src={screen.thumbnail.toDataURL()} alt={screen.name} />
+                                <img src={screen.thumbnail} alt={screen.name} />
                                 <GridListTileBar
                                     title={screen.name}
                                 />
@@ -134,7 +137,7 @@ const ScreenSharingModal = (props) => {
                     <GridList cellHeight={'auto'} spacing={8} cols={3} className={classes.gridList}>
                         {windows.map(screen => (
                             <GridListTile key={screen.id} onClick={() => setFocus(screen.id)} className={screen.id === focus && classes.border}>
-                                <img src={screen.thumbnail.toDataURL()} alt={screen.name} />
+                                <img src={screen.thumbnail} alt={screen.name} />
                                 <GridListTileBar
                                     title={screen.name}
                                 />

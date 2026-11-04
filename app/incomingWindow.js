@@ -18,11 +18,11 @@ function onKeyUp(event) {
     switch (event.which) {
         case 27:
             // ESC
-            ipcRenderer.send('button', 'decline');
+            ipcRenderer.send('buttonClick', 'decline');
             break;
         case 13:
             let btn = document.getElementById('accept') || document.getElementById('audio');
-            ipcRenderer.send('button', btn.id);
+            ipcRenderer.send('buttonClick', btn.id);
         default:
             break;
     }

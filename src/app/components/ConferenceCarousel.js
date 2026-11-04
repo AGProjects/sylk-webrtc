@@ -16,6 +16,8 @@ class ConferenceCarousel extends React.Component {
 
         this.carouselList = null;
 
+        this.carousel = React.createRef();
+
         // ES6 classes no longer autobind
         this.handleScroll = this.handleScroll.bind(this);
         this.handleResize = this.handleResize.bind(this);
@@ -25,7 +27,7 @@ class ConferenceCarousel extends React.Component {
 
     componentDidMount() {
         // Get UL from children of the carousel
-        const children = this.refs.carousel.children;
+        const children = this.carousel.current.children;
         for (let child of children) {
             if (child.tagName == 'UL') {
                 this.carouselList = child;
@@ -121,7 +123,7 @@ class ConferenceCarousel extends React.Component {
         return (
             <div>
                 {arrows}
-                <div className="carousel" ref="carousel">
+                <div className="carousel" ref={this.carousel}>
                     <TransitionGroup component="ul" onScroll={this.handleScroll} className={classes}>
                         {items}
                     </TransitionGroup>

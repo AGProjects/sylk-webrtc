@@ -3,7 +3,7 @@
   "version": "4.1.0",
   "license": "AGPL-3.0-or-later",
   "private": true,
-  "browserslist": "> 0.5%, last 2 versions, not dead, electron 13.6.9",
+  "browserslist": "> 0.5%, last 2 versions, not dead, electron >= 45.2",
   "devDependencies": {
     "@babel/core": "^7.21.8",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
@@ -153,14 +153,16 @@
       "extendInfo": {
         "NSMicrophoneUsageDescription": "Please allow access to the microphone to be able to make calls.",
         "NSCameraUsageDescription": "Please allow access to the camera to be able to make video calls.",
-        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to share it when you choose to."
+        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to share it when you choose to.",
+        "NSCameraUseContinuityCameraDeviceType": true
       },
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "target": [
         "dmg",
         "zip"
-      ]
+      ],
+      "minimumSystemVersion": "13.0.0"
     },
     "win": {
       "target": [

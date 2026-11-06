@@ -300,14 +300,12 @@ class ConferenceBox extends React.Component {
     }
 
     statistics(stats) {
-        const videoData = stats.data.video;
-        const audioData = stats.data.audio;
-
-        const audioRemoteData = stats.data.remote.audio;
-        const videoRemoteData = stats.data.remote.video;
-
-        const videoRemoteExists = videoRemoteData.inbound[0];
-        const audioRemoteExists = audioRemoteData.inbound[0];
+        const videoData = stats.data?.video;
+        const audioData = stats.data?.audio;
+        const audioRemoteData = stats.data?.remote?.audio;
+        const videoRemoteData = stats.data?.remote?.video;
+        const videoRemoteExists = videoRemoteData?.inbound?.[0];
+        const audioRemoteExists = audioRemoteData?.inbound?.[0];
 
         if (stats.peerId !== this.props.call.id) {
             if (!this.participantStats[stats.peerId]) {
@@ -419,9 +417,9 @@ class ConferenceBox extends React.Component {
         const addData = {
             video: {},
             audio: {
-                timestamp: audioData.timestamp,
+                timestamp: audioData?.timestamp,
                 incomingBitrate: inboundAudioBitrate,
-                outgoingBitrate: audioData.outbound[0].bitrate || 0,
+                outgoingBitrate: audioData?.outbound?.[0]?.bitrate || 0,
                 latency: audioRTT,
                 jitter: audioJitter,
                 packetsLostOutbound: audioPacketsLostOutbound,
@@ -432,9 +430,9 @@ class ConferenceBox extends React.Component {
         };
         if (videoRemoteExists) {
             addData.video = {
-                timestamp: videoData.timestamp,
+                timestamp: videoData?.timestamp,
                 incomingBitrate: inboundVideoBitrate,
-                outgoingBitrate: videoData.outbound[0].bitrate || 0,
+                outgoingBitrate: videoData?.outbound?.[0]?.bitrate || 0,
                 latency: videoRTT,
                 jitter: videoJitter,
                 packetsLostOutbound: videoPacketsLostOutbound,

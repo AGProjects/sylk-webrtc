@@ -8073,8 +8073,8 @@ svg-tags@^1.0.0:
   integrity sha512-ovssysQTa+luh7A5Weu3Rta6FJlFBBbInjOh722LIt6klpU2/HtdUbszju/G4devcvk8PGt7FCLv5wftu3THUA==
 
 sylkrtc@AGProjects/sylkrtc.js:
-  version "1.8.7"
-  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/00b66507fa550ed91a353e48ac98ce58e1353bb9"
+  version "1.8.8"
+  resolved "https://codeload.github.com/AGProjects/sylkrtc.js/tar.gz/cdca38a53d89a2d320c404f3b2f94b7b08d216dc"
   dependencies:
     blueimp-md5 "^2.19.0"
     bowser "^2.11.0"

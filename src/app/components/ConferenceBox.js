@@ -167,7 +167,6 @@ class ConferenceBox extends React.Component {
             'hangup',
             'onParticipantJoined',
             'onParticipantLeft',
-            'onParticipantStateChanged',
             'onConfigureRoom',
             'onFileSharing',
             'onMessage',
@@ -175,7 +174,6 @@ class ConferenceBox extends React.Component {
             'onMuteAudio',
             'onRaisedHands',
             'onKeyDown',
-            'maybeSwitchLargeVideo',
             'handleClipboardButton',
             'handleEmailButton',
             'handleShareOverlayEntered',
@@ -222,7 +220,6 @@ class ConferenceBox extends React.Component {
 
     componentDidMount() {
         for (let p of this.state.participants) {
-            p.on('stateChanged', this.onParticipantStateChanged);
             p.attach();
         }
         this.props.call.on('participantJoined', this.onParticipantJoined);
@@ -297,6 +294,17 @@ class ConferenceBox extends React.Component {
         this.props.call.off('composingIndication', this.onComposing);
         this.props.call.off('muteAudio', this.onMuteAudio);
         this.props.call.off('raisedHands', this.onRaisedHands);
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (this.state.participants.length === 0
+            && prevState.participants.length !== 0
+            && this.largeVideo.current) {
+            const stream = this.props.call.getLocalStreams()[0];
+            if (stream) {
+                sylkrtc.utils.attachMediaStream(stream, this.largeVideo.current, { muted: true });
+            }
+        }
     }
 
     statistics(stats) {
@@ -482,7 +490,6 @@ class ConferenceBox extends React.Component {
         if (p.type !== 'bridge') {
             this.audioPlayerParticipantJoined.current.play();
         }
-        p.on('stateChanged', this.onParticipantStateChanged);
         if (p.type !== 'sip') {
             p.attach();
         }
@@ -516,12 +523,6 @@ class ConferenceBox extends React.Component {
         // this.changeResolution();
     }
 
-    onParticipantStateChanged(oldState, newState) {
-        if (newState === 'established' || newState === null) {
-            this.maybeSwitchLargeVideo();
-        }
-    }
-
     onConfigureRoom(config) {
         const newState = {};
         newState.activeSpeakers = config.activeParticipants;
@@ -533,7 +534,6 @@ class ConferenceBox extends React.Component {
             const speakers = config.activeParticipants.map((p) => { return p.identity.displayName || p.identity.uri });
             this.logEvent.info('set speakers to', speakers, config.originator);
         }
-        this.maybeSwitchLargeVideo();
     }
 
     onFileSharing(files) {
@@ -682,23 +682,8 @@ class ConferenceBox extends React.Component {
 
     selectVideo(item, self = false) {
         DEBUG('Switching video to: %o', item);
-        if (item.stream) {
+        if (item.stream && this.largeVideo.current) {
             sylkrtc.utils.attachMediaStream(item.stream, this.largeVideo.current, { muted: self });
-            this.setState({ selfDisplayedLarge: true });
-        }
-    }
-
-    maybeSwitchLargeVideo() {
-        // Switch the large video to another source, maybe.
-        if (this.state.participants.length === 0 && !this.state.selfDisplayedLarge) {
-            // none of the participants are eligible, show ourselves
-            const item = {
-                stream: this.props.call.getLocalStreams()[0],
-                identity: this.props.call.localIdentity
-            };
-            this.selectVideo(item, true);
-        } else if (this.state.selfDisplayedLarge) {
-            this.setState({ selfDisplayedLarge: false });
         }
     }
 

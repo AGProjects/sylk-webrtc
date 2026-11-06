@@ -850,6 +850,13 @@ class VideoBox extends React.Component {
                 'fa-caret-up': true
             });
 
+            const screensShareButtonClasses = clsx({
+                'btn': true,
+                'btn-round': true,
+                'btn-default': !this.props.call.sharingScreen,
+                'btn-warning': this.props.call.sharingScreen
+            });
+
             const shareButtonClasses = clsx(
                 commonButtonClasses,
                 this.props.classes.sharingButton
@@ -904,7 +911,7 @@ class VideoBox extends React.Component {
                 </div>
             );
 
-            buttons.push(<button key="shareScreen" type="button" title="Share screen" className={commonButtonClasses} onClick={this.props.shareScreen}><i className={screenSharingButtonIcons}></i></button>);
+            buttons.push(<button key="shareScreen" type="button" title="Share screen" className={screensShareButtonClasses} onClick={this.props.shareScreen}><i className={screenSharingButtonIcons}></i></button>);
 
             buttons.push(
                 <button key="more" type="button" title="More" className={commonButtonClasses} onClick={(e) => this.setState({anchorEl: e.currentTarget})}>

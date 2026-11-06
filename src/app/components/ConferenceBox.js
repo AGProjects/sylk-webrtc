@@ -238,7 +238,11 @@ class ConferenceBox extends React.Component {
 
         const saved = this.props.getSavedState?.();
         if (saved) {
-            this.setState(saved);
+            this.setState({
+                ...saved,
+                participants: this.state.participants,
+                activeSpeakers: this.state.activeSpeakers
+            });
         } else {
             this.armOverlayTimer();
         }

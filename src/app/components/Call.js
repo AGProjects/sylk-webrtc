@@ -190,12 +190,14 @@ class Call extends React.Component {
 
     onMediaUpdated(payload) {
         DEBUG('mediaUpdated: %o', payload);
-        if (payload && (payload.hasRemoteVideo || payload.hasLocalVideo)) {
-            if (this.state.audioOnly) {
-                this.setState({ audioOnly: false });
-            } else {
-                this.forceUpdate();
-            }
+        if (!payload) return;
+        if (!payload.hasRemoteVideo && !payload.hasLocalVideo) {
+            this.props.localMedia.getVideoTracks().forEach(t => this.props.localMedia.removeTrack(t));
+            this.setState({ audioOnly: true });
+        } else if (this.state.audioOnly) {
+            this.setState({ audioOnly: false });
+        } else {
+            this.forceUpdate();
         }
     }
 

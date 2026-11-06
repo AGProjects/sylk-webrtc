@@ -296,26 +296,29 @@ class Call extends React.Component {
     }
 
     statistics(stats) {
-        const audioData = stats.data.audio;
-        const audioRemoteData = stats.data.remote.audio;
-        const audioRemoteExists = audioRemoteData.inbound[0];
+        const audioData = stats.data?.audio;
+        const audioRemoteData = stats.data?.remote?.audio;
+        const audioRemoteExists = audioRemoteData?.inbound?.[0];
 
         if (!audioRemoteExists) {
             return;
         }
 
-        const audioJitter = audioData?.inbound[0]?.jitter || 0;
-        const audioRTT = audioRemoteData.inbound[0].roundTripTime || 0;
+        const audioIn = audioData?.inbound?.[0];
+        const audioOut = audioData?.outbound?.[0];
 
-        const audioPacketsLostOutbound = audioRemoteExists && audioRemoteData.inbound[0].packetLossRate || 0;
-        const audioPacketsLostInbound = audioData.inbound[0].packetLossRate || 0;
-        const audioPacketRateOutbound = (audioData && audioData.outbound[0].packetRate) || 0;
-        const audioPacketRateInbound = (audioData && audioData.inbound[0].packetRate) || 0;
+        const audioJitter = audioIn?.jitter || 0;
+        const audioRTT = audioRemoteExists.roundTripTime || 0;
+
+        const audioPacketsLostOutbound = audioRemoteExists.packetLossRate || 0;
+        const audioPacketsLostInbound = audioIn?.packetLossRate || 0;
+        const audioPacketRateOutbound = audioOut?.packetRate || 0;
+        const audioPacketRateInbound = audioIn?.packetRate || 0;
 
         const addData = {
-            timestamp: audioData.timestamp,
-            incomingBitrate: audioData.inbound[0].bitrate || 0,
-            outgoingBitrate: audioData.outbound[0].bitrate || 0,
+            timestamp: audioData?.timestamp,
+            incomingBitrate: audioIn?.bitrate || 0,
+            outgoingBitrate: audioOut?.bitrate || 0,
             latency: audioRTT,
             jitter: audioJitter,
             packetsLostOutbound: audioPacketsLostOutbound,
@@ -324,10 +327,10 @@ class Call extends React.Component {
             packetRateInbound: audioPacketRateInbound
         };
 
-        const videoInbound = stats.data.video?.inbound[0];
+        const videoInbound = stats.data?.video?.inbound?.[0];
         const bitrate = videoInbound?.bitrate || 0;
         const packets = videoInbound?.packetRate || 0;
-        const videoRemoteExists = stats.data.remote.video?.inbound[0];
+        const videoRemoteExists = stats.data?.remote?.video?.inbound?.[0];
 
         let hasVideo = this.state.hasVideo;
 
@@ -363,6 +366,7 @@ class Call extends React.Component {
             clearTimeout(this.overlayTimer);
             this.setState({ callOverlayVisible: true });
         }
+
         this.setState(state => {
             const audioGraphData = state.audioGraphData.concat(addData);
             audioGraphData.shift();

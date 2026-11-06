@@ -17,6 +17,11 @@ const { usePreferences } = require('../PreferencesProvider');
 
 const DEBUG = debug('blinkrtc:SwitchDevicesMenu');
 
+const firstTrackLabel = (stream, kind) => {
+    if (!stream || typeof stream === 'string') return undefined;
+    const tracks = kind === 'video' ? stream.getVideoTracks() : stream.getAudioTracks();
+    return tracks[0]?.label;
+};
 
 const styleSheet = makeStyles((theme) => ({
     paper: {
@@ -97,25 +102,24 @@ const SwitchDevicesMenu = (props) => {
     }, [videoInput, audioInput])
 
     useEffect(() => {
-        if (devices.length != 0) {
-            let currentLabel
-            if (currentStream.getVideoTracks().length !== 0) {
-                currentLabel = currentStream.getVideoTracks()[0].label;
-                let device = devices.find(device => device.label === currentLabel);
-                if (device) {
-                    setVideoInput(device.deviceId);
-                }
-            }
+        if (devices.length === 0 || !currentStream) return;
 
-            currentLabel = currentStream.getAudioTracks()[0].label;
-            let audioInput = devices.find(device => device.label === currentLabel);
-            if (audioInput) {
-                setAudioInput(audioInput.deviceId);
-            }
+        const videoLabel = firstTrackLabel(currentStream, 'video');
+        const audioLabel = firstTrackLabel(currentStream, 'audio');
+        DEBUG('Current labels: video=%s audio=%s', videoLabel, audioLabel);
 
-            setImmediate(() => init.current = true);
+        if (videoLabel) {
+            const d = devices.find(d => d && d.label === videoLabel);
+            if (d) setVideoInput(d.deviceId);
         }
-    }, [devices, currentStream])
+
+        if (audioLabel) {
+            const d = devices.find(d => d && d.label === audioLabel);
+            if (d) setAudioInput(d.deviceId);
+        }
+
+        setImmediate(() => { init.current = true; });
+    }, [devices, currentStream]);
 
     const start = () => {
         DEBUG('Getting available devices');
@@ -151,6 +155,7 @@ const SwitchDevicesMenu = (props) => {
             })
             .catch((error) => {
                 DEBUG('Device enumeration failed: %o', error);
+                return [];
             }).then((devices) => {
                 devices.forEach((device) => {
                     if (!props.audio && device.kind === 'videoinput') {
@@ -289,38 +294,39 @@ const SwitchDevicesMenu = (props) => {
     }
 
     const isCurrentVideoDevice = () => {
-        let currentVideo = currentStream.getVideoTracks() && currentStream.getVideoTracks()[0].label;
-        let selectedVideo = mediaStreams[videoInput].getVideoTracks()[0].label;
-        return selectedVideo === currentVideo;
-    }
+        const current = firstTrackLabel(currentStream, 'video');
+        const selected = firstTrackLabel(mediaStreams[videoInput], 'video');
+        return current !== undefined && current === selected;
+    };
 
     const isCurrentAudioDevice = () => {
-        let currentVideo = currentStream.getAudioTracks()[0].label;
-        let selectedVideo = mediaStreams[audioInput].getAudioTracks()[0].label;
-        return selectedVideo === currentVideo;
-    }
+        const current = firstTrackLabel(currentStream, 'audio');
+        const selected = firstTrackLabel(mediaStreams[audioInput], 'audio');
+        return current !== undefined && current === selected;
+    };
 
     const applyConstraints = () => {
+        if (!currentStream) return;
+
         if (!props.audio && videoInput !== '') {
-            if (!isCurrentVideoDevice()) {
+            const oldTrack = currentStream.getVideoTracks()[0];
+            const newTrack = mediaStreams[videoInput]?.getVideoTracks?.()[0];
+            if (oldTrack && newTrack && !isCurrentVideoDevice()) {
                 DEBUG('Switching videoInput');
-                props.call.replaceTrack(
-                    currentStream.getVideoTracks()[0],
-                    mediaStreams[videoInput].getVideoTracks()[0].clone(),
-                    false
-                );
+                props.call.replaceTrack(oldTrack, newTrack.clone(), false);
             }
-            props.close()
+            props.close();
         }
-        if (props.audio && audioInput !== '' && !isCurrentAudioDevice()) {
-            DEBUG('Switching audioInput');
-            props.call.replaceTrack(
-                currentStream.getAudioTracks()[0],
-                mediaStreams[audioInput].getAudioTracks()[0].clone(),
-                false
-            );
+
+        if (props.audio && audioInput !== '') {
+            const oldTrack = currentStream.getAudioTracks()[0];
+            const newTrack = mediaStreams[audioInput]?.getAudioTracks?.()[0];
+            if (oldTrack && newTrack && !isCurrentAudioDevice()) {
+                DEBUG('Switching audioInput');
+                props.call.replaceTrack(oldTrack, newTrack.clone(), false);
+            }
         }
-    }
+    };
 
     return (
         <div>

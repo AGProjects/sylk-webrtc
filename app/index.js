@@ -157,6 +157,26 @@ app.commandLine.appendSwitch('enable-features', 'WinrtGeolocationImplementation'
 // Keep old storage
 app.setPath('userData', path.join(app.getPath('appData'), 'Sylk'));
 
+
+const isWaylandSession = process.platform === 'linux'
+    && (process.env.XDG_SESSION_TYPE || '').toLowerCase() === 'wayland';
+
+if (isWaylandSession) {
+    app.whenReady().then(() => {
+        electron.session.defaultSession.setDisplayMediaRequestHandler(async (request, callback) => {
+            try {
+                // On Wayland this opens the system's own picker and returns
+                // the source the user chose.
+                const sources = await electron.desktopCapturer.getSources({ types: ['screen', 'window'] });
+                callback(sources[0] ? { video: sources[0] } : {});
+            } catch (e) {
+                log.error('display media request failed', e);
+                callback({});
+            }
+        });
+    });
+}
+
 app.on('web-contents-created', (event, contents) => {
     contents.setWindowOpenHandler(({ url }) => {
         if (/^https?:\/\//i.test(url)) {

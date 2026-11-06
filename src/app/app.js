@@ -77,6 +77,9 @@ const MODE_GUEST_CONFERENCE = Symbol('mode-guest-conference');
 
 const { default: PreferencesModal } = require('./components/PreferencesModal');
 
+const isWayland = Boolean(window.process && window.process.platform === 'linux'
+    && ((window.process.env && window.process.env.XDG_SESSION_TYPE) || '').toLowerCase() === 'wayland');
+
 
 class Blink extends React.Component {
     constructor() {
@@ -1034,11 +1037,11 @@ class Blink extends React.Component {
         const sharedIsDisplay = utils.isDisplaySource(sourceInfo);
         call._sharedDisplayId = sharedIsDisplay ? (sourceInfo.display_id || null) : null;
         call._sharedIsWindow = !!sourceInfo && !sharedIsDisplay;
-        // Tell the library whether this particular share can be pointed at; it
-        // announces that along with the share itself, and the answer is fixed
-        // for the share's lifetime.
+        // Tell the library whether this particular share can be pointed at.
+        // On Wayland the source is chosen in the system picker, so the app
+        // does not know which display is shared and cannot place the overlay.
         if (typeof call.setScreenSharePointable === 'function') {
-            call.setScreenSharePointable(guideMarker.supportedForShare(call));
+            call.setScreenSharePointable(isWayland ? false : guideMarker.supportedForShare(call));
         }
 
         let screenConstraints = {
@@ -1048,7 +1051,9 @@ class Blink extends React.Component {
             }
         };
 
-        if (this.shouldUseHashRouting) {
+        // Electron on X11, macOS and Windows: our own picker chose the source.
+        // On Wayland nothing is built here; getDisplayMedia is used below.
+        if (this.shouldUseHashRouting && !isWayland) {
             screenConstraints = {
                 audio: false,
                 video: {
@@ -1062,27 +1067,29 @@ class Blink extends React.Component {
             this.toggleScreenSharingModal();
         }
 
-        if (!this.shouldUseHashRouting && navigator.getDisplayMedia) {
+        const useDisplayMedia = !this.shouldUseHashRouting || isWayland;
+
+        if (useDisplayMedia && navigator.getDisplayMedia) {
             navigator.getDisplayMedia({
                 video: true
             }).then(screenStream => {
-                setTimeout(call.startScreensharing(screenStream.getVideoTracks()[0]), 100);
-                screenStream.getVideoTracks()[0].addEventListener('ended', (ev) => {
-                    DEBUG('Screensharing stream ended by user action');
-                    this.switchScreensharing();
-                });
+                const track = screenStream.getVideoTracks()[0];
+                setTimeout(call.startScreensharing(track), 100);
+                this.watchScreenTrack(call, track);
             }).catch((error) => {
                 DEBUG('Error getting screen %o', error);
             });
-        } else if (!this.shouldUseHashRouting && navigator.mediaDevices.getDisplayMedia) {
+        } else if (useDisplayMedia && navigator.mediaDevices.getDisplayMedia) {
             navigator.mediaDevices.getDisplayMedia({
                 video: true
             }).then(screenStream => {
-                setTimeout(call.startScreensharing(screenStream.getVideoTracks()[0]), 100);
-                screenStream.getVideoTracks()[0].addEventListener('ended', (ev) => {
-                    DEBUG('Screensharing stream ended by user action');
-                    this.switchScreensharing();
-                });
+                const track = screenStream.getVideoTracks()[0];
+                setTimeout(call.startScreensharing(track), 100);
+                if (isWayland) {
+                    // Same as the other Electron path: get out of the way of the shared screen
+                    window.require('electron').ipcRenderer.send('minimize');
+                }
+                this.watchScreenTrack(call, track);
             }).catch((error) => {
                 DEBUG('Error getting screen %o', error);
             });
@@ -1256,7 +1263,7 @@ class Blink extends React.Component {
 
     switchScreensharing() {
         if (!this.state.currentCall.sharingScreen) {
-            if (this.shouldUseHashRouting) {
+            if (this.shouldUseHashRouting && !isWayland) {
                 this.toggleScreenSharingModal();
             } else {
                 this.getLocalScreen();
@@ -1264,6 +1271,26 @@ class Blink extends React.Component {
         } else {
             this.state.currentCall.stopScreensharing();
         }
+    }
+
+    watchScreenTrack(call, track) {
+        if (!track) {
+            return;
+        }
+        let handled = false;
+        track.addEventListener('ended', () => {
+            if (handled) {
+                return;
+            }
+            handled = true;
+            DEBUG('Screensharing track ended outside the app (system indicator, browser bar or source gone)');
+            if (this.state.currentCall === call && call.sharingScreen) {
+                call.stopScreensharing();
+                this.forceUpdate();
+            }
+        });
+        track.addEventListener('mute', () => DEBUG('Screensharing track muted (no frames from the source)'));
+        track.addEventListener('unmute', () => DEBUG('Screensharing track unmuted'));
     }
 
     toggleScreenSharingModal() {

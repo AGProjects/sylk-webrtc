@@ -1409,7 +1409,6 @@ class ConferenceBox extends React.Component {
                             <ConferenceParticipant
                                 key={p.id}
                                 participant={p}
-                                selected={this.onVideoSelected}
                                 raisedHand={this.state.raisedHands.indexOf(p)}
                                 handleHandSelected={this.handleHandSelected}
                                 disableHandToggle={disableHandToggle}

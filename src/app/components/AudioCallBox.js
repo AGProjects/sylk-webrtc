@@ -78,6 +78,7 @@ class AudioCallBox extends React.Component {
             lastData: {}
         };
         this.speechEvents = null;
+        this._harkStreamId = null;
 
         this._notificationCenter = null;
 
@@ -106,44 +107,58 @@ class AudioCallBox extends React.Component {
     }
 
     componentDidMount() {
-        // This component is used both for as 'local media' and as the in-call component.
-        // Thus, if the call is not null it means we are beyond the 'local media' phase
-        // so don't call the mediaPlaying prop.
-
         if (this.props.notificationCenter) {
             this._notificationCenter = this.props.notificationCenter();
         }
 
-        if (this.props.call != null) {
-            switch (this.props.call.state) {
+        const call = this.props.call;
+
+        // This component is used both as the 'local media' phase (call === null)
+        // and as the in-call component (call !== null).
+        // - call === null: start the outgoing call via mediaPlaying()
+        // - call.state === 'incoming': answer it via mediaPlaying()
+        // - otherwise the call is already past that phase, so don't call mediaPlaying(u)
+        if (call != null) {
+            switch (call.state) {
                 case 'established':
-                    this.attachStream(this.props.call);
+                case 'accepted':
+                    // Call is al aangenomen bij mount (bijv. vanuit ChatCall)
+                    this.attachStream(call);
+                    call.on('stateChanged', this.callStateChanged);
                     break;
                 case 'incoming':
                     this.props.mediaPlaying();
-                // fall through
+                    call.on('stateChanged', this.callStateChanged);
+                    break;
                 default:
-                    this.props.call.on('stateChanged', this.callStateChanged);
+                    call.on('stateChanged', this.callStateChanged);
                     break;
             }
-            this.props.call.statistics.on('stats', this.statistics);
-            this.props.call.account.on('incomingMessage', this.incomingMessage);
-            const localStream = this.props.call.getLocalStreams()[0];
-            this.setState({ audioMuted: !localStream.getAudioTracks()[0].enabled });
+
+            call.statistics.on('stats', this.statistics);
+            call.account.on('incomingMessage', this.incomingMessage);
+
+            const localStream = call.getLocalStreams()[0];
+            const audioTrack = localStream && localStream.getAudioTracks()[0];
+            if (audioTrack) {
+                this.setState({ audioMuted: !audioTrack.enabled });
+            }
         } else {
             this.props.mediaPlaying();
         }
+
         document.addEventListener('keydown', this.onKeyDown);
     }
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.call == null && this.props.call) {
-            this.props.call.statistics.on('stats', this.statistics);
-            this.props.call.account.on('incomingMessage', this.incomingMessage);
-            if (this.props.call.state === 'established') {
-                this.attachStream(this.props.call);
-            } else {
-                this.props.call.on('stateChanged', this.callStateChanged);
+            const call = this.props.call;
+            call.statistics.on('stats', this.statistics);
+            call.account.on('incomingMessage', this.incomingMessage);
+            call.on('stateChanged', this.callStateChanged);
+
+            if (call.state === 'established' || call.state === 'accepted') {
+                this.attachStream(call);
             }
         }
     }
@@ -174,10 +189,10 @@ class AudioCallBox extends React.Component {
     }
 
     callStateChanged(oldState, newState, data) {
-        if (newState === 'established') {
+        if (newState === 'accepted' || newState === 'established') {
             this.attachStream(this.props.call);
         } else if (newState === 'early-media') {
-            this.setState({'earlyMedia': true})
+            this.setState({ earlyMedia: true });
         }
     }
 
@@ -220,26 +235,33 @@ class AudioCallBox extends React.Component {
     }
 
     attachStream(call) {
-        this.setState({ showExtraButtons: true });
+        if (!this.state.showExtraButtons) {
+            this.setState({ showExtraButtons: true });
+        }
 
         const remoteStream = call.getRemoteStreams()[0];
-        const stream = this.props.remoteAudio.current.srcObject;
-        if (!stream || stream.id !== remoteStream.id) {
-            DEBUG('Attaching audio');
-            sylkrtc.utils.attachMediaStream(remoteStream, this.props.remoteAudio.current);
+        const audioEl = this.props.remoteAudio && this.props.remoteAudio.current;
+        if (!remoteStream || !audioEl) {
+            return;
         }
-        const options = {
-            interval: 225,
-            play: false
-        };
-        this.speechEvents = hark(remoteStream, options);
-        this.speechEvents.on('speaking', () => {
-            this.setState({ active: true });
-        });
-        this.speechEvents.on('stopped_speaking', () => {
-            this.setState({ active: false });
-        });
+
+        if (!audioEl.srcObject || audioEl.srcObject.id !== remoteStream.id) {
+            DEBUG('Attaching audio');
+            sylkrtc.utils.attachMediaStream(remoteStream, audioEl);
+        }
+
+        if (this.speechEvents !== null && this._harkStreamId !== remoteStream.id) {
+            this.speechEvents.stop();
+            this.speechEvents = null;
+        }
+        if (this.speechEvents === null) {
+            this._harkStreamId = remoteStream.id;
+            this.speechEvents = hark(remoteStream, { interval: 225, play: false });
+            this.speechEvents.on('speaking', () => this.setState({ active: true }));
+            this.speechEvents.on('stopped_speaking', () => this.setState({ active: false }));
+        }
     }
+
 
     escalateToConference(participants) {
         this.props.escalateToConference(participants);
@@ -363,6 +385,10 @@ class AudioCallBox extends React.Component {
     }
 
     render() {
+        const callState = this.props.call && this.props.call.state;
+        const showExtraButtons = this.state.showExtraButtons ||
+                callState === 'accepted' || callState === 'established';
+
         const commonButtonClasses = clsx({
             'btn': true,
             'btn-round': true,

@@ -1,3 +1,45 @@
+Version 4.2.0 Mon Nov  9 2026 16:00:00
+
+  * Added contact groups support, with new components for the contact list and info panel
+  * Added avatar support: avatar picker, crop modal and avatar store
+  * Added avatar support in UserIcon and the addressbook provider
+  * Added blink-addressbook integration with notifier, write filter and contact lookup rules
+  * Added PSTN phone number replacement preferences
+  * Added Wayland screensharing support
+  * Added videodetector util and use it in video calls and conferences
+  * Added better quality video when appending video to a call
+  * Added better second line in contact list entries
+  * Added more spacing in form elements and a Material text field styled like Bootstrap
+  * Added authorization header for file uploads
+  * Use new offline queue
+  * Simplified message storage and improved speed
+  * Show local user icon in conference when video is disabled
+  * Mirror own video in active speaker mode
+  * Highlight screensharing button more while screensharing
+  * Updated escalate to conference modal
+  * Changed conference domain
+  * File contacts in/out of tel group based on phone number
+  * Replaced a JS component with a TypeScript one
+  * Fixed missing audio call icons and extra call buttons
+  * Fixed answering incoming video calls
+  * Fixed removal of video track in call
+  * Fixed device switching with no audio
+  * Fixed mute icon
+  * Fixed restoring conference state
+  * Fixed video not switching back to self in conference
+  * Fixed screensharing in conferences
+  * Fixed participant audio manager and don't assume audio streams in a participant
+  * Fixed statistics in conferences and chat calls
+  * Fixed race condition causing message state to stay pending after removeMessage
+  * Fixed race condition between message history and addressbook
+  * Fixed loading zRTP device id
+  * Fixed event propagation error when event is already gone
+  * Fixed addressbook ready function running multiple times
+  * Fixed warnings, missing keys and deprecated syntax
+  * Updated Electron and adjusted code for newer Electron versions
+  * Updated dependencies: sylkrtc.js, blink-addressbook, electron-builder, Parcel, ipaddr.js and wavesurfer.js
+  * Skip building 32 bit and armv7l versions
+
 Version 4.1.0 Tue Sep 29 07:09:37
 
   * Added E2E zRTP encryption for audio and video calls
@@ -53,7 +95,7 @@ Version 4.0.0 Jul 9 2026
   * Fixed mute icon and audio participant layout in carousel
   * Don't add draft contact if already in addressbook
   * Cancel message editing on escape
-  * Updated contact interface 
+  * Updated contact interface
   * Added edit file transfer caption handling
   * Use upload modal for file uploads and improve copy pasting files in editor
   * Fixed adding new contact from ready screen
@@ -379,7 +421,7 @@ Version 2.7.0
   * Use @material-ui/core
   * Removed gulp build chain and all required dependencies
   * Updated TLS certificate
-  * Switched from gulp to parceljs build-chain 
+  * Switched from gulp to parceljs build-chain
 
 
 Version 2.6.1
@@ -420,7 +462,7 @@ Version 2.3.0
 Version 2.2.0
 
  * Added screen sharing sessions for one to one calls
-   Added screen sharing to multi-party conferencing 
+   Added screen sharing to multi-party conferencing
  * Added possibility to answer video calls audio only
  * Allow starting audio only calls if a video camera not detected
  * Replaced Google Stun server with SIP2SIP stun server

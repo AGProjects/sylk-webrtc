@@ -20,7 +20,7 @@ const DTMFModal = require('./DTMFModal');
 const { default: FileUploadModal } = require('./FileUploadModal');
 const Statistics = require('./Statistics');
 const UserIcon = require('./UserIcon');
-const EscalateConferenceModal = require('./EscalateConferenceModal');
+const { default: EscalateConferenceModal } = require('./EscalateConferenceModal');
 const SwitchDevicesMenu = require('./SwitchDevicesMenu');
 
 const fileTransferUtils = require('../fileTransferUtils');

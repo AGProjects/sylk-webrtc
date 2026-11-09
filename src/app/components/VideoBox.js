@@ -20,7 +20,7 @@ const CallQuality = require('./CallQuality');
 const ConferenceDrawer = require('./ConferenceDrawer');
 const DragAndDrop = require('./DragAndDrop');
 const SwitchDevicesMenu = require('./SwitchDevicesMenu');
-const EscalateConferenceModal = require('./EscalateConferenceModal');
+const { default: EscalateConferenceModal } = require('./EscalateConferenceModal');
 const Statistics = require('./Statistics');
 const UserIcon = require('./UserIcon');
 

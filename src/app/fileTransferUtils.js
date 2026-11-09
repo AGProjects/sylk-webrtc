@@ -136,6 +136,7 @@ function upload({ notificationCenter, account }, files, uri, caption) {
                     uploadRequest = superagent
                         .post(`${config.fileTransferUrl}/${account.id}/${uri}/${id}/${encryptionResult.file.name}`)
                         .set('Content-Type', encryptionResult.file.type)
+                        .set('Authorization', `Apikey ${account.apiToken}`)
                         //.set('Original-Content-Length', file.size)
                         .send(encryptionResult.file)
                         .on('progress', (e) => {

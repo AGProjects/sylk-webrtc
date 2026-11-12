@@ -179,7 +179,7 @@ if (isWaylandSession) {
 
 app.on('web-contents-created', (event, contents) => {
     contents.setWindowOpenHandler(({ url }) => {
-        if (/^https?:\/\//i.test(url)) {
+        if (/^(https?:\/\/|mailto:)/i.test(url)) {
             shell.openExternal(url);
         }
         return { action: 'deny' };

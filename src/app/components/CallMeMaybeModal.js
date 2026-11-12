@@ -31,11 +31,9 @@ class CallMeMaybeModal extends React.Component {
     }
 
     handleEmailButton(event) {
-        if (navigator.userAgent.indexOf('Chrome') > 0) {
-            let emailWindow = window.open(this.emailLink, '_blank');
-            setTimeout(() => {
-                emailWindow.close();
-            }, 500);
+        const isElectron = navigator.userAgent.includes('Electron');
+        if (isElectron) {
+            window.open(this.emailLink, '_blank');
         } else {
             window.open(this.emailLink, '_self');
         }

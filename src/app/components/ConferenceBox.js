@@ -131,7 +131,7 @@ class ConferenceBox extends React.Component {
         }
 
         const emailMessage = `You can join me in the conference using a Web browser at ${this.callUrl} ` +
-            'or Blink app from https://sylkserver.com';
+            'or by using a free standalone client from: https://ag-projects.com/endpoints/';
         const subject = 'Join me, maybe?';
 
         this.emailLink = `mailto:?subject=${encodeURI(subject)}&body=${encodeURI(emailMessage)}`;
@@ -704,11 +704,10 @@ class ConferenceBox extends React.Component {
     }
 
     handleEmailButton(event) {
-        if (navigator.userAgent.indexOf('Chrome') > 0) {
-            let emailWindow = window.open(this.emailLink, '_blank');
-            setTimeout(() => {
-                emailWindow.close();
-            }, 500);
+        const isElectron = navigator.userAgent.includes('Electron');
+
+        if (isElectron) {
+            window.open(this.emailLink, '_blank');
         } else {
             window.open(this.emailLink, '_self');
         }

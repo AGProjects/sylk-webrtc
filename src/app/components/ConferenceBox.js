@@ -129,9 +129,9 @@ class ConferenceBox extends React.Component {
         } else {
             this.callUrl = `${window.location.origin}/conference/${friendlyName}`;
         }
+        const emailMessage = `You can join the conference directly through your web browser at:\r\n${this.callUrl}\r\n\r\n` +
+            'Alternatively, you can download a free standalone SIP client from:\r\nhttps://ag-projects.com/endpoints/';
 
-        const emailMessage = `You can join me in the conference using a Web browser at ${this.callUrl} ` +
-            'or by using a free standalone client from: https://ag-projects.com/endpoints/';
         const subject = 'Join me, maybe?';
 
         this.emailLink = `mailto:?subject=${encodeURI(subject)}&body=${encodeURI(emailMessage)}`;

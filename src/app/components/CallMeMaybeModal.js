@@ -17,8 +17,9 @@ class CallMeMaybeModal extends React.Component {
         this.handleEmailButton = this.handleEmailButton.bind(this);
 
         const sipUri = this.props.callUrl.split('/').slice(-1)[0];    // hack!
-        const emailMessage = `You can call me using a Web browser at ${this.props.callUrl} or a SIP client at ${sipUri} ` +
-                             'or Blink app from https://sylkserver.com';
+        const emailMessage = `You can reach me directly through your web browser at:\r\n${this.props.callUrl}\r\n\r\n` +
+                `Alternatively, you can call me using any SIP client at:\r\n${sipUri}\r\n\r\n` +
+                'You can also download a free standalone client from:\r\nhttps://ag-projects.com/endpoints/';
         const subject = 'Call me, maybe?';
 
         this.emailLink = `mailto:?subject=${encodeURI(subject)}&body=${encodeURI(emailMessage)}`;

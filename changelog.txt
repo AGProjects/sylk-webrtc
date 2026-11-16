@@ -1,3 +1,8 @@
+Version 4.2.1 Mon Nov  13 2026 12:00:00
+
+  * Updated email text for link sharing
+  * Fixed email button in conference/call uri sharing
+
 Version 4.2.0 Mon Nov  9 2026 16:00:00
 
   * Added contact groups support, with new components for the contact list and info panel

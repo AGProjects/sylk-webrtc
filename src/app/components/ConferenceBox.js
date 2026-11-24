@@ -319,7 +319,9 @@ class ConferenceBox extends React.Component {
         p.attach();
         const attach = () => {
             const stream = p.streams[0];
-            if (stream && this.bridgeAudio.current) {
+            if (!stream) return;
+            const el = this.bridgeAudio.current;
+            if (el && el.srcObject !== stream) {
                 sylkrtc.utils.attachMediaStream(stream, this.bridgeAudio.current, { muted: false });
             }
             if (stream.getAudioTracks().length > 0) {

@@ -216,11 +216,15 @@ class ConferenceBox extends React.Component {
         this.audioPlayerParticipantLeft = React.createRef();
         this.shareOverlay = React.createRef();
         this.largeVideo = React.createRef();
+        this.bridgeAudio = React.createRef();
     }
 
     componentDidMount() {
         for (let p of this.state.participants) {
             p.attach();
+        }
+        for (let p of this.props.call.participants) {
+            if (p.type === 'bridge') this.attachBridge(p);
         }
         this.props.call.on('participantJoined', this.onParticipantJoined);
         this.props.call.on('participantLeft', this.onParticipantLeft);
@@ -309,6 +313,24 @@ class ConferenceBox extends React.Component {
                 sylkrtc.utils.attachMediaStream(stream, this.largeVideo.current, { muted: true });
             }
         }
+    }
+
+    attachBridge(p) {
+        p.attach();
+        const attach = () => {
+            const stream = p.streams[0];
+            if (stream && this.bridgeAudio.current) {
+                sylkrtc.utils.attachMediaStream(stream, this.bridgeAudio.current, { muted: false });
+            }
+            if (stream.getAudioTracks().length > 0) {
+                const managed = this.props.audioManager.createAudio(p.id);
+                sylkrtc.utils.attachMediaStream(stream, managed, { muted: true });
+            }
+        };
+        p.on('stateChanged', (oldState, newState) => {
+            if (newState === 'established') attach();
+        });
+        attach();
     }
 
     statistics(stats) {
@@ -491,23 +513,26 @@ class ConferenceBox extends React.Component {
 
     onParticipantJoined(p) {
         DEBUG(`Participant joined: ${p.identity}`);
-        if (p.type !== 'bridge') {
-            this.audioPlayerParticipantJoined.current.play();
+        if (p.type === 'bridge') {
+            this.attachBridge(p);
+            return;
         }
+        this.audioPlayerParticipantJoined.current.play();
         if (p.type !== 'sip') {
             p.attach();
         }
-        if (p.type !== 'bridge') {
-            this.setState({
-                participants: this.state.participants.concat([p])
-            });
-        }
+        this.setState({
+            participants: this.state.participants.concat([p])
+        });
         // this.changeResolution();
     }
 
     onParticipantLeft(p) {
         if (p.type === 'bridge') {
             DEBUG('Bridge left');
+            this.bridgeAudio.current.srcObject = null;
+            this.props.audioManager.removeAudio(p.id);
+            p.detach(true);
             return
         }
         DEBUG(`Participant left: ${p.identity}`);
@@ -1516,6 +1541,7 @@ class ConferenceBox extends React.Component {
                     type="file"
                     onChange={this.handleFiles}
                 />
+                <audio ref={this.bridgeAudio} autoPlay />
                 <div className={containerClasses} onMouseMove={this.showOverlay} onTouchEnd={this.showOverlay}>
                     <ConferenceHeader
                         show={this.state.callOverlayVisible}

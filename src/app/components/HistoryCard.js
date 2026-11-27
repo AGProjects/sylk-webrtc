@@ -95,7 +95,8 @@ const HistoryCard = (props) => {
         duration = 'missed';
     }
 
-    const isConference = contact.name.endsWith(`@${defaultConferenceDomain}`);
+    const isConference = contact.name.endsWith(`@${defaultConferenceDomain}`) || contact.defaultUri?.uri?.endsWith(`@${defaultConferenceDomain}`);
+
     const name = isConference ? `Conference: ${contact.name.replace(`@${defaultConferenceDomain}`, '')}` : contact.name;
 
     const date = DateTime.fromFormat(
